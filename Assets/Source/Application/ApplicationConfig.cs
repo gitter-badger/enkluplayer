@@ -1,167 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.EnkluPlayer.Util;
 using Newtonsoft.Json;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
-    /// <summary>
-    /// Composites configuration from many sources and provides a consistent <c>ApplicationConfig</c> object.
-    ///
-    /// NOTE: Calling code must guarantee thread safety guarantees.
-    /// </summary>
-    public static class ApplicationConfigCompositor
-    {
-        /// <summary>
-        /// URI to env prefs.
-        /// </summary>
-        private static readonly string ENV_URI = Path.Combine(
-            UnityEngine.Application.persistentDataPath,
-            "Config/env.prefs");
-
-        /// <summary>
-        /// Backing variable for property.
-        /// </summary>
-        private static ApplicationConfig _config;
-
-        /// <summary>
-        /// The composited config.
-        /// </summary>
-        public static ApplicationConfig Config
-        {
-            get
-            {
-                if (null == _config)
-                {
-                    _config = Load();
-                }
-
-                return _config;
-            }
-        }
-
-        /// <summary>
-        /// Overwrites a piece of the config. 
-        /// </summary>
-        /// <param name="env">Environment data.</param>
-        public static void Overwrite(EnvironmentData env)
-        {
-            // write to disk
-            try
-            {
-                var dir = Path.GetDirectoryName(ENV_URI);
-                if (!Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
-
-                File.WriteAllText(ENV_URI, JsonConvert.SerializeObject(env));
-            }
-            catch (Exception ex)
-            {
-                Log.Error(env, "Could not write EnvironmentData to file : {0}", ex);
-            }
-
-            Apply(Config, env);
-        }
-
-        /// <summary>
-        /// Loads the config.
-        /// </summary>
-        /// <returns></returns>
-        private static ApplicationConfig Load()
-        {
-            // load base
-            var config = LoadConfig("ApplicationConfig");
-
-            // load platform specific config
-            var platform = LoadConfig(string.Format(
-                "ApplicationConfig.{0}",
-                UnityEngine.Application.platform));
-            if (null != platform)
-            {
-                config.Override(platform);
-            }
-
-            // load override
-            var overrideConfig = LoadConfig("ApplicationConfig.Override");
-            if (null != overrideConfig)
-            {
-                config.Override(overrideConfig);
-            }
-
-            // load custom overwrites
-            try
-            {
-                var text = File.ReadAllText(ENV_URI);
-                var env = JsonConvert.DeserializeObject<EnvironmentData>(text);
-
-                Apply(config, env);
-            }
-            catch
-            {
-                //
-            }
-
-            return config;
-        }
-
-        /// <summary>
-        /// Applies a piece of the config to the composited config.
-        /// </summary>
-        /// <param name="config">The config to apply to.</param>
-        /// <param name="env">The piece of data to apply.</param>
-        private static void Apply(ApplicationConfig config, EnvironmentData env)
-        {
-            // apply to config immediately
-            var network = config.Network;
-
-            var found = false;
-            var environments = network.AllEnvironments;
-            for (int i = 0, len = environments.Length; i < len; i++)
-            {
-                if (environments[i].Name == env.Name)
-                {
-                    found = true;
-                    environments[i] = env;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                network.AllEnvironments = network.AllEnvironments.Add(env);
-            }
-
-            network.Current = env.Name;
-        }
-
-        /// <summary>
-        /// Loads a config at a path.
-        /// </summary>
-        /// <param name="path">The path to load the config from.</param>
-        /// <returns></returns>
-        private static ApplicationConfig LoadConfig(string path)
-        {
-            var configAsset = Resources.Load<TextAsset>(path);
-            if (null == configAsset)
-            {
-                return null;
-            }
-
-            var serializer = new JsonSerializer();
-            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
-            object app;
-            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
-
-            return (ApplicationConfig)app;
-        }
-    }
-
     /// <summary>
     /// Application wide configuration.
     /// </summary>
@@ -214,13 +60,19 @@ namespace CreateAR.EnkluPlayer
         public CursorConfig Cursor = new CursorConfig();
 
         /// <summary>
-        /// Debug configuration
+        /// Debug configuration.
         /// </summary>
         public DebugConfig Debug = new DebugConfig();
+        
+        /// <summary>
+        /// Storage configuration.
+        /// </summary>
+        public SnapConfig Snap = new SnapConfig();
 
         /// <summary>
         /// Platform to use.
         /// </summary>
+        [JsonIgnore]
         public RuntimePlatform ParsedPlatform
         {
             get
@@ -237,33 +89,7 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-#if UNITY_EDITOR
-                switch (UnityEditor.EditorUserBuildSettings.activeBuildTarget)
-                {
-                    case UnityEditor.BuildTarget.Android:
-                    {
-                        return RuntimePlatform.Android;
-                    }
-                    case UnityEditor.BuildTarget.iOS:
-                    {
-                        return RuntimePlatform.IPhonePlayer;
-                    }
-                    case UnityEditor.BuildTarget.WebGL:
-                    {
-                        return RuntimePlatform.WebGLPlayer;
-                    }
-                    case UnityEditor.BuildTarget.WSAPlayer:
-                    {
-                        return RuntimePlatform.WSAPlayerX86;
-                    }
-                    default:
-                    {
-                        return UnityEngine.Application.platform;
-                    }
-                }
-#else
-                return UnityEngine.Application.platform;
-#endif
+                return UnityUtil.CurrentPlatform();
             }
         }
         
@@ -308,6 +134,7 @@ namespace CreateAR.EnkluPlayer
             Conductor.Override(overrideConfig.Conductor);
             Metrics.Override(overrideConfig.Metrics);
             Debug.Override(overrideConfig.Debug);
+            Snap.Override(overrideConfig.Snap);
         }
     }
 
@@ -324,6 +151,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Parsed level.
         /// </summary>
+        [JsonIgnore]
         public LogLevel ParsedLevel
         {
             get
@@ -410,6 +238,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Parses designer name.
         /// </summary>
+        [JsonIgnore]
         public DesignerType ParsedDesigner
         {
             get
@@ -683,16 +512,28 @@ namespace CreateAR.EnkluPlayer
         public string ThumbsUrl = "localhost";
 
         /// <summary>
+        /// Url for scripts.
+        /// </summary>
+        public string ScriptsUrl = "localhost";
+
+        /// <summary>
+        /// Url for Anchors.
+        /// </summary>
+        public string AnchorsUrl = "localhost";
+
+        /// <summary>
         /// Useful ToString.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}]",
+            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}, ScriptsUrl={4}, AnchorsUrl={5}]",
                 TrellisUrl,
                 AssetsUrl,
                 BundlesUrl,
-                ThumbsUrl);
+                ThumbsUrl,
+                ScriptsUrl,
+                AnchorsUrl);
         }
     }
 
@@ -729,6 +570,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// True iff user is a guest.
         /// </summary>
+        [JsonIgnore]
         public bool IsGuest
         {
             get { return UserId == "Guest"; }
@@ -949,6 +791,11 @@ namespace CreateAR.EnkluPlayer
         public bool DisableAdminLock = false;
 
         /// <summary>
+        /// Email address to send debug dumps.
+        /// </summary>
+        public string DumpEmail = "";
+
+        /// <summary>
         /// Overrides settings.
         /// </summary>
         /// <param name="config">Other config.</param>
@@ -962,6 +809,74 @@ namespace CreateAR.EnkluPlayer
             if (config.DisableAdminLock)
             {
                 DisableAdminLock = true;
+            }
+
+            if (!string.IsNullOrEmpty(config.DumpEmail))
+            {
+                DumpEmail = config.DumpEmail;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Configuration for Snaps.
+    /// </summary>
+    public class SnapConfig
+    {
+        /// <summary>
+        /// The maximum number of failed video uploads to keep on disk.
+        /// </summary>
+        public int MaxVideoUploads = 3;
+
+        /// <summary>
+        /// The maximum number of failed image uploads to keep on disk.
+        /// </summary>
+        public int MaxImageUploads = 10;
+
+        /// <summary>
+        /// The delay to wait before uploading a file if there was a failure uploading.
+        /// </summary>
+        public int FailureDelayMilliseconds = 30000;
+
+        /// <summary>
+        /// The root folder videos will be stored at under the app's datapath.
+        /// </summary>
+        public string VideoFolder = "videos";
+
+        /// <summary>
+        /// The root folder images will be stored at under the app's datapath.
+        /// </summary>
+        public string ImageFolder = "images";
+
+        /// <summary>
+        /// Overrides configuration values with passed in values.
+        /// </summary>
+        /// <param name="other"></param>
+        public void Override(SnapConfig other)
+        {
+            if (other.MaxVideoUploads > 0)
+            {
+                MaxVideoUploads = other.MaxVideoUploads;
+            }
+            
+            if (other.MaxImageUploads > 0)
+            {
+                MaxImageUploads = other.MaxImageUploads;
+            }
+
+            if (other.FailureDelayMilliseconds > 0)
+            {
+                FailureDelayMilliseconds = other.FailureDelayMilliseconds;
+            }
+
+            if (!string.IsNullOrEmpty(other.VideoFolder))
+            {
+                VideoFolder = other.VideoFolder;
+            }
+
+            if (!string.IsNullOrEmpty(other.ImageFolder))
+            {
+                ImageFolder = other.ImageFolder;
             }
         }
     }

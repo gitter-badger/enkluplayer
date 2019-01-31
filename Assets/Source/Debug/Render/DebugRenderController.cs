@@ -105,9 +105,6 @@ namespace CreateAR.EnkluPlayer
         /// <returns>A handle, or null if the current category is filtered out.</returns>
         public IFilteredRendererHandle Handle(string category)
         {
-#if DEBUG_RENDERING_OFF
-            return null;
-#else
             if (!Enabled)
             {
                 return null;
@@ -122,7 +119,6 @@ namespace CreateAR.EnkluPlayer
             }
 
             return null;
-#endif
         }
 
         /// <summary>
@@ -132,9 +128,6 @@ namespace CreateAR.EnkluPlayer
         /// <returns>A handle, or null if the current category is filtered out.</returns>
         public IFilteredRendererHandle2D Handle2D(string category)
         {
-#if DEBUG_RENDERING_OFF
-            return null;
-#else
             if (!Enabled)
             {
                 return null;
@@ -149,7 +142,6 @@ namespace CreateAR.EnkluPlayer
             }
 
             return null;
-#endif
         }
 
         /// <summary>
@@ -165,7 +157,7 @@ namespace CreateAR.EnkluPlayer
                 _renderers[i].Action(_context);
 
                 _defaultColor = Color.white;
-                _context.Color(_defaultColor);
+                _context.Stroke(_defaultColor);
             }
             _renderers.Clear();
 

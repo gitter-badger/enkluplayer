@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -17,36 +15,21 @@ namespace CreateAR.EnkluPlayer.Assets
         /// The <c>IAssetLoader</c> implementation with which to load assets.
         /// </summary>
         private readonly IAssetLoader _loader;
-
+        
         /// <summary>
         /// The object returned from the loader.
         /// </summary>
         private Object _asset;
-        
-        /// <summary>
-        /// True iff the asset should be autoloaded upon update.
-        /// </summary>
-        private bool _autoReload;
-
-        /// <summary>
-        /// A list of callbacks watching AssetData.
-        /// </summary>
-        private readonly List<Action> _dataWatchers = new List<Action>();
-
-        /// <summary>
-        /// A list of callbacks watching the loaded asset.
-        /// </summary>
-        private readonly List<Action> _watch = new List<Action>();
-
-        /// <summary>
-        /// Backing variable for <c>Progress</c> property.
-        /// </summary>
-        private readonly LoadProgress _progress = new LoadProgress();
 
         /// <summary>
         /// Token returned from loader.
         /// </summary>
-        private IAsyncToken<Object> _loadToken;
+        private AsyncToken<Object> _loadToken;
+
+        /// <summary>
+        /// Backing variable.
+        /// </summary>
+        private readonly LoadProgress _progress = new LoadProgress();
 
         /// <summary>
         /// The data object describing the object.
@@ -54,47 +37,18 @@ namespace CreateAR.EnkluPlayer.Assets
         public AssetData Data { get; private set; }
 
         /// <summary>
-        /// True iff the asset that is currently loaded is not the most recent
-        /// version.
+        /// The version.
         /// </summary>
-        public bool IsAssetDirty { get; private set; }
-
+        public int Version { get; private set; }
+        
         /// <summary>
         /// Progress of the load.
         /// </summary>
-        public LoadProgress Progress { get { return _progress; } }
-
-        /// <summary>
-        /// When set to true, <c>AssetInfo</c> updates will cause this object
-        /// to automatically reload the asset.
-        /// </summary>
-        public bool AutoReload
+        public LoadProgress Progress
         {
-            get
-            {
-                return _autoReload;
-            }
-            set
-            {
-                if (_autoReload == value)
-                {
-                    return;
-                }
-
-                _autoReload = value;
-
-                if (_autoReload)
-                {
-                    Load<Object>();
-                }
-            }
+            get { return _progress; }
         }
-
-        /// <summary>
-        /// Called if the asset is removed from the manifest.
-        /// </summary>
-        public event Action<Asset> OnRemoved;
-
+        
         /// <summary>
         /// Called when there is a load error.
         /// </summary>
@@ -111,14 +65,16 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <param name="loader">An <c>IAssetLoader</c> implementation with which
         /// to load assets.</param>
         /// <param name="data">The data object this pertains to.</param>
+        /// <param name="version">The version.</param>
         public Asset(
             IAssetLoader loader,
-            AssetData data)
+            AssetData data,
+            int version)
         {
             _loader = loader;
 
             Data = data;
-            IsAssetDirty = true;
+            Version = version;
         }
 
         /// <summary>
@@ -166,29 +122,25 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <returns></returns>
         public IAsyncToken<T> Load<T>(out LoadProgress progress) where T : Object
         {
-            var token = new AsyncToken<T>();
-
-            if (IsAssetDirty || null == _loadToken)
+            // load has not started
+            if (null == _loadToken)
             {
-                var info = Data;
-                _loadToken = _loader.Load(info, out progress);
+                _loadToken = new AsyncToken<Object>();
 
-                // chain to class instance
+                var internalLoad = _loader.Load(Data, Version, out progress);
                 progress.Chain(Progress);
-
-                _loadToken
+                
+                internalLoad
                     .OnSuccess(asset =>
                     {
-                        _loadToken = null;
                         _asset = asset;
 
                         Error = string.Empty;
-                        IsAssetDirty = info != Data;
-
+                        
                         var cast = As<T>();
                         if (null == cast)
                         {
-                            token.Fail(new Exception(string.Format(
+                            _loadToken.Fail(new Exception(string.Format(
                                 "Asset {0} was loaded, but could not be cast from {1} to {2}.",
                                 Data.Guid,
                                 _asset.GetType().Name,
@@ -196,16 +148,7 @@ namespace CreateAR.EnkluPlayer.Assets
                             return;
                         }
 
-                        Verbose("Asset load came back. Call {0} watchers.", _watch.Count);
-
-                        token.Succeed(cast);
-
-                        // call watchers
-                        var watchers = _watch.ToArray();
-                        for (int i = 0, len = watchers.Length; i < len; i++)
-                        {
-                            watchers[i]();
-                        }
+                        _loadToken.Succeed(cast);
                     })
                     .OnFailure(exception =>
                     {
@@ -213,7 +156,6 @@ namespace CreateAR.EnkluPlayer.Assets
                             Data,
                             exception);
 
-                        _loadToken = null;
                         Error = exception.Message;
 
                         if (null != OnLoadError)
@@ -221,21 +163,19 @@ namespace CreateAR.EnkluPlayer.Assets
                             OnLoadError(Error);
                         }
 
-                        token.Fail(exception);
+                        _loadToken.Fail(exception);
                     });
             }
+            // load has already started
             else
             {
-                // load is complete
-                progress = new LoadProgress
-                {
-                    Value = 1f
-                };
-
-                token.Succeed(As<T>());
+                progress = new LoadProgress();
+                Progress.Chain(progress);
             }
 
-            return token;
+            return Async.Map(
+                _loadToken.Token(),
+                obj => (T) obj);
         }
 
         /// <summary>
@@ -246,6 +186,7 @@ namespace CreateAR.EnkluPlayer.Assets
             if (null != _loadToken)
             {
                 _loadToken.Abort();
+                _loadToken = null;
             }
 
             Progress.Value = 0;
@@ -255,142 +196,6 @@ namespace CreateAR.EnkluPlayer.Assets
         }
         
         /// <summary>
-        /// Called then the underlying <c>AssetInfo</c> needs to be updated.
-        /// This will force the asset to be dirty. If <c>AutoReload</c> is set
-        /// to true, the asset will be reloaded.
-        /// </summary>
-        /// <param name="data">The updated <c>AssetInfo</c> object.</param>
-        public void Update(AssetData data)
-        {
-            if (Data.Guid != data.Guid)
-            {
-                throw new ArgumentException("Cannot change AssetReference guid.");
-            }
-
-            if (data == Data)
-            {
-                return;
-            }
-
-            Data = data;
-
-            IsAssetDirty = true;
-
-            var watchers = _dataWatchers.ToArray();
-            for (int i = 0, len = watchers.Length; i < len; i++)
-            {
-                watchers[i]();
-            }
-
-            if (_autoReload)
-            {
-                Load<Object>();
-            }
-        }
-
-        /// <summary>
-        /// Watches for changes to the <c>AssetInfo</c>.
-        /// 
-        /// The callback's first parameter is a delegate to unsubscribe.
-        /// </summary>
-        /// <param name="callback">A callback to call.</param>
-        public void WatchData(Action<Action, Asset> callback)
-        {
-            Action watcher = null;
-            Action unwatcher = () => _dataWatchers.Remove(watcher);
-            watcher = () => callback(unwatcher, this);
-
-            _dataWatchers.Add(watcher);
-        }
-
-        /// <summary>
-        /// Watches for changes to the <c>AssetInfo</c>.
-        /// 
-        /// The returned delegate unsubscribes the callback.
-        /// </summary>
-        /// <param name="callback">The callback to call.</param>
-        /// <returns></returns>
-        public Action WatchData(Action<Asset> callback)
-        {
-            Action watcher = () => callback(this);
-            _dataWatchers.Add(watcher);
-
-            return () => _dataWatchers.Remove(watcher);
-        }
-
-        /// <summary>
-        /// Watches for changes to the loaded asset.
-        /// 
-        /// The callback's first parameter is a delegate to unsubscribe.
-        /// </summary>
-        /// <typeparam name="T">The type of asset. This is effectively the same
-        /// as calling Asset().</typeparam>
-        /// <param name="callback">The callback to call.</param>
-        public void Watch<T>(Action<Action, T> callback) where T : Object
-        {
-            Action watcher = null;
-            Action unwatcher = () => _watch.Remove(watcher);
-            watcher = () =>
-            {
-                var cast = As<T>();
-                if (null == cast)
-                {
-                    Log.Error(this,
-                        "Asset {0} was loaded, but could not be cast from {1} to {2}.",
-                        Data.Guid,
-                        _asset.GetType().Name,
-                        typeof(T).Name);
-                    return;
-                }
-
-                callback(unwatcher, cast);
-            };
-
-            _watch.Add(watcher);
-        }
-
-        /// <summary>
-        /// Watches for changes to the loaded asset.
-        /// 
-        /// The returned delegate is for unsubscribing.
-        /// </summary>
-        /// <typeparam name="T">The type to cast the asset to.</typeparam>
-        /// <param name="callback">The callback to call.</param>
-        /// <returns></returns>
-        public Action Watch<T>(Action<T> callback) where T : Object
-        {
-            Action watcher = () =>
-            {
-                var cast = As<T>();
-                if (null == cast)
-                {
-                    Log.Error(this,
-                        "Asset {0} was loaded, but could not be cast from {1} to {2}.",
-                        Data.Guid,
-                        _asset.GetType().Name,
-                        typeof(T).Name);
-                    return;
-                }
-
-                callback(cast);
-            };
-            _watch.Add(watcher);
-
-            return () => _watch.Remove(watcher);
-        }
-
-        /// <summary>
-        /// Called when the asset has been removed from the manifest.
-        /// </summary>
-        public void Remove()
-        {
-            if (null != OnRemoved)
-            {
-                OnRemoved(this);
-            }
-        }
-
-        /// <summary>
         /// Useful ToString override.
         /// </summary>
         /// <returns></returns>
@@ -399,20 +204,6 @@ namespace CreateAR.EnkluPlayer.Assets
             return string.Format(
                 "[AssetReference Info={0}]",
                 Data);
-        }
-
-        /// <summary>
-        /// Verbose logging.
-        /// </summary>
-        /// <param name="message">Message to log.</param>
-        /// <param name="replacements">Logging replacements.</param>
-        [Conditional("LOGGING_VERBOSE")]
-        private void Verbose(string message, params object[] replacements)
-        {
-            Log.Info(this,
-                "{0} {1}",
-                this,
-                string.Format(message, replacements));
         }
     }
 }

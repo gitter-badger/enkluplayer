@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages.UploadAnchor;
 using UnityEngine;
+using UnityEngine.Networking;
 using Random = System.Random;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -58,14 +61,19 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Bootstrapping coroutines.
+        /// </summary>
+        private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
         /// Application config.
         /// </summary>
         private readonly ApplicationConfig _config;
-        
+
         /// <summary>
-        /// Token for anchor download.
+        /// Action for aborting the download process.
         /// </summary>
-        private IAsyncToken<HttpResponse<byte[]>> _downloadToken;
+        private Action _downloadAbort;
 
         /// <summary>
         /// Token returned from IWorldAnchorProvider::Anchor.
@@ -152,6 +160,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IWorldAnchorProvider provider,
             IMetricsService metrics,
             IMessageRouter messages,
+            IBootstrapper bootstrapper,
             ApplicationConfig config)
             : base(gameObject, layers, tweens, colors)
         {
@@ -159,6 +168,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _provider = provider;
             _metrics = metrics;
             _messages = messages;
+            _bootstrapper = bootstrapper;
             _config = config;
         }
 
@@ -195,7 +205,10 @@ namespace CreateAR.EnkluPlayer.IUX
 
             // lock down
             txns
-                .Request(new ElementTxn(sceneId).Update(Id, "export.time", DateTime.UtcNow.ToString()))
+                .Request(new ElementTxn(sceneId).Update(
+                    Id,
+                    "export.time",
+                    DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)))
                 .OnSuccess(_ =>
                 {
                     var providerId = GetAnchorProviderId(Id, _versionProp.Value + 1);
@@ -294,10 +307,9 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             base.UnloadInternalAfterChildren();
 
-            if (null != _downloadToken)
+            if (null != _downloadAbort)
             {
-                _downloadToken.Abort();
-                _downloadToken = null;
+                _downloadAbort();
             }
 
             _versionProp.OnChanged -= Version_OnChanged;
@@ -328,10 +340,9 @@ namespace CreateAR.EnkluPlayer.IUX
                 _anchorToken = null;
             }
 
-            if (null != _downloadToken)
+            if (null != _downloadAbort)
             {
-                _downloadToken.Abort();
-                _downloadToken = null;
+                _downloadAbort();
             }
 
             // version check (there may be no data for this anchor)
@@ -346,8 +357,8 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             // url check (there may be bad data for this anchor)
-            var url = Schema.Get<string>("src").Value;
-            if (string.IsNullOrEmpty(url))
+            var uri = Schema.Get<string>("src").Value;
+            if (string.IsNullOrEmpty(uri))
             {
                 Log.Warning(this, "Anchor [{0}] has invalid src prop.", Id);
 
@@ -372,15 +383,15 @@ namespace CreateAR.EnkluPlayer.IUX
                     Log.Warning(this, "Could not anchor {0} : {1}. Proceed to download and import.", providerId, exception);
                     
                     // anchor has not been imported before, apparently
-                    DownloadAndImport(url);
+                    DownloadAndImport(uri);
                 });
         }
 
         /// <summary>
         /// Downloads world anchor data and imports it.
         /// </summary>
-        /// <param name="url">Absolute url at which to download.</param>
-        private void DownloadAndImport(string url)
+        /// <param name="uri">Partial URI at which to download.</param>
+        private void DownloadAndImport(string uri)
         {
             if (_config.Network.AnchorDownloadFailChance > Mathf.Epsilon)
             {
@@ -392,39 +403,53 @@ namespace CreateAR.EnkluPlayer.IUX
                     return;
                 }
             }
+            
+            _bootstrapper.BootstrapCoroutine(Download(uri));
+        }
 
+        /// <summary>
+        /// Downloads world anchor data via a UnityWebRequest.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        private IEnumerator Download(string uri)
+        {
             // metrics
             var downloadId = _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Start();
             
-            _downloadToken = _http
-                .Download(_http.Urls.Url(url))
-                .OnSuccess(response =>
-                {
-                    LogVerbose("Anchor downloaded. Importing.");
+            var formattedUrl = _http.Urls.Url(string.Format("anchors://{0}", uri));
+            var request = UnityWebRequest.Get(formattedUrl);
 
-                    Status = WorldAnchorStatus.IsImporting;
+            _downloadAbort = () =>
+            {
+                request.Abort();
+                _downloadAbort = null;
+            };
 
-                    Import(response.Payload);
-                })
-                .OnFailure(exception =>
-                {
-                    LogVerbose(
-                        "Could not download {0} : {1}.",
-                        url,
-                        exception);
+            yield return request.SendWebRequest();
 
-                    Status = WorldAnchorStatus.IsError;
-                })
-                .OnFinally(token =>
-                {
-                    // metrics
-                    _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Stop(downloadId);
+            if (request.isNetworkError || request.isHttpError)
+            {
+                _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Abort(downloadId);
+                
+                Log.Error(this,
+                    "Could not download {0} : {1}.",
+                    uri,
+                    request.error);
 
-                    if (token == _downloadToken)
-                    {
-                        _downloadToken = null;
-                    }
-                });
+                Status = WorldAnchorStatus.IsError;
+            }
+            else
+            {
+                LogVerbose("Anchor downloaded. Importing.");
+                Status = WorldAnchorStatus.IsImporting;
+
+                Import(request.downloadHandler.data);
+            }
+            
+            _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Stop(downloadId);
+
+            _downloadAbort = null;
         }
         
         /// <summary>
@@ -508,10 +533,15 @@ namespace CreateAR.EnkluPlayer.IUX
                         _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
 
                         // complete, now send out network update
+                        var version = _versionProp.Value + 1;
                         txns
                             .Request(new ElementTxn(sceneId)
-                                .Update(Id, "src", url)
-                                .Update(Id, "version", _versionProp.Value + 1)
+                                .Update(Id, "src", string.Format(
+                                    "{0}.{1}.{2}.anchor",
+                                    sceneId,
+                                    Id,
+                                    version))
+                                .Update(Id, "version", version)
                                 .Update(Id, "autoexport", false)
                                 .Update(Id, "export.time", ""))
                             .OnSuccess(_ => _pollStatus = true)
@@ -585,9 +615,9 @@ namespace CreateAR.EnkluPlayer.IUX
             else
             {
                 // kill any imports in progress
-                if (null != _downloadToken)
+                if (null != _downloadAbort)
                 {
-                    _downloadToken.Abort();
+                    _downloadAbort();
                 }
 
                 // disable anchor

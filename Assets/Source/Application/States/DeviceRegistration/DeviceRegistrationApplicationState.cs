@@ -164,7 +164,8 @@ namespace CreateAR.EnkluPlayer
                 .OnSuccess(prefs => prefs.Queue((prev, next) =>
                 {
                     prev.DeviceRegistrations = registrations;
-
+                    prev.OrgIds = registrations.Select(reg => reg.OrgId).ToArray();
+                    
                     next(prev);
                 }))
                 .OnFailure(err => Log.Warning(this, "Could not get user prefs to update them : {0}", err));

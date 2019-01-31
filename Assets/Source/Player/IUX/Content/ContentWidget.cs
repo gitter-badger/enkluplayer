@@ -308,10 +308,25 @@ namespace CreateAR.EnkluPlayer
 
             LogVerbose("Refresh asset for {0}.", Id);
 
+            var assetId = _srcAssetProp.Value;
+            var version = -1;
+
+            var split = assetId.Split(':');
+            if (2 == split.Length)
+            {
+                assetId = split[0];
+
+                if (!int.TryParse(split[1], out version))
+                {
+                    Log.Warning(this, "Could not parse asset version : {0}.", assetId);
+                }
+            }
+
             _assembler.Teardown();
             _assembler.Setup(
                 GameObject.transform,
-                _srcAssetProp.Value);
+                assetId,
+                version);
         }
 
         /// <summary>

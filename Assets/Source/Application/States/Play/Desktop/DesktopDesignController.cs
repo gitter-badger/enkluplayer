@@ -33,6 +33,11 @@ namespace CreateAR.EnkluPlayer
         /// Primary anchor.
         /// </summary>
         private readonly IPrimaryAnchorManager _primaryAnchor;
+        
+        /// <summary>
+        /// Contains editor settings.
+        /// </summary>
+        private readonly EditorSettings _editorSettings;
 
         /// <summary>
         /// Runtime gizmo system.
@@ -59,12 +64,14 @@ namespace CreateAR.EnkluPlayer
             IElementUpdateDelegate elementUpdater,
             IAppSceneManager scenes,
             IBridge bridge,
-            IPrimaryAnchorManager primaryAnchor)
+            IPrimaryAnchorManager primaryAnchor,
+            EditorSettings editorSettings)
         {
             _elementUpdater = elementUpdater;
             _scenes = scenes;
             _bridge = bridge;
             _primaryAnchor = primaryAnchor;
+            _editorSettings = editorSettings;
         }
 
         /// <inheritdoc />
@@ -127,6 +134,9 @@ namespace CreateAR.EnkluPlayer
             SetupReferenceObject();
 
             RTObjectSelection.Get.Changed += Editor_OnSelectionChanged;
+            
+            _editorSettings.OnChanged += Editor_OnSettingsChanged;
+            _editorSettings.Update();
         }
 
         /// <inheritdoc />
@@ -141,6 +151,8 @@ namespace CreateAR.EnkluPlayer
             Object.Destroy(_controlBar);
             Object.Destroy(_runtimeGizmos);
             Object.Destroy(_referenceCube);
+            
+            _editorSettings.OnChanged -= Editor_OnSettingsChanged;
         }
 
         /// <inheritdoc />
@@ -286,6 +298,8 @@ namespace CreateAR.EnkluPlayer
                     Log.Info(this, "Reference cube added as child of primary anchor");
                 }
             });
+
+            _referenceCube.SetActive(_editorSettings.Get(EditorSettingsType.Grid));
         }
 
         /// <summary>
@@ -374,6 +388,9 @@ namespace CreateAR.EnkluPlayer
         {
             // send to the OTHER SIDE
             var selectedObjs = args.ObjectsWhichWereSelected;
+            var notifyClient = args.SelectReason != ObjectSelectReason.SetSelectedCall &&
+                               args.DeselectReason != ObjectDeselectReason.ClearSelectionCall;
+
             if (selectedObjs.Count == 1)
             {
                 var selected = selectedObjs[0].GetComponent<ElementUpdateMonobehaviour>();
@@ -383,17 +400,56 @@ namespace CreateAR.EnkluPlayer
                     return;
                 }
 
-                _bridge.Send(string.Format(
-                    @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
-                    MessageTypes.BRIDGE_HELPER_SELECT,
-                    _scenes.All[0],
-                    selected.Element.Id));
+                if (notifyClient)
+                {
+                    _bridge.Send(string.Format(
+                        @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
+                        MessageTypes.BRIDGE_HELPER_SELECT,
+                        _scenes.All[0],
+                        selected.Element.Id));                    
+                }
             }
             else if (0 == selectedObjs.Count)
             {
-                _bridge.Send(string.Format(
-                    @"{{""type"":{0}}}",
-                    MessageTypes.BRIDGE_HELPER_SELECT));
+                if (notifyClient)
+                {
+                    _bridge.Send(string.Format(
+                        @"{{""type"":{0}}}",
+                        MessageTypes.BRIDGE_HELPER_SELECT));                    
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when a setting has changed in the editor.
+        /// </summary>
+        /// <param name="args">The event args from EditorSettings.</param>
+        private void Editor_OnSettingsChanged(EditorSettingsType type)
+        {
+            if (type == EditorSettingsType.Grid || type == EditorSettingsType.All)
+            {
+                if (null != _referenceCube)
+                {
+                    _referenceCube.SetActive(_editorSettings.Get(EditorSettingsType.Grid));                    
+                }
+            }
+
+            if (type == EditorSettingsType.MeshScan || type == EditorSettingsType.All)
+            {
+                var scans = new List<Element>();
+                var all = _scenes.All;
+                
+                for (var i = 0; i < all.Length; i++){
+                    var id = all[i];
+                    var root = _scenes.Root(id);
+                    root.Find("..(@type==ScanWidget)", scans);
+
+                    for (var j = 0; j < scans.Count; j++)
+                    {
+                        var scan = scans[j];
+                        scan.Schema.Set("visible", _editorSettings.Get(EditorSettingsType.MeshScan));
+                    }
+                }
             }
         }
 

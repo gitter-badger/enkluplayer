@@ -51,5 +51,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             _c4s[param] = value;
         }
+
+        public void Teardown()
+        {
+            
+        }
     }
 }

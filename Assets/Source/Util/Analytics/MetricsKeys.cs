@@ -72,5 +72,15 @@
         public const string PERF_PING = "Perf.Ping";
         public const string PERF_BATTERY = "Perf.Battery";
         public const string PERF_SESSION = "Perf.Session";
+        
+        ///////////////////////////////////////////////////////////////////////
+        /// Media Capture
+        ///////////////////////////////////////////////////////////////////////
+        public const string MEDIA_IMAGE_START = "Media.Image.Start";
+        public const string MEDIA_IMAGE_SUCCESS = "Media.Image.Success";
+        public const string MEDIA_IMAGE_FAILURE = "Media.Image.Failure";
+        public const string MEDIA_VIDEO_START = "Media.Video.Start";
+        public const string MEDIA_VIDEO_SUCCESS = "Media.Video.Success";
+        public const string MEDIA_VIDEO_FAILURE = "Media.Video.Failure";
     }
 }

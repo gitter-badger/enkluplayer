@@ -184,7 +184,10 @@ namespace CreateAR.EnkluPlayer.Assets
             {
                 Verbose("Network or Http error: {0}.", request.error);
 
-                _bundleLoad.Fail(new Exception(request.error));
+                _bundleLoad.Fail(new Exception(string.Format(
+                    "Url {0} : {1}",
+                    _url,
+                    request.error)));
             }
             else
             {
@@ -192,7 +195,9 @@ namespace CreateAR.EnkluPlayer.Assets
                 var bundle = UnityEngine.Networking.DownloadHandlerAssetBundle.GetContent(request);
                 if (null == bundle)
                 {
-                    _bundleLoad.Fail(new Exception(request.error));
+                    _bundleLoad.Fail(new Exception(string.Format(
+                        "Url {0} : Bundle was null.",
+                        _url)));
                 }
                 else
                 {

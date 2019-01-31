@@ -111,7 +111,11 @@ namespace CreateAR.EnkluPlayer
                         {
                             LoadApp(_prefs.MostRecentAppId, _prefs.App(_prefs.MostRecentAppId));
                         }
-                    });
+                    })
+                .OnFailure(ex =>
+                {
+                    Log.Error(this, "Could not load preferences for user: {0}.", ex);
+                });
         }
 
         /// <inheritdoc />
