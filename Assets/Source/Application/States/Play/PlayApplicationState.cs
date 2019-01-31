@@ -473,7 +473,7 @@ namespace CreateAR.EnkluPlayer
             _ui
                 .Open<ExperienceUIView>(new UIReference
                     {
-                        UIDataId = "Play.Experience"
+                        UIDataId = UIDataIds.EXPERIENCE
                     },
                     out id)
                 .OnSuccess(el =>
@@ -493,7 +493,7 @@ namespace CreateAR.EnkluPlayer
             _ui
                 .Open<NetworkUIView>(new UIReference
                     {
-                        UIDataId = "Play.Network"
+                        UIDataId = UIDataIds.NETWORK
                     },
                     out id)
                 .OnSuccess(el =>
@@ -513,7 +513,7 @@ namespace CreateAR.EnkluPlayer
             _ui
                 .Open<AnchorUIView>(new UIReference
                     {
-                        UIDataId = "Play.Anchors" 
+                        UIDataId = UIDataIds.ANCHORS 
                     },
                     out id)
                 .OnSuccess(el =>

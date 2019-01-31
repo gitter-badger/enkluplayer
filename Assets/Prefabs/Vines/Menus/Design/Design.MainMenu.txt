@@ -84,6 +84,9 @@
 			<SubMenu label='Tools' icon='tools' layout.degrees=20.0>
 				<Button id='btn-logging' label='Logging HUD' icon='journal' />
 				<Button id='btn-metrics' label='Perf HUD' icon='graph-bar' />
+				<Button id='btn-experience' label='Experience HUD' icon='world' />
+				<Button id='btn-network' label='Network HUD' icon='radio' />
+				<Button id='btn-anchors' label='Anchors HUD' icon='anchor' />
 			</SubMenu>
 		</Menu>
 	</ScaleTransition>

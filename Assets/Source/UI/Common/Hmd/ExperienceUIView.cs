@@ -127,6 +127,7 @@ namespace CreateAR.EnkluPlayer
                 _errorPageIndex = int.Parse(ErrorSelect.Selection.Value);
                 PopulateErrors();
             };
+            RebuildFailureDisplay();
         }
 
         /// <summary>
@@ -185,8 +186,17 @@ namespace CreateAR.EnkluPlayer
             {
                 _errorPageIndex = pages - 1;
             }
-
-            PopulateErrors();
+            
+            if (sum > 0)
+            {
+                ErrorSelect.LocalVisible = true;
+                PopulateErrors();
+            }
+            else
+            {
+                ErrorSelect.LocalVisible = false;
+                TxtErrors.Label = "No load errors.";
+            }
         }
 
         /// <summary>
