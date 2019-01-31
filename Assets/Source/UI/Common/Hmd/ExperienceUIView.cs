@@ -6,6 +6,9 @@ using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Debug UI that displays Experience related information (environment/name) as well as scene loading stats.
+    /// </summary>
     public class ExperienceUIView : MonoBehaviourIUXController
     {
         /// <summary>

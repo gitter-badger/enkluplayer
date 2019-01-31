@@ -408,7 +408,6 @@ namespace CreateAR.EnkluPlayer
 
             _voice.RegisterAdmin("menu", Voice_OnPlayMenu);
             _voice.RegisterAdmin("edit", Voice_OnEdit);
-            _voice.Register("experience", Voice_OnExperience);
 
             // for editor only
             if (UnityEngine.Application.isEditor)
@@ -426,7 +425,6 @@ namespace CreateAR.EnkluPlayer
 
             _voice.Unregister("menu");
             _voice.Unregister("edit");
-            _voice.Unregister("experience");
 
             _ui.Close(_playMenuId);
         }
@@ -542,22 +540,6 @@ namespace CreateAR.EnkluPlayer
                     };
                     el.OnCancel += () => _ui.Close(id);
                 });
-        }
-
-        private void Voice_OnExperience(string command)
-        {
-            int id;
-            _ui
-                .Open<ExperienceUIView>(new UIReference
-                {
-                    UIDataId = "Play.Experience"
-                },
-                out id)
-                .OnSuccess(el =>
-                {
-                    el.OnClose += () => _ui.Close(id);
-                })
-                .OnFailure(e => Log.Error(this, e));
         }
 
         /// <summary>

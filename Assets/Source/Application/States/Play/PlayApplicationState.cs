@@ -175,6 +175,8 @@ namespace CreateAR.EnkluPlayer
             // listen for reset command
             _voice.Register("reset", Voice_OnReset);
             _voice.Register("update", Voice_OnUpdate);
+            _voice.Register("experience", Voice_OnExperience);
+            _voice.Register("network", Voice_OnNetwork);
             
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
@@ -220,6 +222,8 @@ namespace CreateAR.EnkluPlayer
             _voice.Unregister("reset");
             _voice.Unregister("performance");
             _voice.Unregister("logging");
+            _voice.Unregister("experience");
+            _voice.Unregister("network");
             
             // Cleanup image/video capture in case the experience didn't 
             _imageCapture.Abort();
@@ -451,6 +455,46 @@ namespace CreateAR.EnkluPlayer
                     el.OnCancel += () => _ui.Close(id);
                 })
                 .OnFailure(ex => Log.Error(this, "Could not open update confirmation popup : {0}", ex));
+        }
+        
+        /// <summary>
+        /// Called when the experience command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnExperience(string command)
+        {
+            int id;
+            _ui
+                .Open<ExperienceUIView>(new UIReference
+                    {
+                        UIDataId = "Play.Experience"
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(id);
+                })
+                .OnFailure(e => Log.Error(this, e));
+        }
+
+        /// <summary>
+        /// Called when the network command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnNetwork(string command)
+        {
+            int id;
+            _ui
+                .Open<NetworkUIView>(new UIReference
+                    {
+                        UIDataId = "Play.Network"
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(id);
+                })
+                .OnFailure(e => Log.Error(this, e));
         }
     }
 }
