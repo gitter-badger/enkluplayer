@@ -155,6 +155,9 @@ MonoBehaviour:
     - UIDataId: Play.Network
       Element: {fileID: 114863002648572944, guid: 744a8aab1ab08cb41a68f25115808661,
         type: 2}
+    - UIDataId: Play.Anchors
+      Element: {fileID: 114926908633713112, guid: bcc4be6a72f693b47b50d0a6acfc5d01,
+        type: 2}
   - Platforms: 080000000b000000
     Links:
     - UIDataId: Common.Error

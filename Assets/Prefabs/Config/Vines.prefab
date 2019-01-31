@@ -120,3 +120,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: a30243e804b14f388c179bbe6cf39578, type: 3}
   - Identifier: Network.Hud
     Source: {fileID: 4900000, guid: 256c1878d4fb4c5a9621168bbcadd307, type: 3}
+  - Identifier: Anchors.Hud
+    Source: {fileID: 4900000, guid: 0eb9ceb1d2d644a5bb8ac75fc91da5b9, type: 3}

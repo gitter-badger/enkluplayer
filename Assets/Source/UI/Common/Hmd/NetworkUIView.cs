@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer
         public AwsPingController PingController { get; set; }
         
         /// <summary>
-        /// Dependencies
+        /// Injected Elements.
         /// </summary>
         [InjectElements("..btn-close")]
         public ButtonWidget BtnClose { get; set; }

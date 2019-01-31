@@ -177,6 +177,7 @@ namespace CreateAR.EnkluPlayer
             _voice.Register("update", Voice_OnUpdate);
             _voice.Register("experience", Voice_OnExperience);
             _voice.Register("network", Voice_OnNetwork);
+            _voice.Register("anchors", Voice_OnAnchors);
             
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
@@ -224,6 +225,7 @@ namespace CreateAR.EnkluPlayer
             _voice.Unregister("logging");
             _voice.Unregister("experience");
             _voice.Unregister("network");
+            _voice.Unregister("anchors");
             
             // Cleanup image/video capture in case the experience didn't 
             _imageCapture.Abort();
@@ -488,6 +490,26 @@ namespace CreateAR.EnkluPlayer
                 .Open<NetworkUIView>(new UIReference
                     {
                         UIDataId = "Play.Network"
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(id);
+                })
+                .OnFailure(e => Log.Error(this, e));
+        }
+        
+        /// <summary>
+        /// Called when the anchors command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnAnchors(string command)
+        {
+            int id;
+            _ui
+                .Open<AnchorUIView>(new UIReference
+                    {
+                        UIDataId = "Play.Anchors" 
                     },
                     out id)
                 .OnSuccess(el =>

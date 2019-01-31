@@ -1,0 +1,15 @@
+<?Vine>
+
+<Float focus.visible=false>
+	<Container position=(0.3, 0, 0)>
+		<Button id='btn-close' label='Close' position=(0, 0.1, 0) icon='arrow-left' ready.color='Negative' />
+		
+        <Text 
+            id='txt-anchors'
+            width=5000.0
+            alignment='TopLeft'
+            fontSize=40 
+            overflow='Overflow'
+        />
+    </Container>
+</Float>
