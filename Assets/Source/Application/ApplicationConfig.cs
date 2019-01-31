@@ -320,6 +320,11 @@ namespace CreateAR.EnkluPlayer
         public float AnchorImportFailChance = 0.0f;
 
         /// <summary>
+        /// Likelyhood of forcing script download to fail.
+        /// </summary>
+        public float ScriptDownloadFailChance;
+
+        /// <summary>
         /// If true, forces all Http requests to fail.
         /// </summary>
         public bool Offline;
@@ -456,6 +461,11 @@ namespace CreateAR.EnkluPlayer
             if (overrideConfig.AnchorImportFailChance > Mathf.Epsilon)
             {
                 AnchorImportFailChance = overrideConfig.AnchorImportFailChance;
+            }
+
+            if (overrideConfig.ScriptDownloadFailChance > Mathf.Epsilon)
+            {
+                ScriptDownloadFailChance = overrideConfig.ScriptDownloadFailChance;
             }
 
             if (!string.IsNullOrEmpty(overrideConfig.ApiVersion))

@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using UnityEngine;
 using UnityEngine.Networking;
+using Random = System.Random;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -36,6 +39,16 @@ namespace CreateAR.EnkluPlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+        
+        /// <summary>
+        /// PRNG.
+        /// </summary>
+        private static readonly Random _Prng = new Random();
+        
+        /// <inheritdoc cref="IScriptLoader"/>
+        public int QueueLength { get; private set; }
+        
+        public List<ScriptLoadFailure> LoadFailures { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -52,11 +65,32 @@ namespace CreateAR.EnkluPlayer
             _http = http;
             _metrics = metrics;
             _bootstrapper = bootstrapper;
+            
+            LoadFailures = new List<ScriptLoadFailure>();
         }
 
         /// <inheritdoc cref="IScriptLoader"/>
         public IAsyncToken<string> Load(ScriptData script)
         {
+            QueueLength++;
+
+            var failChance = _config.ScriptDownloadFailChance;
+            if (failChance > Mathf.Epsilon)
+            {
+                if (_Prng.NextDouble() < failChance)
+                {
+                    QueueLength--;
+                    
+                    var exception = new Exception("Random failure configured by ApplicationConfig.");
+                    LoadFailures.Add(new ScriptLoadFailure
+                    {
+                        ScriptData = script,
+                        Exception = exception
+                    });
+                    return new AsyncToken<string>(exception);
+                }
+            }
+            
             var token = new AsyncToken<string>();
             
             if (_cache.Contains(script.Id, script.Version))
@@ -79,6 +113,11 @@ namespace CreateAR.EnkluPlayer
                             this,
                             "There was an error loading the script from disk : {0}. Attempting to load from network..",
                             exception);
+                        LoadFailures.Add(new ScriptLoadFailure
+                        {
+                            ScriptData = script,
+                            Exception = exception
+                        });
 
                         LoadScriptFromNetwork(script)
                             .OnSuccess(source =>
@@ -88,7 +127,8 @@ namespace CreateAR.EnkluPlayer
                                 token.Succeed(source);
                             })
                             .OnFailure(token.Fail);
-                    });
+                    })
+                    .OnFinally(_ => QueueLength--);
             }
             else
             {
@@ -99,7 +139,16 @@ namespace CreateAR.EnkluPlayer
 
                         token.Succeed(source);
                     })
-                    .OnFailure(token.Fail);
+                    .OnFailure(exception =>
+                    {
+                        LoadFailures.Add(new ScriptLoadFailure
+                        {
+                            ScriptData = script,
+                            Exception = exception
+                        });
+                        token.Fail(exception);
+                    })
+                    .OnFinally(_ => QueueLength--);
             }
 
             return token;

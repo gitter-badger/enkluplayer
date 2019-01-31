@@ -95,6 +95,8 @@ namespace CreateAR.EnkluPlayer.Assets
         {
             get { return _queue.Count; }
         }
+        
+        public List<AssetLoadFailure> LoadFailures { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -110,6 +112,7 @@ namespace CreateAR.EnkluPlayer.Assets
             _metrics = metrics;
             
             Urls = urls;
+            LoadFailures = new List<AssetLoadFailure>();
             
             _bootstrapper.BootstrapCoroutine(ProcessQueue());
         }
@@ -127,7 +130,14 @@ namespace CreateAR.EnkluPlayer.Assets
                 if (_Prng.NextDouble() < failChance)
                 {
                     progress = new LoadProgress();
-                    return new AsyncToken<Object>(new Exception("Random failure configured by ApplicationConfig."));
+                    var exception = new Exception("Random failure configured by ApplicationConfig.");
+                    
+                    LoadFailures.Add(new AssetLoadFailure
+                    {
+                        AssetData = data,
+                        Exception = exception
+                    });
+                    return new AsyncToken<Object>(exception);
                 }
             }
             
@@ -173,7 +183,15 @@ namespace CreateAR.EnkluPlayer.Assets
             loader
                 .Asset(AssetName(data), out progress)
                 .OnSuccess(token.Succeed)
-                .OnFailure(token.Fail);
+                .OnFailure(exception =>
+                {
+                    LoadFailures.Add(new AssetLoadFailure
+                    {
+                        AssetData = data,
+                        Exception = exception
+                    });
+                    token.Fail(exception);
+                });
 
             return token;
         }
@@ -191,6 +209,8 @@ namespace CreateAR.EnkluPlayer.Assets
                 _queue.RemoveAt(0);
                 _bundles.Remove(Urls.Url(AssetUrlHelper.Uri(record.Data, record.Version)));
             }
+            
+            LoadFailures.Clear();
         }
 
         /// <inheritdoc />

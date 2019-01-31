@@ -1,9 +1,17 @@
+using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.EnkluPlayer.Assets
 {
+    public struct AssetLoadFailure
+    {
+        public AssetData AssetData;
+        public Exception Exception;
+    }
+    
     /// <summary>
     /// Describes an interface for loading assets.
     /// </summary>
@@ -18,6 +26,8 @@ namespace CreateAR.EnkluPlayer.Assets
         /// The number of asset loads in progress.
         /// </summary>
         int QueueLength { get; }
+        
+        List<AssetLoadFailure> LoadFailures { get; }
 
         /// <summary>
         /// Loads an asset.
