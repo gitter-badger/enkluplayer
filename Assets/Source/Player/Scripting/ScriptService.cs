@@ -1,3 +1,4 @@
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 
@@ -18,13 +19,14 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptRequireResolver requireResolver,
             IAppSceneManager sceneManager,
             IElementManager elementManager,
-            IElementJsCache elementJsCache) : base(binder, messages)
+            IElementJsCache elementJsCache,
+            AppJsApi appJsApi) : base(binder, messages)
         {
             _sceneManager = sceneManager;
             _elementManager = elementManager;
             
             _scriptRunner = new ScriptRunner(
-                scriptManager, scriptFactory, requireResolver, elementJsCache);
+                scriptManager, scriptFactory, requireResolver, elementJsCache, appJsApi);
         }
 
         public override void Start()
@@ -33,16 +35,18 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             _sceneManager.OnInitialized += () =>
             {
+                Log.Warning(this, "Scene OnInitialized");
                 for (int i = 0, len = _elementManager.All.Count; i < len; i++)
                 {
                     Element_OnCreated(_elementManager.All[i]);
                 }
                 
-                _scriptRunner.ParseAll();
+                _scriptRunner.ParseAll().OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
+                });
                 
                 _elementManager.OnCreated += Element_OnCreated;
-                
-                _scriptRunner.StartAllScripts();
             };
         }
 

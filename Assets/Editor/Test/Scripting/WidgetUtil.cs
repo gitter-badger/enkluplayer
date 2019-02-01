@@ -10,12 +10,32 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     {
         public static Widget CreateWidget()
         {
-            return new Widget(new GameObject("ScriptRunner_Tests"), null, null, null);
+            return new Widget(new GameObject("WidgetUtil"), null, null, null);
         }
         
         public static Widget CreateWidget(TestScriptManager scriptManager, params EnkluScript[] scripts)
         {
-            var widget = new Widget(new GameObject("ScriptRunner_Tests"), null, null, null);
+            var widget = new Widget(new GameObject("WidgetUtil"), null, null, null);
+            AddScriptToWidget(widget, scriptManager, scripts);
+            return widget;
+        }
+
+        public static ContentWidget CreateContentWidget(TestScriptManager scriptManager, params EnkluScript[] scripts)
+        {
+            return CreateContentWidget(scriptManager, new DummyAssetAssembler(), scripts);
+        }
+
+        public static ContentWidget CreateContentWidget(TestScriptManager scriptManager, IAssetAssembler assetAssembler, params EnkluScript[] scripts)
+        {
+            var widget = new ContentWidget(
+                new GameObject("WidgetUtil"), 
+                null, 
+                null, 
+                null, 
+                assetAssembler,
+                null,
+                scriptManager,
+                null);
             AddScriptToWidget(widget, scriptManager, scripts);
             return widget;
         }

@@ -51,6 +51,8 @@ namespace CreateAR.EnkluPlayer
                 _scenes[sceneId] = _elements.Element(description);
             }
 
+            OnInitialized.Execute(); 
+
             return new AsyncToken<Void>(Void.Instance);
         }
 

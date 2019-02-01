@@ -4,6 +4,7 @@ using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Jint.Parser.Ast;
 using Newtonsoft.Json.Linq;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -11,6 +12,15 @@ namespace CreateAR.EnkluPlayer.Scripting
 {
     public class ScriptRunner
     {
+        public enum RunnerState
+        {
+            None,
+            Loading,
+            Parsing,
+            Idle,
+            Running
+        }
+        
         public enum SetupState
         {
             Error = -1,
@@ -42,47 +52,49 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IScriptFactory _scriptFactory;
         private readonly IScriptRequireResolver _requireResolver;
         private readonly IElementJsCache _jsCache;
+        private readonly AppJsApi _appJsApi;
         
-        private readonly Dictionary<Widget, WidgetRecord> _widgetRecords = new Dictionary<Widget, WidgetRecord>();
+        private readonly List<WidgetRecord> _widgetRecords = new List<WidgetRecord>();
         
         private readonly List<IAsyncToken<Void[]>> _scriptLoading = new List<IAsyncToken<Void[]>>();
         private readonly List<IAsyncToken<Void>> _vineTokens = new List<IAsyncToken<Void>>();
         private readonly AsyncToken<Void> _vinesComplete = new AsyncToken<Void>();
 
-        private bool _isSetup;
-        private bool _isRunning;
+        private RunnerState _runnerState;
 
         public ScriptRunner(
             IScriptManager scriptManager, 
             IScriptFactory scriptFactory,
             IScriptRequireResolver requireResolver,
-            IElementJsCache jsCache)
+            IElementJsCache jsCache,
+            AppJsApi appJsApi)
         {
             _scriptManager = scriptManager;
             _scriptFactory = scriptFactory;
             _requireResolver = requireResolver;
             _jsCache = jsCache;
+            _appJsApi = appJsApi;
         }
         
         public void AddWidget(Widget widget)
         {
-            if (_widgetRecords.ContainsKey(widget))
+            if (_widgetRecords.Any(rec => rec.Widget == widget))
             {
                 throw new Exception("Widget already added.");
             }
-
             var record = new WidgetRecord
             {
                 Widget = widget,
                 SetupState = SetupState.None,
                 Engine = CreateBehaviorHost(widget)
             };
-            _widgetRecords.Add(widget, record);
+            _widgetRecords.Add(record);
             
             HookSchema(record);
             LoadScripts(record);
 
-            if (_isSetup)
+            // TODO: Handle AddWidget during load/parse
+            if (_runnerState != RunnerState.None)
             {
                 ParseWidget(record);
             }
@@ -94,30 +106,35 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public SetupState GetSetupState(Widget widget)
         {
-            if (!_widgetRecords.ContainsKey(widget))
+            var record = _widgetRecords.FirstOrDefault(rec => rec.Widget == widget);
+
+            if (record == null)
             {
                 throw new Exception("Unknown widget.");
             }
             
-            return _widgetRecords[widget].SetupState;
+            return record.SetupState;
         }
 
         public IAsyncToken<Void> ParseAll()
         {
-            if (_isSetup)
+            Log.Warning(this, "ParseAll");
+            
+            if (_runnerState != RunnerState.None)
             {
                 throw new Exception("ParseAll is invalid. Already setup.");
             }
             Log.Info(this, "Script parsing requested.");
 
-            var rtn = new AsyncToken<Void>();
+            var rtnToken = new AsyncToken<Void>();
+            Exception exception = null;
             Async.All(_scriptLoading.ToArray()).OnFinally((_) =>
             {
                 Log.Info(this, "Scripts loaded. Starting parsing.");
-                
-                foreach (var record in _widgetRecords.Values)
+
+                for (int i = 0, len = _widgetRecords.Count; i < len; i++)
                 {
-                    ParseWidget(record);
+                    ParseWidget(_widgetRecords[i]);
                 }
 
                 Async.All(_vineTokens.ToArray()).OnSuccess((__) =>
@@ -127,20 +144,32 @@ namespace CreateAR.EnkluPlayer.Scripting
                     // Currently, this triggers behavior parsing/entering
                     _vinesComplete.Succeed(Void.Instance);
 
-                    var keys = _widgetRecords.Keys.ToList();
-                    for (int i = 0, len = keys.Count; i < len; i++)
+                    for (int i = 0, len = _widgetRecords.Count; i < len; i++)
                     {
                         // TODO: Don't blindly assume success
-                        _widgetRecords[keys[i]].SetupState = SetupState.Done;
+                        _widgetRecords[i].SetupState = SetupState.Done;
                     }
 
                     Log.Info(this, "All parsing complete.");
-                    
-                    rtn.Succeed(Void.Instance);
+
+                    exception = null;
                 })
-                .OnFinally(__ => { _isSetup = true; });
+                .OnFinally(__ =>
+                {
+                    // Delay resolving rtnToken until finally, to ensure the proper
+                    // RunnerState is set before external calls may try to interact with ScriptRunner again.
+                    _runnerState = RunnerState.Idle;
+                    if (exception == null)
+                    {
+                        rtnToken.Succeed(Void.Instance);
+                    }
+                    else
+                    {
+                        rtnToken.Fail(exception);
+                    }
+                });
             });
-            return rtn;
+            return rtnToken;
         }
 
         private void ParseWidget(WidgetRecord record)
@@ -155,7 +184,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 var vineTokens = ParseVines(record);
 
-                if (!_isSetup)
+                if (_runnerState == RunnerState.None)
                 {
                     for (int i = 0, len = vineTokens.Count; i < len; i++)
                     {
@@ -174,65 +203,86 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public void StartAllScripts()
         {
-            _isRunning = true;
-            
-            foreach (var kvp in _widgetRecords)
-            {
-                var vineComponents = kvp.Value.Vines;
+            Log.Warning(this, "StartAllScripts");
 
-                for (int i = 0, len = vineComponents.Count; i < len; i++)
-                {
-                    StartScript(vineComponents[i]);
-                }
+            if (_runnerState == RunnerState.Running)
+            {
+                throw new Exception("Scripts already running!");
             }
 
-            foreach (var kvp in _widgetRecords)
-            {
-                var behaviorComponents = kvp.Value.Behaviors;
+            _runnerState = RunnerState.Running;
 
-                for (int i = 0, len = behaviorComponents.Count; i < len; i++)
+            var len = _widgetRecords.Count;
+            for (var i = 0; i < len; i++)
+            {
+                var vineComponents = _widgetRecords[i].Vines;
+
+                for (int j = 0, jLen = vineComponents.Count; j < jLen; j++)
                 {
-                    StartScript(behaviorComponents[i]);
+                    StartScript(vineComponents[j]);
+                }
+            }
+            
+            for (var i = 0; i < len; i++)
+            {
+                var behaviorComponents = _widgetRecords[i].Behaviors;
+
+                for (int j = 0, jLen = behaviorComponents.Count; j < jLen; j++)
+                {
+                    StartScript(behaviorComponents[j]);
                 }
             }
         }
 
         public void StopAllScripts()
         {
-            _isRunning = false;
-
-            foreach (var kvp in _widgetRecords)
+            Log.Warning(this, "StopAllScripts");
+            
+            if (_runnerState != RunnerState.Running)
             {
-                var vineComponents = kvp.Value.Vines;
-
-                for (int i = 0, len = vineComponents.Count; i < len; i++)
-                {
-                    StopScript(vineComponents[i]);
-                }
+                throw new Exception("Scripts weren't running.");
             }
 
-            foreach (var kvp in _widgetRecords)
-            {
-                var behaviorComponents = kvp.Value.Behaviors;
+            _runnerState = RunnerState.Idle;
 
-                for (int i = 0, len = behaviorComponents.Count; i < len; i++)
+            var len = _widgetRecords.Count;
+            for (var i = 0; i < len; i++)
+            {
+                var vineComponents = _widgetRecords[i].Vines;
+
+                for (int j = 0, jLen = vineComponents.Count; j < jLen; j++)
                 {
-                    StopScript(behaviorComponents[i]);
+                    StopScript(vineComponents[j]);
+                }
+            }
+            
+            for (var i = 0; i < len; i++)
+            {
+                var behaviorComponents = _widgetRecords[i].Behaviors;
+
+                for (int j = 0, jLen = behaviorComponents.Count; j < jLen; j++)
+                {
+                    StopScript(behaviorComponents[j]);
                 }
             }
         }
 
         public void Update()
         {
-            // Vines currently have no Update usage, so skip for now.
-
-            foreach (var kvp in _widgetRecords)
+            if (_runnerState != RunnerState.Running)
             {
-                var behaviors = kvp.Value.Behaviors;
+                return;
+            }
+            
+            // Vines currently have no Update usage, so skip for now.
+            
+            for (int i = 0, len = _widgetRecords.Count; i < len; i++)
+            {
+                var behaviorComponents = _widgetRecords[i].Behaviors;
 
-                for (int j = 0, jLen = behaviors.Count; j < jLen; j++)
+                for (int j = 0, jLen = behaviorComponents.Count; j < jLen; j++)
                 {
-                    behaviors[j].FrameUpdate();
+                    behaviorComponents[j].FrameUpdate();
                 }
             }
         }
@@ -299,7 +349,12 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         private UnityScriptingHost CreateBehaviorHost(Widget widget)
         {
-            return new UnityScriptingHost(widget, _requireResolver, _scriptManager);
+            var host = new UnityScriptingHost(widget, _requireResolver, _scriptManager);
+            host.SetValue("system", SystemJsApi.Instance);
+            host.SetValue("app", _appJsApi);
+            host.SetValue("this", _jsCache.Element(widget));
+            
+            return host;
         }
 
         private void HookSchema(WidgetRecord record)
@@ -385,7 +440,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         private void Script_OnUpdated(Widget widget, EnkluScript script)
         {
-            var record = _widgetRecords[widget]; 
+            var record = _widgetRecords.First(rec => rec.Widget == widget); 
             
             // Find existing script
             Script existing = null;
@@ -394,27 +449,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             switch (script.Data.Type)
             {
                 case ScriptType.Vine:
-                    for (int i = 0, len = record.Vines.Count; i < len; i++)
-                    {
-                        if (record.Vines[i].EnkluScript.Data.Id == script.Data.Id)
-                        {
-                            existing = record.Vines[i];
-                            break;
-                        }
-                    }
-
+                    existing = record.Vines.FirstOrDefault(v => v.EnkluScript.Data.Id == script.Data.Id);
                     newScript = _scriptFactory.Vine(widget, script);
                     break;
                 case ScriptType.Behavior:
-                    for (int i = 0, len = record.Behaviors.Count; i < len; i++)
-                    {
-                        if (record.Behaviors[i].EnkluScript.Data.Id == script.Data.Id)
-                        {
-                            existing = record.Behaviors[i];
-                            break;
-                        }
-                    }
-
+                    existing = record.Behaviors.FirstOrDefault(b => b.EnkluScript.Data.Id == script.Data.Id);
                     newScript = _scriptFactory.Behavior(widget, _jsCache, record.Engine, script);
                     break;
                 default:
@@ -431,7 +470,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 {
                     Log.Info(this, "Swapping script");
 
-                    if (_isRunning)
+                    Log.Info(this, _runnerState);
+                    if (_runnerState == RunnerState.Running)
                     {
                         StopWidget(record);
                     }
@@ -439,7 +479,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     RemoveScript(record, existing);
                     AddScript(record, newScript);
 
-                    if (_isRunning)
+                    if (_runnerState == RunnerState.Running)
                     {
                         StartWidget(record);
                     }
@@ -556,7 +596,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 tokens.Add(component.Configure().OnSuccess((_) =>
                 {
                     // TODO: Defer this until ScriptService calls
-                    if (_isRunning)
+                    if (_runnerState == RunnerState.Running)
                     {
 //                        StopScript(component);
                         StartScript(component);
@@ -589,7 +629,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 triggerToken.OnSuccess((_) =>
                 {
                     component.Configure();
-                    if (_isRunning)
+                    if (_runnerState == RunnerState.Running)
                     {
                         StopScript(component);
                         StartScript(component);

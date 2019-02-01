@@ -82,19 +82,9 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
-        public IMutableAsyncToken<ContentWidget> OnLoaded
+        public IMutableAsyncToken<ContentWidget> OnAssetLoaded
         {
-            get
-            {
-                if (null == _onLoaded)
-                {
-                    _onLoaded = Async.Map(
-                        Async.All(_onScriptsLoaded, _onAssetLoaded),
-                        _ => this);
-                }
-
-                return _onLoaded;
-            }
+            get { return _onAssetLoaded; }
         }
 
         /// <summary>
@@ -121,7 +111,7 @@ namespace CreateAR.EnkluPlayer
             _assembler = assembler;
             _jsCache = cache;
             
-            Main.GetScriptingDependencies(out _scriptFactory, out _appJsApi);
+//            Main.GetScriptingDependencies(out _scriptFactory, out _appJsApi);
         }
 
         /// <summary>
@@ -235,7 +225,7 @@ namespace CreateAR.EnkluPlayer
             base.UnloadInternalAfterChildren();
             
             _srcAssetProp.OnChanged -= AssetSrc_OnChanged;
-            _scriptsProp.OnChanged -= Scripts_OnChanged;
+//            _scriptsProp.OnChanged -= Scripts_OnChanged;
 
             _assembler.Teardown();
             AbortScripts();

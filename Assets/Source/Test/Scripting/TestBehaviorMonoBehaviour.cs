@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public int LastEnterInvokeId { get; private set; }
         public int LastExitInvokeUd { get; private set; } 
         
-        public override void Initialize(IElementJsCache jsCache, IElementJsFactory factory, Engine engine, EnkluScript script, Element element)
+        public override void Initialize(IElementJsCache jsCache, IElementJsFactory factory, Engine engine, EnkluScript script, Widget widget)
         {
             EnkluScript = script;
         }

@@ -47,7 +47,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             : base(scripts, cache, element)
         {
             _contentWidget = (ContentWidget) _element;
-            _contentWidget.OnLoaded.OnSuccess(CacheComponents);
+            _contentWidget.OnAssetLoaded.OnSuccess(CacheComponents);
         }
 
         /// <inheritdoc />
@@ -55,7 +55,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             base.Cleanup();
 
-            _contentWidget.OnLoaded.Remove(CacheComponents);
+            _contentWidget.OnAssetLoaded.Remove(CacheComponents);
             
             TeardownComponents();
         }

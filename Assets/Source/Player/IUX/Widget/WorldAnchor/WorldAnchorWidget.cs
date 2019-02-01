@@ -349,7 +349,7 @@ namespace CreateAR.EnkluPlayer.IUX
             var version = _versionProp.Value;
             if (version < 0)
             {
-                Log.Warning(this, "Anchor [{0}] has an invalid version.", Id);
+                Log.Error(this, "Anchor [{0}] has an invalid version.", Id);
 
                 Status = WorldAnchorStatus.IsError;
                 
@@ -360,7 +360,7 @@ namespace CreateAR.EnkluPlayer.IUX
             var uri = Schema.Get<string>("src").Value;
             if (string.IsNullOrEmpty(uri))
             {
-                Log.Warning(this, "Anchor [{0}] has invalid src prop.", Id);
+                Log.Error(this, "Anchor [{0}] has invalid src prop.", Id);
 
                 Status = WorldAnchorStatus.IsError;
                 
@@ -373,7 +373,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 .Anchor(providerId, GameObject)
                 .OnSuccess(_ =>
                 {
-                    Log.Warning(this, "Provider was able to anchor without download.");
+                    Log.Info(this, "Provider was able to anchor without download.");
 
                     // done
                     _pollStatus = true;

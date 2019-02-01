@@ -359,7 +359,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="content">The content.</param>
         private void SetupContent(ContentWidget content)
         {
-            content.OnLoaded.OnSuccess(Content_OnAssetLoaded);
+            content.OnAssetLoaded.OnSuccess(Content_OnAssetLoaded);
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="content">The content.</param>
         private void TeardownContent(ContentWidget content)
         {
-            content.OnLoaded.Remove(Content_OnAssetLoaded);
+            content.OnAssetLoaded.Remove(Content_OnAssetLoaded);
         }
 
         /// <summary>

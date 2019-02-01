@@ -15,12 +15,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="factory">Creates elements.</param>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
-        /// <param name="element">The element.</param>
+        /// <param name="widget">The widget.</param>
         public abstract void Initialize(
             IElementJsCache jsCache,
             IElementJsFactory factory,
             Engine engine,
             EnkluScript script,
-            Element element);
+            Widget widget);
     }
 }

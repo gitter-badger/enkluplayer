@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 using Jint.Native;

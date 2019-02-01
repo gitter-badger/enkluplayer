@@ -12,10 +12,7 @@ namespace CreateAR.EnkluPlayer.Test
         {
             return new AsyncToken<Void>(Void.Instance).OnFinally(_ =>
             {
-                if (OnInitialized != null)
-                {
-                    OnInitialized();
-                }
+                OnInitialized.Execute();
             });
         }
 

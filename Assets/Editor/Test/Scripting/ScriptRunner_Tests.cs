@@ -23,7 +23,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptManager = new TestScriptManager();
             _scriptFactory = new TestScriptFactory();
             _scriptRunner = new ScriptRunner(
-                _scriptManager, _scriptFactory, null, new ElementJsCache(null));
+                _scriptManager, 
+                _scriptFactory, 
+                null, 
+                new ElementJsCache(new ElementJsFactory(_scriptManager)), 
+                null);
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());
@@ -64,14 +68,21 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
             
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
+                    
+                    // Behaviors load synchronously. Check that the script has loaded & invoked.
+                    Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
             
-            // Behaviors load synchronously. Check that the script has loaded & invoked.
-            Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
-            
-            var component = _scriptFactory.GetBehavior(_behaviors[0]);
-            Assert.AreEqual(1, component.EnterInvoked);
+                    var component = _scriptFactory.GetBehavior(_behaviors[0]);
+                    Assert.AreEqual(1, component.EnterInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail();
+                });
         }
 
         [Test]
@@ -167,15 +178,23 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var widget = WidgetUtil.CreateWidget();
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
+                
+                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0]);
+                
+                    var vineComponent = _scriptFactory.GetVine(_vines[0]);
+                    Assert.AreEqual(0, vineComponent.EnterInvoked);
+                    vineComponent.FinishConfigure();
+                    Assert.AreEqual(1, vineComponent.EnterInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0]);
-            
-            var vineComponent = _scriptFactory.GetVine(_vines[0]);
-            Assert.AreEqual(0, vineComponent.EnterInvoked);
-            vineComponent.FinishConfigure();
-            Assert.AreEqual(1, vineComponent.EnterInvoked);
         }
 
         [Test]
@@ -183,13 +202,20 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var widget = WidgetUtil.CreateWidget();
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
+                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
             
-            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
-            Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+                    var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+                    Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
         }
         
         [Test]
@@ -197,20 +223,27 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var widget = WidgetUtil.CreateWidget();
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
             
-            // New Combined
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[1], _vines[1]);
+                    // New Combined
+                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[1], _vines[1]);
             
-            var vineComponent = _scriptFactory.GetVine(_vines[1]);
-            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[1]);
+                    var vineComponent = _scriptFactory.GetVine(_vines[1]);
+                    var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[1]);
             
-            Assert.AreEqual(0, vineComponent.EnterInvoked);
-            Assert.AreEqual(0, behaviourComponent.EnterInvoked);
-            vineComponent.FinishConfigure();
-            Assert.AreEqual(1, behaviourComponent.EnterInvoked);
-            Assert.AreEqual(1, vineComponent.EnterInvoked);
+                    Assert.AreEqual(0, vineComponent.EnterInvoked);
+                    Assert.AreEqual(0, behaviourComponent.EnterInvoked);
+                    vineComponent.FinishConfigure();
+                    Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+                    Assert.AreEqual(1, vineComponent.EnterInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
         }
         
         // Adding a script to an already existing Widget containing scripts. 
@@ -219,30 +252,37 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
             
-            var vineComponent = _scriptFactory.GetVine(_vines[0]);
-            vineComponent.FinishConfigure();
+                    var vineComponent = _scriptFactory.GetVine(_vines[0]);
+                    vineComponent.FinishConfigure();
 
-            Assert.AreEqual(1, vineComponent.EnterInvoked);
+                    Assert.AreEqual(1, vineComponent.EnterInvoked);
             
-            // Add a new Behavior
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
+                    // Add a new Behavior
+                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
             
-            // Ensure existing behavior exited
-            Assert.AreEqual(1, vineComponent.EnterInvoked);
-            Assert.AreEqual(1, vineComponent.ExitInvoked);
+                    // Ensure existing behavior exited
+                    Assert.AreEqual(1, vineComponent.EnterInvoked);
+                    Assert.AreEqual(1, vineComponent.ExitInvoked);
             
-            // Ensure new behavior invoked
-            vineComponent = _scriptFactory.GetVine(_vines[0]);
-            vineComponent.FinishConfigure();
+                    // Ensure new behavior invoked
+                    vineComponent = _scriptFactory.GetVine(_vines[0]);
+                    vineComponent.FinishConfigure();
             
-            Assert.AreEqual(1, vineComponent.EnterInvoked);
-            Assert.AreEqual(0, vineComponent.ExitInvoked);
+                    Assert.AreEqual(1, vineComponent.EnterInvoked);
+                    Assert.AreEqual(0, vineComponent.ExitInvoked);
             
-            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
-            Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+                    var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+                    Assert.AreEqual(1, behaviourComponent.EnterInvoked); 
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
         }
         #endregion
 
@@ -250,33 +290,121 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void UpdatingVine()
         {
-            // Vines
             var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
-            
-            var oldComponent = _scriptFactory.GetVine(_vines[0]);
-            oldComponent.FinishConfigure();
-            Assert.AreEqual(1, oldComponent.EnterInvoked);
-            Assert.AreEqual(0, oldComponent.ExitInvoked);
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
+                    
+                    var oldComponent = _scriptFactory.GetVine(_vines[0]);
+                    oldComponent.FinishConfigure();
+                    Assert.AreEqual(1, oldComponent.EnterInvoked);
+                    Assert.AreEqual(0, oldComponent.ExitInvoked);
+    
+                    var vineScript = _scriptManager.Create(oldComponent.EnkluScript.Data.Id);
+                
+                    vineScript.Updated();
+                    Assert.AreEqual(1, oldComponent.EnterInvoked);
+                    Assert.AreEqual(0, oldComponent.ExitInvoked);
+                
+                    var newComponent = _scriptFactory.GetVine(_vines[0]);
+                    newComponent.FinishConfigure();
+                
+                    Assert.AreEqual(1, oldComponent.EnterInvoked);
+                    Assert.AreEqual(1, oldComponent.ExitInvoked);
+                
+                
+                    Assert.AreNotSame(oldComponent, newComponent);
+                    Assert.AreEqual(1, newComponent.EnterInvoked);
+                    Assert.AreEqual(0, newComponent.ExitInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
+        }
 
-            var vineScript = _scriptManager.Create(oldComponent.EnkluScript.Data.Id);
+        [Test]
+        public void UpdatingBehavior()
+        {
+            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            _scriptRunner.AddWidget(widget);
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
+                    
+                    var oldComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+                    Assert.AreEqual(1, oldComponent.EnterInvoked);
+                    Assert.AreEqual(0, oldComponent.ExitInvoked);
+    
+                    var behaviorScript = _scriptManager.Create(oldComponent.EnkluScript.Data.Id);
+                
+                    behaviorScript.Updated();
+                    Assert.AreEqual(1, oldComponent.EnterInvoked);
+                    Assert.AreEqual(1, oldComponent.ExitInvoked);
+                
+                    var newComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+                
+                    Assert.AreNotSame(oldComponent, newComponent);
+                    Assert.AreEqual(1, newComponent.EnterInvoked);
+                    Assert.AreEqual(0, newComponent.ExitInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
+        }
+        #endregion
+        
+        #region ContentWidgets
+
+        [Test]
+        public void NoAsset()
+        {
+            var widget = WidgetUtil.CreateContentWidget(_scriptManager, _behaviors[0]);
+            _scriptRunner.AddWidget(widget);
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
+                    
+                    var component = _scriptFactory.GetBehavior(_behaviors[0]);
+                    Assert.AreEqual(1, component.EnterInvoked);
+                    Assert.AreEqual(0, component.ExitInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
+        }
+        
+        [Test]
+        public void DelayedAsset()
+        {
+            var assetAssembler = new TestAssetAssembler();
             
-            vineScript.Updated();
-            Assert.AreEqual(1, oldComponent.EnterInvoked);
-            Assert.AreEqual(0, oldComponent.ExitInvoked);
-            
-            var newComponent = _scriptFactory.GetVine(_vines[0]);
-            newComponent.FinishConfigure();
-            
-            Assert.AreEqual(1, oldComponent.EnterInvoked);
-            Assert.AreEqual(1, oldComponent.ExitInvoked);
-            
-            
-            Assert.AreNotSame(oldComponent, newComponent);
-            Assert.AreEqual(1, newComponent.EnterInvoked);
-            Assert.AreEqual(0, newComponent.ExitInvoked);
+            var widget = WidgetUtil.CreateContentWidget(_scriptManager, assetAssembler, _behaviors[0]);
+            _scriptRunner.AddWidget(widget);
+            _scriptRunner.ParseAll()
+                .OnSuccess(_ =>
+                {
+                    _scriptRunner.StartAllScripts();
+                    
+                    var component = _scriptFactory.GetBehavior(_behaviors[0]);
+                    Assert.AreEqual(0, component.EnterInvoked);
+                    Assert.AreEqual(0, component.ExitInvoked);
+                    
+                    assetAssembler.FinishLoad();
+                    
+                    Assert.AreEqual(1, component.EnterInvoked);
+                    Assert.AreEqual(0, component.ExitInvoked);
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("ParseAll failed: " + exception);
+                });
         }
         #endregion
     }
