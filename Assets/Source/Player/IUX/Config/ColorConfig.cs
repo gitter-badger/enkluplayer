@@ -1,107 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
-    /// Virtual color lookup.
-    /// </summary>
-    public enum VirtualColor
-    {
-        None,
-
-        Ready,
-        Interacting,
-        Disabled,
-
-        Primary,
-        Secondary,
-        Tertiary,
-
-        Positive,
-        Negative,
-
-        Highlight,
-        Highlight1,
-        Highlight2,
-        Highlight3,
-        Highlight4,
-        Highlight5,
-
-        Count
-    }
-
-    /// <summary>
     /// Manages colors.
     /// </summary>
-    public class ColorConfig : MonoBehaviour
+    public class ColorConfig : MonoBehaviour, IColorConfig
     {
-        /// <summary>
-        /// Maps a VirtualColor to a Color.
-        /// </summary>
-        [Serializable]
-        public class VirtualColorEntry
-        {
-            /// <summary>
-            /// Enum value.
-            /// </summary>
-            public VirtualColor VirtualColor;
+        [FormerlySerializedAs("CurrentProfileName")] [SerializeField] 
+        private string _currentProfileName;
 
-            /// <summary>
-            /// Corresponding color.
-            /// </summary>
-            public Color Color = Color.white;
+        [FormerlySerializedAs("Profiles")] [SerializeField]
+        private List<ColorProfile> _profiles = new List<ColorProfile>();
+        
+        /// <inheritdoc />
+        public string CurrentProfileName
+        {
+            get { return _currentProfileName; }
         }
 
-        /// <summary>
-        /// Allows swapping maps for all colors.
-        /// </summary>
-        [Serializable]
-        public class ColorProfile
-        {
-            /// <summary>
-            /// Profile name.
-            /// </summary>
-            public string Name;
-
-            /// <summary>
-            /// Virtual colors for this profile.
-            /// </summary>
-            public List<VirtualColorEntry> VirtualColors = new List<VirtualColorEntry>();
-
-            /// <summary>
-            /// Looks up colors.
-            /// </summary>
-            /// <param name="virtualColor">The VirtualColor to retrieve a Color for.</param>
-            /// <param name="color">The color.</param>
-            /// <returns>True iff a corresponding Color was found.</returns>
-            public bool TryGetColor(VirtualColor virtualColor, out Col4 color)
-            {
-                for (int i = 0, count = VirtualColors.Count; i < count; ++i)
-                {
-                    var checkVirtualColor = VirtualColors[i];
-                    if (checkVirtualColor != null
-                        && checkVirtualColor.VirtualColor == virtualColor)
-                    {
-                        color = checkVirtualColor.Color.ToCol();
-                        return true;
-                    }
-                }
-
-                color = Col4.White;
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Name of the currently active profile.
-        /// </summary>
-        public string CurrentProfileName;
-
-        /// <summary>
-        /// Retrieves the current <c>ColorProfile</c>.
-        /// </summary>
+        /// <inheritdoc />
         public ColorProfile CurrentProfile
         {
             get
@@ -126,17 +47,13 @@ namespace CreateAR.EnkluPlayer.IUX
             }
         }
 
-        /// <summary>
-        /// List of color profiles.
-        /// </summary>
-        public List<ColorProfile> Profiles = new List<ColorProfile>();
+        /// <inheritdoc />
+        public List<ColorProfile> Profiles
+        {
+            get { return _profiles; }
+        }
 
-        /// <summary>
-        /// Attempts to get a color.
-        /// </summary>
-        /// <param name="virtualColor">The <c>VirtualColor</c> to get a Color for.</param>
-        /// <param name="color">The color.</param>
-        /// <returns>True iff a corresponding Color was found.</returns>
+        /// <inheritdoc />
         public bool TryGetColor(VirtualColor virtualColor, out Col4 color)
         {
             var currentProfile = CurrentProfile;
@@ -151,13 +68,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 out color);
         }
 
-        /// <summary>
-        /// Attempts to get a color from a string.
-        /// </summary>
-        /// <param name="virtualColorStr">String value.</param>
-        /// <param name="color">Color output.</param>
-        /// <returns>True iff the enum could be parsed and there was a corresponding
-        /// Color.</returns>
+        /// <inheritdoc />
         public bool TryGetColor(string virtualColorStr, out Col4 color)
         {
             var virtualColor = EnumExtensions.Parse<VirtualColor>(virtualColorStr);
@@ -165,11 +76,7 @@ namespace CreateAR.EnkluPlayer.IUX
             return TryGetColor(virtualColor, out color);
         }
 
-        /// <summary>
-        /// Retrieves a Color or white if one could not be found.
-        /// </summary>
-        /// <param name="virtualColor">The <c>VirtualColor</c> to lookup.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public Col4 GetColor(VirtualColor virtualColor)
         {
             Col4 color;
@@ -181,9 +88,7 @@ namespace CreateAR.EnkluPlayer.IUX
             return color;
         }
 
-        /// <summary>
-        /// Colorize a given color.
-        /// </summary>
+        /// <inheritdoc />
         public Col4 Colorize(
             Col4 targetColor,
             VirtualColor virtualColor)
