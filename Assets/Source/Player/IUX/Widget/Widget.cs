@@ -58,8 +58,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Dependencies.
         /// </summary>
         private readonly ILayerManager _layers;
-        private readonly ColorConfig _colors;
-        private readonly TweenConfig _tweens;
+        private readonly IColorConfig _colors;
+        private readonly ITweenConfig _tweens;
 
         /// <summary>
         /// True iff <c>LoadInternal</c> has been called.
@@ -287,8 +287,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public Widget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors)
+            ITweenConfig tweens,
+            IColorConfig colors)
         {
             if (null == gameObject)
             {

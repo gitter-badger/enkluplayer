@@ -94,8 +94,8 @@ namespace CreateAR.EnkluPlayer
         public ContentWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IAssetAssembler assembler,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
@@ -500,9 +500,10 @@ namespace CreateAR.EnkluPlayer
                     collider.center = bounds.center;
                     collider.size = bounds.size;
                 }
-
-                _onAssetLoaded.Succeed(this);
             }
+            
+            // Always invoke, an empty asset ref isn't a loading asset.
+            _onAssetLoaded.Succeed(this);
             
             // trigger refresh, so component specific references are new
             RefreshScripts();
