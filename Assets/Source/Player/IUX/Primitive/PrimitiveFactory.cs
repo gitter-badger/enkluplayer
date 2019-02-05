@@ -12,8 +12,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
-        private readonly ColorConfig _colors;
-        private readonly TweenConfig _tweens;
+        private readonly IColorConfig _colors;
+        private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interactions;
@@ -25,8 +25,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public PrimitiveFactory(
             IElementManager elements,
             ILayerManager layers,
-            ColorConfig colors,
-            TweenConfig tweens,
+            IColorConfig colors,
+            ITweenConfig tweens,
             IMessageRouter messages,
             IIntentionManager intention,
             IInteractionManager interactions,

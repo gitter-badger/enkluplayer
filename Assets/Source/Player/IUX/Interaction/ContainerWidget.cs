@@ -13,8 +13,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public ContainerWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors)
+            ITweenConfig tweens,
+            IColorConfig colors)
             : base(gameObject, layers, tweens, colors)
         {
             //

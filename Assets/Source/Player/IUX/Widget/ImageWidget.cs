@@ -49,8 +49,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public ImageWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IImageLoader loader)
             : base(
                 gameObject,

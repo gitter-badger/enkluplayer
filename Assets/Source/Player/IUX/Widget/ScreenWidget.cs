@@ -23,8 +23,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public ScreenWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IIntentionManager intention)
             : base(gameObject, layers, tweens, colors)
         {

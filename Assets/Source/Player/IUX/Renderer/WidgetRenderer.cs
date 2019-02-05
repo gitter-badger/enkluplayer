@@ -67,7 +67,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Dependencies.
         /// </summary>
         [Inject]
-        public TweenConfig Tweens { get; set; }
+        public ITweenConfig Tweens { get; set; }
 
         /// <summary>
         /// Local color accessor, ignores parent color.

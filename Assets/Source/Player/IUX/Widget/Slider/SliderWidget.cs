@@ -207,8 +207,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public SliderWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IElementFactory elements,
             IIntentionManager intentions)
             : base(

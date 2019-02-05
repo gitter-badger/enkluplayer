@@ -90,7 +90,7 @@
         /// <summary>
         /// Configuration.
         /// </summary>
-        private readonly TweenConfig _tweens;
+        private readonly ITweenConfig _tweens;
 
         /// <summary>
         /// A record for each element that has been added.
@@ -105,7 +105,7 @@
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ScaleTransition(GameObject gameObject, TweenConfig tweens)
+        public ScaleTransition(GameObject gameObject, ITweenConfig tweens)
         {
             GameObject = gameObject;
 

@@ -14,8 +14,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Dependencies.
         /// </summary>
         private WidgetConfig _config;
-        private TweenConfig _tweens;
-        private ColorConfig _colors;
+        private ITweenConfig _tweens;
+        private IColorConfig _colors;
         private ActivatorPrimitive _activator;
 
         /// <summary>
@@ -108,8 +108,8 @@ namespace CreateAR.EnkluPlayer.IUX
             ActivatorPrimitive activator,
             WidgetConfig config,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention, 
             IInteractionManager interaction)

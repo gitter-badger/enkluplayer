@@ -42,8 +42,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public ScanWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IScanImporter importer,
             IScanLoader loader)
             : base(

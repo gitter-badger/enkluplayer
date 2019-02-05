@@ -101,8 +101,8 @@ namespace CreateAR.EnkluPlayer.IUX
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IPrimitiveFactory primitives,
             IElementFactory elements)
             : base(

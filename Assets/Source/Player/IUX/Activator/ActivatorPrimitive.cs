@@ -28,8 +28,8 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IInteractionManager _interaction;
         private readonly IIntentionManager _intention;
         private readonly ILayerManager _layers;
-        private readonly TweenConfig _tweens;
-        private readonly ColorConfig _colors;
+        private readonly ITweenConfig _tweens;
+        private readonly IColorConfig _colors;
         private readonly IMessageRouter _messages;
 
         /// <summary>
@@ -237,8 +237,8 @@ namespace CreateAR.EnkluPlayer.IUX
             IIntentionManager intention,
             IMessageRouter messages,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             Widget target)
             : base(
                 new GameObject("Activator"),

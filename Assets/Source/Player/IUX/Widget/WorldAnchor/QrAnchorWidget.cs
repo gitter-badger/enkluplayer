@@ -42,8 +42,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public QrAnchorWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IQrReaderService qr,
             IIntentionManager intention,
             IElementManager elements)

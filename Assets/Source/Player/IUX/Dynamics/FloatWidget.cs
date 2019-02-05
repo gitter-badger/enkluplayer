@@ -54,8 +54,8 @@ namespace CreateAR.EnkluPlayer.IUX
             WidgetConfig config,
             IIntentionManager intention,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors)
+            ITweenConfig tweens,
+            IColorConfig colors)
             : base(
                 gameObject,
                 layers,

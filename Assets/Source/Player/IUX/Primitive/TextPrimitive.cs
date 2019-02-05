@@ -249,8 +249,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public TextPrimitive(
             WidgetConfig config,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors)
+            ITweenConfig tweens,
+            IColorConfig colors)
             : base(
                 new GameObject("Text"),
                 layers,

@@ -95,7 +95,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Configuration.
         /// </summary>
-        private readonly TweenConfig _tweens;
+        private readonly ITweenConfig _tweens;
 
         /// <summary>
         /// A record for each element that has been added.
@@ -135,7 +135,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Transition(GameObject gameObject, TweenConfig tweens)
+        public Transition(GameObject gameObject, ITweenConfig tweens)
         {
             GameObject = gameObject;
 

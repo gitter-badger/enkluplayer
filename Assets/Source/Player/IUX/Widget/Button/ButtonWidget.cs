@@ -149,8 +149,8 @@ namespace CreateAR.EnkluPlayer.IUX
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IVoiceCommandManager voice,
             IImageLoader loader)
             : base(

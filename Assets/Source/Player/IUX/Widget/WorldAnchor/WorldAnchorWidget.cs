@@ -154,8 +154,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public WorldAnchorWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IHttpService http,
             IWorldAnchorProvider provider,
             IMetricsService metrics,

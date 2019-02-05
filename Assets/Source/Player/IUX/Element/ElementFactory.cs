@@ -40,8 +40,8 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMessageRouter _messages;
         private readonly IElementJsCache _jsCache;
         private readonly IBootstrapper _bootstrapper;
-        private readonly ColorConfig _colors;
-        private readonly TweenConfig _tweens;
+        private readonly IColorConfig _colors;
+        private readonly ITweenConfig _tweens;
         private readonly WidgetConfig _config;
         private readonly ApplicationConfig _appConfig;
         private readonly ElementSchemaDefaults _elementSchemaDefaults;
@@ -74,8 +74,8 @@ namespace CreateAR.EnkluPlayer.IUX
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
             IBootstrapper bootstrapper,
-            ColorConfig colors,
-            TweenConfig tweens,
+            IColorConfig colors,
+            ITweenConfig tweens,
             WidgetConfig config,
             ApplicationConfig appConfig,
             EditorSettings editorSettings,

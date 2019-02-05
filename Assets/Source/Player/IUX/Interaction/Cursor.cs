@@ -11,7 +11,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Dependencies.
         /// </summary>
         private readonly WidgetConfig _config;
-        private readonly TweenConfig _tweens;
+        private readonly ITweenConfig _tweens;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interaction;
         private readonly IPrimitiveFactory _primitives;
@@ -65,8 +65,8 @@ namespace CreateAR.EnkluPlayer.IUX
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IIntentionManager intention,
             IInteractionManager interaction,
             IPrimitiveFactory primitives,

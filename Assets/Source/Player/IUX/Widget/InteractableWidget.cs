@@ -108,8 +108,8 @@ namespace CreateAR.EnkluPlayer.IUX
         protected InteractableWidget(
             GameObject gameObject,
             ILayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IMessageRouter messages,
             IInteractionManager interactions)
             : base(
