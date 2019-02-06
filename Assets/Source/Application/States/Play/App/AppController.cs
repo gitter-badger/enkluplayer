@@ -2,10 +2,85 @@
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using Enklu.Mycelium.Messages;
+using Enklu.Mycerializer;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
+    public class MultiplayerController
+    {
+        private readonly ApplicationConfig _config;
+        private readonly ReflectionMessageReader _reader = new ReflectionMessageReader();
+        private readonly ReflectionMessageWriter _writer = new ReflectionMessageWriter();
+
+        private TcpConnection _tcp;
+        private AsyncToken<Void> _connect;
+
+        public MultiplayerController(ApplicationConfig config)
+        {
+            _config = config;
+        }
+
+        public IAsyncToken<Void> Connect()
+        {
+            if (null == _connect)
+            {
+                _connect = new AsyncToken<Void>();
+
+                Log.Info(this, "Connecting to {0}:{1}.",
+                    _config.Network.Environment.MyceliumUrl,
+                    _config.Network.Environment.MyceliumPort);
+
+                _tcp = new TcpConnection(
+                    new LengthBasedSocketMessageReader(2, OnMessageRead),
+                    new LengthBasedSocketMessageWriter(2));
+                _tcp.OnConnectionOpened += Tcp_OnConnectionOpened;
+                _tcp.Connect(
+                    _config.Network.Environment.MyceliumUrl,
+                    _config.Network.Environment.MyceliumPort);
+            }
+            
+            return _connect.Token();
+        }
+
+        private void Tcp_OnConnectionOpened()
+        {
+            _connect.Succeed(Void.Instance);
+        }
+
+        private void OnMessageRead(ArraySegment<byte> bytes)
+        {
+            var stream = new ByteStream(bytes.Array, bytes.Offset);
+
+            // read type
+            var id = stream.ReadUnsignedShort();
+            Type type;
+            try
+            {
+                type = MyceliumMessagesMap.Get(id);
+            }
+            catch
+            {
+                Log.Error(this, "Unknown message type {0}.", id);
+                return;
+            }
+
+            object message;
+            try
+            {
+                message = _reader.Read(type, stream);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not read from stream: {0}.", exception);
+                return;
+            }
+
+            Log.Info(this, "Received a {0}.", message);
+        }
+    }
+
     /// <summary>
     /// Loads and manages an app.
     /// </summary>
@@ -30,6 +105,13 @@ namespace CreateAR.EnkluPlayer
         /// Metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
+
+        private MultiplayerController _multiplayer;
+
+        /// <summary>
+        /// Application wide configuration.
+        /// </summary>
+        private readonly ApplicationConfig _appConfig;
 
         /// <summary>
         /// True iff the app has been loaded.
@@ -67,13 +149,15 @@ namespace CreateAR.EnkluPlayer
             IAppSceneManager scenes,
             IElementTxnManager txns,
             IConnection connection,
-            IMetricsService metrics)
+            IMetricsService metrics,
+            ApplicationConfig config)
         {
             _loader = loader;
             Scenes = scenes;
             _txns = txns;
             _connection = connection;
             _metrics = metrics;
+            _appConfig = config;
         }
         
         /// <inheritdoc />
@@ -168,12 +252,24 @@ namespace CreateAR.EnkluPlayer
                     // play mode
                     else
                     {
-                        _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
+                        _multiplayer = new MultiplayerController(_appConfig);
+                        _multiplayer
+                            .Connect()
+                            .OnSuccess(v =>
+                            {
+                                _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
 
-                        if (null != OnReady)
-                        {
-                            OnReady();
-                        }
+                                Log.Info(this, "Connected!!!!!!!");
+
+                                if (null != OnReady)
+                                {
+                                    OnReady();
+                                }
+                            })
+                            .OnFailure(ex =>
+                            {
+                                Log.Error(this, "Cannot connect to multiplayer: {0}.", ex);
+                            });
                     }
                 })
                 .OnFailure(exception =>
