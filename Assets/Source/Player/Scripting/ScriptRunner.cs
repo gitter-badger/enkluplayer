@@ -16,23 +16,19 @@ namespace CreateAR.EnkluPlayer.Scripting
         public enum RunnerState
         {
             None,
-            Loading,
-            Parsing,
-            Idle,
-            Running
+            Starting,
+            Running,
+            Stopping
         }
         
         public enum SetupState
         {
-            Error = -1,
             None,
             Loading,
-            Loaded,
-            Parsing,
-            Done
+            Ready
         }
 
-        public class WidgetRecord
+        private class WidgetRecord
         {
             public Widget Widget;
 
@@ -42,19 +38,63 @@ namespace CreateAR.EnkluPlayer.Scripting
             public VineScript[] Vines;
             public BehaviorScript[] Behaviors;
 
+            public WidgetRecord ParentRecord;
             public List<WidgetRecord> DescendentRecords;
+
+            public Action<Script[], Script[]> OnScriptsUpdated;
+            public IAsyncToken<Void> BuildScripts()
+            {
+                if (SetupState != SetupState.None)
+                {
+                    throw new Exception("Widget's scripts are already loading.");
+                }
+                SetupState = SetupState.Loading;
+                
+                var rtnToken = new AsyncToken<Void>();
+
+                Assembler.OnScriptsUpdated += (old, @new) =>
+                {
+                    switch (SetupState)
+                    {
+                        // First time this Widget's scripts are ready.
+                        case SetupState.Loading:
+                            var descendentTokens = new IAsyncToken<Void>[DescendentRecords.Count];
+                            
+                            for (var i = 0; i < DescendentRecords.Count; i++)
+                            {
+                                var subRecord = DescendentRecords[i];
+                                descendentTokens[i] = subRecord.BuildScripts();
+                            }
+
+                            Async.All(descendentTokens).OnFinally(_ => rtnToken.Succeed(Void.Instance));
+
+                            SetupState = SetupState.Ready;
+                            break;
+                        // Update to scripts
+                        case SetupState.Ready:
+
+                            break;
+                    }
+                    
+                    OnScriptsUpdated.Execute(old, @new);
+                };
+                Assembler.Setup(Widget);
+
+                return rtnToken;
+            }
+
+            public void RunScripts(ScriptType type)
+            {
+                
+            }
         }
 
         /// <summary>
         /// A mini factory for creating ScriptAssemblers.
         /// </summary>
         private readonly Func<IScriptAssembler> _createScriptAssembler;
-        
-        private readonly List<WidgetRecord> _widgetRecords = new List<WidgetRecord>();
-        
-        private readonly List<IAsyncToken<Void[]>> _scriptLoading = new List<IAsyncToken<Void[]>>();
-        private readonly List<IAsyncToken<Void>> _vineTokens = new List<IAsyncToken<Void>>();
-        private readonly AsyncToken<Void> _vinesComplete = new AsyncToken<Void>();
+
+        private WidgetRecord _rootRecord;
 
         private RunnerState _runnerState;
 
@@ -78,7 +118,8 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public void AddSceneRoot(Widget root)
         {
-            
+            _rootRecord = CreateRecord(root);
+            _rootRecord.BuildScripts();
         }
 
         private WidgetRecord CreateRecord(Widget widget)
@@ -86,9 +127,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             var record = new WidgetRecord
             {
                 Widget = widget,
-                SetupState = SetupState.None,
+                SetupState = SetupState.Loading,
                 Assembler = _createScriptAssembler()
             };
+
+            record.Assembler.OnScriptsUpdated += (old, @new) => OnWidgetUpdated(record, old, @new);
 
             // Populate descendent records.
             var descendents = new List<Widget>();
@@ -98,11 +141,18 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             for (int i = 0, len = descendents.Count; i < len; i++)
             {
-                descendentRecords.Add(CreateRecord(descendents[i]));
+                var descendentRecord = CreateRecord(descendents[i]);
+                descendentRecord.ParentRecord = record;
+                descendentRecords.Add(descendentRecord);
             }
             record.DescendentRecords = descendentRecords;
 
             return record;
+        }
+
+        private void OnWidgetUpdated(WidgetRecord record, Script[] old, Script[] @new)
+        {
+            
         }
 
         /// <summary>
@@ -144,47 +194,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
         
-        public void AddWidget(Widget widget)
-        {
-            if (_widgetRecords.Any(rec => rec.Widget == widget))
-            {
-                throw new Exception("Widget already added.");
-            }
-            var record = new WidgetRecord
-            {
-                Widget = widget,
-                SetupState = SetupState.None,
-                Assembler = _createScriptAssembler()
-            };
-            _widgetRecords.Add(record);
-            
-            record.Assembler.Setup(widget);
-            
-            
-//            LoadScripts(record);
-//            
-//            // TODO: Handle AddWidget during load/parse
-//            if (_runnerState != RunnerState.None)
-//            {
-//                ParseWidget(record);
-//            }
-//            else
-//            {
-//                _scriptLoading.Add(record.LoadToken);
-//            }
-        }
-
-        public SetupState GetSetupState(Widget widget)
-        {
-            var record = _widgetRecords.FirstOrDefault(rec => rec.Widget == widget);
-
-            if (record == null)
-            {
-                throw new Exception("Unknown widget.");
-            }
-            
-            return record.SetupState;
-        }
+        
 
 //        public IAsyncToken<Void> ParseAll()
 //        {
@@ -280,33 +290,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Log.Warning(this, "StartAllScripts");
 
-            if (_runnerState == RunnerState.Running)
+            if (_runnerState != RunnerState.None)
             {
-                throw new Exception("Scripts already running!");
+                throw new Exception(string.Format("ScriptRunner is in an invalid state ({0})", _runnerState));
             }
 
-            _runnerState = RunnerState.Running;
-
-            var len = _widgetRecords.Count;
-            for (var i = 0; i < len; i++)
-            {
-                var vines = _widgetRecords[i].Vines;
-                
-                for (int j = 0, jLen = vines.Length; j < jLen; j++)
-                {
-                    StartScript(vines[i]);
-                }
-            }
-
-            for (var i = 0; i < len; i++)
-            {
-                var behaviors = _widgetRecords[i].Behaviors;
-                
-                for (int j = 0, jLen = behaviors.Length; j < jLen; j++)
-                {
-                    StartScript(behaviors[i]);
-                }
-            }
+            _rootRecord.BuildScripts()
+                .OnSuccess(_ => { _runnerState = RunnerState.Running; })
+                .OnFailure(exception => { Log.Error(this, "Error starting scripts: " + exception); });
         }
 
         /// <summary>
