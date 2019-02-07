@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
 using System.Reflection;
 #endif
 using System.Text;
@@ -326,7 +326,7 @@ namespace CreateAR.EnkluPlayer.IUX
             Find(query, _findAllScratch);
             
             return _findAllScratch
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 .Where(el => el.GetType() == typeof(T) || el.GetType().GetTypeInfo().IsSubclassOf(typeof(T)))
 #else
                 .Where(el => el.GetType() == typeof(T) || el.GetType().IsSubclassOf(typeof(T)))

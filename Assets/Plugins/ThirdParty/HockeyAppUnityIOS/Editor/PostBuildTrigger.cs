@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿#if UNITY_IOS
+
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -118,3 +120,5 @@ public static class PostBuildTrigger
 		File.WriteAllText(filepath, output);
 	}
 }
+
+#endif

@@ -156,7 +156,7 @@ namespace CreateAR.EnkluPlayer
             _ar.OnTrackingOnline += Ar_OnTrackingOnline;
             
             _resolver.Initialize(
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 // reference by hand
                 System.Reflection.Assembly.Load(new System.Reflection.AssemblyName("Assembly-CSharp"))
 #else

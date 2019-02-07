@@ -284,7 +284,7 @@ namespace CreateAR.EnkluPlayer.IUX
 
             if (_pollStatus)
             {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 var anchor = GameObject.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
                 if (null != anchor)
                 {

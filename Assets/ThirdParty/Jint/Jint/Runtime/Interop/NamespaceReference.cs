@@ -100,7 +100,7 @@ namespace Jint.Runtime.Interop
             }
 
             // search in loaded assemblies
-#if NETFX_CORE
+#if NETFX_CORE 
             var lookupAssemblies = new[] { typeof(NamespaceReference).GetTypeInfo().Assembly };
 #else
             var lookupAssemblies = new[] { Assembly.GetCallingAssembly(), Assembly.GetExecutingAssembly() };

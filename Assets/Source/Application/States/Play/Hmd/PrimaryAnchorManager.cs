@@ -291,7 +291,7 @@ namespace CreateAR.EnkluPlayer
             // origin command
             _voice.Register("origin", str =>
             {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 UnityEngine.XR.InputTracking.Recenter();
 #endif
             });

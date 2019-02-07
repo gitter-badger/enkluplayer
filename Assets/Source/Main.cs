@@ -70,7 +70,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Awake()
         {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             UwpCrashLogger.Initialize();
 #endif
 

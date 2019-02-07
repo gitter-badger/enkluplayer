@@ -72,7 +72,7 @@ namespace CreateAR.EnkluPlayer
                 Callback = callback
             };
 
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             Windows.System.Threading.ThreadPool.RunAsync(_ => Process(state));
 #elif UNITY_WEBGL
             Process(state);

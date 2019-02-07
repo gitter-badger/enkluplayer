@@ -21,7 +21,7 @@ namespace CreateAR.EnkluPlayer
                 return defaultValue;
             }
 
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 T type;
                 if (Enum.TryParse(value, out type))
                 {

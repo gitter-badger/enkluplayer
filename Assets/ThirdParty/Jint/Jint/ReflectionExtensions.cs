@@ -1,4 +1,4 @@
-﻿#if NETFX_CORE
+﻿#if NETFX_CORE 
 using System;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +27,7 @@ internal static class ReflectionExtensions
 
     internal static object[] GetCustomAttributes(this Type @this, Type attributeType, bool inherit)
     {
-        return @this.GetTypeInfo().GetCustomAttributes(attributeType, inherit).ToArray();
+        return @this.GetTypeInfo().GetCustomAttributes(attributeType, inherit);
     }
 }
 #else

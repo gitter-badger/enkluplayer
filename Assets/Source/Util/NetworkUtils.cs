@@ -33,7 +33,7 @@ namespace CreateAR.EnkluPlayer
             }
 #endif
 
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             builder.AppendLine("Networking information:");
             foreach (var localHostName in Windows.Networking.Connectivity.NetworkInformation.GetHostNames())
             {

@@ -189,7 +189,7 @@ namespace CreateAR.EnkluPlayer.Test
         /// <returns></returns>
         private IEnumerable<Assembly> GetAssemblies()
         {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             // TODO: https://stackoverflow.com/questions/44813060/equivalence-for-appdomain-getassemblies-in-uwp
             return new Assembly[0];
 #else

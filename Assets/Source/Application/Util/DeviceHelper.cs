@@ -11,7 +11,7 @@
         /// <returns></returns>
         public static bool IsHoloLens()
         {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             return true;
 #else
             return false;

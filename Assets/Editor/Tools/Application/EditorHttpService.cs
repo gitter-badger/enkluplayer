@@ -83,13 +83,13 @@ namespace CreateAR.Commons.Unity.Http.Editor
         }
 
         /// <inheritdoc cref="IHttpService"/>
-        public IAsyncToken<HttpResponse<T>> PostFile<T>(string url, IEnumerable<Tuple<string, string>> fields, ref byte[] file)
+        public IAsyncToken<HttpResponse<T>> PostFile<T>(string url, IEnumerable<DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc cref="IHttpService"/>
-        public IAsyncToken<HttpResponse<T>> PutFile<T>(string url, IEnumerable<Tuple<string, string>> fields, ref byte[] file)
+        public IAsyncToken<HttpResponse<T>> PutFile<T>(string url, IEnumerable<DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
             throw new NotImplementedException();
         }
@@ -158,10 +158,10 @@ namespace CreateAR.Commons.Unity.Http.Editor
             {
                 StatusCode = GetStatusCode(request),
                 Headers = null == request.responseHeaders
-                    ? new List<Tuple<string, string>>()
+                    ? new List<DataStructures.Tuple<string, string>>()
                     : request
                         .responseHeaders
-                        .Select(pair => Tuple.Create(pair.Key, pair.Value))
+                        .Select(pair => DataStructures.Tuple.Create(pair.Key, pair.Value))
                         .ToList(),
                 Raw = request.bytes
             };
