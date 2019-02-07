@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
@@ -21,7 +20,6 @@ namespace CreateAR.EnkluPlayer
         private readonly ISocketMessageReader _messageReader;
         private readonly ISocketMessageWriter _messageWriter;
 
-        private Thread _readThread;
         private readonly AtomicBool _isReading = new AtomicBool(false);
         private readonly AtomicBool _initialized = new AtomicBool(false);
 
@@ -38,11 +36,6 @@ namespace CreateAR.EnkluPlayer
                 return null != _client && _client.Connected;
             }
         }
-
-        /// <summary>
-        /// Fired when the connection is opened.
-        /// </summary>
-        public Action OnConnectionOpened { get; set; }
 
         /// <summary>
         /// Fired when the connection is closed. The <see cref="bool"/> flag is set to
@@ -67,8 +60,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Synchronously connects the the target host and port using ipv6 if available. Otherwise, falling
-        /// back to ipv4. 
+        /// Synchronously connects the the target host and port.
         /// </summary>
         public bool Connect(string host, int port)
         {
@@ -80,43 +72,29 @@ namespace CreateAR.EnkluPlayer
 
             // Try and Parse an IP Address from the provided "host"
             IPAddress ipAddress;
-            if (IPAddress.TryParse(host, out ipAddress))
+            if (!IPAddress.TryParse(host, out ipAddress))
             {
-                // Use IP Address' Family
-                _client = NewTcpClient(ipAddress.AddressFamily);
+                Log.Warning(this, "Could not parse ipAddress.");
+                SilentClose();
 
-                // Connect directly using IPAddress and port
-                try
-                {
-                    ConnectWith(_client, ipAddress, port);
-                }
-                catch (Exception e)
-                {
-                    Log.Warning(this, "Connection failed: {0}", e);
-                    SilentClose();
-                    return false;
-                }
+                return false;
             }
-            else
-            {
-                // Failed to parse an IP Address from the "host" parameter. We now rely on TcpClient
-                // to resolve host addresses for us. Since we do not have access to Dual mode for IPV6
-                // support, we try to connect with IPV6 first, then IPV4 as a fallback.
-                if (!TryConnectIpV6(host, port, out _client))
-                {
-                    _client = NewIPV4Client();
 
-                    try
-                    {
-                        ConnectWith(_client, host, port);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Warning(this, "Connection failed: {0}", e);
-                        SilentClose();
-                        return false;
-                    }
-                }
+
+            // Use IP Address' Family
+            _client = NewTcpClient(ipAddress.AddressFamily);
+
+            // Connect directly using IPAddress and port
+            try
+            {
+                ConnectWith(_client, ipAddress, port);
+            }
+            catch (Exception e)
+            {
+                Log.Warning(this, "Connection failed: {0}", e);
+                SilentClose();
+
+                return false;
             }
 
             // Valid TcpClient at this point, so check for connection
@@ -130,7 +108,7 @@ namespace CreateAR.EnkluPlayer
             _messageReader.Reset();
 
             // Starts the thread and waits for the thread to actually start before returning
-            _readThread = ThreadHelper.SyncStart(ReadSocket, true);
+            ThreadHelper.SyncStart(ReadSocket, true);
 
             return true;
         }
@@ -151,64 +129,14 @@ namespace CreateAR.EnkluPlayer
             }
 
             client.EndConnect(asyncResult);
-
-            if (client.Connected && null != OnConnectionOpened)
-            {
-                OnConnectionOpened();
-            }
         }
-
-        /// <summary>
-        /// Uses async connect with a synchronous Wait() up to <see cref="ConnectionTimeout"/>. This does not guarantee
-        /// connection success, but ensures that we wait for no longer than the provided timeout. 
-        /// </summary>
-        private void ConnectWith(TcpClient client, string host, int port)
-        {
-            var asyncResult = client.BeginConnect(host, port, null, null);
-            var success = asyncResult.AsyncWaitHandle.WaitOne(ConnectionTimeout);
-            if (!success)
-            {
-                throw new Exception(string.Format(
-                    "Failed to connect within {0} seconds.",
-                    ConnectionTimeout.TotalSeconds));
-            }
-
-            client.EndConnect(asyncResult);
-        }
-
-        /// <summary>
-        /// Attempt to connect using IPV6. If connection succeeds, set the out parameter to
-        /// the connected <see cref="TcpClient"/>. Otherwise, set the out parameter to <c>null</c>
-        /// and return <c>false</c>.
-        /// </summary>
-        private bool TryConnectIpV6(string host, int port, out TcpClient client)
-        {
-            var tcpClient = NewIPV6Client();
-
-            try
-            {
-                ConnectWith(tcpClient, host, port);
-            }
-            catch (Exception e)
-            {
-                Log.Warning(this, "Failed to connect with IPV6, Falling back to IPV4: {0}", e);
-                CloseClient(tcpClient);
-
-                client = null;
-                return false;
-            }
-
-            var isConnected = tcpClient.Connected;
-            client = isConnected ? tcpClient : null;
-            return isConnected;
-        }
-
+        
         /// <summary>
         /// Uses the <see cref="ISocketMessageWriter"/> to write data to the outbound TCP buffer.
         /// </summary>
         /// <param name="message">The binary payload to write to the outbound buffer.</param>
         /// <returns><c>true</c> if the write succeeded. Otherwise, <c>false</c></returns>
-        public bool Send(byte[] message)
+        public bool Send(byte[] message, int offset, int len)
         {
             try
             {
@@ -220,11 +148,11 @@ namespace CreateAR.EnkluPlayer
                     return false;
                 }
 
-                _messageWriter.DataWrite(message, stream);
+                _messageWriter.Write(stream, message, offset, len);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Log.Warning(this, "Failed to write to outbound TCP Buffer: {0}", e);
+                Log.Warning(this, "Failed to write to outbound TCP Buffer: {0}", exception);
                 Close(true, false);
                 return false;
             }
@@ -242,8 +170,9 @@ namespace CreateAR.EnkluPlayer
             {
                 stream = _client.GetStream();
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
+                Log.Warning(this, "Could not get stream from TcpClient: {0}.", exception);
                 Close(true, false);
                 return;
             }
@@ -299,8 +228,10 @@ namespace CreateAR.EnkluPlayer
                     _messageReader.DataRead(_readStream);
                 }
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
+                Log.Warning(this, "Disconnected: {0}", exception);
+
                 // Since the read thread doesn't start until after we have connected, we can generally expect
                 // an exception thrown here to be the result of a socket disconnection. We'll want to dispatch
                 Close(true, false);
@@ -350,7 +281,6 @@ namespace CreateAR.EnkluPlayer
             // Closing the connection will cause the blocking Read() to
             // throw (the stream closes), thus exiting the read thread
             _client = null;
-            _readThread = null;
 
             // If the client existed prior to closing and flagged for dispatch
             if (dispatch)
@@ -380,23 +310,7 @@ namespace CreateAR.EnkluPlayer
                 Log.Info(this, "Closing Socket Exception: {0}", e);
             }
         }
-
-        /// <summary>
-        /// Creates a new <see cref="TcpClient"/> for IPV6.
-        /// </summary>
-        private TcpClient NewIPV6Client()
-        {
-            return NewTcpClient(AddressFamily.InterNetworkV6);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="TcpClient"/> for IPV4.
-        /// </summary>
-        private TcpClient NewIPV4Client()
-        {
-            return NewTcpClient(AddressFamily.InterNetwork);
-        }
-
+        
         /// <summary>
         /// Creates a new <see cref="TcpClient"/> instance.
         /// </summary>

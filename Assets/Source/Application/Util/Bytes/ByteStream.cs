@@ -6,21 +6,33 @@ namespace CreateAR.EnkluPlayer
 {
     public class ByteStream : IByteStream
     {
-        private readonly byte[] _bytes;
-        private readonly int _start;
+        private readonly int _offset;
+        private readonly ByteArrayHandle _handle;
 
         private int _readerIndex = 0;
         private int _writerIndex = 0;
 
-        public ByteStream(byte[] bytes, int start)
+        public ByteStream(byte[] bytes, int offset)
+            : this(new ByteArrayHandle(bytes), offset)
         {
-            _bytes = bytes;
-            _start = start;
+            //
         }
 
+        public ByteStream(ByteArrayHandle handle)
+            : this(handle, 0)
+        {
+
+        }
+
+        public ByteStream(ByteArrayHandle handle, int offset)
+        {
+            _handle = handle;
+            _offset = offset;
+        }
+        
         public int ReadInt()
         {
-            var val = HeapByteBufferUtil.GetInt(_bytes, _start + _readerIndex);
+            var val = HeapByteBufferUtil.GetInt(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 4;
 
@@ -29,7 +41,7 @@ namespace CreateAR.EnkluPlayer
 
         public long ReadLong()
         {
-            var val = HeapByteBufferUtil.GetLong(_bytes, _start + _readerIndex);
+            var val = HeapByteBufferUtil.GetLong(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 8;
 
@@ -38,7 +50,7 @@ namespace CreateAR.EnkluPlayer
 
         public short ReadShort()
         {
-            var val = HeapByteBufferUtil.GetShort(_bytes, _start + _readerIndex);
+            var val = HeapByteBufferUtil.GetShort(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 2;
 
@@ -47,7 +59,7 @@ namespace CreateAR.EnkluPlayer
 
         public ushort ReadUnsignedShort()
         {
-            var val = HeapByteBufferUtil.GetShort(_bytes, _start + _readerIndex);
+            var val = HeapByteBufferUtil.GetShort(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 2;
 
@@ -56,7 +68,7 @@ namespace CreateAR.EnkluPlayer
 
         public byte ReadByte()
         {
-            var val = HeapByteBufferUtil.GetByte(_bytes, _start + _readerIndex);
+            var val = HeapByteBufferUtil.GetByte(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 1;
 
@@ -65,7 +77,7 @@ namespace CreateAR.EnkluPlayer
 
         public char ReadChar()
         {
-            var val = HeapByteBufferUtil.GetShort(_bytes, _start + _readerIndex);
+            var val = HeapByteBufferUtil.GetShort(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 2;
 
@@ -89,7 +101,7 @@ namespace CreateAR.EnkluPlayer
 
         public string ReadString(ushort len, Encoding encoding)
         {
-            var val = Encoding.UTF8.GetString(_bytes, _readerIndex + _start, len);
+            var val = Encoding.UTF8.GetString(_handle.Buffer, _readerIndex + _offset, len);
 
             _readerIndex += len;
 
@@ -98,28 +110,40 @@ namespace CreateAR.EnkluPlayer
 
         public void WriteInt(int value)
         {
-            HeapByteBufferUtil.SetInt(_bytes, _writerIndex + _start, value);
+            const int numBytes = 4;
+            EnsureSpace(numBytes);
 
-            _writerIndex += 4;
+            HeapByteBufferUtil.SetInt(_handle.Buffer, _writerIndex + _offset, value);
+
+            _writerIndex += numBytes;
         }
 
         public void WriteLong(long value)
         {
-            HeapByteBufferUtil.SetLong(_bytes, _writerIndex + _start, value);
+            const int numBytes = 8;
+            EnsureSpace(numBytes);
 
-            _writerIndex += 8;
+            HeapByteBufferUtil.SetLong(_handle.Buffer, _writerIndex + _offset, value);
+
+            _writerIndex += numBytes;
         }
 
         public void WriteShort(short value)
         {
-            HeapByteBufferUtil.SetShort(_bytes, _writerIndex + _start, value);
+            const int numBytes = 2;
+            EnsureSpace(numBytes);
 
-            _writerIndex += 2;
+            HeapByteBufferUtil.SetShort(_handle.Buffer, _writerIndex + _offset, value);
+
+            _writerIndex += numBytes;
         }
 
         public void WriteByte(byte value)
         {
-            _bytes[_start + _writerIndex++] = value;
+            const int numBytes = 1;
+            EnsureSpace(numBytes);
+
+            _handle.Buffer[_offset + _writerIndex++] = value;
         }
 
         public void WriteUnsignedShort(ushort value)
@@ -150,10 +174,13 @@ namespace CreateAR.EnkluPlayer
         public void WriteString(string str, Encoding encoding)
         {
             var val = Encoding.UTF8.GetBytes(str);
+            var numBytes = val.Length;
 
-            Array.Copy(val, 0, _bytes, _writerIndex + _start, val.Length);
+            EnsureSpace(numBytes);
 
-            _writerIndex += val.Length;
+            Array.Copy(val, 0, _handle.Buffer, _writerIndex + _offset, numBytes);
+
+            _writerIndex += numBytes;
         }
 
         public void SetIndex(int reader, int writer)
@@ -165,6 +192,14 @@ namespace CreateAR.EnkluPlayer
         public int WriterIndex
         {
             get { return _writerIndex; }
+        }
+
+        private void EnsureSpace(int numBytes)
+        {
+            while (_handle.Buffer.Length - _writerIndex < numBytes)
+            {
+                _handle.Grow();
+            }
         }
     }
 }

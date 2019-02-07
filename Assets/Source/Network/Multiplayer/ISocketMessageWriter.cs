@@ -12,6 +12,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="data">The binary data to write to the stream.</param>
         /// <param name="stream">The <see cref="NetworkStream"/> to write the data to.</param>
-        void DataWrite(byte[] data, NetworkStream stream);
+        /// <param name="offset">The offset into the data to start writing.</param>
+        /// <param name="len">The length.</param>
+        void Write(NetworkStream stream, byte[] data, int offset, int len);
     }
 }

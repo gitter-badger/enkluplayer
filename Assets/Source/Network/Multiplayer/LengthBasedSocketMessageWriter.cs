@@ -43,17 +43,17 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc/>
-        public void DataWrite(byte[] data, NetworkStream stream)
+        public void Write(NetworkStream stream, byte[] data, int offset, int len)
         {
-            LengthFieldHelper.WriteLength(data.LongLength, _lengthBuffer, _lengthSize);
+            LengthFieldHelper.WriteLength(len, _lengthBuffer, _lengthSize);
 
             // Reset the memory stream to the origin, write the length and payload
             _writeStream.Position = 0;
             _writeStream.Write(_lengthBuffer, 0, _lengthBuffer.Length);
-            _writeStream.Write(data, 0, data.Length);
+            _writeStream.Write(data, offset, len);
 
             // write the length + payload to the socket
-            stream.Write(_writeStream.GetBuffer(), 0, data.Length + _lengthSize);
+            stream.Write(_writeStream.GetBuffer(), 0, len + _lengthSize);
         }
     }
 }
