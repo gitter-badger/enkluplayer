@@ -95,6 +95,7 @@ namespace CreateAR.Commons.Unity.Async
             var returnToken = new MutableAsyncToken<T[]>();
             var values = new T[len];
             var exceptions = new List<Exception>();
+            var tokenReturned = new bool[len];
             var numReturned = 0;
 
             for (var i = 0; i < len; i++)
@@ -106,9 +107,13 @@ namespace CreateAR.Commons.Unity.Async
                     .OnFailure(exception => exceptions.Add(exception))
                     .OnFinally(_ =>
                     {
-                        // TODO: THIS IS INACCURATE! A single token could be resolved LEN times
-                        // TODO: and this would still be satisified. Hmm...
-                        if (++numReturned == len)
+                        if (!tokenReturned[index])
+                        {
+                            tokenReturned[index] = true;
+                            numReturned++;
+                        }
+                        
+                        if (numReturned == len)
                         {
                             if (exceptions.Count > 1)
                             {
@@ -130,6 +135,81 @@ namespace CreateAR.Commons.Unity.Async
             }
 
             return returnToken;
+        }
+
+        public static IAsyncToken<T[]> All<T>(IMutableAsyncToken<T>[] mutableTokens, IAsyncToken<T>[] asyncTokens)
+        {
+            return All(asyncTokens, mutableTokens);
+        }
+
+        public static IAsyncToken<T[]> All<T>(IAsyncToken<T>[] asyncTokens, IMutableAsyncToken<T>[] mutableTokens)
+        {
+            var singleLen = asyncTokens.Length;
+            var mutableLen = mutableTokens.Length;
+            var len = singleLen + mutableLen;
+            if (0 == len)
+            {
+                return new AsyncToken<T[]>(new T[0]);
+            }
+
+            var rtnToken = new AsyncToken<T[]>();
+            var rtnValues = new List<T>(len);
+            var singleReturned = false;
+            var mutableReturned = false;
+
+            Exception singleException = null;
+            Exception mutableException = null;
+
+            Action resolveToken = () =>
+            {
+                if (singleException != null && mutableException != null)
+                {
+                    var aggException = new AggregateException();
+                    aggException.Exceptions.Add(singleException);
+                    aggException.Exceptions.Add(mutableException);
+                    rtnToken.Fail(aggException);
+                    return;
+                }
+
+                if (singleException != null)
+                {
+                    rtnToken.Fail(singleException);
+                    return;
+                }
+
+                if (mutableException != null)
+                {
+                    rtnToken.Fail(mutableException);
+                    return;
+                }
+
+                rtnToken.Succeed(rtnValues.ToArray());
+            };
+
+            All(asyncTokens)
+                .OnSuccess(val => rtnValues.AddRange(val))
+                .OnFailure(exception => singleException = exception)
+                .OnFinally(_ =>
+                {
+                    singleReturned = true;
+                    if (mutableReturned)
+                    {
+                        resolveToken();
+                    }
+                });
+            All(mutableTokens)
+                .OnSuccess(val => rtnValues.AddRange(val))
+                .OnFailure(exception => mutableException = exception)
+                .OnFinally(_ =>
+                {
+                    mutableReturned = true;
+                    if (singleReturned)
+                    {
+                        resolveToken();
+                    }
+                });
+            
+            return rtnToken;
         }
 
         /// <summary>

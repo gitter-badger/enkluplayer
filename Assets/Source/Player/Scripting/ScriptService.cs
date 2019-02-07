@@ -1,3 +1,4 @@
+using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
@@ -26,7 +27,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _elementManager = elementManager;
             
             _scriptRunner = new ScriptRunner(
-                scriptManager, scriptFactory, requireResolver, elementJsCache, appJsApi);
+                scriptManager, scriptFactory, elementJsCache, requireResolver, appJsApi);
         }
 
         public override void Start()
@@ -36,17 +37,27 @@ namespace CreateAR.EnkluPlayer.Scripting
             _sceneManager.OnInitialized += () =>
             {
                 Log.Warning(this, "Scene OnInitialized");
-                for (int i = 0, len = _elementManager.All.Count; i < len; i++)
+
+                var widgetRoot = _sceneManager.Root(_sceneManager.All[0]) as Widget;
+
+                if (widgetRoot == null)
                 {
-                    Element_OnCreated(_elementManager.All[i]);
+                    Log.Error(this, "Scene root isn't a Widget!");
+                    return;
                 }
                 
-                _scriptRunner.ParseAll().OnSuccess(_ =>
-                {
-                    _scriptRunner.StartAllScripts();
-                });
-                
-                _elementManager.OnCreated += Element_OnCreated;
+                _scriptRunner.AddSceneRoot(widgetRoot);
+//                for (int i = 0, len = _elementManager.All.Count; i < len; i++)
+//                {
+//                    Element_OnCreated(_elementManager.All[i]);
+//                }
+//                
+//                _scriptRunner.ParseAll().OnSuccess(_ =>
+//                {
+//                    _scriptRunner.StartAllScripts();
+//                });
+//                
+//                _elementManager.OnCreated += Element_OnCreated;
             };
         }
 

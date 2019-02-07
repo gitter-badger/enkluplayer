@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Test.UI;
 using Newtonsoft.Json;
@@ -63,6 +64,23 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 
                     scriptManager.AddEntry(script.Data.Id, script);
                 }
+            }
+
+            widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
+        }
+
+        public static void RemoveScriptFromWidget(Widget widget, TestScriptManager scriptManager, params EnkluScript[] scripts)
+        {
+            var existingScripts = JArray.Parse(
+                widget.Schema.GetOwn("scripts", "[]").Value);
+            
+            for (int i = 0, len = scripts.Length; i < len; i++)
+            {
+                var script = scripts[i];
+
+                var jToken = existingScripts.First(val => val["id"].Value<string>() == script.Data.Id);    
+                existingScripts.Remove(jToken);
+                scriptManager.RemoveEntry(script.Data.Id);
             }
 
             widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));

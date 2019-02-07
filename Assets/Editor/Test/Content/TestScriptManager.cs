@@ -52,5 +52,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             _scriptLookup.Add(scriptId, script);
         }
+
+        public void RemoveEntry(string scriptId)
+        {
+            _scriptLookup.Remove(scriptId);
+        }
     }
 }
