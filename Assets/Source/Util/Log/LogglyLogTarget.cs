@@ -180,7 +180,9 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IEnumerator SendData(WWWForm form)
         {
+#pragma warning disable 618
             yield return new WWW(
+#pragma warning restore 618
                 string.Format(
                     "https://logs-01.loggly.com/inputs/{0}/tag/{1}",
                     _customerToken,

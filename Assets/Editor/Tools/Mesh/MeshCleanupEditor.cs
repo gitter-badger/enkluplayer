@@ -211,7 +211,9 @@ namespace CreateAR.EnkluPlayer.Editor
             }
 
             AssetDatabase.SaveAssets();
+#pragma warning disable CS0618 // Type or member is obsolete
             PrefabUtility.CreatePrefab("Assets/Exports/Export.prefab", root);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var export = new MeshExporter().Export(root);
             File.WriteAllBytes("Assets/Exports/Exported_obj.obj", export);

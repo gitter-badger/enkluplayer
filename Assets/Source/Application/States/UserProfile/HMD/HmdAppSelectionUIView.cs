@@ -70,7 +70,15 @@ namespace CreateAR.EnkluPlayer
         
         /// <inheritdoc />
         public event Action OnPublicApps;
-        
+
+        /// <summary>
+        /// Forces event call.
+        /// </summary>
+        public void ForcePublicApps()
+        {
+            OnPublicApps?.Invoke();
+        }
+
         /// <inheritdoc />
         protected override void AfterElementsCreated()
         {

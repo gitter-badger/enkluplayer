@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <linker>
   <assembly fullname="System">
-    <type fullname="System.ComponentModel.TypeConverter" preserve="all" />
-    <!-- <namespace fullname="System.ComponentModel" preserve="all" /> -->
+    <namespace fullname="System.ComponentModel" preserve="all" ignoreIfMissing="1" />
   </assembly>
 </linker>

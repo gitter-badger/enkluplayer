@@ -13,11 +13,17 @@ namespace CreateAR.EnkluPlayer
         /// Unity UI.
         /// </summary>
         [SerializeField]
+#pragma warning disable 649
         private Text _title;
+#pragma warning restore 649
         [SerializeField]
+#pragma warning disable 649
         private Text _description;
+#pragma warning restore 649
         [SerializeField]
+#pragma warning disable 649
         private Text _action;
+#pragma warning restore 649
         
         /// <summary>
         /// Gets/sets the title.

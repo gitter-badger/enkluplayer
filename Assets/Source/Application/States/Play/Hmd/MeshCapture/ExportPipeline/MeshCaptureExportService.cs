@@ -80,7 +80,7 @@ namespace CreateAR.EnkluPlayer
                 }
             };
 
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             // here
             System.Threading.Tasks.Task.Factory.StartNew(
                 _worker.Start,

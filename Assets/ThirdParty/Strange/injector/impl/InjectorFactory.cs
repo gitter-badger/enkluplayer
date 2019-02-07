@@ -61,7 +61,7 @@ namespace strange.extensions.injector.impl
 		{
 			if (binding.value != null)
 			{
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 if (binding.value.GetType().IsInstanceOfType(typeof(Type)))
 #else
                 if (binding.value.GetType().GetTypeInfo().IsInstanceOfType(typeof(Type)))

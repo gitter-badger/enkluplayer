@@ -1,6 +1,7 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
 
-#if NETFX_CORE
+using CreateAR.Commons.Unity.Logging;
+
 namespace MediaFrameQrProcessing.Wrappers
 {
   using global::ZXing;

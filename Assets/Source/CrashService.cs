@@ -80,7 +80,7 @@ namespace CreateAR.EnkluPlayer
             _deviceInfo = builder.ToString();
 
             // add special crash logging for UWP
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             UwpCrashLogger.Initialize();
 
             // handle shutdown

@@ -11,11 +11,13 @@ namespace RLD
         #if UNITY_EDITOR
         public static bool IsSceneObject(this GameObject gameObject)
         {
+#pragma warning disable 618
             PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
             return prefabType == PrefabType.None || prefabType == PrefabType.PrefabInstance ||
                    prefabType == PrefabType.DisconnectedPrefabInstance || prefabType == PrefabType.MissingPrefabInstance ||
                    prefabType == PrefabType.DisconnectedModelPrefabInstance || prefabType == PrefabType.ModelPrefab ||
                    prefabType == PrefabType.ModelPrefabInstance;
+#pragma warning restore 618
         }
         #endif
 

@@ -1,4 +1,4 @@
-﻿#if NETFX_CORE
+﻿#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
 using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;

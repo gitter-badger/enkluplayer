@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.DataStructures;
 using UnityEngine;
 
 namespace CreateAR.Commons.Unity.Http.Editor
 {
+#pragma warning disable 618
     /// <summary>
     /// Editor implementation of <c>IHttpService</c>.
     /// </summary>
@@ -88,14 +88,14 @@ namespace CreateAR.Commons.Unity.Http.Editor
             return SendRequest<T>(HttpVerb.Delete, url, null);
         }
 
-        /// <inheritdoc />
-        public IAsyncToken<HttpResponse<T>> PostFile<T>(string url, IEnumerable<Tuple<string, string>> fields, ref byte[] file)
+        /// <inheritdoc cref="IHttpService"/>
+        public IAsyncToken<HttpResponse<T>> PostFile<T>(string url, IEnumerable<DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
-        public IAsyncToken<HttpResponse<T>> PutFile<T>(string url, IEnumerable<Tuple<string, string>> fields, ref byte[] file)
+        /// <inheritdoc cref="IHttpService"/>
+        public IAsyncToken<HttpResponse<T>> PutFile<T>(string url, IEnumerable<DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
             throw new NotImplementedException();
         }
@@ -132,6 +132,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
                 _serializer.Serialize(payload, out bytes);
             }
 
+
             var request = new WWW(
                 url,
                 bytes,
@@ -143,7 +144,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
         }
 
         /// <summary>
-        /// Sycnhronously process response.
+        /// Synchronously process response.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="request">WWW request.</param>
@@ -173,10 +174,10 @@ namespace CreateAR.Commons.Unity.Http.Editor
             {
                 StatusCode = GetStatusCode(request),
                 Headers = null == request.responseHeaders
-                    ? new List<Tuple<string, string>>()
+                    ? new List<DataStructures.Tuple<string, string>>()
                     : request
                         .responseHeaders
-                        .Select(pair => Tuple.Create(pair.Key, pair.Value))
+                        .Select(pair => DataStructures.Tuple.Create(pair.Key, pair.Value))
                         .ToList(),
                 Raw = request.bytes
             };
@@ -296,4 +297,5 @@ namespace CreateAR.Commons.Unity.Http.Editor
             }
         }
     }
+#pragma warning restore 618
 }

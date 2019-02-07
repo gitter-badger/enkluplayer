@@ -83,7 +83,7 @@ namespace CreateAR.EnkluPlayer
 #endif
 
                 // metrics
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 binder.Bind<IHostedGraphiteMetricsTarget>().To<UwpHostedGraphiteMetricsTarget>().ToSingleton();
 #else
                 binder.Bind<IHostedGraphiteMetricsTarget>().To<FrameworkHostedGraphiteMetricsTarget>().ToSingleton();
@@ -98,7 +98,11 @@ namespace CreateAR.EnkluPlayer
                 else
                 {
                     binder.Bind<IHttpService>()
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
+                        .To(new UwpHttpService(
+#else
                         .To(new HttpService(
+#endif
                             binder.GetInstance<JsonSerializer>(),
                             LookupComponent<MonoBehaviourBootstrapper>(),
                             binder.GetInstance<UrlFormatterCollection>()))
@@ -218,7 +222,7 @@ namespace CreateAR.EnkluPlayer
                         binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
                         binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
                         binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
-#elif NETFX_CORE
+#elif NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                         binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                         binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
                         binder.Bind<ITcpConnectionFactory>().To<UwpTcpConnectionFactory>().ToSingleton();
@@ -241,13 +245,13 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<MetricsUpdateService>().To<MetricsUpdateService>().ToSingleton();
                     binder.Bind<DebugService>().To<DebugService>().ToSingleton();
 
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                     binder.Bind<CommandService>().To<UwpCommandService>().ToSingleton();
 #else
                     binder.Bind<CommandService>().To<CommandService>().ToSingleton();
 #endif
 
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                     binder.Bind<IDeviceMetaProvider>().To<NetCoreDeviceMetaProvider>().ToSingleton();
 #else
                     binder.Bind<IDeviceMetaProvider>().To<FrameworkDeviceMetaProvider>().ToSingleton();
@@ -330,7 +334,7 @@ namespace CreateAR.EnkluPlayer
                         // tools
                         {
                             binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
-#if !UNITY_EDITOR && UNITY_WSA
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                             binder.Bind<IMeshCaptureService>().To<HoloLensMeshCaptureService>().ToSingleton();
 #else
                             binder.Bind<IMeshCaptureService>().To<MockMeshCaptureService>().ToSingleton();
@@ -509,7 +513,7 @@ namespace CreateAR.EnkluPlayer
 
             // QR
             {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 binder.Bind<IQrReaderService>().To<WsaQrReaderService>().ToSingleton();
 #elif UNITY_IOS
                 binder.Bind<IQrReaderService>().To<IosQrReaderService>().ToSingleton();
@@ -521,7 +525,7 @@ namespace CreateAR.EnkluPlayer
             // BLE
             {
                 binder.Bind<BleServiceConfiguration>().ToValue(LookupComponent<BleServiceConfiguration>());
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 binder.Bind<IBleService>().To<UwpBleService>().ToSingleton();
 #else
                 binder.Bind<IBleService>().To<NullBleService>().ToSingleton();
@@ -530,7 +534,7 @@ namespace CreateAR.EnkluPlayer
 
             // Voice
             {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 binder.Bind<IVoiceCommandManager>().To<VoiceCommandManager>().ToSingleton();
 #else
                 if (UnityEngine.Application.isEditor)
@@ -546,8 +550,8 @@ namespace CreateAR.EnkluPlayer
 
             // Gesture
             {
-#if NETFX_CORE
-                binder.Bind<IGestureManager>().To<HoloLensGestureManager>().ToSingleton();
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
+                binder.Bind<IGestureManager>().To<HoloLensGestureManager>().ToSingleton();          
 #else
                 binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
 #endif
@@ -567,7 +571,7 @@ namespace CreateAR.EnkluPlayer
 
             // Storage
             {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 binder.Bind<IVideoManager>().To<HoloLensVideoManager>().ToSingleton();
                 binder.Bind<IImageManager>().To<HoloLensImageManager>().ToSingleton();
 #else

@@ -1,4 +1,4 @@
-﻿#if NETFX_CORE
+﻿#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
 using System.Linq;
 using Windows.Networking;
 using Windows.System.Profile;

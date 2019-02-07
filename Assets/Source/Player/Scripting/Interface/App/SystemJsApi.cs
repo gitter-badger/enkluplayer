@@ -146,7 +146,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void recenter()
         {
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                 UnityEngine.XR.InputTracking.Recenter();
 #endif
         }
@@ -170,7 +170,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void restart()
         {
 
-#if NETFX_CORE
+#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             Log.Info(this, "Restarting.");
             Windows.ApplicationModel.Core.CoreApplication.RequestRestartAsync("");
 #else
