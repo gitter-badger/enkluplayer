@@ -39,7 +39,11 @@ namespace CreateAR.EnkluPlayer
         /// User prefs.
         /// </summary>
         private readonly UserPreferenceService _prefs;
-        
+        private readonly HttpRequestCacher _helper;
+        private readonly NetworkConfig _networkConfig;
+        private readonly IMetricsService _metrics;
+        private readonly IBootstrapper _bootstrapper;
+
         /// <summary>
         /// Lookup from sceneId -> scene loads.
         /// </summary>
@@ -49,22 +53,7 @@ namespace CreateAR.EnkluPlayer
         /// Data for each loaded scene.
         /// </summary>
         private readonly Dictionary<string, ElementDescription> _sceneData = new Dictionary<string, ElementDescription>();
-
-        /// <summary>
-        /// Http helper.
-        /// </summary>
-        private readonly HttpRequestCacher _helper;
-
-        /// <summary>
-        /// Network config.
-        /// </summary>
-        private readonly NetworkConfig _networkConfig;
-
-        /// <summary>
-        /// IBootstapper.
-        /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-
+        
         /// <summary>
         /// Tokens used by the initial load behavior.
         /// </summary>
@@ -96,6 +85,7 @@ namespace CreateAR.EnkluPlayer
             UserPreferenceService prefs,
             IMessageRouter messages,
             IBootstrapper bootstrapper,
+            IMetricsService metrics,
             NetworkConfig networkConfig)
         {
             _api = api;
@@ -103,6 +93,7 @@ namespace CreateAR.EnkluPlayer
             _prefs = prefs;
             _messages = messages;
             _bootstrapper = bootstrapper;
+            _metrics = metrics;
             _networkConfig = networkConfig;
         }
 
@@ -125,8 +116,13 @@ namespace CreateAR.EnkluPlayer
 
             Log.Info(this, "Load App {0}.", id);
 
+            var timer = _metrics.Timer(MetricsKeys.APP_DATA_LOAD);
+            var loadId = timer.Start();
+
             var token = new AsyncToken<Void>();
-            
+            token.OnSuccess(_ => timer.Stop(loadId));
+            token.OnFailure(_ => timer.Abort(loadId));
+
             // first, load user prefs
             _prefs
                 .ForCurrentUser()

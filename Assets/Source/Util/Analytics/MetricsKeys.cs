@@ -15,6 +15,7 @@
         ///////////////////////////////////////////////////////////////////////
         public const string APP_DATA_LOAD = "App.Data.Load";
         public const string APP_PLAY = "App.Play";
+        public const string APP_EDIT = "App.Edit";
 
         ///////////////////////////////////////////////////////////////////////
         /// States

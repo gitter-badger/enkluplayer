@@ -524,7 +524,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Url for Mycelium.
         /// </summary>
-        public string MyceliumUrl = "localhost";
+        public string MyceliumUrl = "127.0.0.1";
 
         /// <summary>
         /// Url for Mycelium.

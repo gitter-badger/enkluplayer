@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -11,7 +12,7 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
-    public class MyceliumMultiplayerController
+    public class MyceliumMultiplayerController : IMultiplayerController
     {
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
@@ -20,11 +21,12 @@ namespace CreateAR.EnkluPlayer
         private readonly OptimizedObjectPool<ByteArrayHandle> _buffers = new OptimizedObjectPool<ByteArrayHandle>(
             4, 0, 1,
             () => new ByteArrayHandle(1024));
+        private readonly Dictionary<Type, Delegate> _subscriptions = new Dictionary<Type, Delegate>();
 
         private TcpConnection _tcp;
         private AsyncToken<Void> _connect;
         private string _multiplayerToken;
-        
+
         public MyceliumMultiplayerController(
             ApiController api,
             ApplicationConfig config)
@@ -33,7 +35,7 @@ namespace CreateAR.EnkluPlayer
             _config = config;
         }
 
-        public IAsyncToken<Void> Connect()
+        public IAsyncToken<Void> Initialize()
         {
             if (null != _connect)
             {
@@ -41,6 +43,8 @@ namespace CreateAR.EnkluPlayer
             }
 
             _connect = new AsyncToken<Void>();
+
+            Log.Info(this, "Requesting multiplayer access token.");
 
             // first, request  multiplayer token
             _api
@@ -53,6 +57,8 @@ namespace CreateAR.EnkluPlayer
                         if (res.Payload.Success)
                         {
                             _multiplayerToken = res.Payload.Body;
+
+                            Log.Info(this, "Successfully received multiplayer access token.");
 
                             ConnectToMycelium();
                         }
@@ -73,16 +79,45 @@ namespace CreateAR.EnkluPlayer
             return _connect.Token();
         }
 
+        public void ApplyDiff(IAppDataLoader appData)
+        {
+            // TODO: apply diff
+        }
+
+        public void Play()
+        {
+            // TODO: stop buffering events
+
+            // TODO: apply event buffer
+        }
+
         public void Disconnect()
         {
-            if (null != _connect)
+            if (null == _connect)
             {
-                _tcp.Close();
-                _tcp = null;
-
-                _connect.Fail(new Exception("Disconnected."));
-                _connect = null;
+                return;
             }
+
+            _tcp.Close();
+            _tcp = null;
+
+            _connect.Fail(new Exception("Disconnected."));
+            _connect = null;
+        }
+
+        public void Send(object message)
+        {
+            Write(message);
+        }
+
+        public void Subscribe<T>(Action<T> callback)
+        {
+            _subscriptions[typeof(T)] = callback;
+        }
+
+        public void UnSubscribe<T>()
+        {
+            _subscriptions.Remove(typeof(T));
         }
 
         private void ConnectToMycelium()
@@ -100,6 +135,8 @@ namespace CreateAR.EnkluPlayer
             {
                 Log.Info(this, "Connected to mycelium.");
 
+                Log.Info(this, "Sending login request.");
+
                 // next, send login request
                 Subscribe<LoginResponse>(OnLoginResponse);
                 Send(new LoginRequest
@@ -112,26 +149,11 @@ namespace CreateAR.EnkluPlayer
                 _connect.Fail(new Exception("Could not connect to mycelium."));
             }
         }
-
-        public void Send(LoginRequest req)
-        {
-            Write(req);
-        }
-
-        public void Subscribe<T>(Action<T> callback)
-        {
-            
-        }
-
-        public void UnSubscribe<T>()
-        {
-
-        }
-
+        
         private void OnLoginResponse(LoginResponse res)
         {
             // w00t
-            Log.Info(this, "Logged into Mycelium successfully.");
+            Log.Info(this, "Logged into Mycelium successfully!");
 
             _connect.Succeed(Void.Instance);
         }
@@ -164,7 +186,28 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            Log.Info(this, "Received a {0}.", message);
+            // push to main thread
+            
+            Delegate handler;
+            if (!_subscriptions.TryGetValue(type, out handler))
+            {
+                Log.Warning(this, "No handler for {0}.", message);
+            }
+            else
+            {
+                Log.Debug(this, "Handling a {0}.", message);
+
+                try
+                {
+                    handler.DynamicInvoke(message);
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(this, "Could not invoke handler for {0} : {1}.",
+                        type,
+                        exception);
+                }
+            }
         }
 
         private void Write(object message)

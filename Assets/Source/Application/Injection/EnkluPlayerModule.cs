@@ -183,6 +183,8 @@ namespace CreateAR.EnkluPlayer
                 }
                 else
                 {
+                    binder.Bind<IMultiplayerController>().To<MyceliumMultiplayerController>().ToSingleton();
+
 #if UNITY_IOS || UNITY_ANDROID
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();

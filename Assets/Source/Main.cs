@@ -203,6 +203,9 @@ namespace CreateAR.EnkluPlayer
 	        }
 #endif
 
+	        var multiplayer = _binder.GetInstance<IMultiplayerController>();
+            multiplayer.Disconnect();
+
             // clean up loggers
 	        var targets = Log.Targets;
             for (var i = targets.Length - 1; i >= 0; i--)
