@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Test.UI;
 using Newtonsoft.Json;
@@ -69,21 +69,23 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
         }
 
-        public static void RemoveScriptFromWidget(Widget widget, TestScriptManager scriptManager, params EnkluScript[] scripts)
+        public static void RemoveScriptFromWidget(Widget widget, TestScriptManager scriptManager, EnkluScript script)
         {
             var existingScripts = JArray.Parse(
                 widget.Schema.GetOwn("scripts", "[]").Value);
-            
-            for (int i = 0, len = scripts.Length; i < len; i++)
+
+            for (int i = 0; i < existingScripts.Count; i++)
             {
-                var script = scripts[i];
-
-                var jToken = existingScripts.First(val => val["id"].Value<string>() == script.Data.Id);    
-                existingScripts.Remove(jToken);
-                scriptManager.RemoveEntry(script.Data.Id);
+                if (existingScripts[i]["id"].ToObject<string>() == script.Data.Id)
+                {
+                    existingScripts.RemoveAt(i);
+                    scriptManager.RemoveEntry(script.Data.Id);
+                    widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
+                    return;
+                }
             }
-
-            widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
+            
+            throw new ArgumentException("Script not present on Widget");
         }
     }
 }

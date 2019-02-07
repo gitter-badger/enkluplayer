@@ -485,7 +485,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated -= firstRemoval;
             _scriptAssembler.OnScriptsUpdated += secondRemoval;
             
-            WidgetUtil.RemoveScriptFromWidget(widget, _scriptManager, _vines[0]);
+            WidgetUtil.RemoveScriptFromWidget(widget, _scriptManager, _behaviors[0]);
             
             Assert.AreEqual(3, cbCalled);
         }

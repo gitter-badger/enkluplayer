@@ -4,11 +4,14 @@ using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Jint.Parser;
 using Newtonsoft.Json.Linq;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
+    /// <summary>
+    /// Handles loading a set of scripts and creating instances for a Widget.
+    /// </summary>
     public class ScriptAssembler : IScriptAssembler
     {
         /// <summary>
@@ -36,7 +39,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         private ElementSchemaProp<string> _schemaProp;
 
         /// <summary>
-        /// List of EnkluScripts attached to this object.
+        /// List of EnkluScripts this object is loading/loaded.
         /// </summary>
         private readonly List<EnkluScript> _scripts = new List<EnkluScript>();
         
@@ -83,11 +86,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             var contentWidget = widget as ContentWidget;
             if (contentWidget != null)
             {
-                contentWidget.OnAssetLoaded.OnFinally(_ => CreateScripts());
+                contentWidget.OnAssetLoaded.OnFinally(_ => SetupScripts());
             }
             else
             {
-                CreateScripts();
+                SetupScripts();
             }
         }
 
@@ -98,104 +101,146 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             _schemaProp.OnChanged -= Schema_OnUpdated;
 
-            for (int i = 0, len = _scripts.Count; i < len; i++)
+            foreach (var script in _scriptComponents.Keys)
             {
-                _scripts[i].OnUpdated -= Script_OnUpdated;
-                _scriptManager.Release(_scripts[i]);
+                script.OnUpdated -= Script_OnUpdated;
             }
 
-            _scripts.Clear();
+            _scriptManager.ReleaseAll(_widget.Id);
             _scriptComponents.Clear();
         }
 
-        
-        private void CreateScripts()
+        /// <summary>
+        /// Handles creating new scripts and removing old scripts for the Widget based on its schema.
+        /// </summary>
+        private void SetupScripts()
         {
-            var ids = GetScriptIds();
-            var idsLen = ids.Length;
+            var currentIds = GetScriptIds();
+            var idsLen = currentIds.Length;
             Log.Info(this, "\tLoading {0} scripts.", idsLen);
 
-            // Check for removals
+            var removals = new List<EnkluScript>();
+            var additions = new List<EnkluScript>();
+
+            // Collect removals
             for (var i = _scripts.Count - 1; i >= 0; i--)
             {
-                if (!ids.Contains(_scripts[i].Data.Id))
+                if (!currentIds.Contains(_scripts[i].Data.Id))
                 {
-//                    _scriptComponents.Remove(_scripts[i]);
-//                    _scripts.RemoveAt(i);
+                    removals.Add(_scripts[i]);
+                    _scripts.RemoveAt(i);
                 }
             }
             
-            // Create scripts
+            // Collect additions
             for (var i = 0; i < idsLen; i++)
             {
-                var existingScript = _scripts.FirstOrDefault(s => s.Data.Id == ids[i]);
-                if (existingScript != null)
+                if (_scripts.Any(s => s.Data.Id == currentIds[i]))
                 {
                     continue;
                 }
                 
-                var script = _scriptManager.Create(ids[i], ids[i], _widget.Id);
+                // TODO: Remove ids[i] from tag registration?
+                var script = _scriptManager.Create(currentIds[i], currentIds[i], _widget.Id);
                 if (script == null)
                 {
-                    Log.Error(this, "Unable to create script {0}", ids[i]);
-                    
-                    // AbortScripts ?
-                    throw new Exception("Unable to create script " + ids[i]);
+                    Log.Error(this, "Unable to create script {0}", currentIds[i]);
+                    continue;
                 }
                 
+                additions.Push(script);
                 _scripts.Add(script);
                 script.OnUpdated += Script_OnUpdated;
             }
 
-            // Hook callbacks
-            var loadTokens = new IAsyncToken<EnkluScript>[idsLen];
-            for (var i = 0; i < idsLen; i++)
-            {
-                var scriptToken = new AsyncToken<EnkluScript>();
-                loadTokens[i] = scriptToken;
-                
-                var script = _scripts[i];
+            // Wait for all scripts to load
+            var loadTokens = new IAsyncToken<EnkluScript>[_scripts.Count];
 
+            for (int i = 0, len = _scripts.Count; i < len; i++)
+            {
+                var token = new AsyncToken<EnkluScript>();
+                loadTokens[i] = token;
+
+                var script = _scripts[i];
                 if (script.Status == EnkluScript.LoadStatus.IsLoading)
                 {
-                    // TODO: Don't over subscribe
-                    script.OnLoadSuccess += scriptToken.Succeed;
+                    script.OnLoadSuccess += token.Succeed;
                     script.OnLoadFailure += (s) =>
                     {
                         Log.Warning(this, "Failed to load EnkluScript ({0})", s);
-                        scriptToken.Succeed(s);
+                        token.Succeed(s);
                     };
                 }
                 else
                 {
-                    scriptToken.Succeed(script);
+                    token.Succeed(script);
+                }
+            }
+
+            Async.All(loadTokens).OnFinally(_ => UpdateScriptInstances(removals, additions, null));
+        }
+
+        /// <summary>
+        /// Invokes the OnScriptsUpdated based on script changes.
+        /// </summary>
+        /// <param name="removed">The EnkluScripts that were removed.</param>
+        /// <param name="added">The EnkluScripts that were added.</param>
+        /// <param name="updated">The EnkluScripts that were updated.</param>
+        private void UpdateScriptInstances(List<EnkluScript> removed, List<EnkluScript> added, List<EnkluScript> updated)
+        {
+            var existingInstances = _scriptComponents.Values.ToArray();
+
+            // Remove scripts that no longer are on this Widget.
+            if (removed != null)
+            {
+                for (var i = 0; i < removed.Count; i++)
+                {
+                    _scriptComponents.Remove(removed[i]);
+                }
+            }
+
+            var tokenCount = (added != null ? added.Count : 0) + (updated != null ? updated.Count : 0);
+            var configurationTokens = new IAsyncToken<Script>[tokenCount];
+            var tokenIndex = 0;
+
+            // Create instances for scripts newly added to this Widget.
+            if (added != null)
+            {
+                for (var i = 0; i < added.Count; i++)
+                {
+                    var index = i;
+                    var token = CreateScript(added[i]);
+                    configurationTokens[tokenIndex++] = token;
+                    token.OnSuccess(instance => _scriptComponents[added[index]] = instance);
                 }
             }
             
-            Async.All(loadTokens).OnSuccess(scripts =>
+            // Update instances for scripts that changed.
+            if (updated != null)
             {
-                var configurationTokens = new IAsyncToken<Script>[scripts.Length];
-                var components = new List<Script>(scripts.Length);
-                for (int i = 0, len = scripts.Length; i < len; i++)
+                for (var i = 0; i < updated.Count; i++)
                 {
-                    configurationTokens[i] = CreateScript(scripts[i]);
-                    configurationTokens[i].OnSuccess(script => components.Add(script));
+                    var index = i;
+                    var token = CreateScript(updated[i]);
+                    configurationTokens[tokenIndex++] = token;
+                    token.OnSuccess(instance => _scriptComponents[updated[index]] = instance);
                 }
-
-                Async.All(configurationTokens).OnFinally(_ =>
-                {
-                    var existing = _scriptComponents.Values.ToArray();
-                    
-                    for (int i = 0, len = components.Count; i < len; i++)
-                    {
-                        _scriptComponents[components[i].EnkluScript] = components[i];
-                    }
-                    
-                    OnScriptsUpdated.Execute(existing, _scriptComponents.Values.ToArray());
-                });
+            }
+            
+            // Dispatch change when ready.
+            Async.All(configurationTokens).OnFinally(_ =>
+            {
+                var newInstances = _scriptComponents.Values.ToArray();
+                OnScriptsUpdated.Execute(existingInstances, newInstances);
             });
         }
         
+        /// <summary>
+        /// Creates a Script instance asynchronously
+        /// </summary>
+        /// <param name="script"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         private IAsyncToken<Script> CreateScript(EnkluScript script)
         {
             Script newScript;
@@ -211,13 +256,26 @@ namespace CreateAR.EnkluPlayer.Scripting
                 default:
                     throw new Exception("Is there a new script type?!");
             }
-            
-            var rtnToken = new AsyncToken<Script>();
-            newScript.Configure()
-                .OnSuccess(_ => rtnToken.Succeed(newScript))
-                .OnFailure(rtnToken.Fail);
-            
-            return rtnToken;
+
+            return Async.Map(newScript.Configure(), _ => newScript);
+        }
+
+        /// <summary>
+        /// Called when script schema changes. Scripts have been removed or added to the Widget.
+        /// </summary>
+        private void Schema_OnUpdated(ElementSchemaProp<string> prop, string prev, string next)
+        {
+            Log.Info(this, "Widget script list updated ({0})", _widget);
+            SetupScripts();
+        }
+        
+        /// <summary>
+        /// Called when a script's source updates.
+        /// </summary>
+        private void Script_OnUpdated(EnkluScript script)
+        {
+            Log.Info(this, "Updating script ({0} {1})", script.Data.Id, _widget);
+            UpdateScriptInstances(null, null, new List<EnkluScript> { script });
         }
         
         /// <summary>
@@ -251,49 +309,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             return ids;
-        }
-
-        /// <summary>
-        /// Called when script schema changes. Scripts have been removed or added to the Widget.
-        /// </summary>
-        private void Schema_OnUpdated(ElementSchemaProp<string> prop, string prev, string next)
-        {
-            Log.Info(this, "Widget script list updated ({0})", _widget);
-            CreateScripts();
-        }
-        
-        /// <summary>
-        /// Called when a script's source updates.
-        /// </summary>
-        private void Script_OnUpdated(EnkluScript script)
-        {
-            Log.Info(this, "Updating script ({0} {1})", script.Data.Id, _widget);
-            // Find existing script
-            var existing = _scriptComponents.FirstOrDefault(
-                kvp => kvp.Value.EnkluScript.Data.Id == script.Data.Id).Value;
-            
-            if (existing == null)
-            {
-                throw new Exception("No prior script when updating!");
-            }
-
-            var oldScripts = _scriptComponents.Values.ToArray();
-            
-            CreateScript(script)
-                .OnSuccess(newScript =>
-                {
-                    Log.Info(this, "Script updated.");
-                    _scriptComponents[script] = newScript;
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, "Error updating script. {0}", exception);
-                    _scriptComponents[script] = null;
-                })
-                .OnFinally(_ =>
-                {
-                    OnScriptsUpdated.Execute(oldScripts, _scriptComponents.Values.ToArray());
-                });
         }
 
         /// <summary>
