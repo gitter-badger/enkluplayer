@@ -4,10 +4,18 @@ using System.IO;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// This delegate is used to pass a read message from the socket message reader to the messaging system for deserialization.
-    /// It is called on the socket read thread, so the <c>messageBytes</c> data must be handled synchronously or copied. 
+    /// Describes an object that can listen to socket events.
     /// </summary>
-    public delegate void SocketMessageRead(ArraySegment<byte> messageBytes);
+    public interface ISocketListener
+    {
+        /// <summary>
+        /// Called when the raw bytes of a message have been identified. This
+        /// will be called on the read thread and assumes bytes are consumed
+        /// synchronously.
+        /// </summary>
+        /// <param name="messageBytes">The bytes.</param>
+        void HandleSocketMessage(ArraySegment<byte> messageBytes);
+    }
 
     /// <summary>
     /// This <see cref="ISocketMessageReader"/> implementation reads a leading N-byte length encoding to determine the amount of data
@@ -25,38 +33,24 @@ namespace CreateAR.EnkluPlayer
         /// The length of the current message being collected.
         /// </summary>
         private long _currentMessageLength = 0;
-
-        /// <summary>
-        /// The size of the length field, in bytes.
-        /// </summary>
-        private readonly int _lengthSize;
-
+        
         /// <summary>
         /// A byte buffer to use to parse the length values from the socket buffer.
         /// </summary>
         private readonly byte[] _lengthBuffer;
     
         /// <summary>
-        /// Delegate used to pipe the resulting buffers 
+        /// Receives message payloads.
         /// </summary>
-        private readonly SocketMessageRead _onMessageRead;
+        private readonly ISocketListener _listener;
 
         /// <summary>
         /// Creates a new <see cref="LengthBasedSocketMessageReader"/> instance.
         /// </summary>
-        /// <param name="lengthSize">The size, in bytes, of the prepended length data.</param>
-        /// <param name="onMessageRead">The delegate to execute once a full message has been read.</param>
-        public LengthBasedSocketMessageReader(int lengthSize, SocketMessageRead onMessageRead)
+        public LengthBasedSocketMessageReader(ISocketListener listener)
         {
-            if (!LengthFieldHelper.IsLegalLengthSize(lengthSize))
-            {
-                throw new ArgumentException("Length of the message length should be 1, 2, 4, or 8.");
-            }
-
-            _lengthSize = lengthSize;
-            _lengthBuffer = new byte[lengthSize];
-
-            _onMessageRead = onMessageRead;
+            _lengthBuffer = new byte[2];
+            _listener = listener;
         }
 
         /// <inheritdoc/>
@@ -66,10 +60,10 @@ namespace CreateAR.EnkluPlayer
             while (stream.GetBytesRemaining() > 0)
             {
                 // The message length is always the first N bytes in the stream
-                if (_messageStream.Length == 0 && stream.GetBytesRemaining() >= _lengthSize)
+                if (_messageStream.Length == 0 && stream.GetBytesRemaining() >= 2)
                 {
-                    stream.Read(_lengthBuffer, 0, _lengthSize);
-                    _currentMessageLength = LengthFieldHelper.GetFrameLength(_lengthBuffer, _lengthSize);
+                    stream.Read(_lengthBuffer, 0, 2);
+                    _currentMessageLength = (ushort) HeapByteBufferUtil.GetShort(_lengthBuffer, 0);
                 }
             
                 // Enough bytes to extract a message
@@ -88,8 +82,7 @@ namespace CreateAR.EnkluPlayer
                 // There is a full message we can dispatch
                 if (_currentMessageLength == 0)
                 {
-                    // On Message Read Handler must either copy or act on the data synchronously
-                    _onMessageRead.Invoke(new ArraySegment<byte>(_messageStream.GetBuffer(), 0, (int)_messageStream.Length));
+                    _listener.HandleSocketMessage(new ArraySegment<byte>(_messageStream.GetBuffer(), 0, (int)_messageStream.Length));
                     _messageStream.Clear();
                 }
             }

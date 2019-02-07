@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -17,43 +18,28 @@ namespace CreateAR.EnkluPlayer
         private readonly MemoryStream _writeStream;
 
         /// <summary>
-        /// The size of the length field, in bytes.
-        /// </summary>
-        private readonly int _lengthSize;
-
-        /// <summary>
-        /// A byte buffer to use to parse the length values from the socket buffer.
-        /// </summary>
-        private readonly byte[] _lengthBuffer;
-
-        /// <summary>
         /// Creates a new <see cref="LengthBasedSocketMessageWriter"/> instance.
         /// </summary>
-        /// <param name="lengthSize">The number of bytes to use when prepending the length field.</param>
-        public LengthBasedSocketMessageWriter(int lengthSize)
+        public LengthBasedSocketMessageWriter()
         {
-            if (!LengthFieldHelper.IsLegalLengthSize(lengthSize))
-            {
-                throw new ArgumentException("Length of the message length should be 1, 2, 4, or 8.");
-            }
-
-            _lengthSize = lengthSize;
-            _lengthBuffer = new byte[lengthSize];
             _writeStream = new MemoryStream();
         }
 
         /// <inheritdoc/>
         public void Write(NetworkStream stream, byte[] data, int offset, int len)
         {
-            LengthFieldHelper.WriteLength(len, _lengthBuffer, _lengthSize);
-
             // Reset the memory stream to the origin, write the length and payload
             _writeStream.Position = 0;
-            _writeStream.Write(_lengthBuffer, 0, _lengthBuffer.Length);
+            
+            // write length first
+            _writeStream.WriteByte((byte)((ushort) len >> 8));
+            _writeStream.WriteByte((byte) len);
+            
+            // write data
             _writeStream.Write(data, offset, len);
 
             // write the length + payload to the socket
-            stream.Write(_writeStream.GetBuffer(), 0, len + _lengthSize);
+            stream.Write(_writeStream.GetBuffer(), 0, len + 2 /* length */);
         }
     }
 }

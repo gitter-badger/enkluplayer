@@ -43,6 +43,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public Action<bool> OnConnectionClosed { get; set; }
 
+        public TcpClient TemporaryDebugging
+        {
+            get { return _client; }
+        }
+
         /// <summary>
         /// Creates a new <see cref="TcpConnection"/> instance 
         /// </summary>
@@ -129,6 +134,11 @@ namespace CreateAR.EnkluPlayer
             }
 
             client.EndConnect(asyncResult);
+
+            if (!client.Connected)
+            {
+                throw new Exception("EndConnect completed but client is not connected.");
+            }
         }
         
         /// <summary>
@@ -314,7 +324,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Creates a new <see cref="TcpClient"/> instance.
         /// </summary>
-        private TcpClient NewTcpClient(AddressFamily addressFamily)
+        private static TcpClient NewTcpClient(AddressFamily addressFamily)
         {
             return new TcpClient(addressFamily) { NoDelay = true };
         }
