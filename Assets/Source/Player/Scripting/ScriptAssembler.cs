@@ -117,7 +117,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             var currentIds = GetScriptIds();
             var idsLen = currentIds.Length;
-            Log.Info(this, "\tLoading {0} scripts.", idsLen);
+            Log.Info(this, "\tLoading {0} scripts for {1}.", idsLen, _widget);
 
             var removals = new List<EnkluScript>();
             var additions = new List<EnkluScript>();
