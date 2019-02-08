@@ -12,7 +12,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         public void Clear()
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

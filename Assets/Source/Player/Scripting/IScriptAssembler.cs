@@ -4,17 +4,25 @@ using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
-    public interface IScriptAssembly
-    {
-        
-    }
-    
+    /// <summary>
+    /// Responsible for building Script instances for a given Widget. 
+    /// </summary>
     public interface IScriptAssembler
     {
+        /// <summary>
+        /// Invoked whenever scripts change with the old & new scripts sent as payloads.
+        /// </summary>
         event Action<Script[], Script[]> OnScriptsUpdated;
         
+        /// <summary>
+        /// Setups up Scripts for the given Widget.
+        /// </summary>
+        /// <param name="widget">The Widget.</param>
         void Setup(Widget widget);
         
+        /// <summary>
+        /// Tears down the Assembler.
+        /// </summary>
         void Teardown();
     }
 }
