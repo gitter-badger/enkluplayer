@@ -251,7 +251,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             Assert.AreEqual(0, cbCalled);
 
-            // Ensure script hasn't beeen run until vine finishes.
+            // Ensure script hasn't been run until vine finishes.
             behavior = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
             Assert.AreEqual(0, behavior.EnterInvoked);
             

@@ -5,13 +5,25 @@ using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
+    /// <summary>
+    /// Manages all scripting for experiences. 
+    /// </summary>
     public class ScriptService : ApplicationService
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IAppSceneManager _sceneManager;
         private readonly IElementManager _elementManager;
 
+        /// <summary>
+        /// Manages loading and running scripts for given root level widgets.
+        /// </summary>
         private readonly ScriptRunner _scriptRunner;
         
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ScriptService(
             MessageTypeBinder binder, 
             IMessageRouter messages,
@@ -30,6 +42,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 scriptManager, scriptFactory, elementJsCache, requireResolver, appJsApi);
         }
 
+        /// <inheritdoc />
         public override void Start()
         {
             base.Start();
@@ -51,6 +64,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             };
         }
 
+        /// <inheritdoc />
         public override void Update(float dt)
         {
             base.Update(dt);
@@ -58,6 +72,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _scriptRunner.Update();
         }
 
+        /// <inheritdoc />
         public override void Stop()
         {
             base.Stop();
@@ -67,6 +82,10 @@ namespace CreateAR.EnkluPlayer.Scripting
             _scriptRunner.StopAllScripts();
         }
 
+        /// <summary>
+        /// Invoked when a new Element has been created.
+        /// </summary>
+        /// <param name="element"></param>
         private void Element_OnCreated(Element element)
         {
             Widget widget = element as Widget;
