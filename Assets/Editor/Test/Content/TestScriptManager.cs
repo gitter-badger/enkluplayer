@@ -50,7 +50,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         public void AddEntry(string scriptId, EnkluScript script)
         {
-            _scriptLookup.Add(scriptId, script);
+            if (!_scriptLookup.ContainsKey(scriptId))
+            {
+                _scriptLookup.Add(scriptId, script);
+            }
         }
 
         public void RemoveEntry(string scriptId)

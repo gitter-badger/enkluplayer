@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 
@@ -9,16 +10,28 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     /// </summary>
     public class TestScriptFactory : IScriptFactory
     {
-        private readonly Dictionary<EnkluScript, TestVineMonoBehaviour> _vineCache = new Dictionary<EnkluScript, TestVineMonoBehaviour>();
-        private readonly Dictionary<EnkluScript, TestBehaviorMonoBehaviour> _behaviorCache = new Dictionary<EnkluScript, TestBehaviorMonoBehaviour>();
+        private struct Record
+        {
+            public Widget Widget;
+            public EnkluScript EnkluScript;
+        }
+        
+        private readonly Dictionary<Record, TestVineMonoBehaviour> _vineCache = new Dictionary<Record, TestVineMonoBehaviour>();
+        private readonly Dictionary<Record, TestBehaviorMonoBehaviour> _behaviorCache = new Dictionary<Record, TestBehaviorMonoBehaviour>();
         
         /// <inheritdoc />
         public VineScript Vine(Widget widget, EnkluScript script)
         {
+            Record record = new Record
+            {
+                Widget = widget,
+                EnkluScript = script
+            };
+            
             var component = widget.GameObject.AddComponent<TestVineMonoBehaviour>();
             component.Initialize(widget.Parent, script, null, null);
 
-            _vineCache[script] = component;
+            _vineCache[record] = component;
 
             return component;
         }
@@ -30,32 +43,38 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             UnityScriptingHost host,
             EnkluScript script)
         {
+            Record record = new Record
+            {
+                Widget = widget,
+                EnkluScript = script
+            };
+            
             var component = widget.GameObject.AddComponent<TestBehaviorMonoBehaviour>();
             component.Initialize(jsCache, null, host, script, widget);
 
-            _behaviorCache[script] = component;
-
+            _behaviorCache[record] = component;
+            
             return component;
         }
 
         /// <summary>
         /// Gets a Vine component that was given out.
         /// </summary>
-        public TestVineMonoBehaviour GetVine(EnkluScript script)
+        public TestVineMonoBehaviour GetVine(Widget widget, EnkluScript script)
         {
             TestVineMonoBehaviour component;
-            _vineCache.TryGetValue(script, out component);
-            return component;
+            var entry =  _vineCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
+            return entry.Value;
         }
 
         /// <summary>
         /// Gets a Behavior component that was given out.
         /// </summary>
-        public TestBehaviorMonoBehaviour GetBehavior(EnkluScript script)
+        public TestBehaviorMonoBehaviour GetBehavior(Widget widget, EnkluScript script)
         {
             TestBehaviorMonoBehaviour component;
-            _behaviorCache.TryGetValue(script, out component);
-            return component;
+            var entry =  _behaviorCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
+            return entry.Value;
         }
     }
 }

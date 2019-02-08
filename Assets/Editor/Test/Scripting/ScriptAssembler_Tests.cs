@@ -60,7 +60,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         #region Initial Scripts
 
         [Test]
-        public void InitialNone()
+        public void Initial_None()
         {
             var widget = WidgetUtil.CreateWidget();
 
@@ -77,7 +77,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
 
         [Test]
-        public void InitialVine()
+        public void Initial_Vine()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _vines[1]);
 
@@ -98,8 +98,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             // Ensure invoke hasn't happened until Vine has loaded.
             Assert.AreEqual(0, cbCalled);
             
-            var vineComponent0 = _scriptFactory.GetVine(_vines[0]);
-            var vineComponent1 = _scriptFactory.GetVine(_vines[1]);
+            var vineComponent0 = _scriptFactory.GetVine(widget, _vines[0]);
+            var vineComponent1 = _scriptFactory.GetVine(widget, _vines[1]);
             vineComponent0.FinishConfigure();
             vineComponent1.FinishConfigure();
             
@@ -107,7 +107,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
         
         [Test]
-        public void InitialBehavior()
+        public void Initial_Behavior()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _behaviors[1]);
 
@@ -129,7 +129,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
 
         [Test]
-        public void InitialCombined()
+        public void Initial_Mixed()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _vines[0]);
 
@@ -147,7 +147,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             };
             _scriptAssembler.Setup(widget);
             
-            var vineComponent0 = _scriptFactory.GetVine(_vines[0]);
+            var vineComponent0 = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent0.FinishConfigure();
             
             Assert.AreEqual(1, cbCalled);
@@ -157,7 +157,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         #region Adding Scripts
 
         [Test]
-        public void NewNoPrior()
+        public void New_NoPrior()
         {
             var widget = WidgetUtil.CreateWidget();
 
@@ -194,7 +194,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
 
         [Test]
-        public void NewPriorVine()
+        public void New_VinePrior()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
 
@@ -213,7 +213,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptAssembler.Setup(widget);
 
-            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            var vineComponent = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent.FinishConfigure();
             
             Assert.AreEqual(1, cbCalled);
@@ -235,14 +235,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
             
             // The component is rebuilt, so it needs to be finalized again.
-            vineComponent = _scriptFactory.GetVine(_vines[0]);
+            vineComponent = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent.FinishConfigure();
             
             Assert.AreEqual(2, cbCalled);
         }
         
         [Test]
-        public void NewPriorBehavior()
+        public void New_BehaviorPrior()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
 
@@ -278,14 +278,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0]);
             
-            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            var vineComponent = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent.FinishConfigure();
             
             Assert.AreEqual(2, cbCalled);
         }
 
         [Test]
-        public void NewMultiple()
+        public void New_Multiple()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
 
@@ -323,7 +323,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0], _behaviors[1]);
             
-            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            var vineComponent = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent.FinishConfigure();
             
             Assert.AreEqual(2, cbCalled);
@@ -333,7 +333,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         #region Script Updates
         
         [Test]
-        public void UpdatingVine()
+        public void Updating_Vine()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _vines[1]);
 
@@ -352,8 +352,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated += initialInvoke;
             _scriptAssembler.Setup(widget);
             
-            var vineComponent0 = _scriptFactory.GetVine(_vines[0]);
-            var vineComponent1 = _scriptFactory.GetVine(_vines[1]);
+            var vineComponent0 = _scriptFactory.GetVine(widget, _vines[0]);
+            var vineComponent1 = _scriptFactory.GetVine(widget, _vines[1]);
             vineComponent0.FinishConfigure();
             vineComponent1.FinishConfigure();
             
@@ -374,7 +374,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated += updateInvoke;
 
             _vines[0].Updated();
-            var newComponent = _scriptFactory.GetVine(_vines[0]);
+            var newComponent = _scriptFactory.GetVine(widget, _vines[0]);
             newComponent.FinishConfigure();
             
             Assert.AreNotEqual(vineComponent0, newComponent);
@@ -383,7 +383,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
         
         [Test]
-        public void UpdatingBehavior()
+        public void Updating_Behavior()
         {
             var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _behaviors[1]);
 
@@ -402,7 +402,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated += initialInvoke;
             _scriptAssembler.Setup(widget);
             
-            var behaviorComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            var behaviorComponent = _scriptFactory.GetBehavior(widget, _behaviors[0]);
             
             Assert.AreEqual(1, cbCalled);
 
@@ -421,7 +421,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated += updateInvoke;
 
             _behaviors[0].Updated();
-            var newComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            var newComponent = _scriptFactory.GetBehavior(widget, _behaviors[0]);
             
             Assert.AreNotEqual(behaviorComponent, newComponent);
             
@@ -453,7 +453,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated += initialInvoke;
             _scriptAssembler.Setup(widget);
             
-            var vineComponent0 = _scriptFactory.GetVine(_vines[0]);
+            var vineComponent0 = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent0.FinishConfigure();
             
             Assert.AreEqual(1, cbCalled);
