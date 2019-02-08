@@ -39,5 +39,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             IsRunning = false;
         }
+
+        public override string ToString()
+        {
+            return string.Format("<Script Name={0} Version={1} Id= {2} />", EnkluScript.Data.Name,
+                EnkluScript.Data.Version, EnkluScript.Data.Id);
+        }
     }
 }

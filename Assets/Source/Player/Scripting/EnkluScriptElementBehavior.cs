@@ -5,7 +5,6 @@ using CreateAR.EnkluPlayer.IUX;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
-using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -101,7 +100,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
             catch (Exception exception)
             {
-                Debug.LogWarning("Could not execute script: " + exception);
+                Log.Warning(this, "Could not execute script: " + exception);
                 token.Fail(exception);
                 return token;
             }

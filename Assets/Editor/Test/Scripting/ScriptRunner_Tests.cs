@@ -1,5 +1,3 @@
-using System;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
@@ -8,7 +6,6 @@ using NUnit.Framework;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
-    /*
     [TestFixture]
     public class ScriptRunner_Tests
     {
@@ -16,8 +13,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         private TestScriptManager _scriptManager;
         private TestScriptFactory _scriptFactory;
-        private EnkluScript[] _behaviors = new EnkluScript[3];
-        private EnkluScript[] _vines = new EnkluScript[3];
+        private readonly EnkluScript[] _behaviors = new EnkluScript[3];
+        private readonly EnkluScript[] _vines = new EnkluScript[3];
         
         [SetUp]
         public void Setup()
@@ -62,347 +59,319 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             TestBehaviorMonoBehaviour.ResetInvokeIds();
         }
-
+        
         #region Existing Scripts
-        [Test]
-        public void Behavior()
-        {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
-            _scriptRunner.AddWidget(widget);
-            
-            // Purposefully don't wait for parsing, since the Vine loading is delayed in this test.
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
-                    
-            // Behaviors load synchronously. Check that the script has loaded & invoked.
-            Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
-            
-            var component = _scriptFactory.GetBehavior(_behaviors[0]);
-            Assert.AreEqual(1, component.EnterInvoked);
-        }
 
         [Test]
-        public void Vine()
-        {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
-            
-            _scriptRunner.AddWidget(widget);
-
-            // Purposefully don't wait for parsing, since the Vine loading is delayed in this test.
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
-            
-            // Vines are async, check that it hasn't finished.
-            Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
-            
-            var component = _scriptFactory.GetVine(_vines[0]);
-            
-            Assert.AreEqual(0, component.EnterInvoked);
-            
-            // Resolve pending finish, and check for loaded & invoked.
-            component.FinishConfigure();
-            Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
-            Assert.AreEqual(1, component.EnterInvoked);
-        }
-
-        [Test]
-        public void Combined()
-        {
-            // Test both scripts together. Load them in a random-ish order
-            var widget = WidgetUtil.CreateWidget(_scriptManager,
-                _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
-            
-            _scriptRunner.AddWidget(widget);
-            
-            // Purposefully don't wait for parsing, since the Vine loading is delayed in this test.
-            _scriptRunner.ParseAll();
-            _scriptRunner.StartAllScripts();
-            
-            Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
-            
-            var vineComponents = new TestVineMonoBehaviour[_vines.Length];
-            for (var i = 0; i < vineComponents.Length; i++)
-            {
-                vineComponents[i] = _scriptFactory.GetVine(_vines[i]);
-                
-                // Ensure vine is loading
-                Assert.AreEqual(0, vineComponents[i].EnterInvoked);
-            }
-            
-            var behaviorComponents = new TestBehaviorMonoBehaviour[_behaviors.Length];
-            for (var i = 0; i < behaviorComponents.Length; i++)
-            {
-                behaviorComponents[i] = _scriptFactory.GetBehavior(_behaviors[i]);
-                
-                // Behaviors should exist
-                Assert.AreEqual(0, behaviorComponents[i].EnterInvoked);
-            }
-            
-            // Helper to check Vine enter invocation counts
-            Action<int[], int> checkVineInvokes = (vineInvokes, behaviorInvokes) =>
-            {
-                Assert.AreEqual(vineInvokes[0], vineComponents[0].EnterInvoked);
-                Assert.AreEqual(vineInvokes[1], vineComponents[1].EnterInvoked);
-                Assert.AreEqual(vineInvokes[2], vineComponents[2].EnterInvoked);
-                Assert.AreEqual(behaviorInvokes, behaviorComponents[0].EnterInvoked);
-                Assert.AreEqual(behaviorInvokes, behaviorComponents[1].EnterInvoked);
-                Assert.AreEqual(behaviorInvokes, behaviorComponents[2].EnterInvoked);
-            };
-            
-            // Start resolving Vines. Currently, they run in the order they finish parsing
-            vineComponents[1].FinishConfigure();
-            checkVineInvokes(new[] {0, 1, 0}, 0);
-            
-            vineComponents[2].FinishConfigure();
-            checkVineInvokes(new[] {0, 1, 1}, 0);
-            
-            // The final vine resolve will trigger behaviors
-            vineComponents[0].FinishConfigure();
-            checkVineInvokes(new[] {1, 1, 1}, 1);
-            
-            // Check behavior invoke order, should match script list order
-            Log.Info(this, "{0} {1} {2}", behaviorComponents[2].LastEnterInvokeId, behaviorComponents[1].LastEnterInvokeId, behaviorComponents[0].LastEnterInvokeId);
-            Assert.AreEqual(0, behaviorComponents[2].LastEnterInvokeId);
-            Assert.AreEqual(1, behaviorComponents[0].LastEnterInvokeId);
-            Assert.AreEqual(2, behaviorComponents[1].LastEnterInvokeId);
-            
-            Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
-        }
-        #endregion
-        
-        #region New Scripts
-        // Adding a script to an already existing Widget without scripts.
-
-        [Test]
-        public void FirstScriptVine()
+        public void SingleWidget_NoScripts()
         {
             var widget = WidgetUtil.CreateWidget();
-            _scriptRunner.AddWidget(widget);
             
-            var asyncRun = false;
-            _scriptRunner.ParseAll()
-                .OnSuccess(_ =>
-                {
-                    _scriptRunner.StartAllScripts();
-                
-                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0]);
-                
-                    var vineComponent = _scriptFactory.GetVine(_vines[0]);
-                    Assert.AreEqual(0, vineComponent.EnterInvoked);
-                    vineComponent.FinishConfigure();
-                    Assert.AreEqual(1, vineComponent.EnterInvoked);
-                })
-                .OnFailure(exception => Assert.Fail("ParseAll failed: " + exception))
-                .OnFinally(_ => asyncRun = true);
-            Assert.True(asyncRun);
-        }
-
-        [Test]
-        public void FirstScriptBehavior()
-        {
-            var widget = WidgetUtil.CreateWidget();
-            _scriptRunner.AddWidget(widget);
+            _scriptRunner.AddSceneRoot(widget);
+            _scriptRunner.StartAllScripts()
+                .OnSuccess(_ => Assert.Pass())
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             
-            var asyncRun = false;
-            _scriptRunner.ParseAll()
-                .OnSuccess(_ =>
-                {
-                    _scriptRunner.StartAllScripts();
+            _scriptRunner.StopAllScripts();
             
-                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
-            
-                    var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
-                    Assert.AreEqual(1, behaviourComponent.EnterInvoked);
-                })
-                .OnFailure(exception => Assert.Fail("ParseAll failed: " + exception))
-                .OnFinally(_ => asyncRun = true);
-            Assert.True(asyncRun);
+            Assert.Fail("Start scripts wasn't synchronous in this test");
         }
         
         [Test]
-        public void FirstScriptCombined()
+        public void SingleWidget_Vines()
         {
-            var widget = WidgetUtil.CreateWidget();
-            _scriptRunner.AddWidget(widget);
+            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _vines[1]);
             
-            var asyncRun = false;
-            _scriptRunner.ParseAll()
+            _scriptRunner.AddSceneRoot(widget);
+            var token = _scriptRunner.StartAllScripts();
+
+            TestVineMonoBehaviour vine0 = null;
+            TestVineMonoBehaviour vine1 = null;
+            var cbCalled = 0;
+            token
                 .OnSuccess(_ =>
                 {
-                    _scriptRunner.StartAllScripts();
-            
-                    // New Combined
-                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[1], _vines[1]);
-            
-                    var vineComponent = _scriptFactory.GetVine(_vines[1]);
-                    var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[1]);
-            
-                    Assert.AreEqual(0, vineComponent.EnterInvoked);
-                    Assert.AreEqual(0, behaviourComponent.EnterInvoked);
-                    vineComponent.FinishConfigure();
-                    Assert.AreEqual(1, behaviourComponent.EnterInvoked);
-                    Assert.AreEqual(1, vineComponent.EnterInvoked);
+                    // ReSharper disable AccessToModifiedClosure
+                    Assert.NotNull(vine0);
+                    Assert.NotNull(vine1);
+                    Assert.AreEqual(1, vine0.EnterInvoked);
+                    Assert.AreEqual(1, vine1.EnterInvoked);
+                    Assert.AreEqual(0, vine0.ExitInvoked);
+                    Assert.AreEqual(0, vine1.ExitInvoked);
+                    cbCalled++;
+                    // ReSharper enable AccessToModifiedClosure
                 })
-                .OnFailure(exception => Assert.Fail("ParseAll failed: " + exception))
-                .OnFinally(_ => asyncRun = true);
-            Assert.True(asyncRun);
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("Failed to start runner: " + exception);
+                });
+            Assert.AreEqual(0, cbCalled);
+            
+            vine0 = _scriptFactory.GetVine(widget, _vines[0]);
+            vine1 = _scriptFactory.GetVine(widget,_vines[1]);
+            
+            vine0.FinishConfigure();
+            Assert.AreEqual(0, cbCalled);
+            
+            vine1.FinishConfigure();
+            Assert.AreEqual(1, cbCalled);
+            
+            _scriptRunner.StopAllScripts();
+            Assert.AreEqual(1, vine0.ExitInvoked);
+            Assert.AreEqual(1, vine1.ExitInvoked);
         }
         
-        // Adding a script to an already existing Widget containing scripts. 
         [Test]
-        public void AdditionalScripts()
+        public void SingleWidget_Behaviors()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
-            _scriptRunner.AddWidget(widget);
+            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _behaviors[1]);
             
-            var asyncRun = false;
-            _scriptRunner.ParseAll()
+            _scriptRunner.AddSceneRoot(widget);
+            var token = _scriptRunner.StartAllScripts();
+
+            TestBehaviorMonoBehaviour behavior0 = null;
+            TestBehaviorMonoBehaviour behavior1 = null;
+            var cbCalled = 0;
+            token
                 .OnSuccess(_ =>
                 {
-                    _scriptRunner.StartAllScripts();
-            
-                    var behaviorComponent = _scriptFactory.GetBehavior(_behaviors[0]);
-
-                    Assert.AreEqual(1, behaviorComponent.EnterInvoked);
-                    Assert.AreEqual(0, behaviorComponent.ExitInvoked);
-            
-                    // Add a new Behavior
-                    WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[1]);
-            
-                    // Ensure existing vine exited
-                    Assert.AreEqual(1, behaviorComponent.EnterInvoked);
-                    Assert.AreEqual(1, behaviorComponent.ExitInvoked);
-            
-                    // Ensure new behavior invoked
-                    behaviorComponent = _scriptFactory.GetBehavior(_behaviors[1]);
-            
-                    Assert.AreEqual(1, behaviorComponent.EnterInvoked);
-                    Assert.AreEqual(0, behaviorComponent.ExitInvoked);
-            
-                    var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[1]);
-                    Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+                    behavior0 = _scriptFactory.GetBehavior(widget, _behaviors[0]);
+                    behavior1 = _scriptFactory.GetBehavior(widget, _behaviors[1]);
+                    
+                    Assert.NotNull(behavior0);
+                    Assert.NotNull(behavior1);
+                    Assert.AreEqual(1, behavior0.EnterInvoked);
+                    Assert.AreEqual(1, behavior1.EnterInvoked);
+                    Assert.AreEqual(0, behavior0.ExitInvoked);
+                    Assert.AreEqual(0, behavior1.ExitInvoked);
+                    cbCalled++;
                 })
-                .OnFailure(exception => Assert.Fail("ParseAll failed: " + exception))
-                .OnFinally(_ => asyncRun = true);
-            Assert.True(asyncRun);
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("Failed to start runner: " + exception);
+                });
+            
+            // Behaviors parse synchronously
+            Assert.AreEqual(1, cbCalled);
+            
+            _scriptRunner.StopAllScripts();
+            Assert.AreEqual(1, behavior0.ExitInvoked);
+            Assert.AreEqual(1, behavior1.ExitInvoked);
         }
+
+        [Test]
+        public void SingleWidget_Mixed()
+        {
+            // Order matters and will be checked in this test.
+            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
+            
+            _scriptRunner.AddSceneRoot(widget);
+            var token = _scriptRunner.StartAllScripts();
+
+            TestVineMonoBehaviour vine0 = null;
+            TestVineMonoBehaviour vine1 = null;
+            TestVineMonoBehaviour vine2 = null;
+            TestBehaviorMonoBehaviour behavior0 = null;
+            TestBehaviorMonoBehaviour behavior1 = null;
+            TestBehaviorMonoBehaviour behavior2 = null;
+            var cbCalled = 0;
+            token
+                .OnSuccess(_ =>
+                {
+                    Assert.NotNull(vine0);
+                    Assert.NotNull(vine1);
+                    Assert.NotNull(vine2);
+                    Assert.NotNull(behavior0);
+                    Assert.NotNull(behavior1);
+                    Assert.NotNull(behavior2);
+                    Assert.AreEqual(1, vine0.EnterInvoked);
+                    Assert.AreEqual(1, vine1.EnterInvoked);
+                    Assert.AreEqual(1, vine2.EnterInvoked);
+                    Assert.AreEqual(1, behavior0.EnterInvoked);
+                    Assert.AreEqual(1, behavior0.EnterInvoked);
+                    Assert.AreEqual(1, behavior0.EnterInvoked);
+                    
+                    Assert.AreEqual(1, behavior0.LastEnterInvokeId);
+                    Assert.AreEqual(2, behavior1.LastEnterInvokeId);
+                    Assert.AreEqual(0, behavior2.LastEnterInvokeId);
+                    cbCalled++;
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(0, cbCalled);
+
+            vine0 = _scriptFactory.GetVine(widget, _vines[0]);
+            vine1 = _scriptFactory.GetVine(widget, _vines[1]);
+            vine2 = _scriptFactory.GetVine(widget, _vines[2]);
+            behavior0 = _scriptFactory.GetBehavior(widget, _behaviors[0]);
+            behavior1 = _scriptFactory.GetBehavior(widget, _behaviors[1]);
+            behavior2 = _scriptFactory.GetBehavior(widget, _behaviors[2]);
+
+            vine0.FinishConfigure();
+            vine1.FinishConfigure();
+            vine2.FinishConfigure();
+            Assert.AreEqual(1, cbCalled);
+            
+            _scriptRunner.StopAllScripts();
+            Assert.AreEqual(1, vine0.ExitInvoked);
+            Assert.AreEqual(1, vine1.ExitInvoked);
+            Assert.AreEqual(1, vine2.ExitInvoked);
+            Assert.AreEqual(1, behavior0.ExitInvoked);
+            Assert.AreEqual(1, behavior0.ExitInvoked);
+            Assert.AreEqual(1, behavior0.ExitInvoked);
+            Assert.AreEqual(1, behavior0.LastExitInvokeId);
+            Assert.AreEqual(2, behavior1.LastExitInvokeId);
+            Assert.AreEqual(0, behavior2.LastExitInvokeId);
+        }
+
+        [Test]
+        public void MultipleWidgets()
+        {
+            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widgetB = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
+            
+            widgetA.AddChild(widgetB);
+            
+            _scriptRunner.AddSceneRoot(widgetA);
+
+            TestVineMonoBehaviour vine = null;
+            TestBehaviorMonoBehaviour behavior = null;
+
+            var cbCalled = 0;
+            _scriptRunner.StartAllScripts()
+                .OnSuccess(_ =>
+                {
+                    Assert.NotNull(vine);
+                    Assert.NotNull(behavior);
+                    Assert.AreEqual(1, vine.EnterInvoked);
+                    Assert.AreEqual(1, behavior.EnterInvoked);
+                    
+                    cbCalled++;
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            
+            Assert.AreEqual(0, cbCalled);
+
+            // Ensure script hasn't beeen run until vine finishes.
+            behavior = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+            Assert.AreEqual(0, behavior.EnterInvoked);
+            
+            vine = _scriptFactory.GetVine(widgetB, _vines[0]);
+            vine.FinishConfigure();
+            
+            Assert.AreEqual(1, cbCalled);
+            
+            _scriptRunner.StopAllScripts();
+            Assert.AreEqual(1, vine.ExitInvoked);
+            Assert.AreEqual(1, behavior.ExitInvoked);
+            Assert.AreEqual(0, behavior.LastExitInvokeId);
+        }
+        
+        #endregion
+        
+        #region Hierarchy
+
+        [Test]
+        public void Reparenting()
+        {
+            
+        }
+
+        [Test]
+        public void MixedElements()
+        {
+            // Ensure all widgets are found, even with a boring Element in between.
+            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var elementB = new Element();
+            var widgetC = WidgetUtil.CreateWidget(_scriptManager, _behaviors[1]);
+            var widgetD = WidgetUtil.CreateWidget(_scriptManager, _behaviors[2]);
+            
+            widgetC.AddChild(widgetD);
+            elementB.AddChild(widgetC);
+            widgetA.AddChild(elementB);
+            
+            _scriptRunner.AddSceneRoot(widgetA);
+
+            TestBehaviorMonoBehaviour behavior0 = null;
+            TestBehaviorMonoBehaviour behavior1 = null;
+            TestBehaviorMonoBehaviour behavior2 = null;
+            var cbCalled = 0;
+            _scriptRunner.StartAllScripts()
+                .OnSuccess(_ =>
+                {
+                    behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+                    behavior1 = _scriptFactory.GetBehavior(widgetC, _behaviors[1]);
+                    behavior2 = _scriptFactory.GetBehavior(widgetD, _behaviors[2]);
+                    
+                    Assert.NotNull(behavior0);
+                    Assert.NotNull(behavior1);
+                    Assert.NotNull(behavior2);
+                    
+                    Assert.AreEqual(1, behavior0.EnterInvoked);
+                    Assert.AreEqual(1, behavior1.EnterInvoked);
+                    Assert.AreEqual(1, behavior2.EnterInvoked);
+                    Assert.AreEqual(0, behavior0.LastEnterInvokeId);
+                    Assert.AreEqual(1, behavior1.LastEnterInvokeId);
+                    Assert.AreEqual(2, behavior2.LastEnterInvokeId);
+                    cbCalled++;
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled);
+            
+            _scriptRunner.StopAllScripts();
+            
+            Assert.AreEqual(1, behavior0.ExitInvoked);
+            Assert.AreEqual(1, behavior1.ExitInvoked);
+            Assert.AreEqual(1, behavior2.ExitInvoked);
+            Assert.AreEqual(0, behavior0.LastExitInvokeId);
+            Assert.AreEqual(1, behavior1.LastExitInvokeId);
+            Assert.AreEqual(2, behavior2.LastExitInvokeId);
+        }
+        
         #endregion
 
-        #region Script Updates
-        [Test]
-        public void UpdatingVine()
-        {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
-            
-            _scriptRunner.StartAllScripts();
-            
-            var asyncRun = false;
-            _scriptRunner.AddWidget(widget)
-                .OnSuccess(_ =>
-                {
-                    var oldComponent = _scriptFactory.GetVine(_vines[0]);
-                    oldComponent.FinishConfigure();
-                    Assert.AreEqual(1, oldComponent.EnterInvoked);
-                    Assert.AreEqual(0, oldComponent.ExitInvoked);
-    
-                    var vineScript = _scriptManager.Create(oldComponent.EnkluScript.Data.Id);
-                
-                    vineScript.Updated();
-                    Assert.AreEqual(1, oldComponent.EnterInvoked);
-                    Assert.AreEqual(0, oldComponent.ExitInvoked);
-                
-                    var newComponent = _scriptFactory.GetVine(_vines[0]);
-                    newComponent.FinishConfigure();
-                
-                    Assert.AreEqual(1, oldComponent.EnterInvoked);
-                    Assert.AreEqual(1, oldComponent.ExitInvoked);
-
-                    Assert.AreNotSame(oldComponent, newComponent);
-                    Assert.AreEqual(1, newComponent.EnterInvoked);
-                    Assert.AreEqual(0, newComponent.ExitInvoked);
-                })
-                .OnFailure(exception => Assert.Fail("ParseAll failed: " + exception))
-                .OnFinally(_ => asyncRun = true);
-            Assert.True(asyncRun);
-        }
-
-        [Test]
-        public void UpdatingBehavior()
-        {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
-            _scriptRunner.AddWidget(widget);
-            
-            var asyncRun = false;
-            _scriptRunner.ParseAll()
-                .OnSuccess(_ =>
-                {
-                    _scriptRunner.StartAllScripts();
-                    
-                    var oldComponent = _scriptFactory.GetBehavior(_behaviors[0]);
-                    Assert.AreEqual(1, oldComponent.EnterInvoked);
-                    Assert.AreEqual(0, oldComponent.ExitInvoked);
-    
-                    var behaviorScript = _scriptManager.Create(oldComponent.EnkluScript.Data.Id);
-                
-                    behaviorScript.Updated();
-                    Assert.AreEqual(1, oldComponent.EnterInvoked);
-                    Assert.AreEqual(1, oldComponent.ExitInvoked);
-                
-                    var newComponent = _scriptFactory.GetBehavior(_behaviors[0]);
-                
-                    Assert.AreNotSame(oldComponent, newComponent);
-                    Assert.AreEqual(1, newComponent.EnterInvoked);
-                    Assert.AreEqual(0, newComponent.ExitInvoked);
-                })
-                .OnFailure(exception => Assert.Fail("ParseAll failed: " + exception))
-                .OnFinally(_ => asyncRun = true);
-            Assert.True(asyncRun);
-        }
-        #endregion
-        
-        #region ContentWidgets
-
-        [Test]
-        public void NoAsset()
-        {
-            var widget = WidgetUtil.CreateContentWidget(_scriptManager, _behaviors[0]);
-            _scriptRunner.AddWidget(widget);
-
-            var asyncRun = false;
-            _scriptRunner.ParseAll()
-                .OnSuccess(_ =>
-                {
-                    _scriptRunner.StartAllScripts();
-                    
-                    var component = _scriptFactory.GetBehavior(_behaviors[0]);
-                    Assert.AreEqual(1, component.EnterInvoked);
-                    Assert.AreEqual(0, component.ExitInvoked);
-                })
-                .OnFailure(exception => Assert.Fail("ParseAll failed: " + exception))
-                .OnFinally(_ => asyncRun = true);
-            Assert.True(asyncRun);
-        }
+        #region Misc
         
         [Test]
-        public void DelayedAsset()
+        public void ScriptSharing()
         {
-            var assetAssembler = new TestAssetAssembler();
+            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widgetB = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
             
-            var widget = WidgetUtil.CreateContentWidget(_scriptManager, assetAssembler, _behaviors[0]);
+            widgetA.AddChild(widgetB);
             
-            _scriptRunner.AddWidget(widget);
-            _scriptRunner.StartAllScripts();
-            
-            // Component shouldn't exist until asset assembler finishes.
-            var component = _scriptFactory.GetBehavior(_behaviors[0]);
-            Assert.IsNull(component);
+            _scriptRunner.AddSceneRoot(widgetA);
+
+            TestBehaviorMonoBehaviour aBehavior = null;
+            TestBehaviorMonoBehaviour bBehavior = null;
+            var cbCalled = 0;
+            _scriptRunner.StartAllScripts()
+                .OnSuccess(_ =>
+                {
+                    aBehavior = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+                    bBehavior = _scriptFactory.GetBehavior(widgetB, _behaviors[0]);
                     
-            assetAssembler.FinishLoad();
-            component = _scriptFactory.GetBehavior(_behaviors[0]);
-            Assert.AreEqual(1, component.EnterInvoked);
-            Assert.AreEqual(0, component.ExitInvoked);
+                    Assert.NotNull(aBehavior);
+                    Assert.NotNull(bBehavior);
+                    Assert.AreNotEqual(aBehavior, bBehavior);
+                    
+                    Assert.AreEqual(1, aBehavior.EnterInvoked);
+                    Assert.AreEqual(1, bBehavior.EnterInvoked);
+                    Assert.AreEqual(0, aBehavior.LastEnterInvokeId);
+                    Assert.AreEqual(1, bBehavior.LastEnterInvokeId);
+
+                    cbCalled++;
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+                
+           Assert.AreEqual(cbCalled, 1);
+           
+           _scriptRunner.StopAllScripts();
+           Assert.AreEqual(1, aBehavior.ExitInvoked);
+           Assert.AreEqual(1, bBehavior.ExitInvoked);
+           Assert.AreEqual(0, aBehavior.LastExitInvokeId);
+           Assert.AreEqual(1, bBehavior.LastExitInvokeId);
         }
+        
         #endregion
     }
-    */
 }

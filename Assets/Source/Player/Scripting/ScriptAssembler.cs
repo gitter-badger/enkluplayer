@@ -140,8 +140,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     continue;
                 }
                 
-                // TODO: Remove ids[i] from tag registration?
-                var script = _scriptManager.Create(currentIds[i], currentIds[i], _widget.Id);
+                var script = _scriptManager.Create(currentIds[i], _widget.Id);
                 if (script == null)
                 {
                     Log.Error(this, "Unable to create script {0}", currentIds[i]);
