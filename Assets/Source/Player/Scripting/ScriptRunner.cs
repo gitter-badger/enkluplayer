@@ -117,49 +117,20 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                 Assembler.OnScriptsUpdated += (old, @new) =>
                 {
-                    switch (RecordState)
+                    if (RecordState == RecordState.Loading)
                     {
                         // First time this Widget's scripts are ready.
-                        case RecordState.Loading:
-
-                            var vines = new List<VineScript>();
-                            var behaviors = new List<BehaviorScript>();
-                            for (var i = 0; i < @new.Length; i++)
-                            {
-                                var script = @new[i];
-                                switch (script.EnkluScript.Data.Type)
-                                {
-                                    case ScriptType.Vine:
-                                        vines.Add((VineScript) script);
-                                        break;
-                                    case ScriptType.Behavior:
-                                        behaviors.Add((BehaviorScript) script);
-                                        break;
-                                    default:
-                                        Log.Error(this, "Unknown Script.");
-                                        break;
-                                }
-                            }
-
-                            Vines = vines.ToArray();
-                            Behaviors = behaviors.ToArray();
+                        var descendentTokens = new IAsyncToken<Void>[DescendentRecords.Count];
                             
-                            var descendentTokens = new IAsyncToken<Void>[DescendentRecords.Count];
-                            
-                            for (var i = 0; i < DescendentRecords.Count; i++)
-                            {
-                                var subRecord = DescendentRecords[i];
-                                descendentTokens[i] = subRecord.LoadScripts();
-                            }
+                        for (var i = 0; i < DescendentRecords.Count; i++)
+                        {
+                            var subRecord = DescendentRecords[i];
+                            descendentTokens[i] = subRecord.LoadScripts();
+                        }
 
-                            Async.All(descendentTokens).OnFinally(_ => _loadToken.Succeed(Void.Instance));
+                        Async.All(descendentTokens).OnFinally(_ => _loadToken.Succeed(Void.Instance));
 
-                            RecordState = RecordState.Ready;
-                            break;
-                        // Update to scripts
-                        case RecordState.Ready:
-                            
-                            break;
+                        RecordState = RecordState.Ready;
                     }
                     
                     OnScriptsUpdated.Execute(old, @new);
@@ -472,7 +443,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
             }
 
-            if (!recursive)
+            if (recursive)
             {
                 for (int i = 0, len = record.DescendentRecords.Count; i < len; i++)
                 {
@@ -515,7 +486,39 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="new"></param>
         private void OnWidgetUpdated(WidgetRecord record, Script[] old, Script[] @new)
         {
+            if (_runnerState == RunnerState.Running)
+            {
+                StopRecord(record, false);
+            }
             
+            
+            var vines = new List<VineScript>();
+            var behaviors = new List<BehaviorScript>();
+            for (var i = 0; i < @new.Length; i++)
+            {
+                var script = @new[i];
+                switch (script.EnkluScript.Data.Type)
+                {
+                    case ScriptType.Vine:
+                        vines.Add((VineScript) script);
+                        break;
+                    case ScriptType.Behavior:
+                        behaviors.Add((BehaviorScript) script);
+                        break;
+                    default:
+                        Log.Error(this, "Unknown Script.");
+                        break;
+                }
+            }
+
+            record.Vines = vines.ToArray();
+            record.Behaviors = behaviors.ToArray();
+
+            if (_runnerState == RunnerState.Running)
+            {
+                StartRecord(record, ScriptType.Vine, false);
+                StartRecord(record, ScriptType.Behavior, false);
+            }
         }
 
         /// <summary>

@@ -78,8 +78,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public override void Enter()
         {
-            base.Enter();
-            
             if (null == _description)
             {
                 return;
@@ -99,8 +97,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public override void Exit()
         {
-            base.Exit();
-            
             if (null != _element)
             {
                 _element.Destroy();

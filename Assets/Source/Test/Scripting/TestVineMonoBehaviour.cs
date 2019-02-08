@@ -32,7 +32,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// <inheritdoc />
         public override void Enter()
         {
-            base.Enter();
             EnterInvoked++;
         }
 
@@ -43,7 +42,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         public override void Exit()
         {
-            base.Exit();
             ExitInvoked++;
         }
 

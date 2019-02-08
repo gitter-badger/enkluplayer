@@ -120,8 +120,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public override void Enter()
         {
-            base.Enter();
-            
             if (_isStarted)
             {
                 throw new Exception("Script already started.");
@@ -163,8 +161,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public override void Exit()
         {
-            base.Exit();
-            
             if (!_isStarted)
             {
                 throw new Exception("Script hasn't been started.");

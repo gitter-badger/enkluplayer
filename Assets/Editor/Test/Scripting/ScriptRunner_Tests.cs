@@ -4,6 +4,8 @@ using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
 using NUnit.Framework;
 
+// ReSharper disable AccessToModifiedClosure
+
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     [TestFixture]
@@ -91,7 +93,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             token
                 .OnSuccess(_ =>
                 {
-                    // ReSharper disable AccessToModifiedClosure
                     Assert.NotNull(vine0);
                     Assert.NotNull(vine1);
                     Assert.AreEqual(1, vine0.EnterInvoked);
@@ -99,7 +100,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                     Assert.AreEqual(0, vine0.ExitInvoked);
                     Assert.AreEqual(0, vine1.ExitInvoked);
                     cbCalled++;
-                    // ReSharper enable AccessToModifiedClosure
                 })
                 .OnFailure(exception =>
                 {
@@ -264,6 +264,119 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(1, vine.ExitInvoked);
             Assert.AreEqual(1, behavior.ExitInvoked);
             Assert.AreEqual(0, behavior.LastExitInvokeId);
+        }
+        
+        #endregion
+        
+        #region Updating Scripts
+
+        [Test]
+        public void Update_Vine()
+        {
+            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _behaviors[0]);
+            
+            _scriptRunner.AddSceneRoot(widget);
+            var token = _scriptRunner.StartAllScripts();
+
+            TestVineMonoBehaviour initialVine = null;
+            TestBehaviorMonoBehaviour behavior = null;
+            var cbCalled = 0;
+            token
+                .OnSuccess(_ =>
+                {
+                    Assert.NotNull(initialVine);
+                    Assert.NotNull(behavior);
+                    Assert.AreEqual(1, initialVine.EnterInvoked);
+                    Assert.AreEqual(1, behavior.EnterInvoked);
+                    Assert.AreEqual(0, initialVine.ExitInvoked);
+                    Assert.AreEqual(0, behavior.ExitInvoked);
+                    cbCalled++;
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("Failed to start runner: " + exception);
+                });
+            Assert.AreEqual(0, cbCalled);
+            
+            initialVine = _scriptFactory.GetVine(widget, _vines[0]);
+            behavior = _scriptFactory.GetBehavior(widget, _behaviors[0]);
+            
+            initialVine.FinishConfigure();
+            Assert.AreEqual(1, cbCalled);
+            
+            // Update, check to make sure nothing exits before the new one is ready.
+            // Ensure the behavior also exits/enters with the same instance.
+            initialVine.EnkluScript.Updated();
+            var updatedVine = _scriptFactory.GetVine(widget, _vines[0]);
+            Assert.AreNotSame(initialVine, updatedVine);
+            Assert.AreEqual(0, updatedVine.EnterInvoked);
+            Assert.AreEqual(0, initialVine.ExitInvoked);
+            Assert.AreEqual(0, behavior.ExitInvoked);
+            
+            updatedVine.FinishConfigure();
+            Assert.AreEqual(1, initialVine.ExitInvoked);
+            Assert.AreEqual(1, behavior.ExitInvoked);
+            Assert.AreEqual(1, updatedVine.EnterInvoked);
+            Assert.AreEqual(2, behavior.EnterInvoked);
+            
+            _scriptRunner.StopAllScripts();
+            Assert.AreEqual(1, initialVine.ExitInvoked);
+            Assert.AreEqual(1, updatedVine.ExitInvoked);
+            Assert.AreEqual(2, behavior.ExitInvoked);
+        }
+
+        [Test]
+        public void Update_Behavior()
+        {
+            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _behaviors[0]);
+            
+            _scriptRunner.AddSceneRoot(widget);
+            var token = _scriptRunner.StartAllScripts();
+
+            TestVineMonoBehaviour vine = null;
+            TestBehaviorMonoBehaviour initialBehavior = null;
+            var cbCalled = 0;
+            token
+                .OnSuccess(_ =>
+                {
+                    Assert.NotNull(vine);
+                    Assert.NotNull(initialBehavior);
+                    Assert.AreEqual(1, vine.EnterInvoked);
+                    Assert.AreEqual(1, initialBehavior.EnterInvoked);
+                    Assert.AreEqual(0, vine.ExitInvoked);
+                    Assert.AreEqual(0, initialBehavior.ExitInvoked);
+                    cbCalled++;
+                })
+                .OnFailure(exception =>
+                {
+                    Assert.Fail("Failed to start runner: " + exception);
+                });
+            Assert.AreEqual(0, cbCalled);
+            
+            vine = _scriptFactory.GetVine(widget, _vines[0]);
+            initialBehavior = _scriptFactory.GetBehavior(widget, _behaviors[0]);
+            
+            vine.FinishConfigure();
+            Assert.AreEqual(1, cbCalled);
+            
+            // Update, ensure the old component exits and the new component is entered.
+            // Ensure the behavior also exits/enters with the same instance.
+            vine.EnkluScript.Updated();
+            var updatedVine = _scriptFactory.GetVine(widget, _vines[0]);
+            Assert.AreEqual(0, updatedVine.EnterInvoked);
+            Assert.AreEqual(0, vine.ExitInvoked);
+            Assert.AreEqual(0, initialBehavior.ExitInvoked);
+            
+            updatedVine.FinishConfigure();
+            Assert.AreEqual(1, vine.ExitInvoked);
+            Assert.AreEqual(1, initialBehavior.ExitInvoked);
+            Assert.AreEqual(1, updatedVine.EnterInvoked);
+            Assert.AreEqual(2, initialBehavior.EnterInvoked);
+            
+            _scriptRunner.StopAllScripts();
+            Assert.AreEqual(1, vine.ExitInvoked);
+            Assert.AreEqual(1, updatedVine.ExitInvoked);
+            Assert.AreEqual(2, initialBehavior.ExitInvoked);
         }
         
         #endregion

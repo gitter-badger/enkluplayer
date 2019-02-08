@@ -61,6 +61,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 
                 _scriptRunner.AddSceneRoot(widgetRoot);
+                _scriptRunner.StartAllScripts();
             };
         }
 
