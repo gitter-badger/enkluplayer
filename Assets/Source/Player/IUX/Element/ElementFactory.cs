@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
@@ -33,7 +32,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
-        private readonly IAssetPoolManager _pools;
         private readonly IQrReaderService _qr;
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
@@ -46,7 +44,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
         private readonly ApplicationConfig _appConfig;
-        private readonly EditorSettings _editorSettings;
         private readonly ElementSchemaDefaults _elementSchemaDefaults;
 
         /// <summary>
@@ -68,7 +65,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IScriptRequireResolver resolver,
             IScriptManager scripts,
             IAssetManager assets,
-            IAssetPoolManager pools,
             IQrReaderService qr,
             IScanLoader scanLoader,
             IScanImporter scanImporter,
@@ -81,7 +77,6 @@ namespace CreateAR.EnkluPlayer.IUX
             TweenConfig tweens,
             WidgetConfig config,
             ApplicationConfig appConfig,
-            EditorSettings editorSettings,
             ElementSchemaDefaults elementSchemaDefaults)
         {
             _parser = parser;
@@ -101,7 +96,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _resolver = resolver;
             _scripts = scripts;
             _assets = assets;
-            _pools = pools;
             _qr = qr;
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
@@ -111,7 +105,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _elementJsFactory = elementJsFactory;
             _bootstrapper = bootstrapper;
             _appConfig = appConfig;
-            _editorSettings = editorSettings;
             _elementSchemaDefaults = elementSchemaDefaults;
         }
 

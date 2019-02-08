@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
@@ -28,11 +27,6 @@ namespace CreateAR.EnkluPlayer
         private readonly IElementTxnManager _txns;
 
         /// <summary>
-        /// Manages primary anchor.
-        /// </summary>
-        private readonly IPrimaryAnchorManager _primaryAnchor;
-        
-        /// <summary>
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
@@ -54,7 +48,6 @@ namespace CreateAR.EnkluPlayer
             _delegate = @delegate;
             _ui = ui;
             _txns = txns;
-            _primaryAnchor = primaryAnchor;
         }
 
         /// <inheritdoc />

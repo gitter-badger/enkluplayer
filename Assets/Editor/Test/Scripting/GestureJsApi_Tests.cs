@@ -25,7 +25,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             });
 
             _gestureManager = new TestGestureManager();
-            _gestureManager.SetPointers(new uint[1] {12345});
+            _gestureManager.SetPointers(new uint[] {12345});
 
             _engine.SetValue("require", new Func<string, JsValue>(
                 value => JsValue.FromObject(_engine, new GestureJsInterface(_gestureManager))
@@ -46,64 +46,108 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.IsTrue(Mathf.Approximately(output.y, 1));
             Assert.IsTrue(Mathf.Approximately(output.z, 1));
         }
+    }
 
-        private class TestGestureManager : IGestureManager
+    public class TestGestureManager : IGestureManager
+    {
+        public event Action<uint> OnPointerStarted;
+        public event Action<uint> OnPointerEnded;
+        public event Action<uint> OnPointerPressed;
+        public event Action<uint> OnPointerReleased;
+        public uint[] Pointers { get; private set; }
+
+        /// <summary>
+        /// Forcibly calls started event.
+        /// </summary>
+        public void ForcePointerStarted()
         {
-            public event Action<uint> OnPointerStarted;
-            public event Action<uint> OnPointerEnded;
-            public event Action<uint> OnPointerPressed;
-            public event Action<uint> OnPointerReleased;
-            public uint[] Pointers { get; private set; }
-
-            public void SetPointers(uint[] ids)
+            if (null != OnPointerStarted)
             {
-                Pointers = ids;
+                OnPointerStarted(0);
             }
+        }
 
-            public void Initialize()
+        /// <summary>
+        /// Forcibly calls ended event.
+        /// </summary>
+        public void ForcePointerEnded()
+        {
+            if (null != OnPointerEnded)
             {
-                throw new NotImplementedException();
+                OnPointerEnded(0);
             }
+        }
 
-            public void Uninitialize()
+        /// <summary>
+        /// Forcibly calls pressed event.
+        /// </summary>
+        public void ForcePointerPressed()
+        {
+            if (null != OnPointerPressed)
             {
-                throw new NotImplementedException();
+                OnPointerPressed(0);
             }
+        }
 
-            public bool TryGetPointerOrigin(uint id, out Vector3 position)
+        /// <summary>
+        /// Forcibly calls released event.
+        /// </summary>
+        public void ForcePointerReleased()
+        {
+            if (null != OnPointerReleased)
             {
-                if (id == 12345)
-                {
-                    position = Vector3.one;
-                    return true;
-                }
-                throw new ArgumentException();
+                OnPointerReleased(0);
             }
+        }
 
-            public bool TryGetPointerForward(uint id, out Vector3 forward)
-            {
-                throw new NotImplementedException();
-            }
+        public void SetPointers(uint[] ids)
+        {
+            Pointers = ids;
+        }
 
-            public bool TryGetPointerUp(uint id, out Vector3 up)
-            {
-                throw new NotImplementedException();
-            }
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
 
-            public bool TryGetPointerRight(uint id, out Vector3 right)
-            {
-                throw new NotImplementedException();
-            }
+        public void Uninitialize()
+        {
+            throw new NotImplementedException();
+        }
 
-            public bool TryGetPointerRotation(uint id, out Quaternion rotation)
+        public bool TryGetPointerOrigin(uint id, out Vector3 position)
+        {
+            if (id == 12345)
             {
-                throw new NotImplementedException();
+                position = Vector3.one;
+                return true;
             }
+            throw new ArgumentException();
+        }
 
-            public bool TryGetPointerVelocity(uint id, out Vector3 velocity)
-            {
-                throw new NotImplementedException();
-            }
+        public bool TryGetPointerForward(uint id, out Vector3 forward)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetPointerUp(uint id, out Vector3 up)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetPointerRight(uint id, out Vector3 right)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetPointerRotation(uint id, out Quaternion rotation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetPointerVelocity(uint id, out Vector3 velocity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

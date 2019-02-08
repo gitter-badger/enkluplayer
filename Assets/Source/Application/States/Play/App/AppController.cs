@@ -36,11 +36,6 @@ namespace CreateAR.EnkluPlayer
         private readonly IMultiplayerController _multiplayer;
 
         /// <summary>
-        /// Application wide configuration.
-        /// </summary>
-        private readonly ApplicationConfig _appConfig;
-
-        /// <summary>
         /// True iff the app has been loaded.
         /// </summary>
         private bool _isLoaded;
@@ -80,7 +75,6 @@ namespace CreateAR.EnkluPlayer
             _connection = connection;
             _metrics = metrics;
             _multiplayer = multiplayer;
-            _appConfig = config;
         }
         
         /// <inheritdoc />

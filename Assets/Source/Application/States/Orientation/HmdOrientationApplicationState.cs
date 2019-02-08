@@ -1,9 +1,5 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.EnkluPlayer.IUX;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -26,17 +22,7 @@ namespace CreateAR.EnkluPlayer
         /// Sends/receives messages.
         /// </summary>
         private readonly IMessageRouter _messages;
-
-        /// <summary>
-        /// Root object.
-        /// </summary>
-        private GameObject _root;
-
-        /// <summary>
-        /// Time at which state was entered.
-        /// </summary>
-        private DateTime _enterTime;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -70,10 +56,7 @@ namespace CreateAR.EnkluPlayer
             //in the editor, continue automatically.
             if (UnityEngine.Application.isEditor)
             {
-                if (DateTime.Now.Subtract(_enterTime).TotalSeconds > 1f)
-                {
-                    Orientation_OnContinue();
-                }
+                Orientation_OnContinue();
             }
         }
 
@@ -82,7 +65,6 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "Exit {0}.", GetType().Name);
 
-            Object.Destroy(_root);
             _frame.Release();
         }
 

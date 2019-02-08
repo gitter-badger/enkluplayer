@@ -173,7 +173,9 @@ namespace RLD
             // Selectable object types
             content.text = "Selectable object types";
             content.tooltip = "Allows you to specify which object types can be selected.";
+#pragma warning disable 618
             newInt = (int)((GameObjectType)EditorGUILayout.EnumMaskPopup(content, (GameObjectType)_selectableObjectTypes));
+#pragma warning restore 618
             if (newInt != (int)_selectableObjectTypes)
             {
                 EditorUndoEx.Record(undoRecordObject);
