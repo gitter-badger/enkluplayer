@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {

@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.Test.Scripting
+﻿using Enklu.Data;
+
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     /// <summary>
     /// A readonly set of data to be used across multiple tests.

@@ -7,14 +7,168 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.DataStructures;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateMultiplayerToken;
+using Enklu.Data;
 using Enklu.Mycelium.Messages;
 using Enklu.Mycerializer;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
+    public class SceneEventHandler
+    {
+        private readonly IAppSceneManager _scenes;
+        private readonly int[] _nextChildIndices = new int[128];
+
+        private Element _root;
+
+        public SceneEventHandler(IAppSceneManager scenes)
+        {
+            _scenes = scenes;
+        }
+
+        public void Initialize()
+        {
+            if (_scenes.All.Length == 0)
+            {
+                Log.Error(this, "Tried to initialize SceneEventHandler but scene manager has no scenes!");
+                return;
+            }
+
+            _root = _scenes.Root(_scenes.All[0]);
+        }
+
+        public void Uninitialize()
+        {
+            _root = null;
+        }
+
+        public void OnUpdated<T>(T evt) where T : UpdateElementEvent
+        {
+            if (null == _root)
+            {
+                return;
+            }
+
+            // find element
+            var el = FindFast(_root, evt.ElementId);
+            if (null == el)
+            {
+                Log.Warning(this, "Could not find element to update: {0}.", evt.ElementId);
+                return;
+            }
+
+            var vec3 = evt as UpdateElementVec3Event;
+            if (null != vec3)
+            {
+                el.Schema.Get<Vec3>(evt.PropName).Value = vec3.Value;
+                return;
+            }
+            
+            var fl = evt as UpdateElementFloatEvent;
+            if (null != fl)
+            {
+                el.Schema.Get<float>(evt.PropName).Value = fl.Value;
+                return;
+            }
+
+            var col4 = evt as UpdateElementCol4Event;
+            if (null != col4)
+            {
+                el.Schema.Get<Col4>(evt.PropName).Value = col4.Value;
+                return;
+            }
+
+            var it = evt as UpdateElementIntEvent;
+            if (null != it)
+            {
+                el.Schema.Get<int>(evt.PropName).Value = it.Value;
+                return;
+            }
+
+            var str = evt as UpdateElementStringEvent;
+            if (null != str)
+            {
+                el.Schema.Get<string>(evt.PropName).Value = str.Value;
+                return;
+            }
+
+            var bl = evt as UpdateElementBoolEvent;
+            if (null != bl)
+            {
+                el.Schema.Get<bool>(evt.PropName).Value = bl.Value;
+                return;
+            }
+
+            Log.Error(this, "Could not handle UpdateElementEvent {0}.", evt);
+        }
+
+        /// <summary>
+        /// Stack-less search through hierarchy for an element that matches by
+        /// id.
+        /// </summary>
+        /// <param name="root">Where to start the search.</param>
+        /// <param name="id">The id to look for.</param>
+        /// <returns></returns>
+        private Element FindFast(Element root, string id)
+        {
+            var el = root;
+            var compare = true;
+
+            // prep indices
+            var depthIndex = 0;
+            _nextChildIndices[0] = 0;
+
+            // search!
+            while (true)
+            {
+                if (compare && el.Id == id)
+                {
+                    return el;
+                }
+                
+                // get the index to the next child at this depth
+                var nextChildIndex = _nextChildIndices[depthIndex];
+
+                // proceed to next child
+                if (nextChildIndex < el.Children.Count)
+                {
+                    // increment next child index at this depth
+                    _nextChildIndices[depthIndex]++;
+
+                    // get the next child
+                    el = el.Children[nextChildIndex];
+
+                    // move to the next depth
+                    _nextChildIndices[++depthIndex] = 0;
+
+                    // switch compare back on
+                    compare = true;
+                }
+                // there is no next child
+                else
+                {
+                    // move up a level
+                    depthIndex--;
+
+                    // there is nowhere else to go
+                    if (depthIndex < 0)
+                    {
+                        return null;
+                    }
+
+                    // parent element
+                    el = el.Parent;
+
+                    // don't compare ids, we've already checked this element
+                    compare = false;
+                }
+            }
+        }
+    }
+
     public class MyceliumMultiplayerController : IMultiplayerController, ISocketListener
     {
         private static int _Ids = 1000;
@@ -27,6 +181,9 @@ namespace CreateAR.EnkluPlayer
         private readonly OptimizedObjectPool<ByteArrayHandle> _buffers = new OptimizedObjectPool<ByteArrayHandle>(
             4, 0, 1,
             () => new ByteArrayHandle(1024));
+        private readonly List<UpdateElementEvent> _sceneEventBuffer = new List<UpdateElementEvent>();
+        private readonly SceneEventHandler _sceneHandler;
+
         private readonly Dictionary<Type, Delegate> _subscriptions = new Dictionary<Type, Delegate>();
         private readonly List<object> _eventWaitBuffer = new List<object>();
         private object[] _eventExecutionBuffer = new object[4];
@@ -39,12 +196,14 @@ namespace CreateAR.EnkluPlayer
 
         public MyceliumMultiplayerController(
             IBootstrapper bootstrapper,
+            IAppSceneManager scenes,
             ApiController api,
             ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _api = api;
             _config = config;
+            _sceneHandler = new SceneEventHandler(scenes);
         }
 
         public IAsyncToken<Void> Initialize()
@@ -74,23 +233,44 @@ namespace CreateAR.EnkluPlayer
 
         public void Play()
         {
-            // TODO: stop buffering events
+            // prep the scene handler
+            {
+                _sceneHandler.Initialize();
 
-            // TODO: apply event buffer
+                // stop buffering events and forward them to the scene handler
+                Subscribe<UpdateElementVec3Event>(_sceneHandler.OnUpdated);
+                Subscribe<UpdateElementCol4Event>(_sceneHandler.OnUpdated);
+                Subscribe<UpdateElementIntEvent>(_sceneHandler.OnUpdated);
+                Subscribe<UpdateElementFloatEvent>(_sceneHandler.OnUpdated);
+                Subscribe<UpdateElementStringEvent>(_sceneHandler.OnUpdated);
+                Subscribe<UpdateElementBoolEvent>(_sceneHandler.OnUpdated);
+
+                // forward buffered events to the scene handler
+                for (int i = 0, len = _sceneEventBuffer.Count; i < len; i++)
+                {
+                    _sceneHandler.OnUpdated(_sceneEventBuffer[i]);
+                }
+            }
         }
-
+        
         public void Disconnect()
         {
             if (null == _connect)
             {
                 return;
             }
-
+            
             _tcp.Close();
             _tcp = null;
 
             _connect.Fail(new Exception("Disconnected."));
             _connect = null;
+            
+            // unsubscribe everything
+            _subscriptions.Clear();
+
+            // kill scene handler
+            _sceneHandler.Initialize();
 
             StopPoll();
         }
@@ -193,6 +373,14 @@ namespace CreateAR.EnkluPlayer
             {
                 Log.Info(this, "Connected to mycelium.");
 
+                // before we login, make sure we're listening for events
+                Subscribe<UpdateElementVec3Event>(OnBufferEvent);
+                Subscribe<UpdateElementCol4Event>(OnBufferEvent);
+                Subscribe<UpdateElementIntEvent>(OnBufferEvent);
+                Subscribe<UpdateElementFloatEvent>(OnBufferEvent);
+                Subscribe<UpdateElementStringEvent>(OnBufferEvent);
+                Subscribe<UpdateElementBoolEvent>(OnBufferEvent);
+
                 // next, send login request
                 Log.Info(this, "Sending login request.");
                 Subscribe<LoginResponse>(OnLoginResponse);
@@ -206,7 +394,7 @@ namespace CreateAR.EnkluPlayer
                 _connect.Fail(new Exception("Could not connect to mycelium."));
             }
         }
-
+        
         private void StartPoll()
         {
             lock (_eventWaitBuffer)
@@ -257,7 +445,12 @@ namespace CreateAR.EnkluPlayer
         {
             _pollId = -1;
         }
-        
+
+        private void OnBufferEvent(UpdateElementEvent evt)
+        {
+            _sceneEventBuffer.Add(evt);
+        }
+
         private void OnLoginResponse(LoginResponse res)
         {
             // w00t

@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using Newtonsoft.Json;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
+using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 
 namespace CreateAR.EnkluPlayer
 {

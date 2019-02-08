@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
 
 namespace CreateAR.EnkluPlayer
 {

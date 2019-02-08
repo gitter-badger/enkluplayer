@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using NUnit.Framework;
+using ElementSchemaData = CreateAR.EnkluPlayer.IUX.ElementSchemaData;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {

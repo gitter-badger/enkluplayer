@@ -1,6 +1,9 @@
 ﻿using System;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
+using ElementSchemaData = CreateAR.EnkluPlayer.IUX.ElementSchemaData;
 
 namespace CreateAR.EnkluPlayer
 {

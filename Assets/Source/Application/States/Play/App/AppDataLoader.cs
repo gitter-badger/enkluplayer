@@ -8,10 +8,13 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.GetPublishedAssets;
+using Enklu.Data;
 using UnityEngine;
+using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
+using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 using Response = CreateAR.Trellis.Messages.GetPublishedScene.Response;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -435,6 +438,7 @@ namespace CreateAR.EnkluPlayer
                     }
                     catch (Exception exception)
                     {
+                        Log.Info("HERE", exception);
                         token.Fail(exception);
 
                         return;

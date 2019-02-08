@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Test.UI;
+using Enklu.Data;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
+using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
+using ElementSchemaData = CreateAR.EnkluPlayer.IUX.ElementSchemaData;
 
 namespace CreateAR.EnkluPlayer.Test.Txn
 {

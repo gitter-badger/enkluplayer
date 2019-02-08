@@ -1,9 +1,11 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using Enklu.Data;
 using Jint;
 using NUnit.Framework;
 using UnityEngine;
+using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {

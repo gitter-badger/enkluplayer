@@ -1,5 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
 
 namespace CreateAR.EnkluPlayer
 {

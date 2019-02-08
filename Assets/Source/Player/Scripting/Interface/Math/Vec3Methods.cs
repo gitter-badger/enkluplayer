@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer
+﻿using Enklu.Data;
+
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Methods for vectors.

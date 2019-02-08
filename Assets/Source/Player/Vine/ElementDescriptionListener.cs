@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
 using ElementMap = CreateAR.Commons.Unity.DataStructures.Tuple<string, int>;
+using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 
 namespace CreateAR.EnkluPlayer.Vine
 {

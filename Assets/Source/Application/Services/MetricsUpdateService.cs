@@ -14,12 +14,11 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Configuration to use.
         /// </summary>
-        private MetricsDataConfig _config;
+        private readonly MetricsDataConfig _config;
 
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IMessageRouter _messages;
         private readonly IBootstrapper _bootstrapper;
         private readonly IDeviceMetaProvider _deviceMeta;
 
@@ -56,7 +55,6 @@ namespace CreateAR.EnkluPlayer
             IBootstrapper bootstrapper,
             IDeviceMetaProvider deviceMeta) : base(binder, messages)
         {
-            _messages = messages;
             _bootstrapper = bootstrapper;
             _config = config.Metrics.MetricsDataConfig;
             _deviceMeta = deviceMeta;
