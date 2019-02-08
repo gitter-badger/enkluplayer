@@ -38,6 +38,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 Log.Warning(this, "Scene OnInitialized");
 
+                // TODO: Handle multiple scenes
                 var widgetRoot = _sceneManager.Root(_sceneManager.All[0]) as Widget;
 
                 if (widgetRoot == null)
@@ -47,17 +48,6 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 
                 _scriptRunner.AddSceneRoot(widgetRoot);
-//                for (int i = 0, len = _elementManager.All.Count; i < len; i++)
-//                {
-//                    Element_OnCreated(_elementManager.All[i]);
-//                }
-//                
-//                _scriptRunner.ParseAll().OnSuccess(_ =>
-//                {
-//                    _scriptRunner.StartAllScripts();
-//                });
-//                
-//                _elementManager.OnCreated += Element_OnCreated;
             };
         }
 
@@ -85,7 +75,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return;
             }
             
-            _scriptRunner.AddWidget(widget);
+            Log.Error(this, "Still working on it!");
         }
     }
 }
