@@ -16,7 +16,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public int EnterInvoked { get; private set; }
         public int ExitInvoked { get; private set; }
         public int LastEnterInvokeId { get; private set; }
-        public int LastExitInvokeUd { get; private set; } 
+        public int LastExitInvokeId { get; private set; } 
         
         public override void Initialize(IElementJsCache jsCache, IElementJsFactory factory, Engine engine, EnkluScript script, Widget widget)
         {
@@ -47,7 +47,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             base.Exit();
             ExitInvoked++;
-            LastExitInvokeUd = _exitInvokeId++;
+            LastExitInvokeId = _exitInvokeId++;
         }
         
         /// <summary>
@@ -56,6 +56,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public static void ResetInvokeIds()
         {
             _enterInvokeId = 0;
+            _exitInvokeId = 0;
         }
     }
 }
