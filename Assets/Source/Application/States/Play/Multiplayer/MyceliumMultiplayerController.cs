@@ -19,13 +19,17 @@ namespace CreateAR.EnkluPlayer
 {
     public class SceneEventHandler
     {
+        private readonly IElementManager _elements;
         private readonly IAppSceneManager _scenes;
         private readonly int[] _nextChildIndices = new int[128];
 
         private Element _root;
 
-        public SceneEventHandler(IAppSceneManager scenes)
+        public SceneEventHandler(
+            IElementManager elements,
+            IAppSceneManager scenes)
         {
+            _elements = elements;
             _scenes = scenes;
         }
 
@@ -53,7 +57,7 @@ namespace CreateAR.EnkluPlayer
             }
 
             // find element
-            var el = FindFast(_root, evt.ElementId);
+            var el = _elements.ById(evt.ElementId);
             if (null == el)
             {
                 Log.Warning(this, "Could not find element to update: {0}.", evt.ElementId);
@@ -197,13 +201,14 @@ namespace CreateAR.EnkluPlayer
         public MyceliumMultiplayerController(
             IBootstrapper bootstrapper,
             IAppSceneManager scenes,
+            IElementManager elements,
             ApiController api,
             ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _api = api;
             _config = config;
-            _sceneHandler = new SceneEventHandler(scenes);
+            _sceneHandler = new SceneEventHandler(elements, scenes);
         }
 
         public IAsyncToken<Void> Initialize()
