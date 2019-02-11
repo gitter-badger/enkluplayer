@@ -13,6 +13,7 @@ using CreateAR.Trellis.Messages.CreateMultiplayerToken;
 using Enklu.Data;
 using Enklu.Mycelium.Messages;
 using Enklu.Mycerializer;
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -21,9 +22,44 @@ namespace CreateAR.EnkluPlayer
     {
         private readonly IElementManager _elements;
         private readonly IAppSceneManager _scenes;
-        private readonly int[] _nextChildIndices = new int[128];
+        private readonly List<Element> _elementHeap = new List<Element>();
+
+        private ElementMap _map;
 
         private Element _root;
+        private string[] _elementLookup;
+        private string[] _propLookup;
+
+        public ElementMap Map
+        {
+            get { return _map; }
+            set
+            {
+                _map = value;
+
+                // populate element lookup
+                var elements = _map.Elements;
+                var len = elements.Length;
+
+                _elementLookup = new string[len + 1];
+                for (var i = 0; i < len; i++)
+                {
+                    var record = elements[i];
+                    _elementLookup[record.Hash] = record.Value;
+                }
+
+                //  populate prop lookup
+                var props = _map.Props;
+                len = props.Length;
+
+                _propLookup = new string[len + 1];
+                for (var i = 0; i < len; i++)
+                {
+                    var record = props[i];
+                    _propLookup[record.Hash] = record.Value;
+                }
+            }
+        }
 
         public SceneEventHandler(
             IElementManager elements,
@@ -47,8 +83,9 @@ namespace CreateAR.EnkluPlayer
         public void Uninitialize()
         {
             _root = null;
+            _elementHeap.Clear();
         }
-
+        
         public void OnUpdated<T>(T evt) where T : UpdateElementEvent
         {
             if (null == _root)
@@ -57,57 +94,68 @@ namespace CreateAR.EnkluPlayer
             }
 
             // find element
-            var el = _elements.ById(evt.ElementId);
+            var elId = ElementId(evt.ElementId);
+            var el = ById(elId);
             if (null == el)
             {
                 Log.Warning(this, "Could not find element to update: {0}.", evt.ElementId);
                 return;
             }
 
+            // prop name
+            var propName = PropName(evt.PropName);
+            if (string.IsNullOrEmpty(propName))
+            {
+                Log.Warning(this, "Could not find prop name from id {0}.", propName);
+                return;
+            }
+
             var vec3 = evt as UpdateElementVec3Event;
             if (null != vec3)
             {
-                el.Schema.Get<Vec3>(evt.PropName).Value = vec3.Value;
+                el.Schema.Get<Vec3>(propName).Value = vec3.Value;
                 return;
             }
             
             var fl = evt as UpdateElementFloatEvent;
             if (null != fl)
             {
-                el.Schema.Get<float>(evt.PropName).Value = fl.Value;
+                el.Schema.Get<float>(propName).Value = fl.Value;
                 return;
             }
 
             var col4 = evt as UpdateElementCol4Event;
             if (null != col4)
             {
-                el.Schema.Get<Col4>(evt.PropName).Value = col4.Value;
+                el.Schema.Get<Col4>(propName).Value = col4.Value;
                 return;
             }
 
             var it = evt as UpdateElementIntEvent;
             if (null != it)
             {
-                el.Schema.Get<int>(evt.PropName).Value = it.Value;
+                el.Schema.Get<int>(propName).Value = it.Value;
                 return;
             }
 
             var str = evt as UpdateElementStringEvent;
             if (null != str)
             {
-                el.Schema.Get<string>(evt.PropName).Value = str.Value;
+                el.Schema.Get<string>(propName).Value = str.Value;
                 return;
             }
 
             var bl = evt as UpdateElementBoolEvent;
             if (null != bl)
             {
-                el.Schema.Get<bool>(evt.PropName).Value = bl.Value;
+                el.Schema.Get<bool>(propName).Value = bl.Value;
                 return;
             }
 
             Log.Error(this, "Could not handle UpdateElementEvent {0}.", evt);
         }
+
+        private readonly int[] _nextChildIndices = new int[128];
 
         /// <summary>
         /// Stack-less search through hierarchy for an element that matches by
@@ -170,6 +218,55 @@ namespace CreateAR.EnkluPlayer
                     compare = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Retrieves an element by id and stores it in a local data structure
+        /// for fast lookup.
+        /// </summary>
+        /// <param name="id">The element id.</param>
+        /// <returns></returns>
+        private Element ById(string id)
+        {
+            Element el;
+
+            for (int i = 0, len = _elementHeap.Count; i < len; i++)
+            {
+                el = _elementHeap[i];
+                if (el.Id == id)
+                {
+                    return el;
+                }
+            }
+
+            el = _elements.ById(id);
+
+            if (null != el)
+            {
+                _elementHeap.Add(el);
+            }
+
+            return el;
+        }
+
+        private string ElementId(ushort hash)
+        {
+            if (null != _elementLookup && hash < _elementLookup.Length)
+            {
+                return _elementLookup[hash];
+            }
+
+            return string.Empty;
+        }
+
+        private string PropName(ushort hash)
+        {
+            if (null != _propLookup && hash < _propLookup.Length)
+            {
+                return _propLookup[hash];
+            }
+
+            return string.Empty;
         }
     }
 
@@ -378,7 +475,7 @@ namespace CreateAR.EnkluPlayer
             {
                 Log.Info(this, "Connected to mycelium.");
 
-                // before we login, make sure we're listening for events
+                // before we login, make sure we're buffering events
                 Subscribe<UpdateElementVec3Event>(OnBufferEvent);
                 Subscribe<UpdateElementCol4Event>(OnBufferEvent);
                 Subscribe<UpdateElementIntEvent>(OnBufferEvent);
@@ -386,20 +483,18 @@ namespace CreateAR.EnkluPlayer
                 Subscribe<UpdateElementStringEvent>(OnBufferEvent);
                 Subscribe<UpdateElementBoolEvent>(OnBufferEvent);
 
+                // ... and listening for the scene diff
+                Subscribe<SceneDiffEvent>(OnSceneDiff);
+
                 // next, send login request
-                Log.Info(this, "Sending login request.");
-                Subscribe<LoginResponse>(OnLoginResponse);
-                Send(new LoginRequest
-                {
-                    Jwt = _multiplayerToken
-                });
+                _bootstrapper.BootstrapCoroutine(Login());
             }
             else
             {
                 _connect.Fail(new Exception("Could not connect to mycelium."));
             }
         }
-        
+
         private void StartPoll()
         {
             lock (_eventWaitBuffer)
@@ -408,6 +503,18 @@ namespace CreateAR.EnkluPlayer
             }
 
             _bootstrapper.BootstrapCoroutine(Poll());
+        }
+
+        private IEnumerator Login()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            Log.Info(this, "Sending login request.");
+            Subscribe<LoginResponse>(OnLoginResponse);
+            Send(new LoginRequest
+            {
+                Jwt = _multiplayerToken
+            });
         }
 
         private IEnumerator Poll()
@@ -454,6 +561,11 @@ namespace CreateAR.EnkluPlayer
         private void OnBufferEvent(UpdateElementEvent evt)
         {
             _sceneEventBuffer.Add(evt);
+        }
+
+        private void OnSceneDiff(SceneDiffEvent evt)
+        {
+            _sceneHandler.Map = evt.Map;
         }
 
         private void OnLoginResponse(LoginResponse res)
