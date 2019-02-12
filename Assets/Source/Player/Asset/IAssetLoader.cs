@@ -7,22 +7,6 @@ using Object = UnityEngine.Object;
 namespace CreateAR.EnkluPlayer.Assets
 {
     /// <summary>
-    /// Information about an Asset failing to load.
-    /// </summary>
-    public struct AssetLoadFailure
-    {
-        /// <summary>
-        /// The AssetData that failed.
-        /// </summary>
-        public AssetData AssetData;
-        
-        /// <summary>
-        /// The Exception causing failure.
-        /// </summary>
-        public Exception Exception;
-    }
-    
-    /// <summary>
     /// Describes an interface for loading assets.
     /// </summary>
     public interface IAssetLoader
@@ -32,16 +16,6 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         UrlFormatterCollection Urls { get; }
         
-        /// <summary>
-        /// The number of asset loads in progress.
-        /// </summary>
-        int QueueLength { get; }
-        
-        /// <summary>
-        /// A collection of load failures this IAssetLoader experienced.
-        /// </summary>
-        List<AssetLoadFailure> LoadFailures { get; }
-
         /// <summary>
         /// Loads an asset.
         /// </summary>
@@ -54,7 +28,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// Clears the download queue.
         /// </summary>
-        void ClearDownloadQueue();
+        void Clear();
 
         /// <summary>
         /// Destroys the loader and everything in it.

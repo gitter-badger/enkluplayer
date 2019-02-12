@@ -16,6 +16,22 @@ namespace CreateAR.EnkluPlayer
     public class StandardScriptLoader : IScriptLoader
     {
         /// <summary>
+        /// Information about a Script failing to load.
+        /// </summary>
+        public struct ScriptLoadFailure
+        {
+            /// <summary>
+            /// The ScriptData that failed.
+            /// </summary>
+            public ScriptData ScriptData;
+        
+            /// <summary>
+            /// The Exception causing failure.
+            /// </summary>
+            public Exception Exception;
+        }
+        
+        /// <summary>
         /// Network configuration.
         /// </summary>
         private readonly NetworkConfig _config;
@@ -45,10 +61,14 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private static readonly Random _Prng = new Random();
         
-        /// <inheritdoc cref="IScriptLoader"/>
+        /// <summary>
+        /// The number of currently loading scripts.
+        /// </summary>
         public int QueueLength { get; private set; }
         
-        /// <inheritdoc cref="IScriptLoader"/>
+        /// <summary>
+        /// A collection of load failures this IScriptLoader experienced.
+        /// </summary>
         public List<ScriptLoadFailure> LoadFailures { get; private set; }
 
         /// <summary>
@@ -155,8 +175,8 @@ namespace CreateAR.EnkluPlayer
             return token;
         }
 
-        /// <inheritdoc cref="IScriptLoader"/>
-        public void ResetLoadTracking()
+        /// <inheritdoc />
+        public void Clear()
         {
             QueueLength = 0;
             LoadFailures.Clear();

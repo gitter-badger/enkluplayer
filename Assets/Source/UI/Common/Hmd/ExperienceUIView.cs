@@ -89,6 +89,16 @@ namespace CreateAR.EnkluPlayer
         
         [InjectElements("..txt-errors")]
         public TextWidget TxtErrors { get; set; }
+        
+        /// <summary>
+        /// Cached casted copy of IScriptLoader. 
+        /// </summary>
+        private StandardScriptLoader _scriptLoader { get; set; }
+        
+        /// <summary>
+        /// Cached casted copy of IAssetLoader.
+        /// </summary>
+        private StandardAssetLoader _assetLoader { get; set; }
 
         /// <summary>
         /// Invoked when the UI should close.
@@ -99,6 +109,9 @@ namespace CreateAR.EnkluPlayer
         protected override void AfterElementsCreated()
         {
             base.AfterElementsCreated();
+            
+            _scriptLoader = (StandardScriptLoader) ScriptLoader;
+            _assetLoader = (StandardAssetLoader) AssetLoader;
             
             TxtEnvironment.Label = _config.Network.Environment.Name;
             TxtExperience.Label = App.Name;
@@ -137,11 +150,11 @@ namespace CreateAR.EnkluPlayer
         {
             if (Select.Selection.Value == "update")
             {
-                TxtAssetQueue.Label = string.Format("Assets Loading: {0}", AssetLoader.QueueLength);
-                TxtScriptQueue.Label = string.Format("Scripts Loading: {0}", ScriptLoader.QueueLength);
+                TxtAssetQueue.Label = string.Format("Assets Loading: {0}", _assetLoader.QueueLength);
+                TxtScriptQueue.Label = string.Format("Scripts Loading: {0}", _scriptLoader.QueueLength);
             }
             
-            if (AssetLoader.LoadFailures.Count != _assetFails || ScriptLoader.LoadFailures.Count != _scriptFails)
+            if (_assetLoader.LoadFailures.Count != _assetFails || _scriptLoader.LoadFailures.Count != _scriptFails)
             {
                 RebuildFailureDisplay();
             }
@@ -153,8 +166,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void RebuildFailureDisplay()
         {
-            _assetFails = AssetLoader.LoadFailures.Count;
-            _scriptFails = ScriptLoader.LoadFailures.Count;
+            _assetFails = _assetLoader.LoadFailures.Count;
+            _scriptFails = _scriptLoader.LoadFailures.Count;
 
             var sum = _assetFails + _scriptFails;
             var pages = sum / ERROR_PAGE_SIZE;
@@ -210,18 +223,18 @@ namespace CreateAR.EnkluPlayer
             var errorOutput = "";
             if (skip < _assetFails)
             {
-                for (int i = skip, len = AssetLoader.LoadFailures.Count; i < len && used < ERROR_PAGE_SIZE; i++)
+                for (int i = skip, len = _assetLoader.LoadFailures.Count; i < len && used < ERROR_PAGE_SIZE; i++)
                 {
-                    var failure = AssetLoader.LoadFailures[i];
+                    var failure = _assetLoader.LoadFailures[i];
                     errorOutput += string.Format("Asset: {0} - {1}\n", failure.AssetData.AssetName, failure.Exception);
                     used++;
                 }
             }
 
             var start = (skip + used) - _assetFails;
-            for (int i = start, len = ScriptLoader.LoadFailures.Count; i < len && used < ERROR_PAGE_SIZE; i++)
+            for (int i = start, len = _scriptLoader.LoadFailures.Count; i < len && used < ERROR_PAGE_SIZE; i++)
             {
-                var failure = ScriptLoader.LoadFailures[i];
+                var failure = _scriptLoader.LoadFailures[i];
                 errorOutput += string.Format("Script: {0} - {1}\n", failure.ScriptData.Name, failure.Exception);
                 used++;
             }

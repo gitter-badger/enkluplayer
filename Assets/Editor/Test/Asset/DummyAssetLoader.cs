@@ -14,7 +14,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
 
         public UrlFormatterCollection Urls { get; private set; }
         public int QueueLength { get; private set; }
-        public List<AssetLoadFailure> LoadFailures { get; private set; }
+        public List<StandardAssetLoader.AssetLoadFailure> LoadFailures { get; private set; }
 
         public DummyAssetLoader()
         {
@@ -37,7 +37,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                 var exception = new Exception(_error);
 
                 QueueLength--;
-                LoadFailures.Add(new AssetLoadFailure
+                LoadFailures.Add(new StandardAssetLoader.AssetLoadFailure
                 {
                     AssetData = data,
                     Exception = exception
@@ -57,7 +57,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                 var exception = new Exception("Could not load asset at " + data.Uri + ".");
                 
                 QueueLength--;
-                LoadFailures.Add(new AssetLoadFailure
+                LoadFailures.Add(new StandardAssetLoader.AssetLoadFailure
                 {
                     AssetData = data,
                     Exception = exception
@@ -79,7 +79,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
             return token;
         }
 
-        public void ClearDownloadQueue()
+        public void Clear()
         {
             QueueLength = 0;
             LoadFailures.Clear();

@@ -17,6 +17,22 @@ namespace CreateAR.EnkluPlayer.Assets
     public class StandardAssetLoader : IAssetLoader
     {
         /// <summary>
+        /// Information about an Asset failing to load.
+        /// </summary>
+        public struct AssetLoadFailure
+        {
+            /// <summary>
+            /// The AssetData that failed.
+            /// </summary>
+            public AssetData AssetData;
+        
+            /// <summary>
+            /// The Exception causing failure.
+            /// </summary>
+            public Exception Exception;
+        }
+        
+        /// <summary>
         /// User internally to track loads.
         /// </summary>
         private class QueuedLoad
@@ -90,13 +106,17 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <inheritdoc />
         public UrlFormatterCollection Urls { get; private set; }
         
-        /// <inheritdoc />
+        /// <summary>
+        /// The number of asset loads in progress.
+        /// </summary>
         public int QueueLength
         {
             get { return _queue.Count; }
         }
         
-        /// <inheritdoc />
+        /// <summary>
+        /// A collection of load failures this IAssetLoader experienced.
+        /// </summary>
         public List<AssetLoadFailure> LoadFailures { get; private set; }
 
         /// <summary>
@@ -198,7 +218,7 @@ namespace CreateAR.EnkluPlayer.Assets
         }
 
         /// <inheritdoc />
-        public void ClearDownloadQueue()
+        public void Clear()
         {
             Log.Info(this, "Clear download queue.");
 

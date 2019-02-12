@@ -254,8 +254,8 @@ namespace CreateAR.EnkluPlayer
             _frame.Release();
 
             // clear everything in the queue
-            _assetLoader.ClearDownloadQueue();
-            _scriptLoader.ResetLoadTracking();
+            _assetLoader.Clear();
+            _scriptLoader.Clear();
 
             // set the cursor back to always drawing
             _config.Cursor.ForceShow = true;
@@ -471,7 +471,7 @@ namespace CreateAR.EnkluPlayer
         {
             int id;
             _ui
-                .Open<ExperienceUIView>(new UIReference
+                .OpenOverlay<ExperienceUIView>(new UIReference
                     {
                         UIDataId = UIDataIds.EXPERIENCE
                     },
@@ -491,7 +491,7 @@ namespace CreateAR.EnkluPlayer
         {
             int id;
             _ui
-                .Open<NetworkUIView>(new UIReference
+                .OpenOverlay<NetworkUIView>(new UIReference
                     {
                         UIDataId = UIDataIds.NETWORK
                     },
@@ -511,7 +511,7 @@ namespace CreateAR.EnkluPlayer
         {
             int id;
             _ui
-                .Open<AnchorUIView>(new UIReference
+                .OpenOverlay<AnchorUIView>(new UIReference
                     {
                         UIDataId = UIDataIds.ANCHORS 
                     },
