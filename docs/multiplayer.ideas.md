@@ -67,6 +67,8 @@ function onFoo() {
 		
 		// defaults to NONE -- the SELF value means the element will automatically be owned by this element
 		.ownership(mp.ownership.SELF)
+		
+		// some props could have custom functions
 		.name('This is my name.')
 
 		// set prop values
