@@ -83,7 +83,7 @@ function onFoo() {
 		if (error) {
 			log.warning('Could not create element: ' + error);
 		} else {
-			ctx.sync('position', 'rotation', 'scale', 'alpha');
+			log.info('I created an element!');
 		}
 	});
 }
