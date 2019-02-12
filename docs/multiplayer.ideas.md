@@ -62,11 +62,13 @@ function onFoo() {
 		// sets the scripts on this element
 		.scripts([rotate])
 		
-		// this is the default value -- the lifecycle of the session is locked to the session
+		// this is the default value -- the lifecycle of the element is locked to the session
 		.expiration(mp.expiration.SESSION)
 		
-		// defaults to NONE -- this value means the element will automatically be owned by this element
+		// defaults to NONE -- the SELF value means the element will automatically be owned by this element
 		.ownership(mp.ownership.SELF)
+		
+		// some props could have custom functions
 		.name('This is my name.')
 
 		// set prop values
@@ -81,7 +83,7 @@ function onFoo() {
 		if (error) {
 			log.warning('Could not create element: ' + error);
 		} else {
-			ctx.sync('position', 'rotation', 'scale', 'alpha');
+			log.info('I created an element!');
 		}
 	});
 }
