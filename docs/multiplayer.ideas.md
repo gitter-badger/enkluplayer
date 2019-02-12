@@ -1,7 +1,7 @@
 
 Synchronize element updates.
 
-```java
+```javascript
 var mp = require('mp');
 var self = this;
 
@@ -38,7 +38,7 @@ function onBar() {
 
 Create new elements.
 
-```java
+```javascript
 var assets = require('asset-library');
 var scripts = require('script-library');
 var mp = require('mp');
