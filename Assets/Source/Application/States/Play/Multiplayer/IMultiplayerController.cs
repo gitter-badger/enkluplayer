@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.EnkluPlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -19,7 +20,7 @@ namespace CreateAR.EnkluPlayer
         IAsyncToken<Void> Initialize();
         
         /// <summary>
-        /// Apply data changes in preparation for play.
+        /// Apply current instance's delta to static data in preparation for play.
         /// </summary>
         void ApplyDiff(IAppDataLoader appData);
 
@@ -33,25 +34,12 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         void Disconnect();
 
-        /// <summary>
-        /// Sends a message to the multiplayer server.
-        ///
-        /// This can be called on any thread.
-        /// </summary>
-        /// <param name="message">The message to send.</param>
-        void Send(object message);
+        void Sync(ElementSchemaProp prop);
 
-        /// <summary>
-        /// Subscribes to a message from the multiplayer server.
-        /// </summary>
-        /// <typeparam name="T">The type of message to listen to.</typeparam>
-        /// <param name="callback">The function to call when the message has been received.</param>
-        void Subscribe<T>(Action<T> callback);
+        void UnSync(ElementSchemaProp prop);
 
-        /// <summary>
-        /// Unsubscribes a handler from the multiplayer server.
-        /// </summary>
-        /// <typeparam name="T">The type of message to stop listening to.</typeparam>
-        void UnSubscribe<T>();
+        void Own(string elementId, Action<bool> callback);
+
+        void Forfeit(string elementId);
     }
 }
