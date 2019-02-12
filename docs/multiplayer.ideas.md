@@ -47,20 +47,36 @@ var self = this;
 function onFoo() {
 	// find the asset we want
 	var tree = assets.byName('Tree')[0];
+
+	// find the script we want
 	var rotate = scripts.byName('Rotator')[0];
 
-	// create an element builder and specify the parent
+	// create an element builder
 	var builder = mp
+		// the builder requires a parent
 		.builder(self)
+		
+		// sets the asset
 		.asset(tree)
+		
+		// sets the scripts on this element
 		.scripts([rotate])
+		
 		// this is the default value -- the lifecycle of the session is locked to the session
 		.expiration(mp.expiration.SESSION)
+		
 		// defaults to NONE -- this value means the element will automatically be owned by this element
 		.ownership(mp.ownership.SELF)
+		.name('This is my name.')
+
+		// set prop values
 		.vec('position', vec3(0, 1, 0))
 		.bool('visible', false);
-		.string('name', 'This is my element!');
+		.string('menu-name', 'I am in my element.')
+		.col4('menu-color', col4(1, 0, 0, 1))
+		.float('foo', 1.2);
+	
+	// use the builder to atomically build the element
 	builder.build(function(error, el) {
 		if (error) {
 			log.warning('Could not create element: ' + error);
