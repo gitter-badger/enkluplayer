@@ -1,4 +1,5 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+﻿using Assets.Source.Player.Scripting;
+using CreateAR.EnkluPlayer.IUX;
 using Jint;
 using Jint.Native;
 
@@ -19,12 +20,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public virtual void SetUp()
         {
             Main.Inject(this);
-            
-            _engine = new Engine(options =>
-            {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+
+            _engine = ScriptingHostFactory.NewEngine(false);
             
             _engine.SetValue("assert", RuntimeAssertJsApi.Instance);
             _engine.SetValue("log", new LogJsApi(this));

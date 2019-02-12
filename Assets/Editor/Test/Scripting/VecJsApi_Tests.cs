@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using Assets.Source.Player.Scripting;
 using Jint;
 using Jint.Native;
 using NUnit.Framework;
@@ -16,11 +17,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = new Engine(options =>
-            {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+            _engine = ScriptingHostFactory.NewEngine(false);
 
             _engine.SetValue("v", Vec3Methods.Instance);
             _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));

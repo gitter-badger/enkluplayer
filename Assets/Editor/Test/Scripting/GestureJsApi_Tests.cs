@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Source.Player.Scripting;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 using Jint.Native;
@@ -18,10 +19,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = new Engine(options => {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+            _engine = ScriptingHostFactory.NewEngine(false);
 
             _gestureManager = new TestGestureManager();
             _gestureManager.SetPointers(new uint[1] {12345});

@@ -1,3 +1,4 @@
+using Assets.Source.Player.Scripting;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
@@ -14,10 +15,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = new Engine(options => {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+            _engine = ScriptingHostFactory.NewEngine(false);
 
             _element = new ElementJs(null, null, new Element());
             _engine.SetValue("element", _element);

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using Assets.Source.Player.Scripting;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Jint;
@@ -18,18 +19,11 @@ namespace CreateAR.EnkluPlayer.Vine
         /// For creating unique ids.
         /// </summary>
         private static long IDS;
-        
+
         /// <summary>
         /// JS engine.
         /// </summary>
-        private readonly Engine _engine = new Engine(options =>
-        {
-            options.AllowClr();
-            options.CatchClrExceptions(exception =>
-            {
-                throw exception;
-            });
-        });
+        private readonly Engine _engine = ScriptingHostFactory.NewEngine();
 
         /// <inheritdoc />
         public ElementSchema DataStore { get; set; }

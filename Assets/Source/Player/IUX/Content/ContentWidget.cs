@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Source.Player.Scripting;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
@@ -48,6 +49,11 @@ namespace CreateAR.EnkluPlayer
         /// Assembles an asset.
         /// </summary>
         private readonly IAssetAssembler _assembler;
+
+        /// <summary>
+        /// Creates scripting host instances.
+        /// </summary>
+        private readonly IScriptingHostFactory _scriptHostFactory;
 
         /// <summary>
         /// Caches elements.
@@ -120,6 +126,7 @@ namespace CreateAR.EnkluPlayer
             IAssetAssembler assembler,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
+            IScriptingHostFactory scriptHostFactory,
             IElementJsCache cache,
             IElementJsFactory elementFactory)
             : base(
@@ -130,6 +137,7 @@ namespace CreateAR.EnkluPlayer
         {
             _resolver = resolver;
             _scripts = scripts;
+            _scriptHostFactory = scriptHostFactory;
             _assembler = assembler;
             _jsCache = cache;
             _elementJsFactory = elementFactory;
@@ -166,8 +174,7 @@ namespace CreateAR.EnkluPlayer
             if (null == _runner)
             {
                 _runner = new ScriptCollectionRunner(
-                    _scripts,
-                    _resolver,
+                    _scriptHostFactory,
                     _jsCache,
                     _elementJsFactory,
                     GameObject,
