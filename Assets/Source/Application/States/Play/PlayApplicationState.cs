@@ -38,6 +38,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IMessageRouter _messages;
         private readonly IVoiceCommandManager _voice;
         private readonly IAssetLoader _assetLoader;
+        private readonly IScriptLoader _scriptLoader;
         private readonly IMetricsService _metrics;
         private readonly IAppQualityController _quality;
         private readonly ITweenManager _tweens;
@@ -105,6 +106,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IVoiceCommandManager voice,
             IAssetLoader assetLoader,
+            IScriptLoader scriptLoader,
             IMetricsService metrics,
             IAppQualityController quality,
             ITweenManager tweens,
@@ -123,6 +125,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _voice = voice;
             _assetLoader = assetLoader;
+            _scriptLoader = scriptLoader;
             _metrics = metrics;
             _quality = quality;
             _tweens = tweens;
@@ -175,6 +178,9 @@ namespace CreateAR.EnkluPlayer
             // listen for reset command
             _voice.Register("reset", Voice_OnReset);
             _voice.Register("update", Voice_OnUpdate);
+            _voice.Register("experience", Voice_OnExperience);
+            _voice.Register("network", Voice_OnNetwork);
+            _voice.Register("anchors", Voice_OnAnchors);
             
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
@@ -220,6 +226,9 @@ namespace CreateAR.EnkluPlayer
             _voice.Unregister("reset");
             _voice.Unregister("performance");
             _voice.Unregister("logging");
+            _voice.Unregister("experience");
+            _voice.Unregister("network");
+            _voice.Unregister("anchors");
             
             // Cleanup image/video capture in case the experience didn't 
             _imageCapture.Abort();
@@ -245,7 +254,8 @@ namespace CreateAR.EnkluPlayer
             _frame.Release();
 
             // clear everything in the queue
-            _assetLoader.ClearDownloadQueue();
+            _assetLoader.Clear();
+            _scriptLoader.Clear();
 
             // set the cursor back to always drawing
             _config.Cursor.ForceShow = true;
@@ -451,6 +461,66 @@ namespace CreateAR.EnkluPlayer
                     el.OnCancel += () => _ui.Close(id);
                 })
                 .OnFailure(ex => Log.Error(this, "Could not open update confirmation popup : {0}", ex));
+        }
+        
+        /// <summary>
+        /// Called when the experience command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnExperience(string command)
+        {
+            int id;
+            _ui
+                .OpenOverlay<ExperienceUIView>(new UIReference
+                    {
+                        UIDataId = UIDataIds.EXPERIENCE
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(id);
+                })
+                .OnFailure(e => Log.Error(this, e));
+        }
+
+        /// <summary>
+        /// Called when the network command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnNetwork(string command)
+        {
+            int id;
+            _ui
+                .OpenOverlay<NetworkUIView>(new UIReference
+                    {
+                        UIDataId = UIDataIds.NETWORK
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(id);
+                })
+                .OnFailure(e => Log.Error(this, e));
+        }
+        
+        /// <summary>
+        /// Called when the anchors command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnAnchors(string command)
+        {
+            int id;
+            _ui
+                .OpenOverlay<AnchorUIView>(new UIReference
+                    {
+                        UIDataId = UIDataIds.ANCHORS 
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(id);
+                })
+                .OnFailure(e => Log.Error(this, e));
         }
     }
 }

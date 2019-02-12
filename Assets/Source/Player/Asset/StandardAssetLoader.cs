@@ -17,6 +17,22 @@ namespace CreateAR.EnkluPlayer.Assets
     public class StandardAssetLoader : IAssetLoader
     {
         /// <summary>
+        /// Information about an Asset failing to load.
+        /// </summary>
+        public struct AssetLoadFailure
+        {
+            /// <summary>
+            /// The AssetData that failed.
+            /// </summary>
+            public AssetData AssetData;
+        
+            /// <summary>
+            /// The Exception causing failure.
+            /// </summary>
+            public Exception Exception;
+        }
+        
+        /// <summary>
         /// User internally to track loads.
         /// </summary>
         private class QueuedLoad
@@ -89,6 +105,19 @@ namespace CreateAR.EnkluPlayer.Assets
 
         /// <inheritdoc />
         public UrlFormatterCollection Urls { get; private set; }
+        
+        /// <summary>
+        /// The number of asset loads in progress.
+        /// </summary>
+        public int QueueLength
+        {
+            get { return _queue.Count; }
+        }
+        
+        /// <summary>
+        /// A collection of load failures this IAssetLoader experienced.
+        /// </summary>
+        public List<AssetLoadFailure> LoadFailures { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -104,6 +133,7 @@ namespace CreateAR.EnkluPlayer.Assets
             _metrics = metrics;
             
             Urls = urls;
+            LoadFailures = new List<AssetLoadFailure>();
             
             _bootstrapper.BootstrapCoroutine(ProcessQueue());
         }
@@ -121,7 +151,14 @@ namespace CreateAR.EnkluPlayer.Assets
                 if (_Prng.NextDouble() < failChance)
                 {
                     progress = new LoadProgress();
-                    return new AsyncToken<Object>(new Exception("Random failure configured by ApplicationConfig."));
+                    var exception = new Exception("Random failure configured by ApplicationConfig.");
+                    
+                    LoadFailures.Add(new AssetLoadFailure
+                    {
+                        AssetData = data,
+                        Exception = exception
+                    });
+                    return new AsyncToken<Object>(exception);
                 }
             }
             
@@ -167,13 +204,21 @@ namespace CreateAR.EnkluPlayer.Assets
             loader
                 .Asset(AssetName(data), out progress)
                 .OnSuccess(token.Succeed)
-                .OnFailure(token.Fail);
+                .OnFailure(exception =>
+                {
+                    LoadFailures.Add(new AssetLoadFailure
+                    {
+                        AssetData = data,
+                        Exception = exception
+                    });
+                    token.Fail(exception);
+                });
 
             return token;
         }
 
         /// <inheritdoc />
-        public void ClearDownloadQueue()
+        public void Clear()
         {
             Log.Info(this, "Clear download queue.");
 
@@ -185,6 +230,8 @@ namespace CreateAR.EnkluPlayer.Assets
                 _queue.RemoveAt(0);
                 _bundles.Remove(Urls.Url(AssetUrlHelper.Uri(record.Data, record.Version)));
             }
+            
+            LoadFailures.Clear();
         }
 
         /// <inheritdoc />

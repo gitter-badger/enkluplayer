@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 
 namespace CreateAR.EnkluPlayer
@@ -13,5 +15,10 @@ namespace CreateAR.EnkluPlayer
         /// <param name="script">The associated data.</param>
         /// <returns></returns>
         IAsyncToken<string> Load(ScriptData script);
+        
+        /// <summary>
+        /// Clears the download queue.
+        /// </summary>
+        void Clear();
     }
 }

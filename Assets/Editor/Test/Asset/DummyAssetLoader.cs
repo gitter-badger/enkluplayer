@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.EnkluPlayer.Assets;
@@ -12,6 +13,8 @@ namespace CreateAR.EnkluPlayer.Test.Assets
         private string _error;
 
         public UrlFormatterCollection Urls { get; private set; }
+        public int QueueLength { get; private set; }
+        public List<StandardAssetLoader.AssetLoadFailure> LoadFailures { get; private set; }
 
         public DummyAssetLoader()
         {
@@ -26,12 +29,20 @@ namespace CreateAR.EnkluPlayer.Test.Assets
         public IAsyncToken<Object> Load(AssetData data, int version, out LoadProgress progress)
         {
             var token = new AsyncToken<Object>();
+            QueueLength++;
 
             if (!string.IsNullOrEmpty(_error))
             {
                 progress = new LoadProgress();
-                token.Fail(new Exception(_error));
+                var exception = new Exception(_error);
 
+                QueueLength--;
+                LoadFailures.Add(new StandardAssetLoader.AssetLoadFailure
+                {
+                    AssetData = data,
+                    Exception = exception
+                });
+                token.Fail(exception);
                 return token;
             }
 
@@ -43,7 +54,16 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                     Value = 0f
                 };
 
-                token.Fail(new Exception("Could not load asset at " + data.Uri + "."));
+                var exception = new Exception("Could not load asset at " + data.Uri + ".");
+                
+                QueueLength--;
+                LoadFailures.Add(new StandardAssetLoader.AssetLoadFailure
+                {
+                    AssetData = data,
+                    Exception = exception
+                });
+                token.Fail(exception);
+                token.Fail(exception);
             }
             else
             {
@@ -52,15 +72,17 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                     Value = 1f
                 };
 
+                QueueLength--;
                 token.Succeed(asset);
             }
 
             return token;
         }
 
-        public void ClearDownloadQueue()
+        public void Clear()
         {
-            
+            QueueLength = 0;
+            LoadFailures.Clear();
         }
 
         public void Destroy()
