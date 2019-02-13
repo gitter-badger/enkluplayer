@@ -24,8 +24,8 @@
 			<Text id='txt-graphics' position=(0, -0.5, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
 		</Container>
 
-		<Container id='tab-capture'>
-			<Button label='Start' id='btn-start' icon='play' />
+		<Container id='tab-capture' visible=false>
+			<Button label='Start' id='btn-start' icon='play' position=(0, -0.1, 0) />
 		</Container>
 	</Container>
 </Float>

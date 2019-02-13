@@ -96,11 +96,12 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
             
-            if (SltTab.Selection.Value == "frame")
+            var tabName = SltTab.Selection.Value;
+            if ("frame" == tabName)
             {
                 UpdateFrame();
             }
-            else
+            else if ("memory" == tabName)
             {
                 UpdateMemory();
             }
@@ -112,7 +113,7 @@ namespace CreateAR.EnkluPlayer
         private void UpdateMemory()
         {
             // update memory
-            TxtMemTotal.Label = string.Format("Total: {0/:#0.0} MB",
+            TxtMemTotal.Label = string.Format("Total: {0:#0.0} MB",
                 PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Total));
             TxtMemAllocated.Label = string.Format("Allocated: {0:#0.0} MB",
                 PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Allocated));
