@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Profiling;
 
