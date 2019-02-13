@@ -449,8 +449,8 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Adds configuration from all assets with a matching tag.
         /// </summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="flags">Flags to remove.</param>
-        public void AddTagConfiguration(string tag, AssetFlags flags)
+        /// <param name="assets">List to add to.</param>
+        public void ByTag(string tag, List<Asset> assets)
         {
             foreach (var pair in _guidToRecord)
             {
@@ -460,28 +460,7 @@ namespace CreateAR.EnkluPlayer.Assets
                     var refs = record.References;
                     for (int i = 0, len = refs.Count; i < len; i++)
                     {
-                        refs[i].AddConfiguration(flags);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Removes configuration from all assets with a matching tag.
-        /// </summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="flags">Flags to remove.</param>
-        public void RemoveTagConfiguration(string tag, AssetFlags flags)
-        {
-            foreach (var pair in _guidToRecord)
-            {
-                var record = pair.Value;
-                if (record.Data.Tags.Contains(tag))
-                {
-                    var refs = record.References;
-                    for (int i = 0, len = refs.Count; i < len; i++)
-                    {
-                        refs[i].RemoveConfiguration(flags);
+                        assets.Add(refs[i]);
                     }
                 }
             }

@@ -10,11 +10,11 @@
             <Option label='World Anchors' value='anchors' />
         </Select>
 
-        <Container id='tab-assets' visible=false>
+        <Container id='tab-assets'>
             <Container id='assets-list' />
         </Container>
 
-        <Container id='tab-scripts'>
+        <Container id='tab-scripts' visible=false>
             <Container id='scripts-list' />
         </Container>
 

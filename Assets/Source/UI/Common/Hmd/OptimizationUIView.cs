@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
@@ -24,6 +25,8 @@ namespace CreateAR.EnkluPlayer
         public IAppDataManager Data { get; set; }
         [Inject]
         public IAssetManager Assets { get; set; }
+        [Inject]
+        public IScriptManager Scripts { get; set; }
 
         /// <summary>
         /// Elements.
@@ -220,15 +223,22 @@ namespace CreateAR.EnkluPlayer
             var category = toggle.Schema.Get<string>("label").Value;
             var isEnabled = toggle.Value;
             _assetCategories[category] = isEnabled;
-            
-            // configure
-            if (isEnabled)
+
+            var assets = new List<Asset>();
+            Assets.Manifest.ByTag(category, assets);
+
+            Log.Info(this, "Toggling {0} assets.", assets.Count);
+
+            for (var i = 0; i < assets.Count; i++)
             {
-                Assets.Manifest.RemoveTagConfiguration(category, AssetFlags.Hidden);
-            }
-            else
-            {
-                Assets.Manifest.AddTagConfiguration(category, AssetFlags.Hidden);
+                if (isEnabled)
+                {
+                    assets[i].RemoveConfiguration(AssetFlags.Hidden);
+                }
+                else
+                {
+                    assets[i].AddConfiguration(AssetFlags.Hidden);
+                }
             }
         }
 
@@ -239,9 +249,19 @@ namespace CreateAR.EnkluPlayer
         private void ScriptCategory_Selected(ToggleWidget toggle)
         {
             var category = toggle.Schema.Get<string>("label").Value;
-            _scriptCategories[category] = toggle.Value;
+            var isEnabled = toggle.Value;
+            _scriptCategories[category] = isEnabled;
 
-            // TODO: toggle active scripts.
+            // toggle active scripts
+            var scripts = new List<EnkluScript>();
+            Scripts.FindAllTagged(category, scripts);
+
+            Log.Info(this, "Toggling {0} scripts.", scripts.Count);
+
+            for (var i = 0; i < scripts.Count; i++)
+            {
+                scripts[i].Enabled = isEnabled;
+            }
         }
 
         /// <summary>
