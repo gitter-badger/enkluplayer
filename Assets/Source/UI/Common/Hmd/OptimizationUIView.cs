@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -41,6 +42,8 @@ namespace CreateAR.EnkluPlayer
         public ContainerWidget ScriptListContainer { get; set; }
         [InjectElements("..assets-list")]
         public ContainerWidget AssetListContainer { get; set; }
+        [InjectElements("..btn-anchors")]
+        public ButtonWidget BtnAnchors { get; set; }
 
         /// <summary>
         /// Backing data for categories.
@@ -84,6 +87,9 @@ namespace CreateAR.EnkluPlayer
                 }
             };
 
+            // anchors
+            BtnAnchors.OnActivated += BtnAnchors_OnActivated;
+
             // tab switching
             SltTab.OnValueChanged += Tabs_OnChanged;
 
@@ -91,7 +97,7 @@ namespace CreateAR.EnkluPlayer
             RebuildScriptOptions();
             RebuildAssetOptions();
         }
-
+        
         /// <summary>
         /// Rebuilds all the options for scripts.
         /// </summary>
@@ -102,7 +108,7 @@ namespace CreateAR.EnkluPlayer
             // build categories
             var scripts = Data.GetAll<ScriptData>();
             var categories = new HashSet<string>();
-            for (int i = 0, len = scripts.Length; i < len; i++)
+            for (int i = 0, ilen = scripts.Length; i < ilen; i++)
             {
                 var tags = scripts[i].Tags;
                 for (int j = 0, jlen = tags.Length; j < jlen; j++)
@@ -125,7 +131,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 var toggle = (ToggleWidget) Elements.Element(string.Format(
-                    @"<Toggle label='{0}' position=(0, {1}, 0) value={2}/>",
+                    @"<Toggle label='{0}' position=(0, {1:0.0}, 0) value={2}/>",
                     categoryList[i],
                     -i * 0.1f,
                     value ? "true" : "false"));
@@ -175,6 +181,21 @@ namespace CreateAR.EnkluPlayer
 
                 AssetListContainer.AddChild(toggle);
             }
+        }
+
+        /// <summary>
+        /// Called when the anchor toggle changes.
+        /// </summary>
+        /// <param name="button">The button.</param>
+        private void BtnAnchors_OnActivated(ButtonWidget button)
+        {
+#if !UNITY_EDITOR && UNITY_WSA
+            var anchors = FindObjectsOfType(typeof(UnityEngine.XR.WSA.WorldAnchor));
+            foreach (var anchor in anchors)
+            {
+                Destroy(anchor);
+            }
+#endif
         }
 
         /// <summary>

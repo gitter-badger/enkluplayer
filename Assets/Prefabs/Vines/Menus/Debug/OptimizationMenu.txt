@@ -19,7 +19,18 @@
         </Container>
 
         <Container id='tab-anchors' visible=false>
-            <Toggle label='Disable' />
+            <Text
+                width=1400.0
+                alignment='TopLeft'
+                fontSize=60
+                position=(0.04, -0.06, 0)
+                label='Attention: Once world anchors have been destroyed, the scene will need to be reloaded to get them back.' />
+            <Button
+                id='btn-anchors'
+                label='Destroy Anchors'
+                icon='trash'
+                ready.color='Negative'
+            />
         </Container>
     </Container>
 </Float>
