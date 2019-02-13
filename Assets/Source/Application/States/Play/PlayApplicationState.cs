@@ -20,7 +20,7 @@ namespace CreateAR.EnkluPlayer
     public class PlayApplicationState : IState
     {
         /// <summary>
-        /// Name of the playmode scene to load.
+        /// Name of the play mode scene to load.
         /// </summary>
         private const string SCENE_NAME = "PlayMode";
 
@@ -175,14 +175,17 @@ namespace CreateAR.EnkluPlayer
             // watch loading
             _app.OnReady += App_OnReady;
 
-            // listen for reset command
+            // listen for commands
             _voice.Register("reset", Voice_OnReset);
             _voice.Register("update", Voice_OnUpdate);
             _voice.Register("experience", Voice_OnExperience);
             _voice.Register("network", Voice_OnNetwork);
             _voice.Register("anchors", Voice_OnAnchors);
-            
-            // load playmode scene
+            _voice.Register("performance", Voice_OnPerformance);
+            _voice.Register("logging", Voice_OnLogging);
+            _voice.Register("optimization", Voice_Optimization);
+
+            // load play mode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
                     SCENE_NAME,
@@ -229,7 +232,9 @@ namespace CreateAR.EnkluPlayer
             _voice.Unregister("experience");
             _voice.Unregister("network");
             _voice.Unregister("anchors");
-            
+            _voice.Unregister("performance");
+            _voice.Unregister("logging");
+
             // Cleanup image/video capture in case the experience didn't 
             _imageCapture.Abort();
             _videoCapture.Teardown();
@@ -247,7 +252,7 @@ namespace CreateAR.EnkluPlayer
             // teardown designer
             _design.Teardown();
             
-            // unload playmode scene
+            // unload play mode scene
             SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
 
             // close UI
@@ -281,31 +286,6 @@ namespace CreateAR.EnkluPlayer
 
             // start designer
             _design.Setup(_context, _app);
-
-            // perf
-            _voice.Register("performance", _ =>
-            {
-                // open
-                int hudId;
-                _ui
-                    .OpenOverlay<PerfDisplayUIView>(new UIReference
-                    {
-                        UIDataId = "Perf.Hud"
-                    }, out hudId)
-                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
-            });
-
-            // logging
-            _voice.Register("logging", _ =>
-            {
-                int hudId;
-                _ui
-                    .OpenOverlay<LoggingUIView>(new UIReference
-                    {
-                        UIDataId = "Logging.Hud"
-                    }, out hudId)
-                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
-            });
         }
 
         /// <summary>
@@ -332,7 +312,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Called when there is some critical application error and we need to go back to userprofile.
+        /// Called when there is some critical application error and we need to go back to user profile.
         /// </summary>
         private void Messages_OnCriticalError(object _)
         {
@@ -521,6 +501,52 @@ namespace CreateAR.EnkluPlayer
                     el.OnClose += () => _ui.Close(id);
                 })
                 .OnFailure(e => Log.Error(this, e));
+        }
+        
+        /// <summary>
+        /// Called when the performance command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnPerformance(string command)
+        {
+            // open
+            int hudId;
+            _ui
+                .OpenOverlay<PerfDisplayUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.PERF_HUD
+                }, out hudId)
+                .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+        }
+
+        /// <summary>
+        /// Called when the logging command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnLogging(string command)
+        {
+            int hudId;
+            _ui
+                .OpenOverlay<LoggingUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.LOGGING_HUD
+                }, out hudId)
+                .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+        }
+
+        /// <summary>
+        /// Called when the optimization command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_Optimization(string command)
+        {
+            int hudId;
+            _ui
+                .OpenOverlay<OptimizationUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.OPTIMIZATION_HUD
+                }, out hudId)
+                .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
         }
     }
 }
