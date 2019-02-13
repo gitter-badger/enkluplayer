@@ -218,9 +218,18 @@ namespace CreateAR.EnkluPlayer
         private void AssetCategory_Selected(ToggleWidget toggle)
         {
             var category = toggle.Schema.Get<string>("label").Value;
-            _assetCategories[category] = toggle.Value;
-
-            // TODO: toggle active assets.
+            var isEnabled = toggle.Value;
+            _assetCategories[category] = isEnabled;
+            
+            // configure
+            if (isEnabled)
+            {
+                Assets.Manifest.RemoveTagConfiguration(category, AssetFlags.Hidden);
+            }
+            else
+            {
+                Assets.Manifest.AddTagConfiguration(category, AssetFlags.Hidden);
+            }
         }
 
         /// <summary>

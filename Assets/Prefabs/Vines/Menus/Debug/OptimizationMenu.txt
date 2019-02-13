@@ -5,17 +5,17 @@
         <Button id='btn-close' label='Close' position=(0, 0.2, 0) icon='arrow-left' ready.color='Negative' />
 
         <Select id='slt-tab' position=(0, 0.1, 0)>
-            <Option label='Scripts' value='scripts' />
             <Option label='Assets' value='assets' />
+            <Option label='Scripts' value='scripts' />
             <Option label='World Anchors' value='anchors' />
         </Select>
 
-        <Container id='tab-scripts'>
-            <Container id='scripts-list' />
-        </Container>
-
         <Container id='tab-assets' visible=false>
             <Container id='assets-list' />
+        </Container>
+
+        <Container id='tab-scripts'>
+            <Container id='scripts-list' />
         </Container>
 
         <Container id='tab-anchors' visible=false>

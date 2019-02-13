@@ -264,5 +264,17 @@ namespace CreateAR.EnkluPlayer.Test.Assets
 
             Assert.IsFalse(eventCalled);
         }
+
+        [Test]
+        public void Hide()
+        {
+            _manifest.AddTagConfiguration("d", AssetFlags.Hidden);
+
+            Assert.IsFalse(0 == (AssetFlags.Hidden & _manifest.Asset("d", -1).Configuration));
+
+            _manifest.RemoveTagConfiguration("d", AssetFlags.Hidden);
+
+            Assert.IsTrue(0 == (AssetFlags.Hidden & _manifest.Asset("d", -1).Configuration));
+        }
     }
 }
