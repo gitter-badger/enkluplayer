@@ -25,7 +25,7 @@
 		</Container>
 
 		<Container id='tab-capture' visible=false>
-			<Button label='Start' id='btn-start' icon='play' position=(0, -0.1, 0) />
+			<Button label='Start' id='btn-playstop' icon='play' position=(0, -0.1, 0) />
 		</Container>
 	</Container>
 </Float>

@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -10,7 +12,7 @@ namespace CreateAR.EnkluPlayer
     public class PerfMonitor : MonoBehaviour
     {
         /// <summary>
-        /// POCO for frame time data.
+        /// Simple object for frame time data.
         /// </summary>
         public class FrameTimeData
         {
@@ -41,7 +43,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// POCO for memory information.
+        /// Simple object for memory information.
         /// </summary>
         public class MemoryData
         {
@@ -110,11 +112,63 @@ namespace CreateAR.EnkluPlayer
         /// True iff the frameIndex has already wrapped around.
         /// </summary>
         private bool _wrap;
+        
+        /// <summary>
+        /// Records capture.
+        /// </summary>
+        private StringBuilder _captureBuilder;
 
         /// <summary>
         /// Stopwatch used to time.
         /// </summary>
         private readonly Stopwatch _watch = new Stopwatch();
+
+        /// <summary>
+        /// True iff the monitor is currently capturing.
+        /// </summary>
+        public bool IsCapturing { get; private set; }
+
+        /// <summary>
+        /// Starts recording a capture.
+        /// </summary>
+        public void StartCapture()
+        {
+            if (IsCapturing)
+            {
+                return;
+            }
+
+            IsCapturing = true;
+
+            _captureBuilder = new StringBuilder();
+
+            AppendToCapture();
+        }
+
+        /// <summary>
+        /// Stops recording a capture.
+        /// </summary>
+        public string StopCapture()
+        {
+            if (!IsCapturing)
+            {
+                return string.Empty;
+            }
+
+            IsCapturing = false;
+
+            return _captureBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Appends a record to the capture.
+        /// </summary>
+        private void AppendToCapture()
+        {
+            _captureBuilder.AppendFormat("{0:0.0},{1:0.0},{2:0.0},{3:0},{4:0},{5:0},{6:0},{7:0}\n",
+                FrameTime.MinMs, FrameTime.MaxMs, FrameTime.AverageMs,
+                Memory.Allocated, Memory.Mono, Memory.Total, Memory.GraphicsDriver, Memory.Gpu);
+        }
 
         /// <summary>
         /// Called every frame.
@@ -176,6 +230,11 @@ namespace CreateAR.EnkluPlayer
 
             _watch.Reset();
             _watch.Start();
+
+            if (IsCapturing)
+            {
+                AppendToCapture();
+            }
         }
     }
 }

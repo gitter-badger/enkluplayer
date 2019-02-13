@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using CreateAR.Trellis.Messages;
+using CreateAR.Trellis.Messages.SendEmail;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -12,6 +16,14 @@ namespace CreateAR.EnkluPlayer
         /// Underlying performance metrics object.
         /// </summary>
         private PerfMonitor _monitor;
+
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
+        [Inject]
+        public ApiController Api { get; set; }
+        [Inject]
+        public ApplicationConfig Config { get; set; }
 
         /// <summary>
         /// Injected controls.
@@ -55,6 +67,9 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..txt-graphics")]
         public TextWidget TxtMemGraphics { get; set; }
 
+        [InjectElements("..btn-playstop")]
+        public ButtonWidget BtnPlayStop { get; set; }
+
         /// <summary>
         /// Called when the perf hud should be closed.
         /// </summary>
@@ -70,6 +85,38 @@ namespace CreateAR.EnkluPlayer
                 if (null != OnClose)
                 {
                     OnClose();
+                }
+            };
+
+            BtnPlayStop.OnActivated += _ =>
+            {
+                if (_monitor.IsCapturing)
+                {
+                    var dump = _monitor.StopCapture();
+
+                    // send it in
+                    Api
+                        .Utilities
+                        .SendEmail(new Request
+                        {
+                            Body = dump,
+                            EmailAddress = Config.Debug.DumpEmail,
+                            Subject = string.Format("Perf Dump - {0}", DateTime.Now),
+                            FirstName = ""
+                        })
+                        .OnFailure(ex => Log.Error(this, "Could not send debug dump to {0} : {1}.",
+                            Config.Debug.DumpEmail,
+                            ex));
+
+                    BtnPlayStop.Schema.Set("icon", "play");
+                    BtnPlayStop.Schema.Set("label", "Start");
+                }
+                else
+                {
+                    _monitor.StartCapture();
+
+                    BtnPlayStop.Schema.Set("icon", "stop");
+                    BtnPlayStop.Schema.Set("label", "Stop");
                 }
             };
 
@@ -105,6 +152,18 @@ namespace CreateAR.EnkluPlayer
             {
                 UpdateMemory();
             }
+            else if ("capture" == tabName)
+            {
+                UpdateCapture();
+            }
+        }
+
+        /// <summary>
+        /// Updates capture.
+        /// </summary>
+        private void UpdateCapture()
+        {
+
         }
 
         /// <summary>
