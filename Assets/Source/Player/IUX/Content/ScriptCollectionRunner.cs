@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Assets.Source.Player.Scripting;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;

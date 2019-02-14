@@ -1,9 +1,7 @@
 ﻿using System;
-using CreateAR.EnkluPlayer;
-using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 
-namespace Assets.Source.Player.Scripting
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Basic pass-through factory for instantiating pre-configured scripting engine instances.

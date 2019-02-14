@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using Assets.Source.Player.Scripting;
 using Jint;
 using Jint.Native;
 using NUnit.Framework;

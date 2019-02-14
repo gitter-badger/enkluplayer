@@ -1,5 +1,4 @@
 using System;
-using Assets.Source.Player.Scripting;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using NUnit.Framework;

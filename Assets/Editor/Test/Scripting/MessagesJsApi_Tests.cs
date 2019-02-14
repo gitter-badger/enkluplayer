@@ -2,7 +2,6 @@
 using Jint.Native;
 using NUnit.Framework;
 using System;
-using Assets.Source.Player.Scripting;
 using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 

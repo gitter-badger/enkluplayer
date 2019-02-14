@@ -1,8 +1,7 @@
 ﻿using System;
-using CreateAR.EnkluPlayer;
 using Jint;
 
-namespace Assets.Source.Player.Scripting
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// This implementation prototype defines an object capable of generating scripting host instances pre-configured.

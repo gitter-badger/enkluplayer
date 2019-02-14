@@ -1,4 +1,3 @@
-using Assets.Source.Player.Scripting;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;

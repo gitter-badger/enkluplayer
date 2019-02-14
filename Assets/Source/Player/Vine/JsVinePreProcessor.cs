@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using Assets.Source.Player.Scripting;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Jint;

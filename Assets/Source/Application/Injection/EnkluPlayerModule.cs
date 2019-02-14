@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using Assets.Source.Player.Scripting;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;

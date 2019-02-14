@@ -1,5 +1,4 @@
-﻿using Assets.Source.Player.Scripting;
-using Jint;
+﻿using Jint;
 using NUnit.Framework;
 using UnityEngine;
 

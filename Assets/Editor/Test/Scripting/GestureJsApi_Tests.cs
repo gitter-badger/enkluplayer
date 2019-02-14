@@ -1,5 +1,4 @@
 ﻿using System;
-using Assets.Source.Player.Scripting;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 using Jint.Native;

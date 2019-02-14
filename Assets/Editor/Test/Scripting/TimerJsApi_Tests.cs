@@ -1,5 +1,4 @@
 ﻿using System;
-using Assets.Source.Player.Scripting;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.EnkluPlayer.Editor;
 using CreateAR.EnkluPlayer.Scripting;
