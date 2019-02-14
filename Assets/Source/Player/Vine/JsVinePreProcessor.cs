@@ -21,9 +21,22 @@ namespace CreateAR.EnkluPlayer.Vine
         private static long IDS;
 
         /// <summary>
-        /// JS engine.
+        /// JS engine
+        ///
+        /// TODO: This doesn't taken into account script debugging configuration because it
+        /// TODO: uses a regular JS Engine instead of UnityScriptingHost. TBD
         /// </summary>
-        private readonly Engine _engine = ScriptingHostFactory.NewEngine();
+        private readonly Engine _engine = new Engine(options =>
+        {
+            options.AllowClr();
+            options.CatchClrExceptions(exception =>
+            {
+                throw exception;
+            });
+
+            options.DebugMode(false);
+            options.AllowDebuggerStatement(false);
+        });
 
         /// <inheritdoc />
         public ElementSchema DataStore { get; set; }

@@ -15,7 +15,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = ScriptingHostFactory.NewEngine(false);
+            _engine = JintUtil.NewEngine(false);
 
             _element = new ElementJs(null, null, new Element());
             _engine.SetValue("element", _element);

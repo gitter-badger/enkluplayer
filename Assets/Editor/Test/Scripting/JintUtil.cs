@@ -6,6 +6,28 @@ using Jint.Native;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
+    public static class JintUtil
+    {
+        /// <summary>
+        /// Static helper method for creating a <see cref="Engine"/> using default configuration.
+        /// </summary>
+        public static Engine NewEngine(bool enableDebug = false)
+        {
+            return new Engine(options =>
+            {
+                options.AllowClr();
+                options.CatchClrExceptions(exception =>
+                {
+                    throw exception;
+                });
+
+                // Debugging Configuration
+                options.DebugMode(enableDebug);
+                options.AllowDebuggerStatement(enableDebug);
+            });
+        }
+    }
+
     public static class EngineExtensions
     {
         /// <summary>

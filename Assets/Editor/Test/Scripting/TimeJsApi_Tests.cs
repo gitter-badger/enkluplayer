@@ -13,7 +13,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = ScriptingHostFactory.NewEngine(false);
+            _engine = JintUtil.NewEngine(false);
 
             _engine.SetValue("time", TimeJsApi.Instance);
         }

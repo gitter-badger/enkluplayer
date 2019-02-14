@@ -10,29 +10,6 @@ namespace Assets.Source.Player.Scripting
     /// </summary>
     public class ScriptingHostFactory : IScriptingHostFactory
     {
-        #region Static Factory Methods
-
-        /// <summary>
-        /// Static helper method for creating a <see cref="Engine"/> using default configuration.
-        /// </summary>
-        public static Engine NewEngine(bool enableDebug = false)
-        {
-            return new Engine(options =>
-            {
-                options.AllowClr();
-                options.CatchClrExceptions(exception =>
-                {
-                    throw exception;
-                });
-
-                // Debugging Configuration
-                options.DebugMode(enableDebug);
-                options.AllowDebuggerStatement(enableDebug);
-            });
-        }
-
-        #endregion
-
         private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
         private readonly ApplicationConfig _applicationConfig;

@@ -19,7 +19,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = ScriptingHostFactory.NewEngine(false);
+            _engine = JintUtil.NewEngine(false);
 
             _gestureManager = new TestGestureManager();
             _gestureManager.SetPointers(new uint[1] {12345});
