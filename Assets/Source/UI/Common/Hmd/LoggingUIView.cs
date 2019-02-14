@@ -12,18 +12,6 @@ namespace CreateAR.EnkluPlayer
     public class LoggingUIView : MonoBehaviourIUXController, ILogTarget
     {
         /// <summary>
-        /// Keeps history.
-        /// </summary>
-        private readonly HistoryLogTarget _history = new HistoryLogTarget(
-            new DefaultLogFormatter
-            {
-                Level = false,
-                ObjectToString = false,
-                Timestamp = true,
-                TypeName = true
-            });
-
-        /// <summary>
         /// Token for loading user preferences.
         /// </summary>
         private IAsyncToken<SynchronizedObject<UserPreferenceData>> _loadToken;
@@ -50,17 +38,15 @@ namespace CreateAR.EnkluPlayer
         public event Action OnClose;
 
         /// <inheritdoc />
-        public LogLevel Filter
-        {
-            get { return _history.Filter; }
-            set { _history.Filter = value; }
-        }
+        public LogLevel Filter { get; set; }
 
         /// <inheritdoc />
         public void OnLog(LogLevel level, object caller, string message)
         {
-            // pass everything to history
-            _history.OnLog(level, caller, message);
+            if (level < Filter)
+            {
+                return;
+            }
 
             UpdateTextField();
         }
@@ -131,7 +117,9 @@ namespace CreateAR.EnkluPlayer
             // forward to text box
             if (null != TxtBox)
             {
-                TxtBox.Label = _history.GenerateDump(HistoryLogTarget.LogDumpOptions.Reverse);
+                TxtBox.Label = Log.History.GenerateDump(
+                    Filter,
+                    LogDumpOptions.Reverse);
             }
         }
 

@@ -1,10 +1,8 @@
 using System.Linq;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
-using CreateAR.EnkluPlayer.Vine;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -96,6 +94,8 @@ namespace CreateAR.EnkluPlayer
             
             // start timer
 	        _initTimer = _binder.GetInstance<IMetricsService>().Timer(MetricsKeys.APPLICATION_INIT).Start();
+            
+            // TODO: start crash service
             
             // create application!
             _app = _binder.GetInstance<Application>();
@@ -216,6 +216,8 @@ namespace CreateAR.EnkluPlayer
 	                disposable.Dispose();
 	            }
 	        }
+
+	        // TODO: shutdown crash service
         }
-	}
+    }
 }
