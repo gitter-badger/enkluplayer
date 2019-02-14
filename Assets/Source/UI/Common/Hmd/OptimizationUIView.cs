@@ -4,7 +4,6 @@ using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -121,7 +120,7 @@ namespace CreateAR.EnkluPlayer
             }
 
             var categoryList = categories.ToList();
-            categoryList.Sort(StringComparer.InvariantCulture);
+            categoryList.Sort(StringComparer.Ordinal);
 
             for (int i = 0, len = categoryList.Count; i < len; i++)
             {
@@ -164,7 +163,7 @@ namespace CreateAR.EnkluPlayer
             }
 
             var categoryList = categories.ToList();
-            categoryList.Sort(StringComparer.InvariantCulture);
+            categoryList.Sort(StringComparer.Ordinal);
             for (int i = 0, len = categoryList.Count; i < len; i++)
             {
                 var category = categoryList[i];
