@@ -53,7 +53,7 @@ namespace CreateAR.EnkluPlayer
         private bool _started;
 
         /// <summary>
-        /// Cached counters to determine if lists need to be re-stringified.
+        /// Cached counters to determine if lists need to be re-serialized.
         /// </summary>
         private int _assetFailures;
         private int _scriptFailures;
