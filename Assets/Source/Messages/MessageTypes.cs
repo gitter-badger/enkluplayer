@@ -38,7 +38,7 @@
         public const int ANCHOR_RESETPRIMARY = 1000006;
         public const int DEVICE_REGISTRATION = 1000007;
         public const int ENV_INFO_UPDATE = 1000008;
-
+        
         // Assets
         public const int RECV_ASSET_LIST = 10;
         public const int RECV_ASSET_ADD = 11;

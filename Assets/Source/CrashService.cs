@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Timers;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
 using Newtonsoft.Json;
@@ -29,7 +30,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private Timer _timer;
 
+        private string _queuedDump;
+        
         public CrashService(
+            IMessageRouter messages,
             ApplicationConfig config,
             ApiController api,
             RuntimeStats stats)
@@ -46,6 +50,15 @@ namespace CreateAR.EnkluPlayer
 #if NETFX_CORE
             UwpCrashLogger.Initialize();
 #endif
+
+            // listen for when we can send is ready
+            messages.Subscribe(MessageTypes.LOGIN_COMPLETE, _ =>
+            {
+                if (!string.IsNullOrEmpty(_queuedDump))
+                {
+                    SendDump(_queuedDump);
+                }
+            });
         }
 
         public void Startup()
@@ -65,14 +78,14 @@ namespace CreateAR.EnkluPlayer
             // write new boot lock
             WriteLock(_bootLockPath);
 
-            // send crash logs if necessary
+            // generate crash log if last session crashed 
             if (isCrashDetected)
             {
-                SendCrashLog();
+                _queuedDump = BuildCrashDump();
             }
             
             // start interval
-            StartDiagnosticsInterval();
+            StartDiagnosticsInterval();            
         }
         
         public void Shutdown()
@@ -94,6 +107,8 @@ namespace CreateAR.EnkluPlayer
         {
             try
             {
+                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+
                 File.WriteAllText(path, _lock);
             }
             catch(Exception exception)
@@ -103,10 +118,9 @@ namespace CreateAR.EnkluPlayer
                     exception);
             }
         }
-
-        private void SendCrashLog()
+        
+        private void SendDump(string dump)
         {
-            var dump = BuildCrashDump();
             _api
                 .Utilities
                 .SendEmail(new Request
@@ -125,15 +139,11 @@ namespace CreateAR.EnkluPlayer
                     else
                     {
                         Log.Fatal(this, "Could not send crash report : {0}.", res.Payload.Error);
-
-                        // TODO: write dump to disk and try again later
                     }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Fatal(this, "Could not send crash report: {0}", exception);
-
-                    // TODO: write dump to disk and try again later
                 });
         }
 
@@ -213,6 +223,7 @@ namespace CreateAR.EnkluPlayer
             // experience
             builder.Append("### Experience\n\n");
             builder.AppendFormat("Id: {0}\n", _stats.Experience.ExperienceId);
+            builder.AppendFormat("Uptime: {0}\n", ""); // TODO
             builder.Append("\n\n");
 
             // assets
@@ -240,12 +251,21 @@ namespace CreateAR.EnkluPlayer
             object sender,
             ElapsedEventArgs eventArgs)
         {
-            // TODO: do this in a faster way
-            var stats = JsonConvert.SerializeObject(_stats);
-            
-            // we can do a synchronous write because this is already being
-            // executed off of the main thread
-            File.WriteAllText(_statsPath, stats);
+            try
+            {
+                // TODO: do this in a faster way
+                var stats = JsonConvert.SerializeObject(_stats);
+
+                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_statsPath));
+
+                // we can do a synchronous write because this is already being
+                // executed off of the main thread
+                File.WriteAllText(_statsPath, stats);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not write stats: {0}.", exception);
+            }
         }
 
         private static bool IsCrashDetected(string bootPath, string shutdownPath)

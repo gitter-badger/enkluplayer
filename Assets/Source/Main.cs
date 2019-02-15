@@ -99,6 +99,7 @@ namespace CreateAR.EnkluPlayer
 
             // watch for crashes
             _crashService = new CrashService(
+                _binder.GetInstance<IMessageRouter>(),
                 _binder.GetInstance<ApplicationConfig>(),
                 _binder.GetInstance<ApiController>(),
                 _binder.GetInstance<RuntimeStats>());
