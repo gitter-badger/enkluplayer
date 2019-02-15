@@ -29,6 +29,7 @@ namespace CreateAR.EnkluPlayer
         {
             public struct State
             {
+                public string Id;
                 public WorldAnchorWidget.WorldAnchorStatus Status;
                 public float TimeUnlocated;
             }

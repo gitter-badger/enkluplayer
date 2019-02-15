@@ -4,6 +4,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
 using UnityEngine;
@@ -107,6 +108,8 @@ namespace CreateAR.EnkluPlayer
             _started = true;
             _bootstrapper.BootstrapCoroutine(UpdateMetaStats());
 
+            _anchorManager.OnAnchorElementUpdate += Anchor_SceneChange;
+
             RestartTrace();
 
             _voice.Register("reset", Voice_OnReset);
@@ -126,6 +129,8 @@ namespace CreateAR.EnkluPlayer
             base.Stop();
 
             _started = false;
+            
+            _anchorManager.OnAnchorElementUpdate -= Anchor_SceneChange;
 
             ReleaseTraceResources();
 
@@ -430,29 +435,55 @@ namespace CreateAR.EnkluPlayer
                 .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
         }
 
+        /// <summary>
+        /// Called when an anchor is added to the scene.
+        /// TODO: Handle anchors being removed. Currently not even handled by PrimaryAnchorManager :(
+        /// </summary>
         private void Anchor_SceneChange()
         {
+            var len = _anchorManager.Anchors.Count;
+            _runtimeStats.Anchors.States = new RuntimeStats.AnchorsInfo.State[len];
             
+            for (var i = 0; i < len; i++)
+            {
+                var anchor = _anchorManager.Anchors[i];
+                
+                // Ensure we don't double subscribe when a new anchor is added late.
+                anchor.OnLocated -= Anchor_StateChange;
+                anchor.OnUnlocated -= Anchor_StateChange;
+                
+                anchor.OnLocated += Anchor_StateChange;
+                anchor.OnUnlocated += Anchor_StateChange;
+                
+                // Build initial state.
+                _runtimeStats.Anchors.States[i] = new RuntimeStats.AnchorsInfo.State
+                {
+                    Id = anchor.Id,
+                    Status = anchor.Status,
+                    TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon 
+                        ? 0 : Time.realtimeSinceStartup - anchor.UnlocatedStartTime
+                };
+            }
         }
         
         /// <summary>
         /// Called when an anchor's state changes.
         /// </summary>
-        private void Anchor_StateChange()
+        private void Anchor_StateChange(WorldAnchorWidget anchor)
         {
-            var len = _anchorManager.Anchors.Count;
-            _runtimeStats.Anchors.States = new RuntimeStats.AnchorsInfo.State[len];
-
-            for (var i = 0; i < len; i++)
+            for (int i = 0, len = _runtimeStats.Anchors.States.Length; i < len; i++)
             {
-                var anchor = _anchorManager.Anchors[i];
-
-                _runtimeStats.Anchors.States[i] = new RuntimeStats.AnchorsInfo.State
+                if (_runtimeStats.Anchors.States[i].Id == anchor.Id)
                 {
-                    Status = anchor.Status,
-                    TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon 
-                        ? 0 : Time.realtimeSinceStartup - anchor.UnlocatedStartTime
-                };
+                    // Rebuild with new data.
+                    _runtimeStats.Anchors.States[i] = new RuntimeStats.AnchorsInfo.State
+                    {
+                        Id = anchor.Id,
+                        Status = anchor.Status,
+                        TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon 
+                            ? 0 : Time.realtimeSinceStartup - anchor.UnlocatedStartTime
+                    };
+                }
             }
         }
     }

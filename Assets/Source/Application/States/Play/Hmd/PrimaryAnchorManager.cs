@@ -229,8 +229,9 @@ namespace CreateAR.EnkluPlayer
 
         /// <inheritdoc />
         public WorldAnchorWidget Anchor { get; private set; }
-        
-        public Action OnAnchorElementUpdate { get; set; }
+
+        /// <inheritdoc />
+        public event Action OnAnchorElementUpdate;
 
         /// <summary>
         /// Constructor.
@@ -286,6 +287,10 @@ namespace CreateAR.EnkluPlayer
 
             // reset anchors
             _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
+            if (OnAnchorElementUpdate != null)
+            {
+                OnAnchorElementUpdate();
+            }
 
             // see if we need to use anchors
             _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
@@ -485,6 +490,11 @@ namespace CreateAR.EnkluPlayer
             var anchors = new List<WorldAnchorWidget>();
             root.Find("..(@type=WorldAnchorWidget)", anchors);
             _anchors = new ReadOnlyCollection<WorldAnchorWidget>(anchors);
+
+            if (OnAnchorElementUpdate != null)
+            {
+                OnAnchorElementUpdate();
+            }
 
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
@@ -984,6 +994,11 @@ Errors: {3} / {0}",
                     var tmp = new List<WorldAnchorWidget>(_anchors);
                     tmp.Add(anchor);
                     _anchors = new ReadOnlyCollection<WorldAnchorWidget>(tmp);
+
+                    if (OnAnchorElementUpdate != null)
+                    {
+                        OnAnchorElementUpdate();
+                    } 
                 }
                 
                 // Trigger relative positioning update so the anchor pending export

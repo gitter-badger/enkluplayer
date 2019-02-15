@@ -37,10 +37,14 @@ namespace CreateAR.EnkluPlayer
         WorldAnchorWidget Anchor { get; }
 
         /// <summary>
+        /// Invoked whenever the anchors in a scene are identified, or when a new anchor is added.     
+        /// </summary>
+        event Action OnAnchorElementUpdate;
+        
+        /// <summary>
         /// Read only collection of currently tracked anchors.
         /// </summary>
         ReadOnlyCollection<WorldAnchorWidget> Anchors { get; }
-        
 
         /// <summary>
         /// Modifies a position/rotation relative to a located anchor. The primary anchor is prioritized.
