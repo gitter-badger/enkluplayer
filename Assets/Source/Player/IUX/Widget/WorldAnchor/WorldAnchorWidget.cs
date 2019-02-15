@@ -125,6 +125,8 @@ namespace CreateAR.EnkluPlayer.IUX
                     {
                         OnLocated(this);
                     }
+
+                    UnlocatedStartTime = 0;
                 }
                 else if (prev == WorldAnchorStatus.IsReadyLocated)
                 {
@@ -134,12 +136,14 @@ namespace CreateAR.EnkluPlayer.IUX
                     {
                         OnUnlocated(this);
                     }
+
+                    UnlocatedStartTime = Time.realtimeSinceStartup;
                 }
             }
         }
         
         /// <summary>
-        /// The Time.realtimeSinceStartup value when this anchor lost tracking.
+        /// The Time.realtimeSinceStartup value when this anchor lost tracking. 0 if anchor is located.
         /// </summary>
         public float UnlocatedStartTime { get; private set; }
 

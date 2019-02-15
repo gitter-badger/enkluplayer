@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.Trellis.Messages;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -28,6 +29,11 @@ namespace CreateAR.EnkluPlayer
         /// IoC container.
         /// </summary>
         private static readonly InjectionBinder _binder = new InjectionBinder();
+
+        /// <summary>
+        /// Handles.
+        /// </summary>
+	    private CrashService _crashService;
 
 	    /// <summary>
 	    /// The application to run.
@@ -68,10 +74,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Awake()
         {
-#if NETFX_CORE
-            UwpCrashLogger.Initialize();
-#endif
-
             // for AOT platforms
             AotGenericTypeIncludes.Include();
 
@@ -94,8 +96,13 @@ namespace CreateAR.EnkluPlayer
             
             // start timer
 	        _initTimer = _binder.GetInstance<IMetricsService>().Timer(MetricsKeys.APPLICATION_INIT).Start();
-            
-            // TODO: start crash service
+
+            // watch for crashes
+            _crashService = new CrashService(
+                _binder.GetInstance<ApplicationConfig>(),
+                _binder.GetInstance<ApiController>(),
+                _binder.GetInstance<RuntimeStats>());
+            _crashService.Startup();
             
             // create application!
             _app = _binder.GetInstance<Application>();
@@ -147,10 +154,6 @@ namespace CreateAR.EnkluPlayer
                     _app.Uninitialize();
                     _app.Initialize();
                 });
-
-            // test command
-            // TODO: Move to test service
-            _binder.GetInstance<IVoiceCommandManager>().RegisterAdmin("crash", _ => Log.Fatal(this, "Test crash."));
             
             // init app
             _app.Initialize();
@@ -212,7 +215,7 @@ namespace CreateAR.EnkluPlayer
 	            }
 	        }
 
-	        // TODO: shutdown crash service
+	        _crashService.Shutdown();
         }
     }
 }
