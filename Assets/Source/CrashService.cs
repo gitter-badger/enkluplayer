@@ -199,11 +199,6 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
-            
-            // general
-            builder.Append("### General\n\n");
-            builder.AppendFormat("Uptime: {0:0.00}", _stats.Uptime);
-            builder.Append("\n\n");
 
             // memory
             builder.Append("### Memory\n\n");
@@ -215,32 +210,40 @@ namespace CreateAR.EnkluPlayer
             builder.AppendFormat("Graphics Driver: {0:0.00} b\n", _stats.Device.GraphicsDriverMemory);
             builder.Append("\n\n");
 
-            // TODO: anchors
+            // anchors
             builder.Append("### Anchors\n\n");
-            builder.Append("\n\n");
+            for (int i = 0, len = _stats.Anchors.States.Length; i < len; i++)
+            {
+                var state = _stats.Anchors.States[i];
+                builder.AppendFormat("Anchor: {0}\n", state.Id);
+                builder.AppendFormat("Status: {0}\n", state.Status);
+                builder.AppendFormat("Unlocated Duration: {0}\n\n", state.TimeUnlocated);
+            }
+            builder.Append("\n");
 
             // camera
             builder.Append("### Camera\n\n");
             builder.AppendFormat("Position: {0}\n", _stats.Camera.Position.ToString());
             builder.AppendFormat("Rotation: {0}\n", _stats.Camera.Rotation.ToString());
+            builder.AppendFormat("Relative To: {0}\n", _stats.Camera.AnchorRelativeTo);
             builder.Append("\n\n");
 
             // experience
             builder.Append("### Experience\n\n");
             builder.AppendFormat("Id: {0}\n", _stats.Experience.ExperienceId);
-            builder.AppendFormat("Uptime: {0}\n", ""); // TODO
+            builder.AppendFormat("Uptime: {0}\n", _stats.Uptime);
             builder.Append("\n\n");
 
             // assets
             builder.Append("### Assets\n\n");
-            builder.AppendFormat("Queue Length: {0}", _stats.Experience.AssetState.QueueLength);
-            builder.AppendFormat("Error: {0}", _stats.Experience.AssetState.Errors);
+            builder.AppendFormat("Queue Length: {0}\n", _stats.Experience.AssetState.QueueLength);
+            builder.AppendFormat("Error: {0}\n", _stats.Experience.AssetState.Errors);
             builder.Append("\n\n");
 
             // scripts
             builder.Append("### Scripts\n\n");
-            builder.AppendFormat("Queue Length: {0}", _stats.Experience.ScriptState.QueueLength);
-            builder.AppendFormat("Errors: {0}", _stats.Experience.ScriptState.Errors);
+            builder.AppendFormat("Queue Length: {0}\n", _stats.Experience.ScriptState.QueueLength);
+            builder.AppendFormat("Errors: {0}\n", _stats.Experience.ScriptState.Errors);
             builder.Append("\n\n");
         }
 

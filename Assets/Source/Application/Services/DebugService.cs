@@ -184,6 +184,10 @@ namespace CreateAR.EnkluPlayer
                 _runtimeStats.Camera.Rotation = _camera.rotation;
                 _runtimeStats.Camera.AnchorRelativeTo = anchor.Id;
             }
+            else
+            {
+                _runtimeStats.Camera.AnchorRelativeTo = "None.";
+            }
             
             // ----- Experience ------
             _runtimeStats.Experience.AssetState.QueueLength = _assetLoader.QueueLength;
