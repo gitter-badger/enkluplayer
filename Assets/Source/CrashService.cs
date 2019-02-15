@@ -158,6 +158,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="dump">The dump.</param>
         private void SendDump(string dump)
         {
+            Log.Debug(this, "Sending dump:\n{0}", dump);
+
             _api
                 .Utilities
                 .SendEmail(new Request
@@ -305,10 +307,19 @@ namespace CreateAR.EnkluPlayer
         {
             var logPath = System.IO.Path.Combine(
                 UnityEngine.Application.persistentDataPath,
-                "Application.last.log");
+                "Application.previous.log");
             if (File.Exists(logPath))
             {
-                builder.Append(File.ReadAllText(logPath));
+                const int maxSize = 4096;
+                var logs = File.ReadAllText(logPath);
+
+                // trim logs
+                if (logs.Length > maxSize)
+                {
+                    logs = logs.Substring(logs.Length - maxSize);
+                }
+
+                builder.Append(logs);
             }
         }
 
