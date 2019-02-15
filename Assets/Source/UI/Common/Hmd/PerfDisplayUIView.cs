@@ -24,6 +24,8 @@ namespace CreateAR.EnkluPlayer
         public ApiController Api { get; set; }
         [Inject]
         public ApplicationConfig Config { get; set; }
+        [Inject]
+        public PerfMetricsCollector MetricsCollector { get; set; }
 
         /// <summary>
         /// Injected controls.
@@ -132,7 +134,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         private void Start()
         {
-            _monitor = gameObject.AddComponent<PerfMonitor>();
+            _monitor = MetricsCollector.PerfMonitor;
         }
         
         /// <inheritdoc />

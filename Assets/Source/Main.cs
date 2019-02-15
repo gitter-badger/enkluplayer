@@ -146,11 +146,6 @@ namespace CreateAR.EnkluPlayer
 
                     metrics.AddTarget(new FileMetricsTarget());
                 }
-
-                // collect performance metrics
-                gameObject
-                    .AddComponent<PerfMetricsCollector>()
-                    .Initialize(metrics);
             }
             
             // handle restarts

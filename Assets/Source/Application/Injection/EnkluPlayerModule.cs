@@ -43,6 +43,9 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<DrawingJsApi>().To(LookupComponent<DrawingJsApi>());
             }
 
+            binder.Bind<PerfMetricsCollector>().ToSingleton();
+            binder.Bind<RuntimeStats>().ToSingleton();
+
             // required for loggly
             binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 

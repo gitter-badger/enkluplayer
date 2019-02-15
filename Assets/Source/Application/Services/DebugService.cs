@@ -16,6 +16,7 @@ namespace CreateAR.EnkluPlayer
         /// Dependencies.
         /// </summary>
         private readonly IVoiceCommandManager _voice;
+        private readonly PerfMetricsCollector _perfMetricsCollector;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
 
@@ -49,11 +50,13 @@ namespace CreateAR.EnkluPlayer
             MessageTypeBinder binder,
             IMessageRouter messages,
             IVoiceCommandManager voice,
+            PerfMetricsCollector perfMetricsCollector,
             ApiController api,
             ApplicationConfig config)
             : base(binder, messages)
         {
             _voice = voice;
+            _perfMetricsCollector = perfMetricsCollector;
             _api = api;
             _config = config;
         }
