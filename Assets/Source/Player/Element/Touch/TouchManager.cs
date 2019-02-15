@@ -386,7 +386,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="id">The id of the pointer.</param>
         private void Gestures_OnPointerStarted(uint id)
         {
-            Log.Info(this, "Adding pointer.");
+            Log.Debug(this, "Adding pointer.");
 
             _pointerIds.Add(id);
         }
@@ -397,7 +397,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="id">The id of the pointer.</param>
         private void Gestures_OnPointerEnded(uint id)
         {
-            Log.Info(this, "Removing pointer.");
+            Log.Debug(this, "Removing pointer.");
 
             _removedPointerIdQueue.Add(id);
         }
@@ -420,11 +420,11 @@ namespace CreateAR.EnkluPlayer
             {
                 collider = content.Asset.AddComponent<MeshCollider>();
 
-                Log.Info(this, "Added collider for {0}.", content.Id);
+                Log.Debug(this, "Added collider for {0}.", content.Id);
             }
             else
             {
-                Log.Info(this, "Reusing collider for {0}.", content.Id);
+                Log.Debug(this, "Reusing collider for {0}.", content.Id);
             }
 
             collider.convex = true;
