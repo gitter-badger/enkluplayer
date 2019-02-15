@@ -226,12 +226,11 @@ namespace CreateAR.EnkluPlayer
             }
 
             BuildRuntimeStatsDump(builder, stats);
-            
-            // TODO: load logs
+            BuildLogDump(builder);
 
             return builder.ToString();
         }
-
+        
         /// <summary>
         /// Builds a dump of just the runtime stats.
         /// </summary>
@@ -296,6 +295,21 @@ namespace CreateAR.EnkluPlayer
             builder.AppendFormat("Queue Length: {0}\n", stats.Experience.ScriptState.QueueLength);
             builder.AppendFormat("Errors: {0}\n", stats.Experience.ScriptState.Errors);
             builder.Append("\n\n");
+        }
+
+        /// <summary>
+        /// Appends last log file.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        private static void BuildLogDump(StringBuilder builder)
+        {
+            var logPath = System.IO.Path.Combine(
+                UnityEngine.Application.persistentDataPath,
+                "Application.last.log");
+            if (File.Exists(logPath))
+            {
+                builder.Append(File.ReadAllText(logPath));
+            }
         }
 
         /// <summary>
