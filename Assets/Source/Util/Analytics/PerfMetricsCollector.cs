@@ -38,6 +38,8 @@ namespace CreateAR.EnkluPlayer
         {
             _metrics = metrics;
             _bootstrapper = bootstrapper;
+
+            _monitor = new GameObject("PerfMonitor").AddComponent<PerfMonitor>();
         }
 
         /// <summary>
@@ -47,7 +49,6 @@ namespace CreateAR.EnkluPlayer
         public void Initialize(IMetricsService metrics)
         {
             _metrics = metrics;
-            _monitor = new GameObject("PerfMonitor").AddComponent<PerfMonitor>();
 
             _frameTime = _metrics.Value(MetricsKeys.PERF_FRAMETIME);
             _memory = _metrics.Value(MetricsKeys.PERF_MEMORY);
