@@ -22,6 +22,7 @@ namespace CreateAR.EnkluPlayer
         {
             public Vector3 Position;
             public Quaternion Rotation;
+            public string AnchorRelativeTo;
         }
 
         public class AnchorsInfo
@@ -31,7 +32,8 @@ namespace CreateAR.EnkluPlayer
                 public WorldAnchorWidget.WorldAnchorStatus Status;
                 public float TimeUnlocated;
             }
-            
+
+            public State[] States;
         }
 
         public class ExperienceInfo

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Remoting;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -42,11 +43,6 @@ namespace CreateAR.EnkluPlayer
         public const string PROP_TAG_KEY = "tag";
         public const string PROP_TAG_VALUE = "primary";
         public const string PROP_ENABLED_KEY = "worldanchor.enabled";
-
-        public ReadOnlyCollection<WorldAnchorWidget> Anchors
-        {
-            get { return _anchors; }
-        }
 
         /// <summary>
         /// True iff all anchors are ready to go.
@@ -198,6 +194,14 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private int _pollUnlocated;
         private int _pollLocated;
+        
+        /// <summary>
+        /// Read only collection of currently tracked anchors.
+        /// </summary>
+        public ReadOnlyCollection<WorldAnchorWidget> Anchors
+        {
+            get { return _anchors; }
+        }
 
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
@@ -225,6 +229,8 @@ namespace CreateAR.EnkluPlayer
 
         /// <inheritdoc />
         public WorldAnchorWidget Anchor { get; private set; }
+        
+        public Action OnAnchorElementUpdate { get; set; }
 
         /// <summary>
         /// Constructor.
@@ -344,6 +350,35 @@ namespace CreateAR.EnkluPlayer
             {
                 _surfaces[id] = new SurfaceRecord(filter.gameObject);
             }
+        }
+        
+        /// <inheritdoc />
+        public WorldAnchorWidget RelativeTransform(ref Vector3 position, ref Quaternion rotation)
+        {
+            WorldAnchorWidget refAnchor = null;
+            
+            // Attempt to use the primary... primarily
+            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+            {
+                refAnchor = Anchor;
+            }
+            else
+            {
+                // Fallback to any located anchor
+                var located = FirstLocatedAnchor();
+                if (null != located)
+                {
+                    refAnchor = located;
+                }
+            }
+
+            if (null != refAnchor)
+            {
+                position = refAnchor.GameObject.transform.InverseTransformPoint(position);
+                rotation = Quaternion.Inverse(rotation) * refAnchor.GameObject.transform.rotation;
+            }
+
+            return refAnchor;
         }
 
         /// <summary>

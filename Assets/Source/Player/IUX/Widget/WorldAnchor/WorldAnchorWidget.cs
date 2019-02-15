@@ -137,6 +137,11 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
             }
         }
+        
+        /// <summary>
+        /// The Time.realtimeSinceStartup value when this anchor lost tracking.
+        /// </summary>
+        public float UnlocatedStartTime { get; private set; }
 
         /// <summary>
         /// Called when switching into located.
