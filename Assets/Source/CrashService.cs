@@ -13,14 +13,31 @@ using Timer = System.Timers.Timer;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Service that provides detailed crash logs.
+    /// </summary>
     public class CrashService
     {
-        private const int INTERVAL_MS = 1000;
+        /// <summary>
+        /// The interval at which we write data.
+        /// </summary>
+        private const int INTERVAL_MS = 500;
+
+        /// <summary>
+        /// Acts as a GUID for writing lock files.
+        /// </summary>
         private readonly string _lock = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
 
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly ApplicationConfig _config;
         private readonly ApiController _api;
         private readonly RuntimeStats _stats;
+
+        /// <summary>
+        /// Useful paths.
+        /// </summary>
         private readonly string _bootLockPath;
         private readonly string _shutdownLockPath;
         private readonly string _statsPath;
@@ -30,8 +47,14 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private Timer _timer;
 
+        /// <summary>
+        /// A dump is created at startup, then queued until we are logged in and can send it.
+        /// </summary>
         private string _queuedDump;
         
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public CrashService(
             IMessageRouter messages,
             ApplicationConfig config,
@@ -61,6 +84,9 @@ namespace CreateAR.EnkluPlayer
             });
         }
 
+        /// <summary>
+        /// Starts the crash service.
+        /// </summary>
         public void Startup()
         {
             // webgl does nothing
@@ -88,6 +114,9 @@ namespace CreateAR.EnkluPlayer
             StartDiagnosticsInterval();            
         }
         
+        /// <summary>
+        /// Exits the service gracefully. This should be called when the application is shutting down.
+        /// </summary>
         public void Shutdown()
         {
             // webgl does nothing
@@ -103,6 +132,10 @@ namespace CreateAR.EnkluPlayer
             WriteLock(_shutdownLockPath);
         }
 
+        /// <summary>
+        /// Writes the lock to a path.
+        /// </summary>
+        /// <param name="path">The path to write to.</param>
         private void WriteLock(string path)
         {
             try
@@ -119,6 +152,10 @@ namespace CreateAR.EnkluPlayer
             }
         }
         
+        /// <summary>
+        /// Sends a dump to the configured dump email.
+        /// </summary>
+        /// <param name="dump">The dump.</param>
         private void SendDump(string dump)
         {
             _api
@@ -147,6 +184,10 @@ namespace CreateAR.EnkluPlayer
                 });
         }
 
+        /// <summary>
+        /// Builds a crash dump with all available info.
+        /// </summary>
+        /// <returns></returns>
         private string BuildCrashDump()
         {
             var builder = new StringBuilder();
@@ -191,6 +232,11 @@ namespace CreateAR.EnkluPlayer
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Builds a dump of just the runtime stats.
+        /// </summary>
+        /// <param name="builder">The builder to add to.</param>
+        /// <param name="stats">The stats to dump.</param>
         private void BuildRuntimeStatsDump(StringBuilder builder, RuntimeStats stats)
         {
             // no stats
@@ -252,6 +298,9 @@ namespace CreateAR.EnkluPlayer
             builder.Append("\n\n");
         }
 
+        /// <summary>
+        /// Starts the interval to write to disk.
+        /// </summary>
         private void StartDiagnosticsInterval()
         {
             // every N ms write current data to disk
@@ -262,6 +311,11 @@ namespace CreateAR.EnkluPlayer
             _timer.Start();
         }
 
+        /// <summary>
+        /// Called when the write interval elapsed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="eventArgs">The event arguments.</param>
         private void Timer_OnElapsed(
             object sender,
             ElapsedEventArgs eventArgs)
@@ -283,6 +337,12 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// True iff a crash has been detected.
+        /// </summary>
+        /// <param name="bootPath">The path to the boot lock.</param>
+        /// <param name="shutdownPath">The path to the shutdown lock.</param>
+        /// <returns></returns>
         private static bool IsCrashDetected(string bootPath, string shutdownPath)
         {
             if (File.Exists(bootPath))
@@ -298,6 +358,10 @@ namespace CreateAR.EnkluPlayer
             return false;
         }
 
+        /// <summary>
+        /// Deletes all files.
+        /// </summary>
+        /// <param name="paths">The absolute path to the files to delete.</param>
         private static void Delete(params string[] paths)
         {
             for (int i = 0, len = paths.Length; i < len; i++)
@@ -322,6 +386,11 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Generates a path to a specific file inside the diagnostics folder.
+        /// </summary>
+        /// <param name="fileName">The name of the file.</param>
+        /// <returns></returns>
         private static string Path(string fileName)
         {
             return System.IO.Path.Combine(
