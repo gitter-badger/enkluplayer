@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -47,7 +46,7 @@ namespace CreateAR.EnkluPlayer
             // required for loggly
             binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 
-            // load configuration
+            // get configuration
             var config = ApplicationConfigCompositor.Config;
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
@@ -433,7 +432,6 @@ namespace CreateAR.EnkluPlayer
                     UnityEngine.Application.persistentDataPath,
                     "Application.log"))
             {
-                // warning and up
                 Filter = LogLevel.Debug
             });
 #endif // UNITY_WEBGL

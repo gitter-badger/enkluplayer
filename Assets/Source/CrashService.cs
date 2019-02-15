@@ -1,25 +1,52 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text;
+using System.Timers;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Trellis.Messages;
+using CreateAR.Trellis.Messages.SendEmail;
+using Newtonsoft.Json;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
     public class CrashService
     {
+        private const int INTERVAL_MS = 1000;
         private readonly string _lock = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
 
+        private readonly ApplicationConfig _config;
+        private readonly ApiController _api;
         private readonly string _bootLockPath;
         private readonly string _shutdownLockPath;
 
-        public CrashService()
+        /// <summary>
+        /// The timer for writing to disk.
+        /// </summary>
+        private Timer _timer;
+
+        public CrashService(ApplicationConfig config, ApiController api)
         {
+            _config = config;
+            _api = api;
             _bootLockPath = Path("Boot.lock");
             _shutdownLockPath = Path("Shutdown.lock");
+
+            // add special crash logging for UWP
+#if NETFX_CORE
+            UwpCrashLogger.Initialize();
+#endif
         }
 
         public void Startup()
         {
+            // webgl does nothing
+            if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                return;
+            }
+
             // determine if there is a crash
             var isCrashDetected = IsCrashDetected(_bootLockPath, _shutdownLockPath);
 
@@ -41,6 +68,15 @@ namespace CreateAR.EnkluPlayer
         
         public void Shutdown()
         {
+            // webgl does nothing
+            if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                return;
+            }
+
+            // kill timer
+            _timer.Stop();
+
             // write shutdown lock
             WriteLock(_shutdownLockPath);
         }
@@ -61,14 +97,96 @@ namespace CreateAR.EnkluPlayer
 
         private void SendCrashLog()
         {
-            // TODO: build crash logs
+            var dump = BuildCrashDump();
+            _api
+                .Utilities
+                .SendEmail(new Request
+                {
+                    EmailAddress = _config.Debug.DumpEmail,
+                    Body = dump,
+                    FirstName = "",
+                    Subject = DateTime.Now.ToString(CultureInfo.InvariantCulture)
+                })
+                .OnSuccess(res =>
+                {
+                    if (res.Payload.Success)
+                    {
+                        Log.Info(this, "Successfully sent crash report.");
+                    }
+                    else
+                    {
+                        Log.Fatal(this, "Could not send crash report : {0}.", res.Payload.Error);
 
-            // TODO: send crash log
+                        // TODO: write dump to disk
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Fatal(this, "Could not send crash report: {0}", exception);
+
+                    // TODO: write dump to disk
+                });
+        }
+
+        private string BuildCrashDump()
+        {
+            var builder = new StringBuilder();
+
+            // header
+            builder.Append("### Crash\n\n");
+            builder.AppendFormat("Time: {0:MM/dd/yyyy - HH:mm:ss}\n", DateTime.Now);
+            builder.Append("\n\n");
+
+            // system
+            builder.Append("### Device\n\n");
+            builder.AppendFormat("Id: {0}\n", SystemInfo.deviceUniqueIdentifier);
+            builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
+            builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
+            builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
+            // TODO: battery
+            builder.Append("\n\n");
+            
+            // application config
+            builder.Append("### ApplicationConfig\n\n");
+            builder.Append(JsonConvert.SerializeObject(_config, Formatting.Indented));
+            builder.Append("\n\n");
+
+            // TODO: memory
+            builder.Append("### Memory\n\n");
+            builder.Append("\n\n");
+
+            // TODO: anchors
+            builder.Append("### Anchors\n\n");
+            builder.Append("\n\n");
+
+            // TODO: camera
+            builder.Append("### Camera\n\n");
+            builder.Append("\n\n");
+
+            // TODO: experience
+            builder.Append("### Experience\n\n");
+            builder.Append("\n\n");
+
+            // log history
+            builder.Append("### Logs\n\n");
+            builder.Append("\n\n");
+
+            return builder.ToString();
         }
 
         private void StartDiagnosticsInterval()
         {
-            // TODO: start interval that every n ms writes current data to disk
+            // start interval that every n ms writes current data to disk
+            _timer = new Timer(INTERVAL_MS);
+            _timer.Elapsed += Timer_OnElapsed;
+            _timer.Start();
+        }
+
+        private void Timer_OnElapsed(
+            object sender,
+            ElapsedEventArgs eventArgs)
+        {
+            // TODO: write to disk
         }
 
         private static bool IsCrashDetected(string bootPath, string shutdownPath)

@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.Trellis.Messages;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -28,6 +29,11 @@ namespace CreateAR.EnkluPlayer
         /// IoC container.
         /// </summary>
         private static readonly InjectionBinder _binder = new InjectionBinder();
+
+        /// <summary>
+        /// Handles.
+        /// </summary>
+	    private CrashService _crashService;
 
 	    /// <summary>
 	    /// The application to run.
@@ -68,9 +74,12 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Awake()
         {
-#if NETFX_CORE
-            UwpCrashLogger.Initialize();
-#endif
+            // load application config
+            var config = ApplicationConfigCompositor.Config;
+
+            // watch for crashes as early as possible
+            // TODO: we need http
+            _crashService = new CrashService(config, null);
 
             // for AOT platforms
             AotGenericTypeIncludes.Include();
@@ -154,7 +163,7 @@ namespace CreateAR.EnkluPlayer
                 });
 
             // test command
-            // TODO: Move to test service
+            // TODO: Move to service
             _binder.GetInstance<IVoiceCommandManager>().RegisterAdmin("crash", _ => Log.Fatal(this, "Test crash."));
             
             // init app
@@ -217,7 +226,7 @@ namespace CreateAR.EnkluPlayer
 	            }
 	        }
 
-	        // TODO: shutdown crash service
+	        _crashService.Shutdown();
         }
     }
 }

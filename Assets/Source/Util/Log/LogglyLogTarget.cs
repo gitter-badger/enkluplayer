@@ -149,7 +149,7 @@ namespace CreateAR.EnkluPlayer
                     foreach (var record in copy)
                     {
                         var loggingForm = new WWWForm();
-
+                        
                         loggingForm.AddField("level", record.Level);
                         loggingForm.AddField("message", record.Message);
                         loggingForm.AddField("stackTrace", record.StackTrace);
