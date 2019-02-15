@@ -36,7 +36,6 @@ namespace CreateAR.EnkluPlayer
         private readonly IUIManager _ui;
         private readonly IConnection _connection;
         private readonly IMessageRouter _messages;
-        private readonly IVoiceCommandManager _voice;
         private readonly IAssetLoader _assetLoader;
         private readonly IScriptLoader _scriptLoader;
         private readonly IMetricsService _metrics;
@@ -104,7 +103,6 @@ namespace CreateAR.EnkluPlayer
             IUIManager ui,
             IConnection connection,
             IMessageRouter messages,
-            IVoiceCommandManager voice,
             IAssetLoader assetLoader,
             IScriptLoader scriptLoader,
             IMetricsService metrics,
@@ -123,7 +121,6 @@ namespace CreateAR.EnkluPlayer
             _ui = ui;
             _connection = connection;
             _messages = messages;
-            _voice = voice;
             _assetLoader = assetLoader;
             _scriptLoader = scriptLoader;
             _metrics = metrics;
@@ -174,17 +171,7 @@ namespace CreateAR.EnkluPlayer
 
             // watch loading
             _app.OnReady += App_OnReady;
-
-            // listen for commands
-            _voice.Register("reset", Voice_OnReset);
-            _voice.Register("update", Voice_OnUpdate);
-            _voice.Register("experience", Voice_OnExperience);
-            _voice.Register("network", Voice_OnNetwork);
-            _voice.Register("anchors", Voice_OnAnchors);
-            _voice.Register("performance", Voice_OnPerformance);
-            _voice.Register("logging", Voice_OnLogging);
-            _voice.Register("optimization", Voice_Optimization);
-
+            
             // load play mode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
@@ -224,17 +211,7 @@ namespace CreateAR.EnkluPlayer
             // unsubscribe from critical errors
             _criticalErrorUnsub();
             _criticalErrorId = -1;
-
-            // stop listening for voice commands
-            _voice.Unregister("reset");
-            _voice.Unregister("performance");
-            _voice.Unregister("logging");
-            _voice.Unregister("experience");
-            _voice.Unregister("network");
-            _voice.Unregister("anchors");
-            _voice.Unregister("performance");
-            _voice.Unregister("logging");
-
+            
             // Cleanup image/video capture in case the experience didn't 
             _imageCapture.Abort();
             _videoCapture.Teardown();
@@ -395,158 +372,6 @@ namespace CreateAR.EnkluPlayer
             {
                 _quality.Setup(_app.Scenes.Root(id));
             }
-        }
-
-        /// <summary>
-        /// Called when the reset command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnReset(string command)
-        {
-            int id;
-            _ui
-                .Open<ConfirmationUIView>(new UIReference
-                {
-                    UIDataId = UIDataIds.CONFIRMATION
-                }, out id)
-                .OnSuccess(el =>
-                {
-                    el.Message = "Are you sure you want to exit the application?";
-                    el.OnConfirm += UnityEngine.Application.Quit;
-                    el.OnCancel += () => _ui.Close(id);
-                })
-                .OnFailure(ex => Log.Error(this, "Could not open reset confirmation popup : {0}", ex));
-        }
-
-        /// <summary>
-        /// Called when the update command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnUpdate(string command)
-        {
-            int id;
-            _ui
-                .Open<ConfirmationUIView>(new UIReference
-                {
-                    UIDataId = UIDataIds.CONFIRMATION
-                }, out id)
-                .OnSuccess(el =>
-                {
-                    el.Message = "Are you sure you want to update the application?";
-                    el.OnConfirm += () =>
-                    {
-                        // HACK
-                        AppDataLoader.ForceUpdate = true;
-                    };
-                    el.OnCancel += () => _ui.Close(id);
-                })
-                .OnFailure(ex => Log.Error(this, "Could not open update confirmation popup : {0}", ex));
-        }
-        
-        /// <summary>
-        /// Called when the experience command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnExperience(string command)
-        {
-            int id;
-            _ui
-                .OpenOverlay<ExperienceUIView>(new UIReference
-                    {
-                        UIDataId = UIDataIds.EXPERIENCE
-                    },
-                    out id)
-                .OnSuccess(el =>
-                {
-                    el.OnClose += () => _ui.Close(id);
-                })
-                .OnFailure(e => Log.Error(this, e));
-        }
-
-        /// <summary>
-        /// Called when the network command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnNetwork(string command)
-        {
-            int id;
-            _ui
-                .OpenOverlay<NetworkUIView>(new UIReference
-                    {
-                        UIDataId = UIDataIds.NETWORK
-                    },
-                    out id)
-                .OnSuccess(el =>
-                {
-                    el.OnClose += () => _ui.Close(id);
-                })
-                .OnFailure(e => Log.Error(this, e));
-        }
-        
-        /// <summary>
-        /// Called when the anchors command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnAnchors(string command)
-        {
-            int id;
-            _ui
-                .OpenOverlay<AnchorUIView>(new UIReference
-                    {
-                        UIDataId = UIDataIds.ANCHORS 
-                    },
-                    out id)
-                .OnSuccess(el =>
-                {
-                    el.OnClose += () => _ui.Close(id);
-                })
-                .OnFailure(e => Log.Error(this, e));
-        }
-        
-        /// <summary>
-        /// Called when the performance command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnPerformance(string command)
-        {
-            // open
-            int hudId;
-            _ui
-                .OpenOverlay<PerfDisplayUIView>(new UIReference
-                {
-                    UIDataId = UIDataIds.PERF_HUD
-                }, out hudId)
-                .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
-        }
-
-        /// <summary>
-        /// Called when the logging command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnLogging(string command)
-        {
-            int hudId;
-            _ui
-                .OpenOverlay<LoggingUIView>(new UIReference
-                {
-                    UIDataId = UIDataIds.LOGGING_HUD
-                }, out hudId)
-                .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
-        }
-
-        /// <summary>
-        /// Called when the optimization command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_Optimization(string command)
-        {
-            int hudId;
-            _ui
-                .OpenOverlay<OptimizationUIView>(new UIReference
-                {
-                    UIDataId = UIDataIds.OPTIMIZATION_HUD
-                }, out hudId)
-                .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
         }
     }
 }

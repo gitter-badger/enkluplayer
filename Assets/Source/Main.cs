@@ -74,13 +74,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Awake()
         {
-            // load application config
-            var config = ApplicationConfigCompositor.Config;
-
-            // watch for crashes as early as possible
-            // TODO: we need http
-            _crashService = new CrashService(config, null);
-
             // for AOT platforms
             AotGenericTypeIncludes.Include();
 
@@ -103,8 +96,13 @@ namespace CreateAR.EnkluPlayer
             
             // start timer
 	        _initTimer = _binder.GetInstance<IMetricsService>().Timer(MetricsKeys.APPLICATION_INIT).Start();
-            
-            // TODO: start crash service
+
+            // watch for crashes
+            _crashService = new CrashService(
+                _binder.GetInstance<ApplicationConfig>(),
+                _binder.GetInstance<ApiController>(),
+                _binder.GetInstance<RuntimeStats>());
+            _crashService.Startup();
             
             // create application!
             _app = _binder.GetInstance<Application>();
@@ -156,10 +154,6 @@ namespace CreateAR.EnkluPlayer
                     _app.Uninitialize();
                     _app.Initialize();
                 });
-
-            // test command
-            // TODO: Move to service
-            _binder.GetInstance<IVoiceCommandManager>().RegisterAdmin("crash", _ => Log.Fatal(this, "Test crash."));
             
             // init app
             _app.Initialize();

@@ -8,6 +8,7 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
 using Newtonsoft.Json;
 using UnityEngine;
+using Timer = System.Timers.Timer;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -18,20 +19,28 @@ namespace CreateAR.EnkluPlayer
 
         private readonly ApplicationConfig _config;
         private readonly ApiController _api;
+        private readonly RuntimeStats _stats;
         private readonly string _bootLockPath;
         private readonly string _shutdownLockPath;
+        private readonly string _statsPath;
 
         /// <summary>
         /// The timer for writing to disk.
         /// </summary>
         private Timer _timer;
 
-        public CrashService(ApplicationConfig config, ApiController api)
+        public CrashService(
+            ApplicationConfig config,
+            ApiController api,
+            RuntimeStats stats)
         {
             _config = config;
             _api = api;
+            _stats = stats;
+
             _bootLockPath = Path("Boot.lock");
             _shutdownLockPath = Path("Shutdown.lock");
+            _statsPath = Path("Stats.log");
 
             // add special crash logging for UWP
 #if NETFX_CORE
@@ -117,21 +126,21 @@ namespace CreateAR.EnkluPlayer
                     {
                         Log.Fatal(this, "Could not send crash report : {0}.", res.Payload.Error);
 
-                        // TODO: write dump to disk
+                        // TODO: write dump to disk and try again later
                     }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Fatal(this, "Could not send crash report: {0}", exception);
 
-                    // TODO: write dump to disk
+                    // TODO: write dump to disk and try again later
                 });
         }
 
         private string BuildCrashDump()
         {
             var builder = new StringBuilder();
-
+            
             // header
             builder.Append("### Crash\n\n");
             builder.AppendFormat("Time: {0:MM/dd/yyyy - HH:mm:ss}\n", DateTime.Now);
@@ -143,7 +152,7 @@ namespace CreateAR.EnkluPlayer
             builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
             builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
             builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
-            // TODO: battery
+            builder.AppendFormat("Battery: {0:0.00}\n", _stats.Device.Battery);
             builder.Append("\n\n");
             
             // application config
@@ -151,33 +160,78 @@ namespace CreateAR.EnkluPlayer
             builder.Append(JsonConvert.SerializeObject(_config, Formatting.Indented));
             builder.Append("\n\n");
 
-            // TODO: memory
+            // load stats
+            RuntimeStats stats = null;
+            if (File.Exists(_statsPath))
+            {
+                var txt = File.ReadAllText(_statsPath);
+                try
+                {
+                    stats = JsonConvert.DeserializeObject<RuntimeStats>(txt);
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(this, "Could not read RuntimeStats: {0}", exception);
+                }
+            }
+
+            BuildRuntimeStatsDump(builder, stats);
+            
+            // TODO: load logs
+
+            return builder.ToString();
+        }
+
+        private void BuildRuntimeStatsDump(StringBuilder builder, RuntimeStats stats)
+        {
+            // no stats
+            if (null == stats)
+            {
+                return;
+            }
+
+            // memory
             builder.Append("### Memory\n\n");
+            builder.AppendFormat("Allocated: {0:0.00} b\n", _stats.Device.AllocatedMemory);
+            builder.AppendFormat("Available: {0:0.00} b\n", _stats.Device.AvailableMemory);
+            builder.AppendFormat("Mono: {0:0.00} b\n", _stats.Device.MonoMemory);
+            builder.AppendFormat("Reserved: {0:0.00} b\n", _stats.Device.ReservedMemory);
+            builder.AppendFormat("Gpu: {0:0.00} b\n", _stats.Device.GpuMemory);
+            builder.AppendFormat("Graphics Driver: {0:0.00} b\n", _stats.Device.GraphicsDriverMemory);
             builder.Append("\n\n");
 
             // TODO: anchors
             builder.Append("### Anchors\n\n");
             builder.Append("\n\n");
 
-            // TODO: camera
+            // camera
             builder.Append("### Camera\n\n");
+            builder.AppendFormat("Position: {0}\n", _stats.Camera.Position.ToString());
+            builder.AppendFormat("Rotation: {0}\n", _stats.Camera.Rotation.ToString());
             builder.Append("\n\n");
 
-            // TODO: experience
+            // experience
             builder.Append("### Experience\n\n");
+            builder.AppendFormat("Id: {0}\n", _stats.Experience.ExperienceId);
             builder.Append("\n\n");
 
-            // log history
-            builder.Append("### Logs\n\n");
+            // assets
+            builder.Append("### Assets\n\n");
+            builder.Append(_stats.Experience.AssetState);
             builder.Append("\n\n");
 
-            return builder.ToString();
+            // scripts
+            builder.Append("### Scripts\n\n");
+            builder.Append(_stats.Experience.ScriptState);
+            builder.Append("\n\n");
         }
 
         private void StartDiagnosticsInterval()
         {
-            // start interval that every n ms writes current data to disk
+            // every N ms write current data to disk
             _timer = new Timer(INTERVAL_MS);
+
+            // this will be called on the thread pool
             _timer.Elapsed += Timer_OnElapsed;
             _timer.Start();
         }
@@ -186,7 +240,12 @@ namespace CreateAR.EnkluPlayer
             object sender,
             ElapsedEventArgs eventArgs)
         {
-            // TODO: write to disk
+            // TODO: do this in a faster way
+            var stats = JsonConvert.SerializeObject(_stats);
+            
+            // we can do a synchronous write because this is already being
+            // executed off of the main thread
+            File.WriteAllText(_statsPath, stats);
         }
 
         private static bool IsCrashDetected(string bootPath, string shutdownPath)
@@ -208,13 +267,22 @@ namespace CreateAR.EnkluPlayer
         {
             for (int i = 0, len = paths.Length; i < len; i++)
             {
+                var path = paths[i];
+                if (!File.Exists(path))
+                {
+                    continue;
+                }
+
                 try
                 {
-                    File.Delete(paths[i]);
+                    File.Delete(path);
                 }
-                catch
+                catch (Exception exception)
                 {
-                    // ignored
+                    Log.Error(null,
+                        "Could not delete {0} : {1}.",
+                        path,
+                        exception);
                 }
             }
         }
