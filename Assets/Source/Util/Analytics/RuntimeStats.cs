@@ -15,7 +15,7 @@ namespace CreateAR.EnkluPlayer
             public float GpuMemory;
             public float GraphicsDriverMemory;
 
-            public float AvailableMemory; //
+            public float AvailableMemory; // TODO: Grab from device portal
         }
 
         public class CameraInfo
