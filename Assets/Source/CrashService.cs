@@ -202,7 +202,7 @@ namespace CreateAR.EnkluPlayer
             
             // general
             builder.Append("### General\n\n");
-            builder.AppendFormat("Uptime: {0:0.00}", Time.realtimeSinceStartup);
+            builder.AppendFormat("Uptime: {0:0.00}", _stats.Uptime);
             builder.Append("\n\n");
 
             // memory

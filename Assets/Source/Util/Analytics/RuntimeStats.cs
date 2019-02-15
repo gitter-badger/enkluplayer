@@ -54,5 +54,7 @@ namespace CreateAR.EnkluPlayer
         public readonly CameraInfo Camera = new CameraInfo();
         public readonly AnchorsInfo Anchors = new AnchorsInfo();
         public readonly ExperienceInfo Experience = new ExperienceInfo();
+        
+        public float Uptime;
     }
 }
