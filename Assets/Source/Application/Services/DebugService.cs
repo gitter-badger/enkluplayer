@@ -162,6 +162,8 @@ namespace CreateAR.EnkluPlayer
         public override void Update(float dt)
         {
             base.Update(dt);
+
+            _runtimeStats.Uptime = Time.realtimeSinceStartup;
             
             // ----- Memory -----
             _runtimeStats.Device.AllocatedMemory = _perfMonitor.Memory.Allocated;
