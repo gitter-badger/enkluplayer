@@ -192,7 +192,7 @@ namespace CreateAR.EnkluPlayer
             
             // general
             builder.Append("### General\n\n");
-            builder.Append("Uptime: " + Time.realtimeSinceStartup);
+            builder.AppendFormat("Uptime: {0:0.00}", Time.realtimeSinceStartup);
             builder.Append("\n\n");
 
             // memory
@@ -222,12 +222,14 @@ namespace CreateAR.EnkluPlayer
 
             // assets
             builder.Append("### Assets\n\n");
-            builder.Append(_stats.Experience.AssetState);
+            builder.AppendFormat("Queue Length: {0}", _stats.Experience.AssetState.QueueLength);
+            builder.AppendFormat("Error: {0}", _stats.Experience.AssetState.Errors);
             builder.Append("\n\n");
 
             // scripts
             builder.Append("### Scripts\n\n");
-            builder.Append(_stats.Experience.ScriptState);
+            builder.AppendFormat("Queue Length: {0}", _stats.Experience.ScriptState.QueueLength);
+            builder.AppendFormat("Errors: {0}", _stats.Experience.ScriptState.Errors);
             builder.Append("\n\n");
         }
 
