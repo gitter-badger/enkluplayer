@@ -57,6 +57,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private int _assetFailures;
         private int _scriptFailures;
+
+        /// <summary>
+        /// Unsub action for load app message.
+        /// </summary>
+        private Action _loadAppUnsub;
         
         /// <inheritdoc />
         public LogLevel Filter
@@ -119,6 +124,8 @@ namespace CreateAR.EnkluPlayer
             base.Start();
 
             _started = true;
+            _loadAppUnsub = _messages.Subscribe(MessageTypes.LOAD_APP, App_OnLoad);
+            
             _bootstrapper.BootstrapCoroutine(UpdateMetaStats());
 
             _anchorManager.OnAnchorElementUpdate += Anchor_SceneChange;
@@ -142,6 +149,7 @@ namespace CreateAR.EnkluPlayer
             base.Stop();
 
             _started = false;
+            _loadAppUnsub();
             
             _anchorManager.OnAnchorElementUpdate -= Anchor_SceneChange;
 
@@ -536,6 +544,14 @@ namespace CreateAR.EnkluPlayer
                     };
                 }
             }
+        }
+
+        /// <summary>
+        /// Called when an experience loads.
+        /// </summary>
+        private void App_OnLoad(object something)
+        {
+            _runtimeStats.Experience.ExperienceId = _config.Play.AppId;
         }
     }
 }
