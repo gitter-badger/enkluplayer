@@ -357,7 +357,14 @@ namespace CreateAR.EnkluPlayer
             }
         }
         
-        /// <inheritdoc />
+        /// <summary>
+        /// Modifies a position/rotation relative to a located anchor. The primary anchor is prioritized.
+        /// The anchor used for relative positioning is returned. If all anchors aren't located, null is returned.
+        /// TODO: Remove UnityEngine dependencies
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
         public WorldAnchorWidget RelativeTransform(ref Vector3 position, ref Quaternion rotation)
         {
             WorldAnchorWidget refAnchor = null;

@@ -23,8 +23,8 @@ namespace CreateAR.EnkluPlayer
         private readonly IBootstrapper _bootstrapper;
         private readonly IVoiceCommandManager _voice;
         private readonly IDeviceMetaProvider _meta;
-        private readonly IPrimaryAnchorManager _anchorManager;
         private readonly IUIManager _ui;
+        private readonly PrimaryAnchorManager _anchorManager;
         private readonly StandardScriptLoader _scriptLoader;
         private readonly StandardAssetLoader _assetLoader;
         private readonly PerfMonitor _perfMonitor;
@@ -98,7 +98,7 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper = bootstrapper;
             _voice = voice;
             _meta = meta;
-            _anchorManager = anchorManager;
+            _anchorManager = (PrimaryAnchorManager) anchorManager;
             _perfMonitor = perfMetricsCollector.PerfMonitor;
             _runtimeStats = runtimeStats;
             _ui = ui;
