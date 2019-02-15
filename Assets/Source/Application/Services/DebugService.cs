@@ -4,6 +4,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
@@ -24,6 +25,8 @@ namespace CreateAR.EnkluPlayer
         private readonly IDeviceMetaProvider _meta;
         private readonly IPrimaryAnchorManager _anchorManager;
         private readonly IUIManager _ui;
+        private readonly StandardScriptLoader _scriptLoader;
+        private readonly StandardAssetLoader _assetLoader;
         private readonly PerfMonitor _perfMonitor;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
@@ -48,6 +51,12 @@ namespace CreateAR.EnkluPlayer
         /// Whether or not this service has been started. Used to stop bootstrapped coroutines.
         /// </summary>
         private bool _started;
+
+        /// <summary>
+        /// Cached counters to determine if lists need to be re-stringified.
+        /// </summary>
+        private int _assetFailures;
+        private int _scriptFailures;
         
         /// <inheritdoc />
         public LogLevel Filter
@@ -73,6 +82,8 @@ namespace CreateAR.EnkluPlayer
             IDeviceMetaProvider meta,
             IPrimaryAnchorManager anchorManager,
             IUIManager ui,
+            IScriptLoader scriptLoader,
+            IAssetLoader assetLoader,
             PerfMetricsCollector perfMetricsCollector,
             RuntimeStats runtimeStats,
             ApiController api,
@@ -86,6 +97,8 @@ namespace CreateAR.EnkluPlayer
             _perfMonitor = perfMetricsCollector.PerfMonitor;
             _runtimeStats = runtimeStats;
             _ui = ui;
+            _scriptLoader = (StandardScriptLoader) scriptLoader;
+            _assetLoader = (StandardAssetLoader) assetLoader;
             _api = api;
             _config = config;
 
@@ -168,6 +181,38 @@ namespace CreateAR.EnkluPlayer
                 _runtimeStats.Camera.Position = _camera.position;
                 _runtimeStats.Camera.Rotation = _camera.rotation;
                 _runtimeStats.Camera.AnchorRelativeTo = anchor.Id;
+            }
+            
+            // ----- Experience ------
+            _runtimeStats.Experience.AssetState.QueueLength = _assetLoader.QueueLength;
+            _runtimeStats.Experience.ScriptState.QueueLength = _scriptLoader.QueueLength;
+
+            if (_assetFailures != _assetLoader.LoadFailures.Count)
+            {
+                _assetFailures = _assetLoader.LoadFailures.Count;
+                var str = string.Empty;
+
+                for (var i = 0; i < _assetFailures; i++)
+                {
+                    var failure = _assetLoader.LoadFailures[i];
+                    str += string.Format("{0} - {1}\n", failure.AssetData.Guid, failure.Exception);
+                }
+
+                _runtimeStats.Experience.AssetState.Errors = str;
+            }
+
+            if (_scriptFailures != _scriptLoader.LoadFailures.Count)
+            {
+                _scriptFailures = _scriptLoader.LoadFailures.Count;
+                var str = string.Empty;
+
+                for (var i = 0; i < _scriptFailures; i++)
+                {
+                    var failure = _scriptLoader.LoadFailures[i];
+                    str += string.Format("{0} - {1}\n", failure.ScriptData.Id, failure.Exception);
+                }
+
+                _runtimeStats.Experience.AssetState.Errors = str;
             }
         }
 
