@@ -199,6 +199,11 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
+            
+            // general
+            builder.Append("### General\n\n");
+            builder.Append("Uptime: " + Time.realtimeSinceStartup);
+            builder.Append("\n\n");
 
             // memory
             builder.Append("### Memory\n\n");

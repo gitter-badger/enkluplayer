@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Text;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.EnkluPlayer.Assets;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -15,11 +20,17 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly IBootstrapper _bootstrapper;
         private readonly IVoiceCommandManager _voice;
+        private readonly IDeviceMetaProvider _meta;
+        private readonly IPrimaryAnchorManager _anchorManager;
         private readonly IUIManager _ui;
-        private readonly PerfMetricsCollector _perfMetricsCollector;
+        private readonly StandardScriptLoader _scriptLoader;
+        private readonly StandardAssetLoader _assetLoader;
+        private readonly PerfMonitor _perfMonitor;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
+        private readonly RuntimeStats _runtimeStats;
 
         /// <summary>
         /// Formats logs.
@@ -27,9 +38,25 @@ namespace CreateAR.EnkluPlayer
         private readonly ILogFormatter _formatter = new DefaultLogFormatter();
 
         /// <summary>
+        /// Cached camera transform.
+        /// </summary>
+        private readonly Transform _camera;
+
+        /// <summary>
         /// The object that keeps the logs.
         /// </summary>
         private StringBuilder _builder;
+
+        /// <summary>
+        /// Whether or not this service has been started. Used to stop bootstrapped coroutines.
+        /// </summary>
+        private bool _started;
+
+        /// <summary>
+        /// Cached counters to determine if lists need to be re-stringified.
+        /// </summary>
+        private int _assetFailures;
+        private int _scriptFailures;
         
         /// <inheritdoc />
         public LogLevel Filter
@@ -50,24 +77,51 @@ namespace CreateAR.EnkluPlayer
         public DebugService(
             MessageTypeBinder binder,
             IMessageRouter messages,
+            IBootstrapper bootstrapper,
             IVoiceCommandManager voice,
+            IDeviceMetaProvider meta,
+            IPrimaryAnchorManager anchorManager,
             IUIManager ui,
+            IScriptLoader scriptLoader,
+            IAssetLoader assetLoader,
             PerfMetricsCollector perfMetricsCollector,
+            RuntimeStats runtimeStats,
             ApiController api,
             ApplicationConfig config)
             : base(binder, messages)
         {
+            _bootstrapper = bootstrapper;
             _voice = voice;
+            _meta = meta;
+            _anchorManager = anchorManager;
+            _perfMonitor = perfMetricsCollector.PerfMonitor;
+            _runtimeStats = runtimeStats;
             _ui = ui;
-            _perfMetricsCollector = perfMetricsCollector;
+            _scriptLoader = (StandardScriptLoader) scriptLoader;
+            _assetLoader = (StandardAssetLoader) assetLoader;
             _api = api;
             _config = config;
+
+            var mainCam = Camera.main;
+            if (mainCam != null)
+            {
+                _camera = mainCam.transform;
+            }
+            else
+            {
+                Log.Error(this, "No MainCamera found.");
+            }
         }
 
         /// <inheritdoc />
         public override void Start()
         {
             base.Start();
+
+            _started = true;
+            _bootstrapper.BootstrapCoroutine(UpdateMetaStats());
+
+            _anchorManager.OnAnchorElementUpdate += Anchor_SceneChange;
 
             RestartTrace();
 
@@ -87,6 +141,10 @@ namespace CreateAR.EnkluPlayer
         {
             base.Stop();
 
+            _started = false;
+            
+            _anchorManager.OnAnchorElementUpdate -= Anchor_SceneChange;
+
             ReleaseTraceResources();
 
             _voice.Unregister("reset");
@@ -101,9 +159,87 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
+        public override void Update(float dt)
+        {
+            base.Update(dt);
+            
+            // ----- Memory -----
+            _runtimeStats.Device.AllocatedMemory = _perfMonitor.Memory.Allocated;
+            _runtimeStats.Device.ReservedMemory = _perfMonitor.Memory.Total;
+            _runtimeStats.Device.MonoMemory = _perfMonitor.Memory.Mono;
+            _runtimeStats.Device.GpuMemory = _perfMonitor.Memory.Gpu;
+            _runtimeStats.Device.GraphicsDriverMemory = _perfMonitor.Memory.GraphicsDriver;
+
+            // ----- Camera -----
+            var position = _camera.position;
+            var rotation = _camera.rotation;
+            var anchor = _anchorManager.RelativeTransform(ref position, ref rotation);
+            
+            // Only update the camera position if we have a relative relationship.
+            if (anchor != null)
+            {
+                _runtimeStats.Camera.Position = _camera.position;
+                _runtimeStats.Camera.Rotation = _camera.rotation;
+                _runtimeStats.Camera.AnchorRelativeTo = anchor.Id;
+            }
+            
+            // ----- Experience ------
+            _runtimeStats.Experience.AssetState.QueueLength = _assetLoader.QueueLength;
+            _runtimeStats.Experience.ScriptState.QueueLength = _scriptLoader.QueueLength;
+
+            if (_assetFailures != _assetLoader.LoadFailures.Count)
+            {
+                _assetFailures = _assetLoader.LoadFailures.Count;
+                var str = string.Empty;
+
+                for (var i = 0; i < _assetFailures; i++)
+                {
+                    var failure = _assetLoader.LoadFailures[i];
+                    str += string.Format("{0} - {1}\n", failure.AssetData.Guid, failure.Exception);
+                }
+
+                _runtimeStats.Experience.AssetState.Errors = str;
+            }
+
+            if (_scriptFailures != _scriptLoader.LoadFailures.Count)
+            {
+                _scriptFailures = _scriptLoader.LoadFailures.Count;
+                var str = string.Empty;
+
+                for (var i = 0; i < _scriptFailures; i++)
+                {
+                    var failure = _scriptLoader.LoadFailures[i];
+                    str += string.Format("{0} - {1}\n", failure.ScriptData.Id, failure.Exception);
+                }
+
+                _runtimeStats.Experience.AssetState.Errors = str;
+            }
+        }
+
+        /// <inheritdoc />
         public void OnLog(LogLevel level, object caller, string message)
         {
             _builder.AppendLine(_formatter.Format(level, caller, message));
+        }
+
+        /// <summary>
+        /// Update device meta related information
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator UpdateMetaStats()
+        {
+            while (true)
+            {
+                _runtimeStats.Device.Battery = _meta.Meta().Battery;
+            
+                // Since this only tracks battery so far - no need to be spammy!
+                yield return new WaitForSeconds(60);
+
+                if (!_started)
+                {
+                    yield break;
+                }
+            }
         }
         
         /// <summary>
@@ -342,6 +478,58 @@ namespace CreateAR.EnkluPlayer
                     UIDataId = UIDataIds.OPTIMIZATION_HUD
                 }, out hudId)
                 .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+        }
+
+        /// <summary>
+        /// Called when an anchor is added to the scene.
+        /// TODO: Handle anchors being removed. Currently not even handled by PrimaryAnchorManager :(
+        /// </summary>
+        private void Anchor_SceneChange()
+        {
+            var len = _anchorManager.Anchors.Count;
+            _runtimeStats.Anchors.States = new RuntimeStats.AnchorsInfo.State[len];
+            
+            for (var i = 0; i < len; i++)
+            {
+                var anchor = _anchorManager.Anchors[i];
+                
+                // Ensure we don't double subscribe when a new anchor is added late.
+                anchor.OnLocated -= Anchor_StateChange;
+                anchor.OnUnlocated -= Anchor_StateChange;
+                
+                anchor.OnLocated += Anchor_StateChange;
+                anchor.OnUnlocated += Anchor_StateChange;
+                
+                // Build initial state.
+                _runtimeStats.Anchors.States[i] = new RuntimeStats.AnchorsInfo.State
+                {
+                    Id = anchor.Id,
+                    Status = anchor.Status,
+                    TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon 
+                        ? 0 : Time.realtimeSinceStartup - anchor.UnlocatedStartTime
+                };
+            }
+        }
+        
+        /// <summary>
+        /// Called when an anchor's state changes.
+        /// </summary>
+        private void Anchor_StateChange(WorldAnchorWidget anchor)
+        {
+            for (int i = 0, len = _runtimeStats.Anchors.States.Length; i < len; i++)
+            {
+                if (_runtimeStats.Anchors.States[i].Id == anchor.Id)
+                {
+                    // Rebuild with new data.
+                    _runtimeStats.Anchors.States[i] = new RuntimeStats.AnchorsInfo.State
+                    {
+                        Id = anchor.Id,
+                        Status = anchor.Status,
+                        TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon 
+                            ? 0 : Time.realtimeSinceStartup - anchor.UnlocatedStartTime
+                    };
+                }
+            }
         }
     }
 }

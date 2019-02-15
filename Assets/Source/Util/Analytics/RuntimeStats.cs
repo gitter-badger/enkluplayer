@@ -22,23 +22,32 @@ namespace CreateAR.EnkluPlayer
         {
             public Vector3 Position;
             public Quaternion Rotation;
+            public string AnchorRelativeTo;
         }
 
         public class AnchorsInfo
         {
             public struct State
             {
+                public string Id;
                 public WorldAnchorWidget.WorldAnchorStatus Status;
                 public float TimeUnlocated;
             }
-            
+
+            public State[] States = new State[0];
         }
 
         public class ExperienceInfo
         {
+            public struct LoaderInfo
+            {
+                public int QueueLength;
+                public string Errors;
+            }
+            
             public string ExperienceId; //
-            public string AssetState; //
-            public string ScriptState; //
+            public LoaderInfo AssetState = new LoaderInfo();
+            public LoaderInfo ScriptState = new LoaderInfo();
         }
         
         public readonly DeviceInfo Device = new DeviceInfo();
