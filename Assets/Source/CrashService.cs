@@ -158,6 +158,11 @@ namespace CreateAR.EnkluPlayer
         /// <param name="dump">The dump.</param>
         private void SendDump(string dump)
         {
+            if (UnityEngine.Application.isEditor)
+            {
+                return;
+            }
+
             Log.Debug(this, "Sending dump:\n{0}", dump);
 
             _api
