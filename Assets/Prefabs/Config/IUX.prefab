@@ -137,7 +137,7 @@ MonoBehaviour:
     - UIDataId: Editor.Input
       Element: {fileID: 114491377387284416, guid: 8b5efe3cbebd8514da51f00321be2fa4,
         type: 2}
-    - UIDataId: Perf.Hud
+    - UIDataId: Debug.Performance
       Element: {fileID: 114778551667930286, guid: 2ce878fa058fd6d4c8086791952d7142,
         type: 2}
     - UIDataId: Qr.Login
@@ -146,7 +146,7 @@ MonoBehaviour:
     - UIDataId: EnvSelection
       Element: {fileID: 114044542537696304, guid: 0a99393eb3ec64b4ab88fdd41fc572c3,
         type: 2}
-    - UIDataId: Logging.Hud
+    - UIDataId: Debug.Logging
       Element: {fileID: 114181391073327978, guid: 20f80ed0737fdac4793979645e8ad470,
         type: 2}
     - UIDataId: Debug.Experience
@@ -157,6 +157,9 @@ MonoBehaviour:
         type: 2}
     - UIDataId: Debug.Anchors
       Element: {fileID: 114926908633713112, guid: bcc4be6a72f693b47b50d0a6acfc5d01,
+        type: 2}
+    - UIDataId: Debug.Optimization
+      Element: {fileID: 114288518197929390, guid: b31b5ebbd1af5c24581d7c2efe940217,
         type: 2}
   - Platforms: 080000000b000000
     Links:

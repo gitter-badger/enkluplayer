@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Remoting;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -115,7 +117,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// List of anchors in scene, including the primary anchor.
         /// </summary>
-        private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
+        private ReadOnlyCollection<WorldAnchorWidget> _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
 
         /// <summary>
         /// Callbacks for ready.
@@ -192,6 +194,14 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private int _pollUnlocated;
         private int _pollLocated;
+        
+        /// <summary>
+        /// Read only collection of currently tracked anchors.
+        /// </summary>
+        public ReadOnlyCollection<WorldAnchorWidget> Anchors
+        {
+            get { return _anchors; }
+        }
 
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
@@ -219,6 +229,9 @@ namespace CreateAR.EnkluPlayer
 
         /// <inheritdoc />
         public WorldAnchorWidget Anchor { get; private set; }
+
+        /// <inheritdoc />
+        public event Action OnAnchorElementUpdate;
 
         /// <summary>
         /// Constructor.
@@ -273,7 +286,11 @@ namespace CreateAR.EnkluPlayer
             AreAllAnchorsReady = false;
 
             // reset anchors
-            _anchors.Clear();
+            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
+            if (OnAnchorElementUpdate != null)
+            {
+                OnAnchorElementUpdate();
+            }
 
             // see if we need to use anchors
             _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
@@ -338,6 +355,42 @@ namespace CreateAR.EnkluPlayer
             {
                 _surfaces[id] = new SurfaceRecord(filter.gameObject);
             }
+        }
+        
+        /// <summary>
+        /// Modifies a position/rotation relative to a located anchor. The primary anchor is prioritized.
+        /// The anchor used for relative positioning is returned. If all anchors aren't located, null is returned.
+        /// TODO: Remove UnityEngine dependencies
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public WorldAnchorWidget RelativeTransform(ref Vector3 position, ref Quaternion rotation)
+        {
+            WorldAnchorWidget refAnchor = null;
+            
+            // Attempt to use the primary... primarily
+            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+            {
+                refAnchor = Anchor;
+            }
+            else
+            {
+                // Fallback to any located anchor
+                var located = FirstLocatedAnchor();
+                if (null != located)
+                {
+                    refAnchor = located;
+                }
+            }
+
+            if (null != refAnchor)
+            {
+                position = refAnchor.GameObject.transform.InverseTransformPoint(position);
+                rotation = Quaternion.Inverse(rotation) * refAnchor.GameObject.transform.rotation;
+            }
+
+            return refAnchor;
         }
 
         /// <summary>
@@ -441,8 +494,14 @@ namespace CreateAR.EnkluPlayer
         /// <param name="root">The root element.</param>
         private void FindPrimaryAnchor(Element root)
         {
-            _anchors.Clear();
-            root.Find("..(@type=WorldAnchorWidget)", _anchors);
+            var anchors = new List<WorldAnchorWidget>();
+            root.Find("..(@type=WorldAnchorWidget)", anchors);
+            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(anchors);
+
+            if (OnAnchorElementUpdate != null)
+            {
+                OnAnchorElementUpdate();
+            }
 
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
@@ -934,10 +993,19 @@ Errors: {3} / {0}",
             {
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
-                // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added
+                // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added.
+                // This occurs when anchors are created after the initial scene graph is searched for anchors.    
                 if (!_anchors.Contains(anchor))
                 {
-                    _anchors.Add(anchor);
+                    // Super ugly. I'm the worst.
+                    var tmp = new List<WorldAnchorWidget>(_anchors);
+                    tmp.Add(anchor);
+                    _anchors = new ReadOnlyCollection<WorldAnchorWidget>(tmp);
+
+                    if (OnAnchorElementUpdate != null)
+                    {
+                        OnAnchorElementUpdate();
+                    } 
                 }
                 
                 // Trigger relative positioning update so the anchor pending export

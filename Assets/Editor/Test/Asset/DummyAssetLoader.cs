@@ -16,14 +16,16 @@ namespace CreateAR.EnkluPlayer.Test.Assets
         public int QueueLength { get; private set; }
         public List<StandardAssetLoader.AssetLoadFailure> LoadFailures { get; private set; }
 
-        public DummyAssetLoader()
+        public DummyAssetLoader() : this(string.Empty)
         {
-
+            
         }
 
         public DummyAssetLoader(string error)
         {
             _error = error;
+
+            LoadFailures = new List<StandardAssetLoader.AssetLoadFailure>();
         }
 
         public IAsyncToken<Object> Load(AssetData data, int version, out LoadProgress progress)
