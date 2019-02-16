@@ -16,6 +16,9 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public Dictionary<string, string> Headers { get; private set; }
 
+        /// <inheritdoc />
+        public event Action<string, string, Dictionary<string, string>, object> OnRequest;
+
         /// <summary>
         /// Constructor.
         /// </summary>
