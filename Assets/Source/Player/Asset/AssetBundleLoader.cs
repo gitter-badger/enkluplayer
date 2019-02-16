@@ -21,6 +21,11 @@ namespace CreateAR.EnkluPlayer.Assets
         private readonly NetworkConfig _config;
 
         /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
@@ -55,10 +60,12 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         public AssetBundleLoader(
             NetworkConfig config,
+            IHttpService http,
             IBootstrapper bootstrapper,
             string url)
         {
             _config = config;
+            _http = http;
             _bootstrapper = bootstrapper;
             _url = url;
         }
@@ -158,14 +165,25 @@ namespace CreateAR.EnkluPlayer.Assets
                 _bundleLoad.Fail(new Exception("Could not load asset: Offline Mode enabled."));
                 yield break;
             }
-            
+
+            var start = DateTime.Now;
             var request = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
             request.SendWebRequest();
 
             while (!request.isDone)
             {
-                Progress.Value = request.downloadProgress;
+                if (_http.TimeoutMs > 0 && DateTime.Now.Subtract(start).TotalMilliseconds > _http.TimeoutMs)
+                {
+                    // request timed out
+                    request.Dispose();
 
+                    _bundleLoad.Fail(new Exception("Request timed out."));
+
+                    yield break;
+                }
+
+                Progress.Value = request.downloadProgress;
+                
                 yield return null;
             }
             

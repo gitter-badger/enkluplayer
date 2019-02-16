@@ -36,6 +36,9 @@ namespace CreateAR.Commons.Unity.Http.Editor
         public Dictionary<string, string> Headers { get; private set; }
 
         /// <inheritdoc />
+        public long TimeoutMs { get; set; }
+
+        /// <inheritdoc />
         public event Action<string, string, Dictionary<string, string>, object> OnRequest;
 
         /// <summary>
@@ -140,7 +143,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
         }
 
         /// <summary>
-        /// Synchronously process response.
+        /// Sycnhronously process response.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="request">WWW request.</param>
@@ -149,8 +152,20 @@ namespace CreateAR.Commons.Unity.Http.Editor
             WWW request,
             AsyncToken<HttpResponse<T>> token)
         {
+            var start = DateTime.Now;
+
             while (!request.isDone)
             {
+                if (TimeoutMs > 0 && DateTime.Now.Subtract(start).TotalMilliseconds > TimeoutMs)
+                {
+                    // request timed out
+                    request.Dispose();
+
+                    token.Fail(new Exception("Request timed out."));
+
+                    yield break;
+                }
+
                 yield return null;
             }
 

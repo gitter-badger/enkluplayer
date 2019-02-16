@@ -82,7 +82,12 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-        
+
+        /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
+
         /// <summary>
         /// URI to loader.
         /// </summary>
@@ -126,11 +131,13 @@ namespace CreateAR.EnkluPlayer.Assets
             ApplicationConfig config,
             IBootstrapper bootstrapper,
             IMetricsService metrics,
+            IHttpService http,
             UrlFormatterCollection urls)
         {
             _config = config;
             _bootstrapper = bootstrapper;
             _metrics = metrics;
+            _http = http;
             
             Urls = urls;
             LoadFailures = new List<AssetLoadFailure>();
@@ -178,6 +185,7 @@ namespace CreateAR.EnkluPlayer.Assets
 
                 loader = _bundles[url] = new AssetBundleLoader(
                     _config.Network,
+                    _http,
                     _bootstrapper,
                     url);
 
