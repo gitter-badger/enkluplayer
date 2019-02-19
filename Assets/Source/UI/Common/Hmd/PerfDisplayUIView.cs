@@ -175,15 +175,15 @@ namespace CreateAR.EnkluPlayer
         {
             // update memory
             TxtMemTotal.Label = string.Format("Total: {0:#0.0} MB",
-                PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Total));
+                RuntimeStats.BytesToMb(_monitor.Memory.Total));
             TxtMemAllocated.Label = string.Format("Allocated: {0:#0.0} MB",
-                PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Allocated));
+                RuntimeStats.BytesToMb(_monitor.Memory.Allocated));
             TxtMemMono.Label = string.Format("Mono: {0:#0.0} MB",
-                PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Mono));
+                RuntimeStats.BytesToMb(_monitor.Memory.Mono));
             TxtMemGpu.Label = string.Format("Gpu: {0:#0.0} MB",
-                PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Gpu));
+                RuntimeStats.BytesToMb(_monitor.Memory.Gpu));
             TxtMemGraphics.Label = string.Format("Driver: {0:#0.0} MB",
-                PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.GraphicsDriver));
+                RuntimeStats.BytesToMb(_monitor.Memory.GraphicsDriver));
         }
 
         /// <summary>

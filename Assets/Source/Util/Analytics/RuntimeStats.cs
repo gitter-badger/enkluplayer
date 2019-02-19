@@ -10,6 +10,26 @@ namespace CreateAR.EnkluPlayer
     public class RuntimeStats
     {
         /// <summary>
+        /// Converts bytes to MB.
+        /// </summary>
+        /// <param name="bytes">Bytes to convert.</param>
+        /// <returns></returns>
+        public static float BytesToMb(double bytes)
+        {
+            return (float) (bytes / 1000000);
+        }
+        
+        /// <summary>
+        /// Converts bytes to MB.
+        /// </summary>
+        /// <param name="bytes">Bytes to convert.</param>
+        /// <returns></returns>
+        public static float BytesToMb(long bytes)
+        {
+            return (float) ((double) bytes / 1000000);
+        }
+        
+        /// <summary>
         /// Device specific information.
         /// </summary>
         public class DeviceInfo
@@ -48,6 +68,26 @@ namespace CreateAR.EnkluPlayer
             /// Available memory.
             /// </summary>
             public float AvailableMemory; // TODO: Grab from device portal
+
+            public float CpuLoad; //
+
+            public float GpuLoad; 
+
+            public float GpuDedicatedMemory;
+            
+            public float GpuDedicatedMemoryUsed;
+            
+            public float GpuSystemMemory;
+            
+            public float GpuSystemMemoryUsed;
+
+            public float NetworkIn;
+
+            public float NetworkOut;
+
+            public float IoRead;
+
+            public float IoWrite;
         }
 
         /// <summary>

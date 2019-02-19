@@ -46,6 +46,12 @@ namespace CreateAR.EnkluPlayer
             binder.Bind<PerfMetricsCollector>().To<PerfMetricsCollector>().ToSingleton();
             binder.Bind<RuntimeStats>().To<RuntimeStats>().ToSingleton();
 
+#if NETFX_CORE
+            binder.Bind<IDeviceStats>().To<HoloLensDeviceStats>().ToSingleton();
+#else
+            binder.Bind<IDeviceStats>().To<PassthroughDeviceStats>();
+#endif
+
             // required for loggly
             binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 
@@ -728,7 +734,6 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
-
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();

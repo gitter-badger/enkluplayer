@@ -70,16 +70,6 @@ namespace CreateAR.EnkluPlayer
             /// Bytes allocated to graphics driver.
             /// </summary>
             public long GraphicsDriver;
-
-            /// <summary>
-            /// Converts bytes to MB.
-            /// </summary>
-            /// <param name="bytes">Bytes to convert.</param>
-            /// <returns></returns>
-            public static float BytesToMb(long bytes)
-            {
-                return (float) ((double) bytes / 1000000);
-            }
         }
 
         /// <summary>
