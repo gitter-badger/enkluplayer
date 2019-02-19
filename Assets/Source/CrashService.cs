@@ -68,6 +68,9 @@ namespace CreateAR.EnkluPlayer
             // add special crash logging for UWP
 #if NETFX_CORE
             UwpCrashLogger.Initialize();
+
+            // handle shutdown
+            Windows.ApplicationModel.Core.CoreApplication.Suspending += (sender, o) => Shutdown();
 #endif
 
             // listen for when we can send is ready
