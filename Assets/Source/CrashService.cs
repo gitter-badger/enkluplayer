@@ -71,6 +71,7 @@ namespace CreateAR.EnkluPlayer
 
             // handle shutdown
             Windows.ApplicationModel.Core.CoreApplication.Suspending += (sender, o) => Shutdown();
+            Windows.ApplicationModel.Core.CoreApplication.Resuming += (sender, o) => Startup();
 #endif
 
             // listen for when we can send is ready
