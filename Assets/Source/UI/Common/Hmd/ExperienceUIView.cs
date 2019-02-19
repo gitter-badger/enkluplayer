@@ -150,7 +150,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (Select.Selection.Value == "update")
             {
-                TxtAssetQueue.Label = string.Format("Assets Loading: {0}", _assetLoader.QueueLength);
+                TxtAssetQueue.Label = string.Format("Assets Loading: {0}", _assetLoader.Queue.Count);
                 TxtScriptQueue.Label = string.Format("Scripts Loading: {0}", _scriptLoader.QueueLength);
             }
             

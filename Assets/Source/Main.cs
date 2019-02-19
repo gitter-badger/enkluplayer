@@ -96,7 +96,7 @@ namespace CreateAR.EnkluPlayer
             
             // start timer
 	        _initTimer = _binder.GetInstance<IMetricsService>().Timer(MetricsKeys.APPLICATION_INIT).Start();
-
+            
             // watch for crashes
             _crashService = new CrashService(
                 _binder.GetInstance<IMessageRouter>(),
@@ -104,7 +104,7 @@ namespace CreateAR.EnkluPlayer
                 _binder.GetInstance<ApiController>(),
                 _binder.GetInstance<RuntimeStats>());
             _crashService.Startup();
-            
+
             // create application!
             _app = _binder.GetInstance<Application>();
             

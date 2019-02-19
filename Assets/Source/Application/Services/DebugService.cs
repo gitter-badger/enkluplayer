@@ -197,10 +197,9 @@ namespace CreateAR.EnkluPlayer
                 _runtimeStats.Camera.AnchorRelativeTo = "None.";
             }
             
-            // ----- Experience ------
-            _runtimeStats.Experience.AssetState.QueueLength = _assetLoader.QueueLength;
-            _runtimeStats.Experience.ScriptState.QueueLength = _scriptLoader.QueueLength;
-
+            // ----- Assets ------
+            _runtimeStats.Experience.AssetState.QueueLength = _assetLoader.Queue.Count;
+            _runtimeStats.Experience.AssetState.NextLoad = _assetLoader.Queue.Count > 0 ? _assetLoader.Queue[0].ToString() : "None";
             if (_assetFailures != _assetLoader.LoadFailures.Count)
             {
                 _assetFailures = _assetLoader.LoadFailures.Count;
@@ -215,6 +214,8 @@ namespace CreateAR.EnkluPlayer
                 _runtimeStats.Experience.AssetState.Errors = str;
             }
 
+            // ----- Scripts ------
+            _runtimeStats.Experience.ScriptState.QueueLength = _scriptLoader.QueueLength;
             if (_scriptFailures != _scriptLoader.LoadFailures.Count)
             {
                 _scriptFailures = _scriptLoader.LoadFailures.Count;
