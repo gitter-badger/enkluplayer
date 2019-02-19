@@ -183,7 +183,11 @@ namespace CreateAR.EnkluPlayer.Editor
         {
             File.WriteAllText(
                 GetOverridePath(),
-                JsonConvert.SerializeObject(_override, Formatting.Indented));
+                JsonConvert.SerializeObject(_override, new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore
+                }));
         }
 
         /// <summary>
