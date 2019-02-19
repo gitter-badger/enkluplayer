@@ -65,7 +65,10 @@ namespace CreateAR.EnkluPlayer.Editor
             {
                 File.WriteAllText(
                     overridePath,
-                    JsonConvert.SerializeObject(new ApplicationConfig()));
+                    JsonConvert.SerializeObject(new ApplicationConfig(), new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                    }));
             }
 
             // watch for changes

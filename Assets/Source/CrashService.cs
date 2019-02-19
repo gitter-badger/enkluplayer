@@ -85,6 +85,8 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
+            Log.Info(this, "Startup.");
+
             // determine if there is a crash
             var isCrashDetected = IsCrashDetected(_bootLockPath, _shutdownLockPath);
 
@@ -132,6 +134,8 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
+
+            Log.Info(this, "Shutdown.");
 
             // kill timer
             if (null != _timer)
