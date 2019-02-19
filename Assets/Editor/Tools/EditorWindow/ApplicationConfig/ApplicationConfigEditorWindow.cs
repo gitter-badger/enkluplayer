@@ -68,6 +68,7 @@ namespace CreateAR.EnkluPlayer.Editor
                     JsonConvert.SerializeObject(new ApplicationConfig(), new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
                     }));
             }
 
@@ -186,7 +187,8 @@ namespace CreateAR.EnkluPlayer.Editor
                 JsonConvert.SerializeObject(_override, new JsonSerializerSettings
                 {
                     Formatting = Formatting.Indented,
-                    NullValueHandling = NullValueHandling.Ignore
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.Ignore
                 }));
         }
 
