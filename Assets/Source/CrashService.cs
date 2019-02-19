@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Timers;
+using System.Threading;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -134,7 +134,10 @@ namespace CreateAR.EnkluPlayer
             }
 
             // kill timer
-            _timer.Stop();
+            if (null != _timer)
+            {
+                _timer.Dispose();
+            }
 
             // write shutdown lock
             WriteLock(_shutdownLockPath);
@@ -165,6 +168,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void SendQueuedDumps()
         {
+            Log.Info(this, "Attempting to send queued dumps.");
+
             var path = GetDumpFolder();
             string[] dumps;
             try
@@ -402,35 +407,25 @@ namespace CreateAR.EnkluPlayer
             }
 
             // every N ms write current data to disk
-            _timer = new Timer(INTERVAL_MS);
+            _timer = new Timer(_ =>
+                {
+                    try
+                    {
+                        // TODO: do this in a faster way
+                        var stats = JsonConvert.SerializeObject(_stats);
 
-            // this will be called on the thread pool
-            _timer.Elapsed += Timer_OnElapsed;
-            _timer.Start();
-        }
-
-        /// <summary>
-        /// Called when the write interval elapsed.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="eventArgs">The event arguments.</param>
-        private void Timer_OnElapsed(
-            object sender,
-            ElapsedEventArgs eventArgs)
-        {
-            try
-            {
-                // TODO: do this in a faster way
-                var stats = JsonConvert.SerializeObject(_stats);
-                
-                // we can do a synchronous write because this is already being
-                // executed off of the main thread
-                File.WriteAllText(_statsPath, stats);
-            }
-            catch (Exception exception)
-            {
-                Log.Error(this, "Could not write stats: {0}.", exception);
-            }
+                        // we can do a synchronous write because this is already being
+                        // executed off of the main thread
+                        File.WriteAllText(_statsPath, stats);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, "Could not write stats: {0}.", exception);
+                    }
+                },
+                Void.Instance,
+                TimeSpan.FromSeconds(0),
+                TimeSpan.FromMilliseconds(INTERVAL_MS));
         }
 
         /// <summary>
@@ -526,10 +521,8 @@ namespace CreateAR.EnkluPlayer
         private static string GetUniqueDumpPath()
         {
             return Path.Combine(
-                UnityEngine.Application.persistentDataPath,
-                Path.Combine(
-                    GetDumpFolder(),
-                    DateTime.Now.Ticks.ToString()));
+                GetDumpFolder(),
+                DateTime.Now.Ticks + ".dump");
         }
         
         /// <summary>
@@ -539,8 +532,10 @@ namespace CreateAR.EnkluPlayer
         private static string GetDumpFolder()
         {
             return Path.Combine(
-                "Diagnostics",
-                "Dumps");
+                UnityEngine.Application.persistentDataPath,
+                Path.Combine(
+                    "Diagnostics",
+                    "Dumps"));
         }
     }
 }
