@@ -82,6 +82,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             get
             {
                 var sceneId = _sceneManager.All.FirstOrDefault();
+                if (string.IsNullOrEmpty(sceneId))
+                {
+                    Log.Error(this, "No scene found.");
+                    return string.Empty;
+                }
+                
                 var root = _sceneManager.Root(sceneId);
                 var schema = root.Schema.Get<string>(PrimaryAnchorManager.PROP_LOCATING_MESSAGE_KEY);
                 return schema.Value;
@@ -89,6 +95,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             set 
             { 
                 var sceneId = _sceneManager.All.FirstOrDefault();
+                if (string.IsNullOrEmpty(sceneId))
+                {
+                    Log.Error(this, "No scene found.");
+                    return;
+                }
+                
                 var root = _sceneManager.Root(sceneId);
                 var schema = root.Schema.Get<string>(PrimaryAnchorManager.PROP_LOCATING_MESSAGE_KEY);
                 schema.Value = value;
@@ -103,6 +115,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             get
             {
                 var sceneId = _sceneManager.All.FirstOrDefault();
+                if (string.IsNullOrEmpty(sceneId))
+                {
+                    Log.Error(this, "No scene found.");
+                    return false;
+                }
+                
                 var root = _sceneManager.Root(sceneId);
                 var schema = root.Schema.Get<bool>(PrimaryAnchorManager.PROP_DISABLE_BYPASS_KEY);
                 return schema.Value;
@@ -110,6 +128,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             set 
             { 
                 var sceneId = _sceneManager.All.FirstOrDefault();
+                if (string.IsNullOrEmpty(sceneId))
+                {
+                    Log.Error(this, "No scene found.");
+                    return;
+                }
+                
                 var root = _sceneManager.Root(sceneId);
                 var schema = root.Schema.Get<bool>(PrimaryAnchorManager.PROP_DISABLE_BYPASS_KEY);
                 schema.Value = value;
