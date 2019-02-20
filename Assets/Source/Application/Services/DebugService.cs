@@ -132,6 +132,8 @@ namespace CreateAR.EnkluPlayer
 
             RestartTrace();
 
+            // memory
+
             _voice.Register("reset", Voice_OnReset);
             _voice.Register("update", Voice_OnUpdate);
             _voice.Register("experience", Voice_OnExperience);
@@ -154,7 +156,7 @@ namespace CreateAR.EnkluPlayer
             _anchorManager.OnAnchorElementUpdate -= Anchor_SceneChange;
 
             ReleaseTraceResources();
-
+            
             _voice.Unregister("reset");
             _voice.Unregister("performance");
             _voice.Unregister("logging");
