@@ -820,7 +820,7 @@ Errors: {3} / {0}",
             
             if (unlocated + errors == _anchors.Count)
             {
-                _bypassBtn.Schema.Set("visible", !DisableBypass);
+                _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
             }
         }
 
@@ -838,7 +838,7 @@ Errors: {3} / {0}",
             _cpnLocating.Label = _locatingMessageProp.Value;
 
             _rootUI.Schema.Set("visible", true);
-            _bypassBtn.Schema.Set("visible", !DisableBypass);
+            _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
         }
 
         /// <summary>
