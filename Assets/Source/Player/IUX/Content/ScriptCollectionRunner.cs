@@ -120,7 +120,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             for (var i = 0; i < len; i++)
             {
                 var script = scripts[i];
-                if (null == script)
+                if (null == script || !script.Enabled)
                 {
                     continue;
                 }
@@ -142,7 +142,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                 for (var i = 0; i < len; i++) {
                     var script = scripts[i];
-                    if (null == script) {
+                    if (null == script || !script.Enabled) {
                         continue;
                     }
 
@@ -167,7 +167,11 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
-                _scriptComponents[i].FrameUpdate();
+                var component = _scriptComponents[i];
+                if (component.Script.Enabled)
+                {
+                    _scriptComponents[i].FrameUpdate();
+                }
             }
         }
 
@@ -198,7 +202,10 @@ namespace CreateAR.EnkluPlayer.Scripting
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
                 var component = _scriptComponents[i];
-                component.Exit();
+                if (component.Script.Enabled)
+                {
+                    component.Exit();
+                }
 
                 UnityEngine.Object.Destroy(component);
             }

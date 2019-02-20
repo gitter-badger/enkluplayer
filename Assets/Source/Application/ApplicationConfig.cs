@@ -305,19 +305,24 @@ namespace CreateAR.EnkluPlayer
         public float AssetDownloadLagSec;
 
         /// <summary>
-        /// Likelyhood of forcing an asset download to fail.
+        /// Likelihood of forcing an asset download to fail.
         /// </summary>
         public float AssetDownloadFailChance;
 
         /// <summary>
-        /// Likelyhood of forcing an anchor download to fail.
+        /// Likelihood of forcing an anchor download to fail.
         /// </summary>
         public float AnchorDownloadFailChance = 0.0f;
 
         /// <summary>
-        /// Likelyhood of forcing anchor import to fail.
+        /// Likelihood of forcing anchor import to fail.
         /// </summary>
         public float AnchorImportFailChance = 0.0f;
+
+        /// <summary>
+        /// Likelihood of forcing script download to fail.
+        /// </summary>
+        public float ScriptDownloadFailChance;
 
         /// <summary>
         /// If true, forces all Http requests to fail.
@@ -456,6 +461,11 @@ namespace CreateAR.EnkluPlayer
             if (overrideConfig.AnchorImportFailChance > Mathf.Epsilon)
             {
                 AnchorImportFailChance = overrideConfig.AnchorImportFailChance;
+            }
+
+            if (overrideConfig.ScriptDownloadFailChance > Mathf.Epsilon)
+            {
+                ScriptDownloadFailChance = overrideConfig.ScriptDownloadFailChance;
             }
 
             if (!string.IsNullOrEmpty(overrideConfig.ApiVersion))

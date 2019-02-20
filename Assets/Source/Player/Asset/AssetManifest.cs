@@ -428,6 +428,12 @@ namespace CreateAR.EnkluPlayer.Assets
             return () => { };
         }
 
+        /// <summary>
+        /// Watches for assets being removed.
+        /// </summary>
+        /// <param name="assetId">The id of the asset.</param>
+        /// <param name="callback">The callback.</param>
+        /// <returns></returns>
         public Action WatchRemove(string assetId, Action callback)
         {
             AssetRecord record;
@@ -437,6 +443,27 @@ namespace CreateAR.EnkluPlayer.Assets
             }
 
             return () => { };
+        }
+
+        /// <summary>
+        /// Adds configuration from all assets with a matching tag.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="assets">List to add to.</param>
+        public void ByTag(string tag, List<Asset> assets)
+        {
+            foreach (var pair in _guidToRecord)
+            {
+                var record = pair.Value;
+                if (record.Data.Tags.Contains(tag))
+                {
+                    var refs = record.References;
+                    for (int i = 0, len = refs.Count; i < len; i++)
+                    {
+                        assets.Add(refs[i]);
+                    }
+                }
+            }
         }
     }
 }

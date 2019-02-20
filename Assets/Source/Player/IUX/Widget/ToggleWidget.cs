@@ -69,6 +69,8 @@ namespace CreateAR.EnkluPlayer.IUX
             _valueProp = Schema.GetOwn("value", false);
             _valueProp.OnChanged += Value_OnChanged;
 
+            UpdateIcon();
+
             Activator.OnActivated += Activator_OnActivated;
         }
 
@@ -78,6 +80,14 @@ namespace CreateAR.EnkluPlayer.IUX
             base.UnloadInternalBeforeChildren();
 
             Activator.OnActivated -= Activator_OnActivated;
+        }
+        
+        /// <summary>
+        /// Updates icon based on value.
+        /// </summary>
+        private void UpdateIcon()
+        {
+            Schema.Set("icon", _valueProp.Value ? "toggled" : "");
         }
 
         /// <summary>
@@ -100,7 +110,7 @@ namespace CreateAR.EnkluPlayer.IUX
             bool prev,
             bool next)
         {
-            Schema.Set("icon", next ? "toggled" : "");
+            UpdateIcon();
 
             if (null != OnValueChanged)
             {

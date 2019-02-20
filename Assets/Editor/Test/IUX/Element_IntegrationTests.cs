@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using NUnit.Framework;
+using Source.Player.IUX;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {
@@ -9,7 +10,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
     {
         public static ElementFactory ElementFactory()
         {
-            return new ElementFactory(new DummyElementManager(), new PassthroughGizmoManager());
+            return new ElementFactory(new DummyElementManager(), new PassthroughGizmoManager(), new ElementSchemaDefaults());
         }
 
         private const int FOO = 12;

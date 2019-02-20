@@ -13,6 +13,9 @@ For example `debug admin menu` brings up the experience menu.
 | Update      | Play  | No     | Attempts to update the current experience against Trellis. |
 | Performance | Play  | No     | Brings up the performance dialog for testing. |
 | Logging     | Play  | No     | Brings up the logging dialog for testing. |
+| Experience  | Play  | No     | Brings up the experience dialog for testing. |
+| Network     | Play  | No     | Brings up the network dialog for testing. |
+| Anchors     | Play  | No     | Brings up the anchors dialog for testing. |
 | Trace       | Play  | No     | Enables the trace commands to work. |
 | Start       | Play  | No     | [Trace] Starts a trace. |
 | Stop        | Play  | No     | [Trace] Stops a trace. |
