@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -28,8 +29,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             IDeviceMetaProvider deviceMetaProvider,
             IImageCapture imageCapture,
             IVideoCapture videoCapture,
-            AwsPingController awsPingController,
             IMessageRouter msgRouter,
+            IAppSceneManager sceneManager,
+            AwsPingController awsPingController,
             ApiController apiController,
             ApplicationConfig config)
         {
@@ -42,9 +44,15 @@ namespace CreateAR.EnkluPlayer.Scripting
             Instance.experiences = new ExperienceJsApi(msgRouter, apiController, config);
             Instance.network = new NetworkJsApi(awsPingController);
             Instance.debugRendering = new DebugRenderingJsApi();
+            Instance._sceneManager = sceneManager;
 
             _initialized = true;
         }
+
+        /// <summary>
+        /// For modifying the root's schema.
+        /// </summary>
+        private IAppSceneManager _sceneManager;
 
         /// <summary>
         /// Provides details about the device.
@@ -65,6 +73,48 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Provides API for debug rendering.
         /// </summary>
         public DebugRenderingJsApi debugRendering { get; private set; }
+
+        /// <summary>
+        /// Allows a custom message to display when the device is locating anchors.
+        /// </summary>
+        public string locatingMessage
+        {
+            get
+            {
+                var sceneId = _sceneManager.All.FirstOrDefault();
+                var root = _sceneManager.Root(sceneId);
+                var schema = root.Schema.Get<string>(PrimaryAnchorManager.PROP_LOCATING_MESSAGE_KEY);
+                return schema.Value;
+            }
+            set 
+            { 
+                var sceneId = _sceneManager.All.FirstOrDefault();
+                var root = _sceneManager.Root(sceneId);
+                var schema = root.Schema.Get<string>(PrimaryAnchorManager.PROP_LOCATING_MESSAGE_KEY);
+                schema.Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Allows anchor bypassing to be disabled.
+        /// </summary>
+        public bool disableAnchorBypass
+        {
+            get
+            {
+                var sceneId = _sceneManager.All.FirstOrDefault();
+                var root = _sceneManager.Root(sceneId);
+                var schema = root.Schema.Get<bool>(PrimaryAnchorManager.PROP_DISABLE_BYPASS_KEY);
+                return schema.Value;
+            }
+            set 
+            { 
+                var sceneId = _sceneManager.All.FirstOrDefault();
+                var root = _sceneManager.Root(sceneId);
+                var schema = root.Schema.Get<bool>(PrimaryAnchorManager.PROP_DISABLE_BYPASS_KEY);
+                schema.Value = value;
+            }
+        }
 
         /// <summary>
         /// Recenters tracking.

@@ -724,8 +724,9 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IDeviceMetaProvider>(),
                     binder.GetInstance<IImageCapture>(),
                     binder.GetInstance<IVideoCapture>(),
-                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<IAppSceneManager>(),
+                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
 
