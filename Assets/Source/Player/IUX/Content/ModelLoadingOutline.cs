@@ -126,6 +126,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void OnRenderObject()
         {
+            // TODO: Remove when the web editor bug that always displays outlines is sorted out
+            if (!_isError) return;
+        
             CreateLineMaterial();
 
             _lineMaterial.SetPass(0);
