@@ -78,21 +78,7 @@ namespace CreateAR.EnkluPlayer
         /// WWW requires main thread, so we queue logs for processing on next frame.
         /// </summary>
         private readonly List<LogRecord> _records = new List<LogRecord>();
-
-        /// <summary>
-        /// Keeps history.
-        /// </summary>
-        private readonly HistoryLogTarget _history = new HistoryLogTarget(new DefaultLogFormatter
-        {
-            Level = true,
-            ObjectToString = true,
-            Timestamp = true,
-            TypeName = true
-        })
-        {
-            Filter = LogLevel.Debug
-        };
-
+        
         /// <inheritdoc />
         public LogLevel Filter { get; set; }
 
@@ -122,9 +108,6 @@ namespace CreateAR.EnkluPlayer
         {
             if (level < Filter)
             {
-                // forward all other logs to history
-                _history.OnLog(level, caller, message);
-
                 return;
             }
 
@@ -137,7 +120,7 @@ namespace CreateAR.EnkluPlayer
                     Message = message,
                     StackTrace = Environment.StackTrace,
                     ClassName = caller.GetType().ToString(),
-                    LogDump = _history.GenerateDump()
+                    LogDump = Log.History.GenerateDump()
                 });
             }
         }
@@ -166,7 +149,7 @@ namespace CreateAR.EnkluPlayer
                     foreach (var record in copy)
                     {
                         var loggingForm = new WWWForm();
-
+                        
                         loggingForm.AddField("level", record.Level);
                         loggingForm.AddField("message", record.Message);
                         loggingForm.AddField("stackTrace", record.StackTrace);

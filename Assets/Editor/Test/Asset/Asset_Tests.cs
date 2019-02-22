@@ -132,5 +132,41 @@ namespace CreateAR.EnkluPlayer.Test.Assets
 
             Assert.IsFalse(string.IsNullOrEmpty(_errorReference.Error));
         }
+
+        [Test]
+        public void ConfigurationAdd()
+        {
+            var called = false;
+
+            _reference.OnConfigurationUpdated += flags =>
+            {
+                called = true;
+
+                Assert.IsTrue(0 != (flags & AssetFlags.Hidden));
+            };
+
+            _reference.AddConfiguration(AssetFlags.Hidden);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void ConfigurationRemove()
+        {
+            var called = false;
+
+            _reference.AddConfiguration(AssetFlags.Hidden);
+
+            _reference.OnConfigurationUpdated += flags =>
+            {
+                called = true;
+
+                Assert.IsTrue(0 == (flags & AssetFlags.Hidden));
+            };
+
+            _reference.RemoveConfiguration(AssetFlags.Hidden);
+
+            Assert.IsTrue(called);
+        }
     }
 }

@@ -68,6 +68,15 @@ namespace CreateAR.EnkluPlayer.IUX
         public bool IsLoaded { get; protected set; }
 
         /// <summary>
+        /// Name accessor.
+        /// </summary>
+        public string Name
+        {
+            get { return _nameProp.Value; }
+            set { _nameProp.Value = value; }
+        }
+
+        /// <summary>
         /// Color accessor.
         /// </summary>
         public Col4 LocalColor

@@ -32,6 +32,7 @@ To develop with Enklu Player, you will need a few prerequisites.
   * [Ideas](docs/element.ideas.md)
 * [Vine](docs/vine.overview.md)
   * [Controllers](docs/vine.controller.md)
+* [Voice](docs/voice.commands.md)
 * Miscellany
   * [Metrics](docs/metrics.overview.md)
   * [Standard Queries](docs/standardqueries.overview.md)

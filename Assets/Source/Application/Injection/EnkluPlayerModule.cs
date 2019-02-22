@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -44,10 +43,13 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<DrawingJsApi>().To(LookupComponent<DrawingJsApi>());
             }
 
+            binder.Bind<PerfMetricsCollector>().To<PerfMetricsCollector>().ToSingleton();
+            binder.Bind<RuntimeStats>().To<RuntimeStats>().ToSingleton();
+
             // required for loggly
             binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 
-            // load configuration
+            // get configuration
             var config = ApplicationConfigCompositor.Config;
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
@@ -435,7 +437,6 @@ namespace CreateAR.EnkluPlayer
                     UnityEngine.Application.persistentDataPath,
                     "Application.log"))
             {
-                // warning and up
                 Filter = LogLevel.Debug
             });
 #endif // UNITY_WEBGL
@@ -725,8 +726,9 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IDeviceMetaProvider>(),
                     binder.GetInstance<IImageCapture>(),
                     binder.GetInstance<IVideoCapture>(),
-                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<IAppSceneManager>(),
+                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
 

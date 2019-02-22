@@ -111,10 +111,14 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Constructor for tests. Not to be used in production code.
         /// </summary>
-        public ElementFactory(IElementManager elements, IGizmoManager gizmos)
+        public ElementFactory(
+            IElementManager elements,
+            IGizmoManager gizmos,
+            ElementSchemaDefaults defaults)
         {
             _elements = elements;
             _gizmos = gizmos;
+            _elementSchemaDefaults = defaults;
         }
 
         /// <inheritdoc />

@@ -7,6 +7,16 @@ using Object = UnityEngine.Object;
 namespace CreateAR.EnkluPlayer.Assets
 {
     /// <summary>
+    /// Flags for asset loading.
+    /// </summary>
+    [Flags]
+    public enum AssetFlags
+    {
+        None = 0,
+        Hidden = 1
+    }
+
+    /// <summary>
     /// An object that represents a reference to a Unity asset.
     /// </summary>
     public class Asset
@@ -42,22 +52,32 @@ namespace CreateAR.EnkluPlayer.Assets
         public int Version { get; private set; }
         
         /// <summary>
+        /// Asset error.
+        /// </summary>
+        public string Error { get; private set; }
+
+        /// <summary>
         /// Progress of the load.
         /// </summary>
         public LoadProgress Progress
         {
             get { return _progress; }
         }
-        
+
+        /// <summary>
+        /// Configuration.
+        /// </summary>
+        public AssetFlags Configuration { get; private set; }
+
         /// <summary>
         /// Called when there is a load error.
         /// </summary>
         public event Action<string> OnLoadError;
 
         /// <summary>
-        /// Asset error.
+        /// Called when the configuration has changed.
         /// </summary>
-        public string Error { get; private set; }
+        public event Action<AssetFlags> OnConfigurationUpdated;
 
         /// <summary>
         /// Creates an <c>AssetReference</c>.
@@ -75,6 +95,35 @@ namespace CreateAR.EnkluPlayer.Assets
 
             Data = data;
             Version = version;
+            Configuration = AssetFlags.None;
+        }
+
+        /// <summary>
+        /// Configures the asset.
+        /// </summary>
+        /// <param name="flags">The flags.</param>
+        public void AddConfiguration(AssetFlags flags)
+        {
+            Configuration = Configuration | flags;
+
+            if (null != OnConfigurationUpdated)
+            {
+                OnConfigurationUpdated(Configuration);
+            }
+        }
+
+        /// <summary>
+        /// Configures the asset.
+        /// </summary>
+        /// <param name="flags">The flags.</param>
+        public void RemoveConfiguration(AssetFlags flags)
+        {
+            Configuration &= ~flags;
+
+            if (null != OnConfigurationUpdated)
+            {
+                OnConfigurationUpdated(Configuration);
+            }
         }
 
         /// <summary>
