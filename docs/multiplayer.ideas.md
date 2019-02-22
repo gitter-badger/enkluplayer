@@ -88,3 +88,16 @@ function onFoo() {
 	});
 }
 ```
+
+Auto-toggle.
+
+```javascript
+var mp = require('mp');
+var self = this;
+
+function foo() {
+	var piece = self.findOne('..bar');
+	var ctx = mp.context(mp);
+	ctx.autoTrigger('visible', true, 30000);
+}
+```

@@ -707,6 +707,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                     binder.Bind<ChecksumJsInterface>().To<ChecksumJsInterface>().ToSingleton();
                     binder.Bind<VoiceJsInterface>().To<VoiceJsInterface>().ToSingleton();
+                    binder.Bind<MultiplayerJsInterface>().To<MultiplayerJsInterface>().ToSingleton();
                 }
             }
 

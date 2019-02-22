@@ -124,7 +124,27 @@ namespace CreateAR.EnkluPlayer
 
             StopPoll();
         }
-        
+
+        public void Sync(ElementSchemaProp prop)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnSync(ElementSchemaProp prop)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Own(string elementId, Action<bool> callback)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Forfeit(string elementId)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Send(object message)
         {
             Write(message);
