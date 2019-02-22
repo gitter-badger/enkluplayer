@@ -44,6 +44,11 @@ namespace CreateAR.EnkluPlayer
         private readonly string _statsPath;
 
         /// <summary>
+        /// Statically created device information.
+        /// </summary>
+        private readonly string _deviceInfo;
+
+        /// <summary>
         /// The timer for writing to disk.
         /// </summary>
         private Timer _timer;
@@ -64,6 +69,13 @@ namespace CreateAR.EnkluPlayer
             _bootLockPath = GetPath("Boot.lock");
             _shutdownLockPath = GetPath("Shutdown.lock");
             _statsPath = GetPath("Stats.log");
+
+            var builder = new StringBuilder();
+            builder.AppendFormat("Id: {0}\n", SystemInfo.deviceUniqueIdentifier);
+            builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
+            builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
+            builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
+            _deviceInfo = builder.ToString();
 
             // add special crash logging for UWP
 #if NETFX_CORE
@@ -295,10 +307,7 @@ namespace CreateAR.EnkluPlayer
 
             // system
             builder.Append("### Device\n\n");
-            builder.AppendFormat("Id: {0}\n", SystemInfo.deviceUniqueIdentifier);
-            builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
-            builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
-            builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
+            builder.Append(_deviceInfo);
             builder.Append("\n\n");
             
             // application config
