@@ -95,9 +95,18 @@ Auto-toggle.
 var mp = require('mp');
 var self = this;
 
-function foo() {
+function onTouched() {
 	var piece = self.findOne('..bar');
-	var ctx = mp.context(mp);
-	ctx.autoTrigger('visible', true, 30000);
+	var ctx = mp.context(piece);
+	ctx.autoToggle('isAnimating', true, 30000);
+
+	// play animation
+}
+
+function enter() {
+	var piece = self.findOne('..bar');
+	piece.schema.watchBool('isAnimating', function(prev, next) {
+		// play animation
+	});
 }
 ```
