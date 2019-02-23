@@ -170,7 +170,7 @@ namespace CreateAR.EnkluPlayer
             Map.Props = Map.Props.Add(obj.PropsAdded);
             Map.Elements = Map.Elements.Add(obj.ElementsAdded);
 
-            Log.Info(this, "Map updated : {0}", Map);
+            Log.Debug(this, "Map updated : {0}", Map);
 
             BuildMapUpdate();
         }

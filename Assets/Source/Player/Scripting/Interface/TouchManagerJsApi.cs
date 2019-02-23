@@ -1,6 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using Jint.Runtime;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer

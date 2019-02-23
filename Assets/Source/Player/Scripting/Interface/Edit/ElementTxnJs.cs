@@ -2,6 +2,7 @@
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
 using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
+using Jint.Runtime;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
