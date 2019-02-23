@@ -26,30 +26,10 @@ namespace CreateAR.EnkluPlayer
             {
                 _map = value;
 
-                // populate element lookup
-                var elements = _map.Elements;
-                var len = elements.Length;
-
-                _elementLookup = new string[len + 1];
-                for (var i = 0; i < len; i++)
-                {
-                    var record = elements[i];
-                    _elementLookup[record.Hash] = record.Value;
-                }
-
-                //  populate prop lookup
-                var props = _map.Props;
-                len = props.Length;
-
-                _propLookup = new string[len + 1];
-                for (var i = 0; i < len; i++)
-                {
-                    var record = props[i];
-                    _propLookup[record.Hash] = record.Value;
-                }
+                BuildMapUpdate();
             }
         }
-
+        
         public SceneEventHandler(
             IElementManager elements,
             IAppSceneManager scenes)
@@ -74,7 +54,48 @@ namespace CreateAR.EnkluPlayer
             _root = null;
             _elementHeap.Clear();
         }
-        
+
+        public string ElementId(ushort hash)
+        {
+            if (null != _elementLookup && hash < _elementLookup.Length)
+            {
+                return _elementLookup[hash];
+            }
+
+            return string.Empty;
+        }
+
+        public ushort ElementHash(string elementId)
+        {
+            for (int i = 0, len = _elementLookup.Length; i < len; i++)
+            {
+                var id = _elementLookup[i];
+                if (id == elementId)
+                {
+                    return (ushort) i;
+                }
+            }
+
+            return 0;
+        }
+
+        public string PropName(ushort hash)
+        {
+            if (null != _propLookup && hash < _propLookup.Length)
+            {
+                return _propLookup[hash];
+            }
+
+            return string.Empty;
+        }
+
+        public void OnDiff(SceneDiffEvent obj)
+        {
+            Log.Error(this, "Diff event received: {0}", obj.Map);
+
+            Map = obj.Map;
+        }
+
         public void OnUpdated<T>(T evt) where T : UpdateElementEvent
         {
             if (null == _root)
@@ -83,16 +104,16 @@ namespace CreateAR.EnkluPlayer
             }
 
             // find element
-            var elId = ElementId(evt.ElementId);
+            var elId = ElementId(evt.ElementHash);
             var el = ById(elId);
             if (null == el)
             {
-                Log.Warning(this, "Could not find element to update: {0}.", evt.ElementId);
+                Log.Warning(this, "Could not find element to update: {0}.", evt.ElementHash);
                 return;
             }
 
             // prop name
-            var propName = PropName(evt.PropName);
+            var propName = PropName(evt.PropHash);
             if (string.IsNullOrEmpty(propName))
             {
                 Log.Warning(this, "Could not find prop name from id {0}.", propName);
@@ -144,69 +165,20 @@ namespace CreateAR.EnkluPlayer
             Log.Error(this, "Could not handle UpdateElementEvent {0}.", evt);
         }
 
-        private readonly int[] _nextChildIndices = new int[128];
-
-        /// <summary>
-        /// Stack-less search through hierarchy for an element that matches by
-        /// id.
-        /// </summary>
-        /// <param name="root">Where to start the search.</param>
-        /// <param name="id">The id to look for.</param>
-        /// <returns></returns>
-        private Element FindFast(Element root, string id)
+        public void OnMapUpdated(SceneMapUpdateEvent obj)
         {
-            var el = root;
-            var compare = true;
-
-            // prep indices
-            var depthIndex = 0;
-            _nextChildIndices[0] = 0;
-
-            // search!
-            while (true)
+            if (null == Map)
             {
-                if (compare && el.Id == id)
-                {
-                    return el;
-                }
-                
-                // get the index to the next child at this depth
-                var nextChildIndex = _nextChildIndices[depthIndex];
-
-                // proceed to next child
-                if (nextChildIndex < el.Children.Count)
-                {
-                    // increment next child index at this depth
-                    _nextChildIndices[depthIndex]++;
-
-                    // get the next child
-                    el = el.Children[nextChildIndex];
-
-                    // move to the next depth
-                    _nextChildIndices[++depthIndex] = 0;
-
-                    // switch compare back on
-                    compare = true;
-                }
-                // there is no next child
-                else
-                {
-                    // move up a level
-                    depthIndex--;
-
-                    // there is nowhere else to go
-                    if (depthIndex < 0)
-                    {
-                        return null;
-                    }
-
-                    // parent element
-                    el = el.Parent;
-
-                    // don't compare ids, we've already checked this element
-                    compare = false;
-                }
+                Log.Error(this, "Could not apply scene map update without map.");
+                return;
             }
+
+            Log.Info(this, "Map updated.");
+
+            Map.Props = Map.Props.Add(obj.PropsAdded);
+            Map.Elements = Map.Elements.Add(obj.ElementsAdded);
+
+            BuildMapUpdate();
         }
 
         /// <summary>
@@ -237,25 +209,30 @@ namespace CreateAR.EnkluPlayer
 
             return el;
         }
-
-        private string ElementId(ushort hash)
+        
+        private void BuildMapUpdate()
         {
-            if (null != _elementLookup && hash < _elementLookup.Length)
+            // populate element lookup
+            var elements = _map.Elements;
+            var len = elements.Length;
+
+            _elementLookup = new string[len + 1];
+            for (var i = 0; i < len; i++)
             {
-                return _elementLookup[hash];
+                var record = elements[i];
+                _elementLookup[record.Hash] = record.Value;
             }
 
-            return string.Empty;
-        }
+            //  populate prop lookup
+            var props = _map.Props;
+            len = props.Length;
 
-        private string PropName(ushort hash)
-        {
-            if (null != _propLookup && hash < _propLookup.Length)
+            _propLookup = new string[len + 1];
+            for (var i = 0; i < len; i++)
             {
-                return _propLookup[hash];
+                var record = props[i];
+                _propLookup[record.Hash] = record.Value;
             }
-
-            return string.Empty;
         }
     }
 }

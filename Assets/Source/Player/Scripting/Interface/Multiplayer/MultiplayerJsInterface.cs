@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
-using Enklu.Data;
-using Enklu.Mycelium.Messages;
-using Enklu.Mycelium.Messages.Experience;
 using Jint;
 using Jint.Native;
 using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
@@ -24,6 +21,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _multiplayer = multiplayer;
             _element = element;
+        }
+
+        public void autoToggle(string property, bool startingValue, int milliseconds)
+        {
+            _multiplayer.AutoToggle(_element.Id, property, startingValue, milliseconds);
         }
 
         public void own(Engine engine, JsFunc cb)

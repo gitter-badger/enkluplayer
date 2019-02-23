@@ -23,6 +23,7 @@ namespace CreateAR.EnkluPlayer
         private static int _Ids = 1000;
         
         private readonly IBootstrapper _bootstrapper;
+        private readonly IElementManager _elements;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
         private readonly ReflectionMessageReader _reader = new ReflectionMessageReader();
@@ -51,9 +52,10 @@ namespace CreateAR.EnkluPlayer
             ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
+            _elements = elements;
             _api = api;
             _config = config;
-            _sceneHandler = new SceneEventHandler(elements, scenes);
+            _sceneHandler = new SceneEventHandler(_elements, scenes);
         }
 
         public IAsyncToken<Void> Initialize()
@@ -86,7 +88,7 @@ namespace CreateAR.EnkluPlayer
             // prep the scene handler
             {
                 _sceneHandler.Initialize();
-
+                
                 // stop buffering events and forward them to the scene handler
                 Subscribe<UpdateElementVec3Event>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementCol4Event>(_sceneHandler.OnUpdated);
@@ -143,6 +145,45 @@ namespace CreateAR.EnkluPlayer
         public void Forfeit(string elementId)
         {
             throw new NotImplementedException();
+        }
+
+        public void AutoToggle(string elementId, string prop, bool value, int milliseconds)
+        {
+            // find hash
+            var hash = _sceneHandler.ElementHash(elementId);
+            if (0 == hash)
+            {
+                Log.Warning(this, "Cound not find hash for element '{0}'.", elementId);
+                return;
+            }
+
+            // find element
+            var element = _elements.ById(elementId);
+            if (null == element)
+            {
+                Log.Warning(this, "Could not find element by id {0} to autotoggle.", elementId);
+                return;
+            }
+
+            // set prop
+            element.Schema.Set(prop, value);
+            
+            // send request if we're connected
+            if (_tcp.IsConnected)
+            {
+                Send(new AutoToggleEvent
+                {
+                    ElementHash = hash,
+                    PropName = prop,
+                    Milliseconds = milliseconds,
+                    StartingValue = value
+                });
+            }
+            // set a timer and just do it locally if we aren't connected
+            else
+            {
+                // TODO: set timer
+            }
         }
 
         public void Send(object message)
@@ -251,8 +292,11 @@ namespace CreateAR.EnkluPlayer
                 Subscribe<UpdateElementStringEvent>(OnBufferEvent);
                 Subscribe<UpdateElementBoolEvent>(OnBufferEvent);
 
-                // ... and listening for the scene diff
-                Subscribe<SceneDiffEvent>(OnSceneDiff);
+                // ... and listen for the scene diff
+                Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
+
+                // ... and listen to map updates
+                Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
 
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
@@ -262,7 +306,7 @@ namespace CreateAR.EnkluPlayer
                 _connect.Fail(new Exception("Could not connect to mycelium."));
             }
         }
-
+        
         private void StartPoll()
         {
             lock (_eventWaitBuffer)
@@ -330,12 +374,7 @@ namespace CreateAR.EnkluPlayer
         {
             _sceneEventBuffer.Add(evt);
         }
-
-        private void OnSceneDiff(SceneDiffEvent evt)
-        {
-            _sceneHandler.Map = evt.Map;
-        }
-
+        
         private void OnLoginResponse(LoginResponse res)
         {
             // w00t

@@ -34,6 +34,15 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         void Disconnect();
 
+        /// <summary>
+        /// Toggles a prop on an element and sets a timer for flipping back.
+        /// </summary>
+        /// <param name="elementId">The id of the element.</param>
+        /// <param name="prop">The name of the prop.</param>
+        /// <param name="value">The value to set the prop to.</param>
+        /// <param name="milliseconds">The number of milliseconds to wait before revert.</param>
+        void AutoToggle(string elementId, string prop, bool value, int milliseconds);
+
         void Sync(ElementSchemaProp prop);
 
         void UnSync(ElementSchemaProp prop);

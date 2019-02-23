@@ -36,6 +36,11 @@ namespace CreateAR.EnkluPlayer.IUX
     public class Element
     {
         /// <summary>
+        /// Stack used for FindFast.
+        /// </summary>
+        private static readonly int[] _NextChildIndices = new int[128];
+
+        /// <summary>
         /// Internal list of children.
         /// </summary>
         private readonly List<Element> _children = new List<Element>();
@@ -333,6 +338,69 @@ namespace CreateAR.EnkluPlayer.IUX
 #endif
                 .Cast<T>()
                 .FirstOrDefault();
+        }
+        
+        /// <summary>
+        /// Stack-less search through hierarchy for an element that matches by
+        /// id.
+        /// </summary>
+        /// <param name="root">Where to start the search.</param>
+        /// <param name="id">The id to look for.</param>
+        /// <returns></returns>
+        public Element FindFast(Element root, string id)
+        {
+            var el = root;
+            var compare = true;
+
+            // prep indices
+            var depthIndex = 0;
+            _NextChildIndices[0] = 0;
+
+            // search!
+            while (true)
+            {
+                if (compare && el.Id == id)
+                {
+                    return el;
+                }
+
+                // get the index to the next child at this depth
+                var nextChildIndex = _NextChildIndices[depthIndex];
+
+                // proceed to next child
+                if (nextChildIndex < el.Children.Count)
+                {
+                    // increment next child index at this depth
+                    _NextChildIndices[depthIndex]++;
+
+                    // get the next child
+                    el = el.Children[nextChildIndex];
+
+                    // move to the next depth
+                    _NextChildIndices[++depthIndex] = 0;
+
+                    // switch compare back on
+                    compare = true;
+                }
+                // there is no next child
+                else
+                {
+                    // move up a level
+                    depthIndex--;
+
+                    // there is nowhere else to go
+                    if (depthIndex < 0)
+                    {
+                        return null;
+                    }
+
+                    // parent element
+                    el = el.Parent;
+
+                    // don't compare ids, we've already checked this element
+                    compare = false;
+                }
+            }
         }
 
         /// <summary>

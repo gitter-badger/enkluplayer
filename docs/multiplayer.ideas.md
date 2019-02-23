@@ -99,8 +99,6 @@ function onTouched() {
 	var piece = self.findOne('..bar');
 	var ctx = mp.context(piece);
 	ctx.autoToggle('isAnimating', true, 30000);
-
-	// play animation
 }
 
 function enter() {
