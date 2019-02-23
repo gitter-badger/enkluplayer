@@ -35,16 +35,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Manages scripts.
-        /// </summary>
-        private readonly IScriptManager _scripts;
-
-        /// <summary>
-        /// Resolves requires in scripts.
-        /// </summary>
-        private readonly IScriptRequireResolver _resolver;
-
-        /// <summary>
         /// Js cache.
         /// </summary>
         private readonly IElementJsCache _jsCache;
@@ -53,6 +43,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Creates ElementJS implementations.
         /// </summary>
         private readonly IElementJsFactory _elementJsFactory;
+
+        /// <summary>
+        /// Creates new <see cref="UnityScriptingHost"/> instances.
+        /// </summary>
+        private readonly IScriptingHostFactory _scriptHostFactory;
 
         /// <summary>
         /// GameObject to attach scripts to.
@@ -93,15 +88,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Constructor.
         /// </summary>
         public ScriptCollectionRunner(
-            IScriptManager scripts,
-            IScriptRequireResolver resolver,
+            IScriptingHostFactory scriptHostFactory,
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
             GameObject root,
             Element element)
         {
-            _scripts = scripts;
-            _resolver = resolver;
+            _scriptHostFactory = scriptHostFactory;
             _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
             _root = root;
@@ -256,10 +249,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Log.Info(this, "RunBehavior({0}) : {1}", script.Data, script.Source);
 
-            var host = new UnityScriptingHost(
-                this,
-                _resolver,
-                _scripts);
+            var host = _scriptHostFactory.NewScriptingHost(this);
+
+            // TODO: Does it make sense to move the following to the factory? 
             host.SetValue("system", SystemJsApi.Instance);
             host.SetValue("app", Main.NewAppJsApi(_jsCache));
             host.SetValue("this", _jsCache.Element(_element));

@@ -16,15 +16,9 @@ namespace CreateAR.EnkluPlayer
         public UnityScriptingHost(
             object context,
             IScriptRequireResolver resolver,
-            IScriptManager scripts)
-            : base(options =>
-            {
-                options.AllowClr();
-                options.CatchClrExceptions(exception =>
-                {
-                    throw exception;
-                });
-            })
+            IScriptManager scripts,
+            Action<Options> engineOptions)
+            : base(engineOptions)
         {
             SetValue("log", new LogJsApi(context));
             SetValue("require", new Func<string, JsValue>(

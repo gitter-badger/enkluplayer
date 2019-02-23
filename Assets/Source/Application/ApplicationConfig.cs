@@ -804,6 +804,11 @@ namespace CreateAR.EnkluPlayer
         /// Email address to send debug dumps.
         /// </summary>
         public string DumpEmail = "";
+        
+        /// <summary>
+        /// If true, the scripting engine will enable debugging.
+        /// </summary>
+        public bool EnableScriptDebugging = false;
 
         /// <summary>
         /// Overrides settings.
@@ -819,6 +824,11 @@ namespace CreateAR.EnkluPlayer
             if (config.DisableAdminLock)
             {
                 DisableAdminLock = true;
+            }
+
+            if (config.EnableScriptDebugging)
+            {
+                EnableScriptDebugging = true;
             }
 
             if (!string.IsNullOrEmpty(config.DumpEmail))
