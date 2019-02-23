@@ -23,30 +23,90 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class MyceliumMultiplayerController : IMultiplayerController, ISocketListener
     {
-        private static int _Ids = 1000;
+        /// <summary>
+        /// Id generator for polls.
+        /// </summary>
+        private static int _PollIds = 1000;
         
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IBootstrapper _bootstrapper;
         private readonly IElementManager _elements;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
+
+        /// <summary>
+        /// Reads from streams.
+        /// </summary>
         private readonly ReflectionMessageReader _reader = new ReflectionMessageReader();
+
+        /// <summary>
+        /// Writes to streams.
+        /// </summary>
         private readonly ReflectionMessageWriter _writer = new ReflectionMessageWriter();
+
+        /// <summary>
+        /// Byte buffers.
+        /// </summary>
         private readonly OptimizedObjectPool<ByteArrayHandle> _buffers = new OptimizedObjectPool<ByteArrayHandle>(
             4, 0, 1,
             () => new ByteArrayHandle(1024));
+
+        /// <summary>
+        /// Buffers events until we're fully connected.
+        /// </summary>
         private readonly List<UpdateElementEvent> _sceneEventBuffer = new List<UpdateElementEvent>();
+
+        /// <summary>
+        /// Handles scene events.
+        /// </summary>
         private readonly SceneEventHandler _sceneHandler;
 
+        /// <summary>
+        /// Maps message type to the delegate that should handle it.
+        /// </summary>
         private readonly Dictionary<Type, Delegate> _subscriptions = new Dictionary<Type, Delegate>();
+
+        /// <summary>
+        /// Buffer that read thread pushes messages onto. Main thread polls for
+        /// messages to execute on main thread.
+        /// </summary>
         private readonly List<object> _eventWaitBuffer = new List<object>();
+
+        /// <summary>
+        /// The main thread copies events into this buffer from _eventWaitBuffer.
+        /// </summary>
         private object[] _eventExecutionBuffer = new object[4];
+
+        /// <summary>
+        /// Keeps track of how many events are in the execution buffer.
+        /// </summary>
         private int _eventExecutionBufferLen;
 
+        /// <summary>
+        /// The underlying TCP connection.
+        /// </summary>
         private TcpConnection _tcp;
+
+        /// <summary>
+        /// Internal connection token.
+        /// </summary>
         private AsyncToken<Void> _connect;
-        private string _multiplayerToken;
+
+        /// <summary>
+        /// The JWT returned to connect mycelium.
+        /// </summary>
+        private string _multiplayerJwt;
+
+        /// <summary>
+        /// Id of the current poll.
+        /// </summary>
         private int _pollId;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MyceliumMultiplayerController(
             IBootstrapper bootstrapper,
             IAppSceneManager scenes,
@@ -61,6 +121,7 @@ namespace CreateAR.EnkluPlayer
             _sceneHandler = new SceneEventHandler(_elements, scenes);
         }
 
+        /// <inheritdoc />
         public IAsyncToken<Void> Initialize()
         {
             if (null != _connect)
@@ -81,11 +142,13 @@ namespace CreateAR.EnkluPlayer
             return _connect.Token();
         }
 
+        /// <inheritdoc />
         public void ApplyDiff(IAppDataLoader appData)
         {
             // TODO: apply diff
         }
 
+        /// <inheritdoc />
         public void Play()
         {
             // prep the scene handler
@@ -107,7 +170,8 @@ namespace CreateAR.EnkluPlayer
                 }
             }
         }
-        
+
+        /// <inheritdoc />
         public void Disconnect()
         {
             if (null == _connect)
@@ -130,26 +194,31 @@ namespace CreateAR.EnkluPlayer
             StopPoll();
         }
 
+        /// <inheritdoc />
         public void Sync(ElementSchemaProp prop)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public void UnSync(ElementSchemaProp prop)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public void Own(string elementId, Action<bool> callback)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public void Forfeit(string elementId)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public void AutoToggle(string elementId, string prop, bool value, int milliseconds)
         {
             // find hash
@@ -192,21 +261,7 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
-        public void Send(object message)
-        {
-            Write(message);
-        }
-
-        public void Subscribe<T>(Action<T> callback)
-        {
-            _subscriptions[typeof(T)] = callback;
-        }
-
-        public void UnSubscribe<T>()
-        {
-            _subscriptions.Remove(typeof(T));
-        }
-
+        /// <inheritdoc />
         public void HandleSocketMessage(ArraySegment<byte> bytes)
         {
             var stream = new ByteStream(bytes.Array, bytes.Offset);
@@ -241,7 +296,20 @@ namespace CreateAR.EnkluPlayer
                 _eventWaitBuffer.Add(message);
             }
         }
-
+        
+        /// <summary>
+        /// Subscribes to a message.
+        /// </summary>
+        /// <typeparam name="T">The type parameter.</typeparam>
+        /// <param name="callback">The callback.</param>
+        private void Subscribe<T>(Action<T> callback)
+        {
+            _subscriptions[typeof(T)] = callback;
+        }
+        
+        /// <summary>
+        /// Attempts to retrieve a multiplayer token.
+        /// </summary>
         private void GetMultiplayerToken()
         {
             // ask trellis
@@ -254,7 +322,7 @@ namespace CreateAR.EnkluPlayer
                     {
                         if (res.Payload.Success)
                         {
-                            _multiplayerToken = res.Payload.Body;
+                            _multiplayerJwt = res.Payload.Body;
 
                             Log.Info(this, "Successfully received multiplayer access token.");
 
@@ -275,6 +343,9 @@ namespace CreateAR.EnkluPlayer
                 .OnFailure(_connect.Fail);
         }
 
+        /// <summary>
+        /// Connects to Mycelium.
+        /// </summary>
         private void ConnectToMycelium()
         {
             Log.Info(this, "Connecting to mycelium at {0}:{1}.",
@@ -313,6 +384,9 @@ namespace CreateAR.EnkluPlayer
             }
         }
         
+        /// <summary>
+        /// Starts polling for events.
+        /// </summary>
         private void StartPoll()
         {
             lock (_eventWaitBuffer)
@@ -322,22 +396,14 @@ namespace CreateAR.EnkluPlayer
 
             _bootstrapper.BootstrapCoroutine(Poll());
         }
-
-        private IEnumerator Login()
-        {
-            yield return new WaitForSeconds(0.5f);
-
-            Log.Info(this, "Sending login request.");
-            Subscribe<LoginResponse>(OnLoginResponse);
-            Send(new LoginRequest
-            {
-                Jwt = _multiplayerToken
-            });
-        }
-
+        
+        /// <summary>
+        /// Polls for events in the buffer.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator Poll()
         {
-            var id = _pollId = _Ids++;
+            var id = _pollId = _PollIds++;
 
             while (id == _pollId)
             {
@@ -371,6 +437,30 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Logs in.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator Login()
+        {
+            // TODO: this is here due to a mycelium bug
+            yield return new WaitForSeconds(0.5f);
+
+            Log.Info(this, "Sending login request.");
+
+            Subscribe<LoginResponse>(OnLoginResponse);
+            Send(new LoginRequest
+            {
+                Jwt = _multiplayerJwt
+            });
+        }
+
+        /// <summary>
+        /// Waits for a time before executing the action on the main thread.
+        /// </summary>
+        /// <param name="seconds">The number of seconds to wait.</param>
+        /// <param name="action">The action to call.</param>
+        /// <returns></returns>
         private IEnumerator Wait(float seconds, Action action)
         {
             yield return new WaitForSecondsRealtime(seconds);
@@ -378,16 +468,27 @@ namespace CreateAR.EnkluPlayer
             action();
         }
 
+        /// <summary>
+        /// Stops polling.
+        /// </summary>
         private void StopPoll()
         {
             _pollId = -1;
         }
 
+        /// <summary>
+        /// Called when an message is received but we are not ready for it yet, so we buffer it.
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnBufferEvent(UpdateElementEvent evt)
         {
             _sceneEventBuffer.Add(evt);
         }
         
+        /// <summary>
+        /// Called when we receive a response from login.
+        /// </summary>
+        /// <param name="res">The response.</param>
         private void OnLoginResponse(LoginResponse res)
         {
             // w00t
@@ -396,6 +497,10 @@ namespace CreateAR.EnkluPlayer
             _connect.Succeed(Void.Instance);
         }
         
+        /// <summary>
+        /// Handles a message.
+        /// </summary>
+        /// <param name="message">The message to handle.</param>
         private void Handle(object message)
         {
             var type = message.GetType();
@@ -421,7 +526,11 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
-        private void Write(object message)
+        /// <summary>
+        /// Sends a message to Mycelium.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        private void Send(object message)
         {
             Verbose("Sending {0}.", message);
 
@@ -450,6 +559,9 @@ namespace CreateAR.EnkluPlayer
             _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
         }
 
+        /// <summary>
+        /// Verbose logging method.
+        /// </summary>
         [Conditional("LOGGING_VERBOSE")]
         private void Verbose(object message, params object[] replacements)
         {
