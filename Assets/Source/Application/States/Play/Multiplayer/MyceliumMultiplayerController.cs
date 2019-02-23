@@ -222,15 +222,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void AutoToggle(string elementId, string prop, bool value, int milliseconds)
         {
-            // find hash
-            var hash = _sceneHandler.ElementHash(elementId);
-            if (0 == hash)
-            {
-                Log.Warning(this, "Cound not find hash for element '{0}'.", elementId);
-                return;
-            }
-
-            // find element
+            // find element to apply to
             var element = _elements.ById(elementId);
             if (null == element)
             {
@@ -238,24 +230,39 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            // set prop
+            // set prop locally
             element.Schema.Set(prop, value);
-            
-            // send request if we're connected
+
+            // first, try to send a request
+            var reqSent = false;
             if (_tcp.IsConnected)
             {
-                Send(new AutoToggleEvent
+                // we need the hash to send a request
+                var hash = _sceneHandler.ElementHash(elementId);
+
+                // no hash found
+                if (0 == hash)
                 {
-                    ElementHash = hash,
-                    PropName = prop,
-                    Milliseconds = milliseconds,
-                    StartingValue = value
-                });
+                    Log.Warning(this, "Cound not find hash for element '{0}'.", elementId);
+                }
+                // hash found, send request
+                else
+                {
+                    reqSent = true;
+
+                    Send(new AutoToggleEvent
+                    {
+                        ElementHash = hash,
+                        PropName = prop,
+                        Milliseconds = milliseconds,
+                        StartingValue = value
+                    });
+                }
             }
-            // set a timer and just do it locally if we aren't connected
-            else
+            
+            // if the request could not be sent, set a timer to flip it back
+            if (!reqSent)
             {
-                // set timer
                 _bootstrapper.BootstrapCoroutine(Wait(
                     milliseconds / 1000f,
                     () => element.Schema.Set(prop, !value)));
