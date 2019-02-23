@@ -18,6 +18,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// <c>IMultiplayerController</c> implementation that connects to Mycelium.
+    /// </summary>
     public class MyceliumMultiplayerController : IMultiplayerController, ISocketListener
     {
         private static int _Ids = 1000;
@@ -182,7 +185,10 @@ namespace CreateAR.EnkluPlayer
             // set a timer and just do it locally if we aren't connected
             else
             {
-                // TODO: set timer
+                // set timer
+                _bootstrapper.BootstrapCoroutine(Wait(
+                    milliseconds / 1000f,
+                    () => element.Schema.Set(prop, !value)));
             }
         }
 
@@ -363,6 +369,13 @@ namespace CreateAR.EnkluPlayer
                     Handle(_eventExecutionBuffer[i]);
                 }
             }
+        }
+
+        private IEnumerator Wait(float seconds, Action action)
+        {
+            yield return new WaitForSecondsRealtime(seconds);
+
+            action();
         }
 
         private void StopPoll()
