@@ -185,7 +185,14 @@ namespace CreateAR.EnkluPlayer
                 }
                 else
                 {
-                    binder.Bind<IMultiplayerController>().To<MyceliumMultiplayerController>().ToSingleton();
+                    if (config.ParsedPlatform == RuntimePlatform.WebGLPlayer)
+                    {
+                        binder.Bind<IMultiplayerController>().To<WebMultiplayerController>().ToSingleton();
+                    }
+                    else
+                    {
+                        binder.Bind<IMultiplayerController>().To<MyceliumMultiplayerController>().ToSingleton();
+                    }
 
 #if UNITY_IOS || UNITY_ANDROID
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();

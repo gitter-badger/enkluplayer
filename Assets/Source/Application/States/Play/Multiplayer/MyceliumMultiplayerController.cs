@@ -381,7 +381,9 @@ namespace CreateAR.EnkluPlayer
             }
             else
             {
-                _connect.Fail(new Exception("Could not connect to mycelium."));
+                Log.Error(this, "Could not connect to mycelium. Succeeding token and using local fallback.");
+
+                _connect.Succeed(Void.Instance);
             }
         }
         

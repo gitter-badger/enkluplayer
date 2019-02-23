@@ -85,19 +85,17 @@ namespace CreateAR.EnkluPlayer
             Id = _config.AppId;
             
             // load data and connect to multiplayer
-            return Async.Map(
-                Async
-                    .All(
-                        _loader.Load(_config),
-                        _multiplayer.Initialize())
-                    .OnSuccess(_ =>
-                    {
-                        Name = _loader.Name;
+            return Async
+                .All(
+                    _loader.Load(_config),
+                    _multiplayer.Initialize())
+                .OnSuccess(_ =>
+                {
+                    Name = _loader.Name;
 
-                        _isLoaded = true;
-                    })
-                    .Token(),
-                _ => Void.Instance);
+                    _isLoaded = true;
+                })
+                .Map(_ => Void.Instance);
         }
 
         /// <inheritdoc />
