@@ -91,7 +91,7 @@ namespace CreateAR.EnkluPlayer
 
         public void OnDiff(SceneDiffEvent obj)
         {
-            Log.Error(this, "Diff event received: {0}", obj.Map);
+            Log.Debug(this, "Diff event received: {0}", obj.Map);
 
             Map = obj.Map;
         }
@@ -167,16 +167,10 @@ namespace CreateAR.EnkluPlayer
 
         public void OnMapUpdated(SceneMapUpdateEvent obj)
         {
-            if (null == Map)
-            {
-                Log.Error(this, "Could not apply scene map update without map.");
-                return;
-            }
-
-            Log.Info(this, "Map updated.");
-
             Map.Props = Map.Props.Add(obj.PropsAdded);
             Map.Elements = Map.Elements.Add(obj.ElementsAdded);
+
+            Log.Info(this, "Map updated : {0}", Map);
 
             BuildMapUpdate();
         }
