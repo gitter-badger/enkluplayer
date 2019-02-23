@@ -109,7 +109,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public MyceliumMultiplayerController(
             IBootstrapper bootstrapper,
-            IAppSceneManager scenes,
             IElementManager elements,
             ApiController api,
             ApplicationConfig config)
@@ -118,7 +117,7 @@ namespace CreateAR.EnkluPlayer
             _elements = elements;
             _api = api;
             _config = config;
-            _sceneHandler = new SceneEventHandler(_elements, scenes);
+            _sceneHandler = new SceneEventHandler(_elements);
         }
 
         /// <inheritdoc />
@@ -197,25 +196,27 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Sync(ElementSchemaProp prop)
         {
-            throw new NotImplementedException();
+            Log.Warning(this, "Sync not implemented.");
         }
 
         /// <inheritdoc />
         public void UnSync(ElementSchemaProp prop)
         {
-            throw new NotImplementedException();
+            Log.Warning(this, "UnSync not implemented.");
         }
 
         /// <inheritdoc />
         public void Own(string elementId, Action<bool> callback)
         {
-            throw new NotImplementedException();
+            Log.Warning(this, "Own not implemented.");
+
+            callback(false);
         }
 
         /// <inheritdoc />
         public void Forfeit(string elementId)
         {
-            throw new NotImplementedException();
+            Log.Warning(this, "Forfeit not implemented.");
         }
 
         /// <inheritdoc />

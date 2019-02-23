@@ -7,18 +7,39 @@ using Enklu.Mycelium.Messages.Experience;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Object that handles events for a scene.
+    /// </summary>
     public class SceneEventHandler
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IElementManager _elements;
-        private readonly IAppSceneManager _scenes;
+        
+        /// <summary>
+        /// A simple list of recently used elements.
+        /// </summary>
         private readonly List<Element> _elementHeap = new List<Element>();
 
+        /// <summary>
+        /// Maps 
+        /// </summary>
         private ElementMap _map;
 
-        private Element _root;
+        /// <summary>
+        /// Lookup from hash to element id.
+        /// </summary>
         private string[] _elementLookup;
+
+        /// <summary>
+        /// Lookup from hash to prop name.
+        /// </summary>
         private string[] _propLookup;
 
+        /// <summary>
+        /// Gets/sets the map.
+        /// </summary>
         public ElementMap Map
         {
             get { return _map; }
@@ -30,31 +51,41 @@ namespace CreateAR.EnkluPlayer
             }
         }
         
-        public SceneEventHandler(
-            IElementManager elements,
-            IAppSceneManager scenes)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public SceneEventHandler(IElementManager elements)
         {
             _elements = elements;
-            _scenes = scenes;
         }
 
+        /// <summary>
+        /// Preps handler for usage.
+        /// </summary>
         public void Initialize()
         {
-            if (_scenes.All.Length == 0)
-            {
-                Log.Error(this, "Tried to initialize SceneEventHandler but scene manager has no scenes!");
-                return;
-            }
+            _elementHeap.Clear();
 
-            _root = _scenes.Root(_scenes.All[0]);
+            _map = new ElementMap
+            {
+                Elements = new ElementMap.Record[0],
+                Props = new ElementMap.Record[0]
+            };
         }
 
+        /// <summary>
+        /// Tears down any resources in use.
+        /// </summary>
         public void Uninitialize()
         {
-            _root = null;
             _elementHeap.Clear();
         }
 
+        /// <summary>
+        /// Retrieves the element id from the hash.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <returns></returns>
         public string ElementId(ushort hash)
         {
             if (null != _elementLookup && hash < _elementLookup.Length)
@@ -65,6 +96,11 @@ namespace CreateAR.EnkluPlayer
             return string.Empty;
         }
 
+        /// <summary>
+        /// Retrieves the element hash from the id.
+        /// </summary>
+        /// <param name="elementId">The element id.</param>
+        /// <returns></returns>
         public ushort ElementHash(string elementId)
         {
             for (int i = 0, len = _elementLookup.Length; i < len; i++)
@@ -79,6 +115,11 @@ namespace CreateAR.EnkluPlayer
             return 0;
         }
 
+        /// <summary>
+        /// Retrieves a prop name from hash.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <returns></returns>
         public string PropName(ushort hash)
         {
             if (null != _propLookup && hash < _propLookup.Length)
@@ -89,20 +130,24 @@ namespace CreateAR.EnkluPlayer
             return string.Empty;
         }
 
-        public void OnDiff(SceneDiffEvent obj)
+        /// <summary>
+        /// Applies a diff to the scene.
+        /// </summary>
+        /// <param name="evt">The diff event.</param>
+        public void OnDiff(SceneDiffEvent evt)
         {
-            Log.Debug(this, "Diff event received: {0}", obj.Map);
+            Log.Debug(this, "Diff event received: {0}", evt.Map);
 
-            Map = obj.Map;
+            Map = evt.Map;
         }
 
+        /// <summary>
+        /// Processes an UpdateElementEvent.
+        /// </summary>
+        /// <typeparam name="T">The type of event.</typeparam>
+        /// <param name="evt">The event.</param>
         public void OnUpdated<T>(T evt) where T : UpdateElementEvent
         {
-            if (null == _root)
-            {
-                return;
-            }
-
             // find element
             var elId = ElementId(evt.ElementHash);
             var el = ById(elId);
@@ -165,10 +210,14 @@ namespace CreateAR.EnkluPlayer
             Log.Error(this, "Could not handle UpdateElementEvent {0}.", evt);
         }
 
-        public void OnMapUpdated(SceneMapUpdateEvent obj)
+        /// <summary>
+        /// Called when the scene map has been updated.
+        /// </summary>
+        /// <param name="evt">The update event.</param>
+        public void OnMapUpdated(SceneMapUpdateEvent evt)
         {
-            Map.Props = Map.Props.Add(obj.PropsAdded);
-            Map.Elements = Map.Elements.Add(obj.ElementsAdded);
+            Map.Props = Map.Props.Add(evt.PropsAdded);
+            Map.Elements = Map.Elements.Add(evt.ElementsAdded);
 
             Log.Debug(this, "Map updated : {0}", Map);
 
@@ -204,6 +253,9 @@ namespace CreateAR.EnkluPlayer
             return el;
         }
         
+        /// <summary>
+        /// Builds out fast data structures for map lookups.
+        /// </summary>
         private void BuildMapUpdate()
         {
             // populate element lookup
