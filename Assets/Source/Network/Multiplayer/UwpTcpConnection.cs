@@ -6,25 +6,38 @@ using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.EnkluPlayer;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Implementation that wraps <c>DataWriter</c>.
+    /// </summary>
     public class DataWriterNetworkStream : INetworkStream
     {
+        /// <summary>
+        /// The writer.
+        /// </summary>
         private readonly DataWriter _writer;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
         public DataWriterNetworkStream(DataWriter writer)
         {
             _writer = writer;
         }
 
+        /// <inheritdoc />
         public void Write(byte[] buffer, int offset, int len)
         {
             _writer.WriteBuffer(buffer.AsBuffer(), (uint) offset, (uint) len);
         }
     }
 
+    /// <summary>
+    /// Uwp specific implementation of <c>ITcpConnection</c>.
+    /// </summary>
     public class UwpTcpConnection : ITcpConnection
     {
         /// <summary>
@@ -32,31 +45,82 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public static TimeSpan ConnectionTimeout { get; set; }
 
+        /// <summary>
+        /// Listener for socket events.
+        /// </summary>
         private readonly ISocketListener _listener;
+
+        /// <summary>
+        /// Writes to socket.
+        /// </summary>
         private readonly ISocketMessageWriter _writer;
 
+        /// <summary>
+        /// Controls read thread
+        /// </summary>
         private readonly AtomicBool _isReading = new AtomicBool(false);
+
+        /// <summary>
+        /// Controls initialization.
+        /// </summary>
         private readonly AtomicBool _initialized = new AtomicBool(false);
 
+        /// <summary>
+        /// Underlying tcp socket.
+        /// </summary>
         private StreamSocket _socket;
+
+        /// <summary>
+        /// Writes data to a stream.
+        /// </summary>
         private DataWriter _dataWriter;
+
+        /// <summary>
+        /// Wraps DataWriter for the socket writer interface.
+        /// </summary>
         private DataWriterNetworkStream _writerStream;
 
+        /// <summary>
+        /// Buffer we copy read data into.
+        /// </summary>
+        private byte[] _readBuffer = new byte[1024];
+
+        /// <inheritdoc />
         public bool IsConnected { get; set; }
 
+        /// <inheritdoc />
         public Action<bool> OnConnectionClosed { get; set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public UwpTcpConnection(ISocketListener listener, ISocketMessageWriter writer)
         {
+            ConnectionTimeout = TimeSpan.FromSeconds(3f);
+
             _listener = listener;
             _writer = writer;
         }
 
+        /// <inheritdoc />
         public bool Connect(string host, int port)
         {
             if (!_initialized.CompareAndSet(false, true))
             {
                 Log.Warning(this, "Tried to Connect using existing connection. Call Close() first.");
+                return false;
+            }
+
+            HostName hostName;
+            try
+            {
+                hostName = new HostName(host);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(this, $"Invalid hostname: {0}.", ex);
+
+                SilentClose();
                 return false;
             }
             
@@ -66,7 +130,7 @@ namespace CreateAR.EnkluPlayer
 
             try
             {
-                ConnectWith(_socket, host, port).Wait(ConnectionTimeout);
+                ConnectWith(_socket, hostName, port).Wait(ConnectionTimeout);
             }
             catch (Exception exception)
             {
@@ -76,11 +140,13 @@ namespace CreateAR.EnkluPlayer
                 return false;
             }
             
+            // start socket reader thread
             ThreadHelper.SyncStart(ReadSocket);
 
             return true;
         }
         
+        /// <inheritdoc />
         public bool Send(byte[] message, int offset, int len)
         {
             try
@@ -97,27 +163,35 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
-        /// <summary>
-        /// Closes the TCP connection and stops the socket reading thread.
-        /// </summary>
+        /// <inheritdoc />
         public void Close()
         {
             Close(true, false);
         }
 
+        /// <summary>
+        /// Closes the connection without dispatching.
+        /// </summary>
         private void SilentClose()
         {
             Close(false, false);
         }
 
-        private async Task ConnectWith(StreamSocket socket, string host, int port)
+        /// <summary>
+        /// Connects asynchronously.
+        /// </summary>
+        /// <param name="socket">The socket to connect with.</param>
+        /// <param name="hostName">The host.</param>
+        /// <param name="port">The port.</param>
+        /// <returns></returns>
+        private async Task ConnectWith(StreamSocket socket, HostName hostName, int port)
         {
-            await socket.ConnectAsync(new HostName(host), port.ToString());
+            await socket.ConnectAsync(hostName, port.ToString());
 
             _dataWriter = new DataWriter(socket.OutputStream);
             _writerStream = new DataWriterNetworkStream(_dataWriter);
         }
-
+        
         /// <summary>
         /// Performs a blocking read from the network stream. This
         /// </summary>
@@ -154,11 +228,17 @@ namespace CreateAR.EnkluPlayer
                     
                     // read payload
                     await reader.LoadAsync(len);
-                    // TODO: figure out a better way to do this
-                    var buffer = reader.ReadBuffer(len).ToArray();
+                    var buffer = reader.ReadBuffer(len);
+
+                    // copy into _readBuffer
+                    if (_readBuffer.Length < buffer.Capacity)
+                    {
+                        _readBuffer = new byte[buffer.Capacity];
+                    }
+                    buffer.CopyTo(_readBuffer);
                     
                     // send to listener
-                    _listener.HandleSocketMessage(new ArraySegment<byte>(buffer, 0, buffer.Length));
+                    _listener.HandleSocketMessage(new ArraySegment<byte>(_readBuffer, 0, _readBuffer.Length));
                 }
             }
             catch (Exception exception)
