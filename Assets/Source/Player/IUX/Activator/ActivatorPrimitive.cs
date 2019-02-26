@@ -31,6 +31,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly TweenConfig _tweens;
         private readonly ColorConfig _colors;
         private readonly IMessageRouter _messages;
+        private readonly MaterialManager _materialManager;
 
         /// <summary>
         /// Target widget.
@@ -55,6 +56,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private ElementSchemaProp<int> _propHighlightPriority;
         private ElementSchemaProp<string> _propActivationType;
         private ElementSchemaProp<bool> _propSliderBehavior;
+        private ElementSchemaProp<string> _propDisplay;
 
         /// <summary>
         /// State management for the button
@@ -239,6 +241,7 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
+            MaterialManager materialManager,
             Widget target)
             : base(
                 new GameObject("Activator"),
@@ -252,6 +255,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _tweens = tweens;
             _layers = layers;
             _colors = colors;
+            _materialManager = materialManager;
             _messages = messages;
             _target = target;
         }
@@ -434,6 +438,9 @@ namespace CreateAR.EnkluPlayer.IUX
             _propActivationType = Schema.GetOwn("activation.type", ActivationType.Fill.ToString());
             _renderer.Activation = EnumExtensions.Parse<ActivationType>(_propActivationType.Value);
             _propSliderBehavior = Schema.GetOwn("activation.slider", false);
+
+            _propDisplay = Schema.Get<string>("display");
+            _renderer.Frame.Material = _materialManager.Material(this, _propDisplay.Value);
 
             Schema.Get<string>("ready.color").OnChanged += (prop, p, n) => _renderer.UpdateProps();
         }

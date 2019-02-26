@@ -152,6 +152,17 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Defines how far text pushes backwards as it fades as multiple of CrawlFadeOutOffset.
         /// </summary>
         public float CrawlFadeOutDepthScale = 5.0f;
+
+        [Header("Resources")] 
+        public Material TextOverlay;
+
+        public Material TextOccluded;
+
+        public Material TextHidden;
+
+        public Material ButtonOverlay;
+
+        public Material ButtonOccluded;
         
         /// <summary>
         /// Text prefab.

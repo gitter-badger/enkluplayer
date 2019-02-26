@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using strange.extensions.injector.impl;
 using Source.Player.IUX;
 using UnityEngine;
+using MaterialManager = CreateAR.EnkluPlayer.IUX.MaterialManager;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.EnkluPlayer
@@ -583,6 +584,8 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                     binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
                 }
+
+                binder.Bind<MaterialManager>().ToSingleton();
             }
 
             // design
