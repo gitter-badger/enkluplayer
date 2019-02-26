@@ -138,26 +138,11 @@ namespace CreateAR.EnkluPlayer
             _scenePatcher = new ScenePatcher(scenes, patcherFactory);
             _sceneHandler = new SceneEventHandler(_elements, _scenePatcher);
         }
-        
+
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize()
         {
-            if (null != _connect)
-            {
-                return _connect.Token();
-            }
-
-            _connect = new AsyncToken<Void>();
-
-            Log.Info(this, "Requesting multiplayer access token.");
-
-            // start polling the message queue
-            StartPoll();
-
-            // first, request  multiplayer token
-            GetMultiplayerToken();
-
-            return _connect.Token();
+            return Connect();
         }
 
         /// <inheritdoc />
@@ -187,6 +172,29 @@ namespace CreateAR.EnkluPlayer
                     _sceneHandler.OnUpdated(_sceneEventBuffer[i]);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets a multiplayer token and connects to mycelium.
+        /// </summary>
+        private IAsyncToken<Void> Connect()
+        {
+            if (null != _connect)
+            {
+                return _connect.Token();
+            }
+
+            _connect = new AsyncToken<Void>();
+
+            Log.Info(this, "Requesting multiplayer access token.");
+
+            // start polling the message queue
+            StartPoll();
+
+            // first, request  multiplayer token
+            GetMultiplayerToken();
+
+            return _connect.Token();
         }
 
         /// <inheritdoc />
@@ -586,7 +594,7 @@ namespace CreateAR.EnkluPlayer
             Verbose("Wrote {0} bytes.", stream.WriterIndex);
 
             _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
-            
+
             // return buffer
             _buffers.Put(buffer);
         }
