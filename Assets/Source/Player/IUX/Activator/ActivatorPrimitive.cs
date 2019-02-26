@@ -440,7 +440,11 @@ namespace CreateAR.EnkluPlayer.IUX
             _propSliderBehavior = Schema.GetOwn("activation.slider", false);
 
             _propDisplay = Schema.Get<string>("display");
-            _renderer.Frame.Material = _materialManager.Material(this, _propDisplay.Value);
+            var displayType = _propDisplay.Value;
+            if (!string.IsNullOrEmpty(displayType))
+            {
+                _renderer.Frame.Renderer.material = _materialManager.Material(this, _propDisplay.Value);
+            }
 
             Schema.Get<string>("ready.color").OnChanged += (prop, p, n) => _renderer.UpdateProps();
         }

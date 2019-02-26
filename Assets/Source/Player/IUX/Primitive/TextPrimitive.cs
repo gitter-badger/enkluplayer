@@ -297,7 +297,11 @@ namespace CreateAR.EnkluPlayer.IUX
 
             _propDisplay = Schema.Get<string>("display");
             _propDisplay.OnChanged += Display_OnChanged;
-            _renderer.Text.material = _materialManager.Material(this, _propDisplay.Value);
+            var displayType = _propDisplay.Value;
+            if (!string.IsNullOrEmpty(displayType))
+            {
+                _renderer.Text.material = _materialManager.Material(this, _propDisplay.Value);
+            }
         }
 
         /// <inheritdoc cref="Element"/>
