@@ -78,7 +78,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// True iff we are queueing rather than dispatching to subscriptions.
         /// </summary>
-        private bool _isQueueingEvents = false;
+        private bool _isQueueingMessages = false;
 
         /// <summary>
         /// The main thread copies events into this buffer from _eventWaitBuffer.
@@ -147,7 +147,7 @@ namespace CreateAR.EnkluPlayer
             Log.Info(this, "Requesting multiplayer access token.");
 
             // make sure we are buffering events
-            StartBufferingEvents();
+            StartQueueingMessages();
 
             // start polling the message queue
             StartPoll();
@@ -182,7 +182,7 @@ namespace CreateAR.EnkluPlayer
                 Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
 
                 // process buffered events
-                StopBufferingEvents();
+                StopQueueingMessages();
             }
         }
         
@@ -502,19 +502,25 @@ namespace CreateAR.EnkluPlayer
             _connect.Succeed(Void.Instance);
         }
 
-        private void StartBufferingEvents()
+        /// <summary>
+        /// Queues messages.
+        /// </summary>
+        private void StartQueueingMessages()
         {
-            _isQueueingEvents = true;
+            _isQueueingMessages = true;
         }
 
-        private void StopBufferingEvents()
+        /// <summary>
+        /// Stops queueing messages and dispatches all queued messages.
+        /// </summary>
+        private void StopQueueingMessages()
         {
-            if (!_isQueueingEvents)
+            if (!_isQueueingMessages)
             {
                 return;
             }
 
-            _isQueueingEvents = false;
+            _isQueueingMessages = false;
 
             var copy = _eventQueue.ToArray();
             _eventQueue.Clear();
@@ -532,7 +538,7 @@ namespace CreateAR.EnkluPlayer
         private void Handle(object message)
         {
             // login can sneak by queue
-            if (!(message is LoginResponse) && _isQueueingEvents)
+            if (!(message is LoginResponse) && _isQueueingMessages)
             {
                 _eventQueue.Add(message);
 
