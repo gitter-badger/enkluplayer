@@ -1,4 +1,5 @@
-﻿namespace CreateAR.EnkluPlayer
+﻿#if !NETFX_CORE
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Standard implementation.
@@ -14,3 +15,4 @@
         }
     }
 }
+#endif
