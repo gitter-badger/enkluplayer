@@ -105,3 +105,13 @@ Remaining options are grouped into sub-objects.
 | DisableVoiceLock | false         | If true, disables "debug" lock on voice commands. |
 | DisableAdminLock | false         | If true, disables additional "admin" lock on admin voice commands. |
 | DumpEmail        | ""            | If set, log dumps collected through the trace voice commands will be sent here. |
+
+##### Snap
+
+| Name             | Default Value | Description |
+|------------------|---------------|-------------|
+| MaxVideoUploads  | 3             | The maximum number of failed video uploads to keep on disk. |
+| MaxImageUploads  | 3             | The maximum number of failed image uploads to keep on disk. |
+| FailureDelayMilliseconds | 30000 | The delay to wait before uploading a file if there was a failure uploading. |
+| VideoFolder      | "videos"      | The root folder videos will be stored at under the app's datapath. |
+| ImageFolder      | "images"      | The root folder images will be stored at under the app's datapath. |

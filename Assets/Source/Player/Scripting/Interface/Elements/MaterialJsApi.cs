@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
+using Jint.Runtime;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting

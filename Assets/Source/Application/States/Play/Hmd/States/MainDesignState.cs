@@ -122,6 +122,21 @@ namespace CreateAR.EnkluPlayer
         private int _loggingHudId;
 
         /// <summary>
+        /// UI id for the experience hud.
+        /// </summary>
+        private int _experienceHudId;
+
+        /// <summary>
+        /// UI id for the network hud.
+        /// </summary>
+        private int _networkHudId;
+
+        /// <summary>
+        /// UI id for the anchors hud.
+        /// </summary>
+        private int _anchorsHudId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public MainDesignState(
@@ -312,13 +327,16 @@ namespace CreateAR.EnkluPlayer
                     el.OnBack += MainMenu_OnBack;
                     el.OnNew += MainMenu_OnNew;
                     el.OnExperience += MainMenu_OnExperience;
-                    el.OnLoggingHud += MainMenu_OnLoggingHud;
                     el.OnResetData += MainMenu_OnResetData;
                     el.OnClearAnchors += MainMenu_OnClearAnchors;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.OnDeviceRegistration += MainMenu_OnDeviceRegistration;
                     el.OnSignout += MainMenu_OnSignout;
+                    el.OnLoggingHud += MainMenu_OnLoggingHud;
                     el.OnMetricsHud += MainMenu_OnMetricsHud;
+                    el.OnExperienceHud += MainMenu_OnExperienceHud;
+                    el.OnNetworkHud += MainMenu_OnNetworkHud;
+                    el.OnAnchorsHud += MainMenu_OnAnchorsHud;
 
                     // find root
                     var id = _scenes.All.FirstOrDefault();
@@ -612,6 +630,63 @@ namespace CreateAR.EnkluPlayer
                 .OnSuccess(el =>
                 {
                     el.OnClose += () => _ui.Close(_perfHudId);
+                });
+
+            CloseMainMenu();
+            OpenSplashMenu();
+        }
+
+        /// <summary>
+        /// Called when the experience hud should be opened.
+        /// </summary>
+        private void MainMenu_OnExperienceHud()
+        {
+            _ui
+                .OpenOverlay<ExperienceUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.EXPERIENCE
+                }, out _experienceHudId)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(_experienceHudId);
+                });
+
+            CloseMainMenu();
+            OpenSplashMenu();
+        }
+
+        /// <summary>
+        /// Called when the network hud should be opened.
+        /// </summary>
+        private void MainMenu_OnNetworkHud()
+        {
+            _ui
+                .OpenOverlay<NetworkUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.NETWORK
+                }, out _networkHudId)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(_networkHudId);
+                });
+
+            CloseMainMenu();
+            OpenSplashMenu();
+        }
+
+        /// <summary>
+        /// Called when the anchors hud should be opened.
+        /// </summary>
+        private void MainMenu_OnAnchorsHud()
+        {
+            _ui
+                .OpenOverlay<AnchorUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.ANCHORS
+                }, out _anchorsHudId)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(_anchorsHudId);
                 });
 
             CloseMainMenu();

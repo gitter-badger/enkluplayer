@@ -1,0 +1,36 @@
+<?Vine>
+
+<Float id='flt-root' focus.visible=false>
+    <Container id='ctn-offset' position=(0.3, 0, 0)>
+        <Button id='btn-close' label='Close' position=(0, 0.2, 0) icon='arrow-left' ready.color='Negative' />
+
+        <Select id='slt-tab' position=(0, 0.1, 0)>
+            <Option label='Assets' value='assets' />
+            <Option label='Scripts' value='scripts' />
+            <Option label='World Anchors' value='anchors' />
+        </Select>
+
+        <Container id='tab-assets'>
+            <Container id='assets-list' />
+        </Container>
+
+        <Container id='tab-scripts' visible=false>
+            <Container id='scripts-list' />
+        </Container>
+
+        <Container id='tab-anchors' visible=false>
+            <Text
+                width=1400.0
+                alignment='TopLeft'
+                fontSize=60
+                position=(0.04, -0.06, 0)
+                label='Attention: Once world anchors have been destroyed, the scene will need to be reloaded to get them back.' />
+            <Button
+                id='btn-anchors'
+                label='Destroy Anchors'
+                icon='trash'
+                ready.color='Negative'
+            />
+        </Container>
+    </Container>
+</Float>

@@ -32,6 +32,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IWorldAnchorProvider _provider;
         private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
+        private readonly IScriptingHostFactory _scriptHostFactory;
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
         private readonly IQrReaderService _qr;
@@ -67,6 +68,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IWorldAnchorProvider provider,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
+            IScriptingHostFactory scriptHostFactory,
             IAssetManager assets,
             IAssetPoolManager pools,
             IQrReaderService qr,
@@ -100,6 +102,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _provider = provider;
             _resolver = resolver;
             _scripts = scripts;
+            _scriptHostFactory = scriptHostFactory;
             _assets = assets;
             _pools = pools;
             _qr = qr;
@@ -118,10 +121,14 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Constructor for tests. Not to be used in production code.
         /// </summary>
-        public ElementFactory(IElementManager elements, IGizmoManager gizmos)
+        public ElementFactory(
+            IElementManager elements,
+            IGizmoManager gizmos,
+            ElementSchemaDefaults defaults)
         {
             _elements = elements;
             _gizmos = gizmos;
+            _elementSchemaDefaults = defaults;
         }
 
         /// <inheritdoc />
@@ -255,6 +262,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         new AssetAssembler(_assets, _appConfig.Play),
                         _resolver,
                         _scripts,
+                        _scriptHostFactory,
                         _jsCache,
                         _elementJsFactory);
                 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using CreateAR.Commons.Unity.Http;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -6,37 +7,33 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// Forwards performance metrics to graphite.
     /// </summary>
-    public class PerfMetricsCollector : MonoBehaviour
+    public class PerfMetricsCollector
     {
-        /// <summary>
-        /// Metrics.
-        /// </summary>
-        private IMetricsService _metrics;
-
-        /// <summary>
-        /// Monitors metrics.
-        /// </summary>
-        private PerfMonitor _monitor;
-
         /// <summary>
         /// Cached metrics.
         /// </summary>
-        private ValueMetric _frameTime;
-        private ValueMetric _memory;
+        private readonly ValueMetric _frameTime;
+        private readonly ValueMetric _memory;
 
         /// <summary>
-        /// Starts the object.
+        /// The underlying performance monitor.
         /// </summary>
-        /// <param name="metrics">The metrics object.</param>
-        public void Initialize(IMetricsService metrics)
+        public PerfMonitor PerfMonitor { get; private set; }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public PerfMetricsCollector(
+            IMetricsService metrics,
+            IBootstrapper bootstrapper)
         {
-            _metrics = metrics;
-            _monitor = gameObject.AddComponent<PerfMonitor>();
+            PerfMonitor = new GameObject("PerfMonitor").AddComponent<PerfMonitor>();
 
-            _frameTime = _metrics.Value(MetricsKeys.PERF_FRAMETIME);
-            _memory = _metrics.Value(MetricsKeys.PERF_MEMORY);
+            // get references to the metrics
+            _frameTime = metrics.Value(MetricsKeys.PERF_FRAMETIME);
+            _memory = metrics.Value(MetricsKeys.PERF_MEMORY);
 
-            StartCoroutine(TakeSnapshot());
+            bootstrapper.BootstrapCoroutine(TakeSnapshot());
         }
 
         /// <summary>
@@ -50,8 +47,8 @@ namespace CreateAR.EnkluPlayer
 
             while (true)
             {
-                _frameTime.Value(_monitor.FrameTime.AverageMs);
-                _memory.Value(_monitor.Memory.Allocated);
+                _frameTime.Value(PerfMonitor.FrameTime.AverageMs);
+                _memory.Value(PerfMonitor.Memory.Allocated);
 
                 yield return new WaitForSecondsRealtime(5f);
             }

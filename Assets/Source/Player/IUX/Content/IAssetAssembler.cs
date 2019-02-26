@@ -17,7 +17,7 @@ namespace CreateAR.EnkluPlayer
         /// The assembled GameObject.
         /// </summary>
         GameObject Assembly { get; }
-
+        
         /// <summary>
         /// Called when the assembly has been updated.
         /// </summary>

@@ -50,6 +50,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IAssetAssembler _assembler;
 
         /// <summary>
+        /// Creates scripting host instances.
+        /// </summary>
+        private readonly IScriptingHostFactory _scriptHostFactory;
+
+        /// <summary>
         /// Caches elements.
         /// </summary>
         private readonly IElementJsCache _jsCache;
@@ -120,6 +125,7 @@ namespace CreateAR.EnkluPlayer
             IAssetAssembler assembler,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
+            IScriptingHostFactory scriptHostFactory,
             IElementJsCache cache,
             IElementJsFactory elementFactory)
             : base(
@@ -130,6 +136,7 @@ namespace CreateAR.EnkluPlayer
         {
             _resolver = resolver;
             _scripts = scripts;
+            _scriptHostFactory = scriptHostFactory;
             _assembler = assembler;
             _jsCache = cache;
             _elementJsFactory = elementFactory;
@@ -166,8 +173,7 @@ namespace CreateAR.EnkluPlayer
             if (null == _runner)
             {
                 _runner = new ScriptCollectionRunner(
-                    _scripts,
-                    _resolver,
+                    _scriptHostFactory,
                     _jsCache,
                     _elementJsFactory,
                     GameObject,

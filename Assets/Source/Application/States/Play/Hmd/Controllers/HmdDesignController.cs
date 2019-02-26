@@ -6,7 +6,6 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateScene;
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -77,7 +76,7 @@ namespace CreateAR.EnkluPlayer
         private bool _setupEdit;
 
         /// <summary>
-        /// Origin Reference Gameobject
+        /// Origin Reference GameObject.
         /// </summary>
         private GameObject _referenceCube;
 
@@ -113,7 +112,7 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <summary>
-        /// Constuctor.
+        /// Constructor.
         /// </summary>
         public HmdDesignController(
             ApplicationConfig config,
