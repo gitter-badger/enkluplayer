@@ -56,11 +56,6 @@ namespace CreateAR.EnkluPlayer
             () => new ByteArrayHandle(1024));
 
         /// <summary>
-        /// Buffers events until we're fully connected.
-        /// </summary>
-        private readonly List<UpdateElementEvent> _sceneEventBuffer = new List<UpdateElementEvent>();
-
-        /// <summary>
         /// Handles scene events.
         /// </summary>
         private readonly SceneEventHandler _sceneHandler;
@@ -76,10 +71,20 @@ namespace CreateAR.EnkluPlayer
         private readonly Dictionary<Type, Delegate> _subscriptions = new Dictionary<Type, Delegate>();
 
         /// <summary>
+        /// Buffers events until we're fully connected.
+        /// </summary>
+        private readonly List<object> _eventQueue = new List<object>();
+
+        /// <summary>
         /// Buffer that read thread pushes messages onto. Main thread polls for
         /// messages to execute on main thread.
         /// </summary>
-        private readonly List<object> _eventWaitBuffer = new List<object>();
+        private readonly List<object> _synchronizationBuffer = new List<object>();
+
+        /// <summary>
+        /// True iff we are queueing rather than dispatching to subscriptions.
+        /// </summary>
+        private bool _isQueueingMessages = false;
 
         /// <summary>
         /// The main thread copies events into this buffer from _eventWaitBuffer.
@@ -110,6 +115,11 @@ namespace CreateAR.EnkluPlayer
         /// Id of the current poll.
         /// </summary>
         private int _pollId;
+
+        /// <summary>
+        /// Flag whether or not the connection has been closed.
+        /// </summary>
+        private bool _isConnectionClosed = false;
 
         /// <inheritdoc />
         public bool IsConnected
@@ -142,6 +152,17 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize()
         {
+            if (null != _connect)
+            {
+                return _connect.Token();
+            }
+
+            // make sure we are buffering events
+            StartQueueingMessages();
+
+            // start polling the message queue
+            StartPoll();
+
             return Connect();
         }
 
@@ -158,19 +179,18 @@ namespace CreateAR.EnkluPlayer
             {
                 _sceneHandler.Initialize();
 
-                // stop buffering events and forward them to the scene handler
+                // forward events to scene handler
                 Subscribe<UpdateElementVec3Event>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementCol4Event>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementIntEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementFloatEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementStringEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementBoolEvent>(_sceneHandler.OnUpdated);
+                Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
+                Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
 
-                // forward buffered events to the scene handler
-                for (int i = 0, len = _sceneEventBuffer.Count; i < len; i++)
-                {
-                    _sceneHandler.OnUpdated(_sceneEventBuffer[i]);
-                }
+                // process buffered events
+                StopQueueingMessages();
             }
         }
 
@@ -187,14 +207,57 @@ namespace CreateAR.EnkluPlayer
             _connect = new AsyncToken<Void>();
 
             Log.Info(this, "Requesting multiplayer access token.");
-
-            // start polling the message queue
-            StartPoll();
-
-            // first, request  multiplayer token
             GetMultiplayerToken();
 
             return _connect.Token();
+        }
+
+        /// <summary>
+        /// Reacquire multiplayer token and reconnect to mycelium
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<Void> Reconnect()
+        {
+            // Cleanup Tcp Connection
+            if (null != _tcp)
+            {
+                // Remove listener and explicit
+                _tcp.OnConnectionClosed -= OnConnectionClosed;
+                try
+                {
+                    _tcp.Close();
+                }
+                catch (Exception e)
+                {
+                    // This is not indicative of an actual problem, but ensures we we flush buffers,
+                    // and cleanup threads
+                    Verbose("Caught exception during force close on TcpConnection: {0}", e);
+                }
+
+                _tcp = null;
+            }
+
+            // Reset Connection token
+            if (null != _connect)
+            {
+                // This case might be possible. Just ensure we pass the error along.
+                // Or we could Abort()?
+                _connect.Fail(new Exception("Attempted Reconnection during Connect."));
+            }
+            _connect = null;
+
+            return Connect();
+        }
+
+        /// <summary>
+        /// Handle disconnection from server.
+        /// </summary>
+        private void OnConnectionClosed(bool resetByPeer)
+        {
+            Log.Debug(this, "OnConnectionClosed[ResetByPeer: {0}]", resetByPeer);
+
+            // Flip flag and allow Poll() to handle
+            _isConnectionClosed = true;
         }
 
         /// <inheritdoc />
@@ -215,7 +278,7 @@ namespace CreateAR.EnkluPlayer
             _subscriptions.Clear();
 
             // kill scene handler
-            _sceneHandler.Initialize();
+            _sceneHandler.Uninitialize();
 
             StopPoll();
         }
@@ -292,6 +355,8 @@ namespace CreateAR.EnkluPlayer
             // if the request could not be sent, set a timer to flip it back
             if (!reqSent)
             {
+                Log.Info(this, "Mycelium is not connected: Use local AutoToggle.");
+
                 _bootstrapper.BootstrapCoroutine(Wait(
                     milliseconds / 1000f,
                     () => element.Schema.Set(prop, !value)));
@@ -328,9 +393,9 @@ namespace CreateAR.EnkluPlayer
             }
 
             // push to main thread
-            lock (_eventWaitBuffer)
+            lock (_synchronizationBuffer)
             {
-                _eventWaitBuffer.Add(message);
+                _synchronizationBuffer.Add(message);
             }
         }
 
@@ -396,19 +461,7 @@ namespace CreateAR.EnkluPlayer
             {
                 Log.Info(this, "Connected to mycelium.");
 
-                // before we login, make sure we're buffering events
-                Subscribe<UpdateElementVec3Event>(OnBufferEvent);
-                Subscribe<UpdateElementCol4Event>(OnBufferEvent);
-                Subscribe<UpdateElementIntEvent>(OnBufferEvent);
-                Subscribe<UpdateElementFloatEvent>(OnBufferEvent);
-                Subscribe<UpdateElementStringEvent>(OnBufferEvent);
-                Subscribe<UpdateElementBoolEvent>(OnBufferEvent);
-
-                // ... and listen for the scene diff
-                Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
-
-                // ... and listen to map updates
-                Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
+                _tcp.OnConnectionClosed += OnConnectionClosed;
 
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
@@ -426,9 +479,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void StartPoll()
         {
-            lock (_eventWaitBuffer)
+            lock (_synchronizationBuffer)
             {
-                _eventWaitBuffer.Clear();
+                _synchronizationBuffer.Clear();
             }
 
             _bootstrapper.BootstrapCoroutine(Poll());
@@ -447,9 +500,9 @@ namespace CreateAR.EnkluPlayer
                 yield return null;
 
                 // copy events
-                lock (_eventWaitBuffer)
+                lock (_synchronizationBuffer)
                 {
-                    _eventExecutionBufferLen = _eventWaitBuffer.Count;
+                    _eventExecutionBufferLen = _synchronizationBuffer.Count;
 
                     // grow
                     while (_eventExecutionBuffer.Length < _eventExecutionBufferLen)
@@ -460,16 +513,32 @@ namespace CreateAR.EnkluPlayer
                     // copy
                     for (var i = 0; i < _eventExecutionBufferLen; i++)
                     {
-                        _eventExecutionBuffer[i] = _eventWaitBuffer[i];
+                        _eventExecutionBuffer[i] = _synchronizationBuffer[i];
                     }
 
-                    _eventWaitBuffer.Clear();
+                    _synchronizationBuffer.Clear();
                 }
 
                 // handle events
                 for (var i = 0; i < _eventExecutionBufferLen; i++)
                 {
                     Handle(_eventExecutionBuffer[i]);
+                }
+
+                // check for flagged connection close
+                if (_isConnectionClosed)
+                {
+                    // Reset Flag, Reconnect
+                    _isConnectionClosed = false;
+                    Reconnect()
+                        .OnSuccess(_ =>
+                        {
+                            Log.Debug(this, "Reconnect Successful");
+                        })
+                        .OnFailure(e =>
+                        {
+                            Log.Debug(this, "Reconnection Failed: {0}", e);
+                        });
                 }
             }
         }
@@ -514,15 +583,6 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Called when an message is received but we are not ready for it yet, so we buffer it.
-        /// </summary>
-        /// <param name="evt"></param>
-        private void OnBufferEvent(UpdateElementEvent evt)
-        {
-            _sceneEventBuffer.Add(evt);
-        }
-
-        /// <summary>
         /// Called when we receive a response from login.
         /// </summary>
         /// <param name="res">The response.</param>
@@ -535,10 +595,56 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Queues messages.
+        /// </summary>
+        private void StartQueueingMessages()
+        {
+            _isQueueingMessages = true;
+        }
+
+        /// <summary>
+        /// Stops queueing messages and dispatches all queued messages.
+        /// </summary>
+        private void StopQueueingMessages()
+        {
+            if (!_isQueueingMessages)
+            {
+                return;
+            }
+
+            _isQueueingMessages = false;
+
+            var copy = _eventQueue.ToArray();
+            _eventQueue.Clear();
+
+            for (int i = 0, len = copy.Length; i < len; i++)
+            {
+                Dispatch(copy[i]);
+            }
+        }
+
+        /// <summary>
         /// Handles a message.
         /// </summary>
         /// <param name="message">The message to handle.</param>
         private void Handle(object message)
+        {
+            // login can sneak by queue
+            if (!(message is LoginResponse) && _isQueueingMessages)
+            {
+                _eventQueue.Add(message);
+
+                return;
+            }
+
+            Dispatch(message);
+        }
+
+        /// <summary>
+        /// Dispatches event to handler.
+        /// </summary>
+        /// <param name="message">The message</param>
+        private void Dispatch(object message)
         {
             var type = message.GetType();
             Delegate handler;

@@ -32,6 +32,7 @@ namespace CreateAR.EnkluPlayer
         public void Write(byte[] buffer, int offset, int len)
         {
             _writer.WriteBuffer(buffer.AsBuffer(), (uint) offset, (uint) len);
+            _writer.StoreAsync();
         }
     }
 
@@ -123,6 +124,8 @@ namespace CreateAR.EnkluPlayer
                 SilentClose();
                 return false;
             }
+
+            Verbose("Connect: Create socket.");
             
             _socket = new StreamSocket();
             _socket.Control.KeepAlive = true;
@@ -130,6 +133,8 @@ namespace CreateAR.EnkluPlayer
 
             try
             {
+                Verbose("Connect: Connect.");
+
                 ConnectWith(_socket, hostName, port).Wait(ConnectionTimeout);
             }
             catch (Exception exception)
@@ -139,10 +144,14 @@ namespace CreateAR.EnkluPlayer
 
                 return false;
             }
-            
+
+            Verbose("Connect: Start reader thread.");
+
             // start socket reader thread
             ThreadHelper.SyncStart(ReadSocket);
 
+            Verbose("Connect: Complete.");
+            
             return true;
         }
         
@@ -190,6 +199,10 @@ namespace CreateAR.EnkluPlayer
 
             _dataWriter = new DataWriter(socket.OutputStream);
             _writerStream = new DataWriterNetworkStream(_dataWriter);
+
+            Verbose("ConnectWith: Created writer.");
+
+            IsConnected = true;
         }
         
         /// <summary>
@@ -218,6 +231,8 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
+            Verbose("ReadSocket: Created reader.");
+
             try
             {
                 while (_isReading.Get())
@@ -236,9 +251,20 @@ namespace CreateAR.EnkluPlayer
                         _readBuffer = new byte[buffer.Capacity];
                     }
                     buffer.CopyTo(_readBuffer);
-                    
-                    // send to listener
-                    _listener.HandleSocketMessage(new ArraySegment<byte>(_readBuffer, 0, _readBuffer.Length));
+
+                    Verbose("ReadSocket: Read message payload.");
+
+                    // don't let the handler kill the reader
+                    try
+                    {
+                        _listener.HandleSocketMessage(new ArraySegment<byte>(
+                            _readBuffer,
+                            0, _readBuffer.Length));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(this, "Socket listener threw an exception: {0}.", ex);
+                    }
                 }
             }
             catch (Exception exception)
@@ -257,7 +283,6 @@ namespace CreateAR.EnkluPlayer
             }
         }
         
-
         /// <summary>
         /// Internal close which can optionally dispatch.
         /// </summary>
@@ -292,6 +317,14 @@ namespace CreateAR.EnkluPlayer
             {
                 OnConnectionClosed?.Invoke(closedStream);
             }
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        private void Verbose(string format, params object[] replacements)
+        {
+            Log.Info(this, format, replacements);
         }
     }
 }

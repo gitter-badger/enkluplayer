@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -134,9 +135,15 @@ namespace CreateAR.EnkluPlayer
                     Log.Info(this, "Adding HostedGraphiteMetricsTarget.");
 
                     var target = _binder.GetInstance<IHostedGraphiteMetricsTarget>();
-                    target.Setup(config.Hostname, config.ApplicationKey);
-
-                    metrics.AddTarget(target);
+                    try
+                    {
+                        target.Setup(config.Hostname, config.ApplicationKey);
+                        metrics.AddTarget(target);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(this, "Could not setup HostedGraphiteMetricsTarget: {0}", ex);
+                    }
                 }
 
                 if (targets.Contains(FileMetricsTarget.TYPE))
