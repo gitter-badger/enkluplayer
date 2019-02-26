@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
+using Enklu.Data;
 using NUnit.Framework;
 
 namespace CreateAR.EnkluPlayer.Test.Vine
@@ -65,7 +66,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
 
             Assert.AreEqual("Nbd", processed);
         }
-        
+
         [Test]
         public void Script()
         {
@@ -73,7 +74,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
 
             Assert.AreEqual("foo", processed);
         }
-        
+
         [Test]
         public void Script_Loop()
         {

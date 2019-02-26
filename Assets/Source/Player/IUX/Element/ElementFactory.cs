@@ -6,6 +6,7 @@ using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Source.Player.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -151,7 +152,7 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 children[i] = Element(childData[i]);
             }
-            
+
             // element
             var schema = new ElementSchema(data.Id);
             schema.Load(data.Schema);
@@ -270,13 +271,13 @@ namespace CreateAR.EnkluPlayer.IUX
                 case ElementTypes.WORLD_ANCHOR:
                 {
                     return new WorldAnchorWidget(
-                        new GameObject("WorldAnchor"), 
-                        _layers, 
-                        _tweens, 
-                        _colors, 
-                        _http, 
-                        _provider, 
-                        _metrics, 
+                        new GameObject("WorldAnchor"),
+                        _layers,
+                        _tweens,
+                        _colors,
+                        _http,
+                        _provider,
+                        _metrics,
                         _messages,
                         _bootstrapper,
                         _appConfig);

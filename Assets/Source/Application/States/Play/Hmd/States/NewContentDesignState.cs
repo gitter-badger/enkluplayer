@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -13,7 +14,7 @@ namespace CreateAR.EnkluPlayer
         /// Manages UI.
         /// </summary>
         private readonly IUIManager _ui;
-        
+
         /// <summary>
         /// Design controller.
         /// </summary>
@@ -51,13 +52,13 @@ namespace CreateAR.EnkluPlayer
         {
             _design = design;
         }
-        
+
         /// <inheritdoc />
         public void Uninitialize()
         {
-            // 
+            //
         }
-        
+
         /// <inheritdoc />
         public void Enter(object context)
         {
@@ -71,7 +72,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            
+
         }
 
         /// <inheritdoc />
@@ -171,7 +172,7 @@ namespace CreateAR.EnkluPlayer
         private void Place_OnConfirm(ElementData contentData)
         {
             ClosePlacement();
-            
+
             // TODO: progress indicator
 
             // create!
@@ -193,7 +194,7 @@ namespace CreateAR.EnkluPlayer
                     _design.ChangeState<MainDesignState>();
                 });
         }
-        
+
         /// <summary>
         /// Called when the place menu wants to cancel placement.
         /// </summary>

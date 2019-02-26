@@ -77,7 +77,7 @@ namespace CreateAR.EnkluPlayer
             {
                 return PreCommit(record, out error);
             }
-            
+
             error = string.Empty;
             return true;
         }
@@ -122,6 +122,9 @@ namespace CreateAR.EnkluPlayer
                     }
                     case ElementActionTypes.UPDATE:
                     {
+                        // TODO: Instead of writing the ElementActionData to a scratch ElementActionUpdateRecord,
+                        // TODO: this could simply call _strategy.ApplyUpdateAction(action) since there's no rollback
+                        // TODO: option?
                         if (!txn.AllowRollback || ApplyActionToUpdateRecord(action, _scratchRecord))
                         {
                             if (!_strategy.ApplyUpdateAction(
@@ -143,7 +146,7 @@ namespace CreateAR.EnkluPlayer
                             // don't finish
                             return;
                         }
-                        
+
                         break;
                     }
                     case ElementActionTypes.MOVE:
@@ -355,7 +358,7 @@ namespace CreateAR.EnkluPlayer
                     // TODO: Pool.
                     var updateRec = new ElementActionUpdateRecord();
 
-                    ApplyActionToUpdateRecord(action, updateRec);   
+                    ApplyActionToUpdateRecord(action, updateRec);
 
                     record.UpdateRecords.Add(updateRec);
                 }
@@ -370,7 +373,7 @@ namespace CreateAR.EnkluPlayer
 
             return record;
         }
-        
+
         /// <summary>
         /// Retrieves an existing transaction record by id.
         /// </summary>
@@ -404,7 +407,7 @@ namespace CreateAR.EnkluPlayer
             }
 
             var precommits = record.UpdateRecords;
-            
+
             // nothing to rollback
             if (0 == precommits.Count)
             {

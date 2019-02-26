@@ -2,8 +2,6 @@
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
-using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
-using ElementSchemaData = CreateAR.EnkluPlayer.IUX.ElementSchemaData;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -70,7 +68,7 @@ namespace CreateAR.EnkluPlayer
             Content.Schema.Set("assetSrc", assetId);
             BtnCancel.Schema.Set("visible", true);
         }
-        
+
         /// <summary>
         /// Called when ok has been activated.
         /// </summary>
@@ -99,7 +97,7 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
             };
-            
+
             if (null != OnConfirm)
             {
                 OnConfirm(element);

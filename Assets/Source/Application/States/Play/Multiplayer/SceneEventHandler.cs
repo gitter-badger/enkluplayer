@@ -16,14 +16,20 @@ namespace CreateAR.EnkluPlayer
         /// Dependencies.
         /// </summary>
         private readonly IElementManager _elements;
-        
+        private readonly ScenePatcher _scenePatcher;
+
         /// <summary>
         /// A simple list of recently used elements.
         /// </summary>
         private readonly List<Element> _elementHeap = new List<Element>();
 
         /// <summary>
-        /// Maps 
+        /// Root element of the scene.
+        /// </summary>
+        private Element _root;
+
+        /// <summary>
+        /// Maps
         /// </summary>
         private ElementMap _map;
 
@@ -50,13 +56,14 @@ namespace CreateAR.EnkluPlayer
                 BuildMapUpdate();
             }
         }
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SceneEventHandler(IElementManager elements)
+        public SceneEventHandler(IElementManager elements, ScenePatcher scenePatcher)
         {
             _elements = elements;
+            _scenePatcher = scenePatcher;
         }
 
         /// <summary>
@@ -71,6 +78,8 @@ namespace CreateAR.EnkluPlayer
                 Elements = new ElementMap.Record[0],
                 Props = new ElementMap.Record[0]
             };
+
+            _scenePatcher.Initialize();
         }
 
         /// <summary>
@@ -139,6 +148,7 @@ namespace CreateAR.EnkluPlayer
             Log.Debug(this, "Diff event received: {0}", evt.Map);
 
             Map = evt.Map;
+            _scenePatcher.Apply(evt.SceneDiff);
         }
 
         /// <summary>
@@ -171,7 +181,7 @@ namespace CreateAR.EnkluPlayer
                 el.Schema.Get<Vec3>(propName).Value = vec3.Value;
                 return;
             }
-            
+
             var fl = evt as UpdateElementFloatEvent;
             if (null != fl)
             {
@@ -252,7 +262,7 @@ namespace CreateAR.EnkluPlayer
 
             return el;
         }
-        
+
         /// <summary>
         /// Builds out fast data structures for map lookups.
         /// </summary>

@@ -4,7 +4,6 @@ using CreateAR.EnkluPlayer.Scripting;
 using Enklu.Data;
 using NUnit.Framework;
 using UnityEngine;
-using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
@@ -212,7 +211,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 if (cachedTriggerElement != null)
                 {
                     Assert.AreNotEqual(cachedTriggerElement, callbackTrigger);
-                    
+
                 }
                 cachedTriggerElement = (ElementJs)callbackTrigger;
 
@@ -307,7 +306,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _proximityChecker.OnEnter = null;
             _proximityChecker.OnStay = null;
             _proximityChecker.OnExit = null;
-            
+
             ElementJs cachedEnterTrigger = null;
             ElementJs cachedStayTrigger = null;
             ElementJs cachedExitTrigger = null;

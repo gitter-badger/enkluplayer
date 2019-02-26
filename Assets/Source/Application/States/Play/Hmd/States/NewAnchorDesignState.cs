@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
+using Enklu.Data;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -15,7 +16,7 @@ namespace CreateAR.EnkluPlayer
         /// Manages UI.
         /// </summary>
         private readonly IUIManager _ui;
-        
+
         /// <summary>
         /// Updater.
         /// </summary>
@@ -73,7 +74,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            // 
+            //
         }
 
         /// <inheritdoc />
@@ -91,7 +92,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Uninitialize()
         {
-            // 
+            //
         }
 
         /// <summary>
@@ -101,7 +102,7 @@ namespace CreateAR.EnkluPlayer
         private IAsyncToken<Void> CreateAnchor(ElementData data)
         {
             var token = new AsyncToken<Void>();
-            
+
             Log.Info(this, "Calculate offsets!");
 
             // append relative coordinates
@@ -128,7 +129,7 @@ namespace CreateAR.EnkluPlayer
 
             return token;
         }
-        
+
         /// <summary>
         /// Called when user wishes to place an anchor in a spot.
         /// </summary>

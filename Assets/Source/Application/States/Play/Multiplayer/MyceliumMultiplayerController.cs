@@ -14,6 +14,7 @@ using Enklu.Mycelium.Messages;
 using Enklu.Mycelium.Messages.Experience;
 using Enklu.Mycerializer;
 using UnityEngine;
+using Enklu.Data;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -27,7 +28,7 @@ namespace CreateAR.EnkluPlayer
         /// Id generator for polls.
         /// </summary>
         private static int _PollIds = 1000;
-        
+
         /// <summary>
         /// Dependencies.
         /// </summary>
@@ -62,6 +63,11 @@ namespace CreateAR.EnkluPlayer
         /// Handles scene events.
         /// </summary>
         private readonly SceneEventHandler _sceneHandler;
+
+        /// <summary>
+        /// Handles patching the current scene with diffs created in a multiplayer environment.
+        /// </summary>
+        private readonly ScenePatcher _scenePatcher;
 
         /// <summary>
         /// Maps message type to the delegate that should handle it.
@@ -110,6 +116,8 @@ namespace CreateAR.EnkluPlayer
         public MyceliumMultiplayerController(
             IBootstrapper bootstrapper,
             IElementManager elements,
+            IAppSceneManager scenes,
+            IElementActionStrategyFactory patcherFactory,
             ApiController api,
             ApplicationConfig config)
         {
@@ -117,7 +125,9 @@ namespace CreateAR.EnkluPlayer
             _elements = elements;
             _api = api;
             _config = config;
-            _sceneHandler = new SceneEventHandler(_elements);
+
+            _scenePatcher = new ScenePatcher(scenes, patcherFactory);
+            _sceneHandler = new SceneEventHandler(_elements, _scenePatcher);
         }
 
         /// <inheritdoc />
@@ -144,7 +154,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void ApplyDiff(IAppDataLoader appData)
         {
-            // TODO: apply diff
+            // _scenePatcher.ApplyTo() ?
         }
 
         /// <inheritdoc />
@@ -153,7 +163,7 @@ namespace CreateAR.EnkluPlayer
             // prep the scene handler
             {
                 _sceneHandler.Initialize();
-                
+
                 // stop buffering events and forward them to the scene handler
                 Subscribe<UpdateElementVec3Event>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementCol4Event>(_sceneHandler.OnUpdated);
@@ -177,13 +187,13 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
-            
+
             _tcp.Close();
             _tcp = null;
 
             _connect.Fail(new Exception("Disconnected."));
             _connect = null;
-            
+
             // unsubscribe everything
             _subscriptions.Clear();
 
@@ -259,7 +269,7 @@ namespace CreateAR.EnkluPlayer
                     });
                 }
             }
-            
+
             // if the request could not be sent, set a timer to flip it back
             if (!reqSent)
             {
@@ -304,7 +314,7 @@ namespace CreateAR.EnkluPlayer
                 _eventWaitBuffer.Add(message);
             }
         }
-        
+
         /// <summary>
         /// Subscribes to a message.
         /// </summary>
@@ -314,7 +324,7 @@ namespace CreateAR.EnkluPlayer
         {
             _subscriptions[typeof(T)] = callback;
         }
-        
+
         /// <summary>
         /// Attempts to retrieve a multiplayer token.
         /// </summary>
@@ -393,7 +403,7 @@ namespace CreateAR.EnkluPlayer
                 _connect.Succeed(Void.Instance);
             }
         }
-        
+
         /// <summary>
         /// Starts polling for events.
         /// </summary>
@@ -406,7 +416,7 @@ namespace CreateAR.EnkluPlayer
 
             _bootstrapper.BootstrapCoroutine(Poll());
         }
-        
+
         /// <summary>
         /// Polls for events in the buffer.
         /// </summary>
@@ -418,7 +428,7 @@ namespace CreateAR.EnkluPlayer
             while (id == _pollId)
             {
                 yield return null;
-                
+
                 // copy events
                 lock (_eventWaitBuffer)
                 {
@@ -438,7 +448,7 @@ namespace CreateAR.EnkluPlayer
 
                     _eventWaitBuffer.Clear();
                 }
-                
+
                 // handle events
                 for (var i = 0; i < _eventExecutionBufferLen; i++)
                 {
@@ -494,7 +504,7 @@ namespace CreateAR.EnkluPlayer
         {
             _sceneEventBuffer.Add(evt);
         }
-        
+
         /// <summary>
         /// Called when we receive a response from login.
         /// </summary>
@@ -506,7 +516,7 @@ namespace CreateAR.EnkluPlayer
 
             _connect.Succeed(Void.Instance);
         }
-        
+
         /// <summary>
         /// Handles a message.
         /// </summary>

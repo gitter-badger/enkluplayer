@@ -6,7 +6,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
 using UnityEngine;
-using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -30,7 +29,7 @@ namespace CreateAR.EnkluPlayer
         /// Element transactions currently tracked.
         /// </summary>
         private readonly Dictionary<Element, ElementTxn> _transactions = new Dictionary<Element, ElementTxn>();
-        
+
         /// <summary>
         /// Active scene.
         /// </summary>
@@ -175,7 +174,7 @@ namespace CreateAR.EnkluPlayer
                 Log.Warning(this, "Could not Finalize element: no active scene.");
                 return;
             }
-            
+
             var txn = Txn(element);
             if (0 != txn.Actions.Count)
             {
@@ -274,7 +273,7 @@ namespace CreateAR.EnkluPlayer
             // transform to new parent's local space
             var transform = unityElement.GameObject.transform;
             var parentTransform = unityParent.GameObject.transform;
-            
+
             position = parentTransform.worldToLocalMatrix.MultiplyPoint3x4(transform.position).ToVec();
             rotation = (Quaternion.Inverse(parentTransform.rotation) * transform.rotation).eulerAngles.ToVec();
 

@@ -12,7 +12,6 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.GetPublishedAssets;
 using Enklu.Data;
 using UnityEngine;
-using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
 using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
 using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 using Response = CreateAR.Trellis.Messages.GetPublishedScene.Response;
@@ -22,17 +21,17 @@ namespace CreateAR.EnkluPlayer
 {
     /// <inheritdoc />
     public class AppDataLoader : IAppDataLoader
-    {        
+    {
         /// <summary>
         /// Json.
         /// </summary>
         private readonly JsonSerializer _json = new JsonSerializer();
-        
+
         /// <summary>
         /// API.
         /// </summary>
         private readonly ApiController _api;
-        
+
         /// <summary>
         /// Messages.
         /// </summary>
@@ -56,7 +55,7 @@ namespace CreateAR.EnkluPlayer
         /// Data for each loaded scene.
         /// </summary>
         private readonly Dictionary<string, ElementDescription> _sceneData = new Dictionary<string, ElementDescription>();
-        
+
         /// <summary>
         /// Tokens used by the initial load behavior.
         /// </summary>
@@ -215,7 +214,7 @@ namespace CreateAR.EnkluPlayer
             _sceneLoads.Clear();
             _sceneData.Clear();
         }
-        
+
         /// <summary>
         /// Updates app data.
         /// </summary>
@@ -227,18 +226,18 @@ namespace CreateAR.EnkluPlayer
 
             // Setup primary behavior downloads
             _primaryLoadToken = Async.All(
-                    LoadPrerequisites(appId, behavior), 
+                    LoadPrerequisites(appId, behavior),
                     LoadScenes(appId, behavior))
                 .OnSuccess(_ => rtnToken.Succeed(Void.Instance))
                 .OnFailure(rtnToken.Fail)
                 .OnFinally(_ => InvalidateTokens());
-            
+
             // Set delay before giving up on the network load
             if (_networkConfig.DiskFallbackSecs > float.Epsilon && behavior == HttpRequestCacher.LoadBehavior.NetworkFirst)
             {
                 _bootstrapper.BootstrapCoroutine(WaitForLoad(_networkConfig.DiskFallbackSecs, appId, rtnToken));
             }
-            
+
             return rtnToken;
         }
 
@@ -304,7 +303,7 @@ namespace CreateAR.EnkluPlayer
             HttpRequestCacher.LoadBehavior behavior)
         {
             var token = new AsyncToken<Void>();
-            
+
             // get app
             _sceneToken = _helper
                 .Request(
@@ -341,14 +340,14 @@ namespace CreateAR.EnkluPlayer
 
             return token;
         }
-        
+
         /// <summary>
         /// Retrieves AssetData.
         /// </summary>
         private IAsyncToken<Void> GetAssets(string appId, HttpRequestCacher.LoadBehavior behavior)
         {
             var token = new AsyncToken<Void>();
-            
+
             // load from network
             _assetToken = _helper.Request(
                     behavior,
@@ -363,7 +362,7 @@ namespace CreateAR.EnkluPlayer
                     };
 
                     Log.Info(this, "Assets retrieved.");
-                    
+
                     _messages.Publish(
                         MessageTypes.RECV_ASSET_LIST,
                         @event);
@@ -374,7 +373,7 @@ namespace CreateAR.EnkluPlayer
 
             return token;
         }
-        
+
         /// <summary>
         /// Retrieves ScriptData.
         /// </summary>
@@ -396,7 +395,7 @@ namespace CreateAR.EnkluPlayer
                     };
 
                     Log.Info(this, "Scripts retrieved.");
-                    
+
                     _messages.Publish(
                         MessageTypes.RECV_SCRIPT_LIST,
                         @event);
@@ -455,7 +454,7 @@ namespace CreateAR.EnkluPlayer
                             (ElementData) obj
                         }
                     };
-                    
+
                     token.Succeed(description);
                 })
                 .OnFailure(token.Fail);

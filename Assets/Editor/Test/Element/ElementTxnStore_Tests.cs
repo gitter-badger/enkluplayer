@@ -7,10 +7,8 @@ using Enklu.Data;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using ElementData = CreateAR.EnkluPlayer.IUX.ElementData;
 using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
 using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
-using ElementSchemaData = CreateAR.EnkluPlayer.IUX.ElementSchemaData;
 
 namespace CreateAR.EnkluPlayer.Test.Txn
 {
@@ -19,7 +17,7 @@ namespace CreateAR.EnkluPlayer.Test.Txn
     {
         private ElementTxnStore _store;
         private Element _root;
-        
+
         [SetUp]
         public void Setup()
         {
@@ -204,7 +202,7 @@ namespace CreateAR.EnkluPlayer.Test.Txn
                 .Update("aa", "foo", "bar");
 
             string error;
-            
+
             Assert.IsTrue(_store.Request(txn, out error));
             Assert.IsTrue(string.IsNullOrEmpty(error));
 
