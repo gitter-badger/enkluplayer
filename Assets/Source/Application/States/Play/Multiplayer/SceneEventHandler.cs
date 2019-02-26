@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
@@ -287,6 +288,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging.
         /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);

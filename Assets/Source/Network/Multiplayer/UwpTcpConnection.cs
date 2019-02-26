@@ -1,14 +1,356 @@
 ﻿#if NETFX_CORE
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using CreateAR.Commons.Unity.Logging;
+using Enklu.Mycerializer;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Naive implementation of <c>IMessageReader</c> that can read objects
+    /// from a stream.
+    /// </summary>
+    public class UwpReflectionMessageReader : IMessageReader
+    {
+        /// <inheritdoc />
+        public object Read(Type type, IByteStream buffer)
+        {
+            var instance = Activator.CreateInstance(type);
+
+            var fields = type
+                .GetFields(BindingFlags.Instance | BindingFlags.Public)
+                .OrderBy(f => f.Name);
+            foreach (var field in fields)
+            {
+                var fieldType = field.FieldType;
+
+                // detect cycles
+                if (fieldType == type)
+                {
+                    continue;
+                }
+
+                field.SetValue(instance, ReadValue(fieldType, buffer));
+            }
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Reads a specific value from the buffer.
+        /// </summary>
+        /// <param name="fieldType">The type.</param>
+        /// <param name="buffer">The buffer.</param>
+        /// <returns></returns>
+        private object ReadValue(Type fieldType, IByteStream buffer)
+        {
+            // handle primitives
+            if (fieldType.GetTypeInfo().IsPrimitive)
+            {
+                if (typeof(int) == fieldType)
+                {
+                    return buffer.ReadInt();
+                }
+
+                if (typeof(long) == fieldType)
+                {
+                    return buffer.ReadLong();
+                }
+
+                if (typeof(short) == fieldType)
+                {
+                    return buffer.ReadShort();
+                }
+
+                if (typeof(ushort) == fieldType)
+                {
+                    return buffer.ReadUnsignedShort();
+                }
+
+                if (typeof(byte) == fieldType)
+                {
+                    return buffer.ReadByte();
+                }
+
+                if (typeof(char) == fieldType)
+                {
+                    return buffer.ReadChar();
+                }
+
+                if (typeof(float) == fieldType)
+                {
+                    return buffer.ReadFloat();
+                }
+
+                if (typeof(double) == fieldType)
+                {
+                    return buffer.ReadDouble();
+                }
+
+                if (typeof(bool) == fieldType)
+                {
+                    return buffer.ReadBoolean();
+                }
+
+                throw new Exception($"Cannot read primitive type '{fieldType.Name}'. Please switch to a supported primitive type.");
+            }
+
+            // strings
+            if (typeof(string) == fieldType)
+            {
+                // length
+                var len = buffer.ReadUnsignedShort();
+                return buffer.ReadString(len, Encoding.UTF8);
+            }
+
+            // DateTime
+            if (typeof(DateTime) == fieldType)
+            {
+                var kind = (DateTimeKind)buffer.ReadInt();
+                var unixTime = buffer.ReadDouble();
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, kind);
+                return epoch.AddMilliseconds(unixTime);
+            }
+
+            // handle arrays
+            if (fieldType.IsArray)
+            {
+                var len = buffer.ReadUnsignedShort();
+                var elType = fieldType.GetElementType();
+                if (elType != null)
+                {
+                    var arr = Array.CreateInstance(elType, len);
+                    for (var i = 0; i < len; i++)
+                    {
+                        arr.SetValue(ReadValue(elType, buffer), i);
+                    }
+
+                    return arr;
+                }
+
+                throw new Exception("Invalid type information: Array type with no element type.");
+            }
+
+            // handle lists
+            if (fieldType.IsGenericType() && typeof(List<>) == fieldType.GetGenericTypeDefinition())
+            {
+                var len = buffer.ReadUnsignedShort();
+                var elType = fieldType.GetGenericArguments()[0];
+                var list = (IList)Activator.CreateInstance(fieldType);
+                for (var i = 0; i < len; i++)
+                {
+                    list.Add(ReadValue(elType, buffer));
+                }
+
+                return list;
+            }
+
+            // handle composites
+            return Read(fieldType, buffer);
+        }
+    }
+
+    /// <summary>
+    /// Naive implementation of <c>IMessageWriter</c> that uses reflection to
+    /// write objects to a stream.
+    /// </summary>
+    public class UwpReflectionMessageWriter : IMessageWriter
+    {
+        /// <inheritdoc />
+        public void Write(object instance, IByteStream buffer)
+        {
+            var type = instance.GetType();
+            var fields = type
+                .GetFields(BindingFlags.Instance | BindingFlags.Public)
+                .OrderBy(f => f.Name);
+            foreach (var field in fields)
+            {
+                var fieldType = field.FieldType;
+
+                // detect cycles
+                if (fieldType == type)
+                {
+                    continue;
+                }
+
+                WriteValue(fieldType, field.GetValue(instance), buffer);
+            }
+        }
+
+        /// <summary>
+        /// Writes a value to the stream.
+        /// </summary>
+        /// <param name="fieldType">The type.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="buffer">The buffer to write to.</param>
+        private void WriteValue(Type fieldType, object value, IByteStream buffer)
+        {
+            // handle primitives
+            if (fieldType.GetTypeInfo().IsPrimitive)
+            {
+                if (typeof(int) == fieldType)
+                {
+                    buffer.WriteInt((int)value);
+                    return;
+                }
+
+                if (typeof(long) == fieldType)
+                {
+                    buffer.WriteLong((long)value);
+                    return;
+                }
+
+                if (typeof(short) == fieldType)
+                {
+                    buffer.WriteShort((short)value);
+                    return;
+                }
+
+                if (typeof(ushort) == fieldType)
+                {
+                    buffer.WriteUnsignedShort((ushort)value);
+                    return;
+                }
+
+                if (typeof(byte) == fieldType)
+                {
+                    buffer.WriteByte((byte)value);
+                    return;
+                }
+
+                if (typeof(char) == fieldType)
+                {
+                    buffer.WriteChar((char)value);
+                    return;
+                }
+
+                if (typeof(float) == fieldType)
+                {
+                    buffer.WriteFloat((float)value);
+                    return;
+                }
+
+                if (typeof(double) == fieldType)
+                {
+                    buffer.WriteDouble((double)value);
+                    return;
+                }
+
+                if (typeof(bool) == fieldType)
+                {
+                    buffer.WriteBoolean((bool)value);
+                    return;
+                }
+
+                throw new Exception($"Cannot write primitive type '{fieldType.Name}'. Please switch to a supported primitive type.");
+            }
+
+            // strings
+            if (typeof(string) == fieldType)
+            {
+                // length
+                var str = (string)value;
+                var len = str.Length;
+                if (len > ushort.MaxValue)
+                {
+                    throw new Exception($"Cannot write string of length '{len}'. Max length is '{ushort.MaxValue}'. ");
+                }
+
+                buffer.WriteUnsignedShort((ushort)len);
+                buffer.WriteString(str, Encoding.UTF8);
+                return;
+            }
+
+            // DateTime
+            if (typeof(DateTime) == fieldType)
+            {
+                var time = (DateTime)value;
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, time.Kind);
+                buffer.WriteInt((int)time.Kind);
+                buffer.WriteDouble((time - epoch).TotalMilliseconds);
+                return;
+            }
+
+            // handle arrays
+            if (fieldType.IsArray)
+            {
+                var arr = (Array)value;
+                var elType = fieldType.GetElementType();
+                if (null == elType)
+                {
+                    throw new Exception("Invalid type information: Array type with no element type.");
+                }
+
+                var len = 0;
+                if (null != arr)
+                {
+                    len = arr.Length;
+                }
+
+                if (len > ushort.MaxValue)
+                {
+                    throw new Exception($"Cannot write array of length '{len}'. Max len is '{ushort.MaxValue}'.");
+                }
+
+                buffer.WriteUnsignedShort((ushort)len);
+
+                for (var i = 0; i < len; i++)
+                {
+                    var elValue = arr.GetValue(i);
+
+                    WriteValue(elType, elValue, buffer);
+                }
+
+                return;
+            }
+
+            // handle lists
+            if (fieldType.IsGenericType() && typeof(List<>) == fieldType.GetGenericTypeDefinition())
+            {
+                var list = (IList)value;
+                var elType = fieldType.GetGenericArguments()[0];
+
+                var len = 0;
+                if (null != list)
+                {
+                    len = list.Count;
+                }
+
+                if (len > ushort.MaxValue)
+                {
+                    throw new Exception($"Cannot write List<{elType.Name}> of length '{len}'. Max len is '{ushort.MaxValue}'.");
+                }
+
+                buffer.WriteUnsignedShort((ushort)len);
+
+                if (null != list)
+                {
+                    for (var i = 0; i < len; i++)
+                    {
+                        var elValue = list[i];
+
+                        WriteValue(elType, elValue, buffer);
+                    }
+                }
+
+                return;
+            }
+
+            // handle composites
+            Write(value, buffer);
+        }
+    }
+
     /// <summary>
     /// Implementation that wraps <c>DataWriter</c>.
     /// </summary>
@@ -198,6 +540,7 @@ namespace CreateAR.EnkluPlayer
             await socket.ConnectAsync(hostName, port.ToString());
 
             _dataWriter = new DataWriter(socket.OutputStream);
+            _dataWriter.ByteOrder = ByteOrder.BigEndian;
             _writerStream = new DataWriterNetworkStream(_dataWriter);
 
             Verbose("ConnectWith: Created writer.");
@@ -214,6 +557,7 @@ namespace CreateAR.EnkluPlayer
             try
             {
                 reader = new DataReader(_socket.InputStream);
+                reader.ByteOrder = ByteOrder.BigEndian;
             }
             catch (Exception exception)
             {
@@ -237,20 +581,26 @@ namespace CreateAR.EnkluPlayer
             {
                 while (_isReading.Get())
                 {
+                    Verbose("ReadSocket: Waiting.");
+
                     // read length
                     await reader.LoadAsync(sizeof(ushort));
                     var len = reader.ReadUInt16();
-                    
+
+                    Verbose($"ReadSocket: Read length of {len} bytes.");
+
                     // read payload
                     await reader.LoadAsync(len);
                     var buffer = reader.ReadBuffer(len);
 
+                    Verbose($"ReadSocket: Read payload of {buffer.Capacity} bytes.");
+
                     // copy into _readBuffer
-                    if (_readBuffer.Length < buffer.Capacity)
+                    if (_readBuffer.Length < buffer.Length)
                     {
-                        _readBuffer = new byte[buffer.Capacity];
+                        _readBuffer = new byte[buffer.Length];
                     }
-                    buffer.CopyTo(_readBuffer);
+                    buffer.CopyTo(0, _readBuffer, 0, (int) buffer.Length);
 
                     Verbose("ReadSocket: Read message payload.");
 
@@ -259,7 +609,7 @@ namespace CreateAR.EnkluPlayer
                     {
                         _listener.HandleSocketMessage(new ArraySegment<byte>(
                             _readBuffer,
-                            0, _readBuffer.Length));
+                            0, (int) buffer.Length));
                     }
                     catch (Exception ex)
                     {
@@ -322,6 +672,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging.
         /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);

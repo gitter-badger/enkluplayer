@@ -14,6 +14,7 @@ using CreateAR.EnkluPlayer.States.HoloLogin;
 using CreateAR.EnkluPlayer.Util;
 using CreateAR.EnkluPlayer.Vine;
 using CreateAR.Trellis.Messages;
+using Enklu.Mycerializer;
 using Jint.Parser;
 using Newtonsoft.Json;
 using strange.extensions.injector.impl;
@@ -195,21 +196,28 @@ namespace CreateAR.EnkluPlayer
 #if UNITY_IOS || UNITY_ANDROID
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                    binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                    binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                    binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-    #else
+#else
                     binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
-    #endif
+#endif
 #elif UNITY_EDITOR
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
                     binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                    binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                    binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
                     binder.Bind<ITcpConnectionFactory>().To<UwpTcpConnectionFactory>().ToSingleton();
+                    binder.Bind<IMessageReader>().To<UwpReflectionMessageReader>();
+                    binder.Bind<IMessageWriter>().To<UwpReflectionMessageWriter>();
 #endif
                 }
 
