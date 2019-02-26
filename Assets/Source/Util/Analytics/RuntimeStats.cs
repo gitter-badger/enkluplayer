@@ -114,6 +114,7 @@ namespace CreateAR.EnkluPlayer
             public struct LoaderInfo
             {
                 public int QueueLength;
+                public string NextLoad;
                 public string Errors;
             }
             

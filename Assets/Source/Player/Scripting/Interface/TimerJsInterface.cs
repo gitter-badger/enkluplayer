@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {

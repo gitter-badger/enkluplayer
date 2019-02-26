@@ -19,13 +19,20 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public virtual void SetUp()
         {
             Main.Inject(this);
-            
+
             _engine = new Engine(options =>
             {
-                options.CatchClrExceptions(exception => { throw exception; });
                 options.AllowClr();
+                options.CatchClrExceptions(exception =>
+                {
+                    throw exception;
+                });
+
+                // Debugging Configuration
+                options.DebugMode(false);
+                options.AllowDebuggerStatement(false);
             });
-            
+
             _engine.SetValue("assert", RuntimeAssertJsApi.Instance);
             _engine.SetValue("log", new LogJsApi(this));
         }

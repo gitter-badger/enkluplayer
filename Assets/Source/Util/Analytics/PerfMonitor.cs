@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -142,8 +143,12 @@ namespace CreateAR.EnkluPlayer
             _captureBuilder = new StringBuilder();
 
             AppendToCapture();
-        }
 
+#if NETFX_CORE
+            Windows.System.MemoryManager.AppMemoryUsageIncreased += MemoryManager_MemoryUsageIncreased;
+#endif
+        }
+        
         /// <summary>
         /// Stops recording a capture.
         /// </summary>
@@ -155,6 +160,10 @@ namespace CreateAR.EnkluPlayer
             }
 
             IsCapturing = false;
+
+#if NETFX_CORE
+            Windows.System.MemoryManager.AppMemoryUsageIncreased -= MemoryManager_MemoryUsageIncreased;
+#endif
 
             return _captureBuilder.ToString();
         }
@@ -221,9 +230,14 @@ namespace CreateAR.EnkluPlayer
             }
 
             // update memory
+#if NETFX_CORE
+            Memory.Total = (long) Windows.System.MemoryManager.AppMemoryUsageLimit;
+            Memory.Allocated = (long) Windows.System.MemoryManager.AppMemoryUsage;
+#else
             Memory.Total = Profiler.GetTotalReservedMemoryLong();
             Memory.Allocated = Profiler.GetTotalAllocatedMemoryLong();
             Memory.Mono = System.GC.GetTotalMemory(false);
+#endif
             Memory.Gpu = SystemInfo.graphicsMemorySize;
             Memory.GraphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver();
 
@@ -234,6 +248,19 @@ namespace CreateAR.EnkluPlayer
             {
                 AppendToCapture();
             }
+        }
+
+        /// <summary>
+        /// Called when the memory manager tells us that app memory usage has increased.
+        /// </summary>
+        private void MemoryManager_MemoryUsageIncreased(object sender, object e)
+        {
+#if NETFX_CORE
+            Log.Warning(
+                this,
+                "Memory usage warning: detected increase to '{0}'.",
+                Windows.System.MemoryManager.AppMemoryUsageLevel);
+#endif
         }
     }
 }

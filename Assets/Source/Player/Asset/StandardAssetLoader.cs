@@ -35,7 +35,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// User internally to track loads.
         /// </summary>
-        private class QueuedLoad
+        public class QueuedLoad
         {
             /// <summary>
             /// The data for the asset we want to load.
@@ -56,6 +56,23 @@ namespace CreateAR.EnkluPlayer.Assets
             /// Timer metric.
             /// </summary>
             public int Timer;
+
+            /// <summary>
+            /// ToString override.
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                if (null == Data)
+                {
+                    return "[QueuedLoad Empty]";
+                }
+
+                return string.Format("[QueuedLoad Data.Name={0}, Data.Id={1}, Version={2}]",
+                    Data.AssetName,
+                    Data.Guid,
+                    Version);
+            }
         }
 
         /// <summary>
@@ -114,9 +131,9 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// The number of asset loads in progress.
         /// </summary>
-        public int QueueLength
+        public List<QueuedLoad> Queue
         {
-            get { return _queue.Count; }
+            get { return _queue; }
         }
         
         /// <summary>

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.Remoting;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -43,6 +42,8 @@ namespace CreateAR.EnkluPlayer
         public const string PROP_TAG_KEY = "tag";
         public const string PROP_TAG_VALUE = "primary";
         public const string PROP_ENABLED_KEY = "worldanchor.enabled";
+        public const string PROP_LOCATING_MESSAGE_KEY = "anchoring.locatingMessage";
+        public const string PROP_DISABLE_BYPASS_KEY = "anchoring.disableBypass";
 
         /// <summary>
         /// True iff all anchors are ready to go.
@@ -162,7 +163,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Caption on UI.
         /// </summary>
-        private TextWidget _cpn;
+        private TextWidget _cpnProgress;
+        
+        /// <summary>
+        /// Caption on UI.
+        /// </summary>
+        private TextWidget _cpnLocating;
 
         /// <summary>
         /// True iff world anchors are enabled.
@@ -194,6 +200,16 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private int _pollUnlocated;
         private int _pollLocated;
+
+        /// <summary>
+        /// A custom locating message.
+        /// </summary>
+        private ElementSchemaProp<string> _locatingMessageProp;
+
+        /// <summary>
+        /// Whether the bypass button should be disabled or not.
+        /// </summary>
+        private ElementSchemaProp<bool> _disableBypassProp;
         
         /// <summary>
         /// Read only collection of currently tracked anchors.
@@ -298,6 +314,12 @@ namespace CreateAR.EnkluPlayer
 
             if (_anchorsEnabledProp.Value)
             {
+                _locatingMessageProp = root.Schema.GetOwn(PROP_LOCATING_MESSAGE_KEY, "Attempting to locate content.\nPlease walk around space.");
+                _disableBypassProp = root.Schema.GetOwn(PROP_DISABLE_BYPASS_KEY, false);
+
+                _locatingMessageProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
+                _disableBypassProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
+                
                 SetupAnchors();
             }
             else
@@ -597,11 +619,13 @@ namespace CreateAR.EnkluPlayer
         {
             _rootUI = _elements.Element(@"
 <?Vine>
-<Float>
-    <Caption id='cpn' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
+<Float focus.visible=false>
+    <Caption id='cpn-progress' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
+    <Caption visible=false id='cpn-locating' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
     <Button id='btn' position=(0, -0.1, 0) label='Bypass' visible=false />
 </Float>");
-            _cpn = _rootUI.FindOne<TextWidget>("..cpn");
+            _cpnProgress = _rootUI.FindOne<TextWidget>("..cpn-progress");
+            _cpnLocating = _rootUI.FindOne<TextWidget>("..cpn-locating");
             _bypassBtn = _rootUI.FindOne<ButtonWidget>("..btn");
             _bypassBtn.OnActivated += _ => BypassAnchorRequirement();
         }
@@ -751,41 +775,70 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void UpdateStatusUI(int errors, int downloading, int importing, int unlocated, int located)
         {
-            if (null == _cpn || null == _rootUI)
+            if (null == _cpnProgress || null == _rootUI)
             {
                 return;
             }
 
             if (downloading + importing + errors > 0)
             {
-                _cpn.Label = string.Format(
-@"Please wait...
-
-Downloading: {1} / {0}
-Importing: {2} / {0}
-Errors: {3} / {0}",
-                    _anchors.Count,
-                    downloading,
-                    importing,
-                    errors);
-
-                _rootUI.Schema.Set("visible", true);
+                _cpnProgress.LocalVisible = true;
+                _cpnLocating.LocalVisible = false;
+                
+                UpdateProgressUI(errors, downloading, importing, unlocated, located);
             }
             else if (0 == located)
             {
-                _cpn.Label = "Attempting to locate content.\nPlease walk around space.";
-
-                _rootUI.Schema.Set("visible", true);
+                _cpnLocating.LocalVisible = true;
+                _cpnProgress.LocalVisible = false;
+                
+                UpdateLocatingUI();
             }
             else
             {
                 _rootUI.Schema.Set("visible", false);
             }
+        }
+
+        /// <summary>
+        /// Updates the progress UI.
+        /// </summary>
+        private void UpdateProgressUI(int errors, int downloading, int importing, int unlocated, int located)
+        {
+            _cpnProgress.Label = string.Format(
+                @"Please wait...
+
+Downloading: {1} / {0}
+Importing: {2} / {0}
+Errors: {3} / {0}",
+                _anchors.Count,
+                downloading,
+                importing,
+                errors);
+
+            _rootUI.Schema.Set("visible", true);
             
             if (unlocated + errors == _anchors.Count)
             {
-                _bypassBtn.Schema.Set("visible", true);
+                _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
             }
+        }
+
+        /// <summary>
+        /// Updates the locating UI.
+        /// </summary>
+        private void UpdateLocatingUI()
+        {
+            if (_cpnLocating == null)
+            {
+                // Safety in case custom messages are set before the vine has been built.
+                return;
+            }
+
+            _cpnLocating.Label = _locatingMessageProp.Value;
+
+            _rootUI.Schema.Set("visible", true);
+            _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
         }
 
         /// <summary>
@@ -863,7 +916,7 @@ Errors: {3} / {0}",
             {
                 _rootUI.Destroy();
                 _rootUI = null;
-                _cpn = null;
+                _cpnProgress = null;
             }
         }
 

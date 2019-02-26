@@ -684,6 +684,7 @@ namespace CreateAR.EnkluPlayer
                 
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new EnkluScriptRequireResolver(binder));
+                binder.Bind<IScriptingHostFactory>().To<ScriptingHostFactory>().ToSingleton();
                 binder.Bind<IElementJsCache>().To<ElementJsCache>().ToSingleton();
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
@@ -724,8 +725,9 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IDeviceMetaProvider>(),
                     binder.GetInstance<IImageCapture>(),
                     binder.GetInstance<IVideoCapture>(),
-                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<IAppSceneManager>(),
+                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
 

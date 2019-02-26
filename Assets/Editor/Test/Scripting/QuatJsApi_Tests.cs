@@ -14,10 +14,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = new Engine(options => {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+            _engine = JintUtil.NewEngine(false);
 
             _engine.SetValue("q", QuatMethods.Instance);
             _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));

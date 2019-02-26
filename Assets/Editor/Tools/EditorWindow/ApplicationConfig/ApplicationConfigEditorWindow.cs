@@ -65,7 +65,11 @@ namespace CreateAR.EnkluPlayer.Editor
             {
                 File.WriteAllText(
                     overridePath,
-                    JsonConvert.SerializeObject(new ApplicationConfig()));
+                    JsonConvert.SerializeObject(new ApplicationConfig(), new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    }));
             }
 
             // watch for changes
@@ -180,7 +184,12 @@ namespace CreateAR.EnkluPlayer.Editor
         {
             File.WriteAllText(
                 GetOverridePath(),
-                JsonConvert.SerializeObject(_override, Formatting.Indented));
+                JsonConvert.SerializeObject(_override, new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                }));
         }
 
         /// <summary>

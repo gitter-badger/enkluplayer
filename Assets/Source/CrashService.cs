@@ -2,14 +2,15 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Timers;
+using System.Threading;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
 using Newtonsoft.Json;
 using UnityEngine;
-using Timer = System.Timers.Timer;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -43,14 +44,14 @@ namespace CreateAR.EnkluPlayer
         private readonly string _statsPath;
 
         /// <summary>
+        /// Statically created device information.
+        /// </summary>
+        private readonly string _deviceInfo;
+
+        /// <summary>
         /// The timer for writing to disk.
         /// </summary>
         private Timer _timer;
-
-        /// <summary>
-        /// A dump is created at startup, then queued until we are logged in and can send it.
-        /// </summary>
-        private string _queuedDump;
         
         /// <summary>
         /// Constructor.
@@ -65,25 +66,30 @@ namespace CreateAR.EnkluPlayer
             _api = api;
             _stats = stats;
 
-            _bootLockPath = Path("Boot.lock");
-            _shutdownLockPath = Path("Shutdown.lock");
-            _statsPath = Path("Stats.log");
+            _bootLockPath = GetPath("Boot.lock");
+            _shutdownLockPath = GetPath("Shutdown.lock");
+            _statsPath = GetPath("Stats.log");
+
+            var builder = new StringBuilder();
+            builder.AppendFormat("Id: {0}\n", SystemInfo.deviceUniqueIdentifier);
+            builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
+            builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
+            builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
+            _deviceInfo = builder.ToString();
 
             // add special crash logging for UWP
 #if NETFX_CORE
             UwpCrashLogger.Initialize();
+
+            // handle shutdown
+            Windows.ApplicationModel.Core.CoreApplication.Suspending += (sender, o) => Shutdown();
+            Windows.ApplicationModel.Core.CoreApplication.Resuming += (sender, o) => Startup();
 #endif
 
             // listen for when we can send is ready
-            messages.Subscribe(MessageTypes.LOGIN_COMPLETE, _ =>
-            {
-                if (!string.IsNullOrEmpty(_queuedDump))
-                {
-                    SendDump(_queuedDump);
-                }
-            });
+            messages.Subscribe(MessageTypes.LOGIN_COMPLETE, _ => SendQueuedDumps());
         }
-
+        
         /// <summary>
         /// Starts the crash service.
         /// </summary>
@@ -94,6 +100,8 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
+
+            Log.Info(this, "Startup.");
 
             // determine if there is a crash
             var isCrashDetected = IsCrashDetected(_bootLockPath, _shutdownLockPath);
@@ -107,7 +115,25 @@ namespace CreateAR.EnkluPlayer
             // generate crash log if last session crashed 
             if (isCrashDetected)
             {
-                _queuedDump = BuildCrashDump();
+                Log.Info(this, "Crash detected, writing to disk.");
+
+                // write to disk
+                var dump = BuildCrashDump();
+                var path = GetUniqueDumpPath();
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+                    File.WriteAllText(
+                        path,
+                        dump);
+                }
+                catch (Exception ex)
+                {
+                    Log.Fatal(this,
+                        "Could not write dump to disk: {0}\n\n{1}",
+                        ex, dump);
+                }
             }
             
             // start interval
@@ -125,8 +151,13 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
+            Log.Info(this, "Shutdown.");
+
             // kill timer
-            _timer.Stop();
+            if (null != _timer)
+            {
+                _timer.Dispose();
+            }
 
             // write shutdown lock
             WriteLock(_shutdownLockPath);
@@ -140,30 +171,97 @@ namespace CreateAR.EnkluPlayer
         {
             try
             {
-                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
 
                 File.WriteAllText(path, _lock);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Log.Error(this, "Could not write lock: {0} : {1}.",
                     path,
                     exception);
             }
         }
-        
+
+        /// <summary>
+        /// Sends all queued dumps and deletes them once they are verified sent.
+        /// </summary>
+        private void SendQueuedDumps()
+        {
+            Log.Info(this, "Attempting to send queued dumps.");
+
+            var path = GetDumpFolder();
+            string[] dumps;
+            try
+            {
+                dumps = Directory.GetFiles(path);
+            }
+            catch
+            {
+                // directory may not exist yet
+                return;
+            }
+
+            Log.Info(this, "Found {0} crash dumps.", dumps.Length);
+
+            for (int i = 0, len = dumps.Length; i < len; i++)
+            {
+                var dumpPath = dumps[i];
+
+                string dump;
+                try
+                {
+                    dump = File.ReadAllText(dumps[i]);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(this,
+                        "Could not read dump '{0}' : {1}",
+                        dumpPath,
+                        ex);
+
+                    // try again next time
+
+                    continue;
+                }
+
+                Log.Debug(this, "Sending dump:\n{0}", dumpPath);
+
+                SendDump(dump)
+                    .OnSuccess(_ =>
+                    {
+                        Log.Debug(this, "Successfully sent dump.");
+
+                        // delete dump
+                        try
+                        {
+                            File.Delete(dumpPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(this, "Could not delete dump '{0}': {1}",
+                                dumpPath,
+                                ex);
+                        }
+                    })
+                    // send through logs, this will allow retry later
+                    .OnFailure(ex => Log.Fatal(this, "Could not send dump: {0}.", ex));
+            }
+        }
+
         /// <summary>
         /// Sends a dump to the configured dump email.
         /// </summary>
         /// <param name="dump">The dump.</param>
-        private void SendDump(string dump)
+        private IAsyncToken<Void> SendDump(string dump)
         {
+            // if we're in the editor, don't actually send the email.
             if (UnityEngine.Application.isEditor)
             {
-                return;
+                return new AsyncToken<Void>(Void.Instance);
             }
 
-            Log.Debug(this, "Sending dump:\n{0}", dump);
+            var token = new AsyncToken<Void>();
 
             _api
                 .Utilities
@@ -176,19 +274,22 @@ namespace CreateAR.EnkluPlayer
                 })
                 .OnSuccess(res =>
                 {
-                    if (res.Payload.Success)
+                    if (null == res.Payload)
                     {
-                        Log.Info(this, "Successfully sent crash report.");
+                        token.Fail(new Exception("Could not deserialize payload."));
+                    }
+                    else if (res.Payload.Success)
+                    {
+                        token.Succeed(Void.Instance);
                     }
                     else
                     {
-                        Log.Fatal(this, "Could not send crash report : {0}.", res.Payload.Error);
+                        token.Fail(new Exception(res.Payload.Error));
                     }
                 })
-                .OnFailure(exception =>
-                {
-                    Log.Fatal(this, "Could not send crash report: {0}", exception);
-                });
+                .OnFailure(token.Fail);
+
+            return token;
         }
 
         /// <summary>
@@ -206,10 +307,7 @@ namespace CreateAR.EnkluPlayer
 
             // system
             builder.Append("### Device\n\n");
-            builder.AppendFormat("Id: {0}\n", SystemInfo.deviceUniqueIdentifier);
-            builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
-            builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
-            builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
+            builder.Append(_deviceInfo);
             builder.Append("\n\n");
             
             // application config
@@ -294,6 +392,7 @@ namespace CreateAR.EnkluPlayer
             // assets
             builder.Append("### Assets\n\n");
             builder.AppendFormat("Queue Length: {0}\n", stats.Experience.AssetState.QueueLength);
+            builder.AppendFormat("Next: {0}\n", stats.Experience.AssetState.NextLoad);
             builder.AppendFormat("Error: {0}", stats.Experience.AssetState.Errors);
             builder.Append("\n\n");
 
@@ -303,6 +402,48 @@ namespace CreateAR.EnkluPlayer
             builder.AppendFormat("Errors: {0}\n", stats.Experience.ScriptState.Errors);
             builder.Append("\n\n");
         }
+        
+        /// <summary>
+        /// Starts the interval to write to disk.
+        /// </summary>
+        private void StartDiagnosticsInterval()
+        {
+            // make sure directory exists
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_statsPath));
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(this,
+                    "Could not create directory to write diagnostics: {0}",
+                    ex);
+
+                // do not start interval, as we can't write stats
+                return;
+            }
+
+            // every N ms write current data to disk
+            _timer = new Timer(_ =>
+                {
+                    try
+                    {
+                        // TODO: do this in a faster way
+                        var stats = JsonConvert.SerializeObject(_stats);
+
+                        // we can do a synchronous write because this is already being
+                        // executed off of the main thread
+                        File.WriteAllText(_statsPath, stats);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, "Could not write stats: {0}.", exception);
+                    }
+                },
+                Void.Instance,
+                TimeSpan.FromSeconds(0),
+                TimeSpan.FromMilliseconds(INTERVAL_MS));
+        }
 
         /// <summary>
         /// Appends last log file.
@@ -310,7 +451,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="builder">The builder.</param>
         private static void BuildLogDump(StringBuilder builder)
         {
-            var logPath = System.IO.Path.Combine(
+            var logPath = Path.Combine(
                 UnityEngine.Application.persistentDataPath,
                 "Application.previous.log");
             if (File.Exists(logPath))
@@ -325,45 +466,6 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 builder.Append(logs);
-            }
-        }
-
-        /// <summary>
-        /// Starts the interval to write to disk.
-        /// </summary>
-        private void StartDiagnosticsInterval()
-        {
-            // every N ms write current data to disk
-            _timer = new Timer(INTERVAL_MS);
-
-            // this will be called on the thread pool
-            _timer.Elapsed += Timer_OnElapsed;
-            _timer.Start();
-        }
-
-        /// <summary>
-        /// Called when the write interval elapsed.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="eventArgs">The event arguments.</param>
-        private void Timer_OnElapsed(
-            object sender,
-            ElapsedEventArgs eventArgs)
-        {
-            try
-            {
-                // TODO: do this in a faster way
-                var stats = JsonConvert.SerializeObject(_stats);
-
-                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_statsPath));
-
-                // we can do a synchronous write because this is already being
-                // executed off of the main thread
-                File.WriteAllText(_statsPath, stats);
-            }
-            catch (Exception exception)
-            {
-                Log.Error(this, "Could not write stats: {0}.", exception);
             }
         }
 
@@ -421,13 +523,36 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="fileName">The name of the file.</param>
         /// <returns></returns>
-        private static string Path(string fileName)
+        private static string GetPath(string fileName)
         {
-            return System.IO.Path.Combine(
+            return Path.Combine(
                 UnityEngine.Application.persistentDataPath,
-                System.IO.Path.Combine(
+                Path.Combine(
                     "Diagnostics",
                     fileName));
+        }
+
+        /// <summary>
+        /// Generates a unique path for a dump.
+        /// </summary>
+        private static string GetUniqueDumpPath()
+        {
+            return Path.Combine(
+                GetDumpFolder(),
+                DateTime.Now.Ticks + ".dump");
+        }
+        
+        /// <summary>
+        /// Retrieves the dump folder.
+        /// </summary>
+        /// <returns></returns>
+        private static string GetDumpFolder()
+        {
+            return Path.Combine(
+                UnityEngine.Application.persistentDataPath,
+                Path.Combine(
+                    "Diagnostics",
+                    "Dumps"));
         }
     }
 }
