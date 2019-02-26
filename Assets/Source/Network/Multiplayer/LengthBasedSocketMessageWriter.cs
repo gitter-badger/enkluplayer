@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net.Sockets;
+﻿using System.IO;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
@@ -26,7 +24,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc/>
-        public void Write(NetworkStream stream, byte[] data, int offset, int len)
+        public void Write(INetworkStream stream, byte[] data, int offset, int len)
         {
             // Reset the memory stream to the origin, write the length and payload
             _writeStream.Position = 0;
@@ -39,7 +37,18 @@ namespace CreateAR.EnkluPlayer
             _writeStream.Write(data, offset, len);
 
             // write the length + payload to the socket
+#if NETFX_CORE
+            if (_writeStream.TryGetBuffer(out var buffer))
+            {
+                stream.Write(buffer.Array, buffer.Offset, len + 2 /* length */);
+            }
+            else
+            {
+                Log.Error(this, "Could not get buffer from write stream memory buffer.");
+            }
+#else
             stream.Write(_writeStream.GetBuffer(), 0, len + 2 /* length */);
+#endif
         }
     }
 }

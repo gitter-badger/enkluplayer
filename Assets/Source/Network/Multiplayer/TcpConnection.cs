@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETFX_CORE
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -9,7 +10,7 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// Connects to an endpoint over TCP.
     /// </summary>
-    public class TcpConnection
+    public class TcpConnection : ITcpConnection
     {
         /// <summary>
         /// Global Connection Timeout Setting.
@@ -25,6 +26,7 @@ namespace CreateAR.EnkluPlayer
 
         private readonly byte[] _readBuffer;
         private readonly MemoryStream _readStream;
+        private readonly NetworkStreamWrapper _writeStream = new NetworkStreamWrapper();
 
         /// <summary>
         /// Whether or not the <see cref="TcpConnection"/> is connected to an endpoint.
@@ -113,7 +115,7 @@ namespace CreateAR.EnkluPlayer
             _messageReader.Reset();
 
             // Starts the thread and waits for the thread to actually start before returning
-            ThreadHelper.SyncStart(ReadSocket, true);
+            ThreadHelper.SyncStart(ReadSocket);
 
             return true;
         }
@@ -150,15 +152,15 @@ namespace CreateAR.EnkluPlayer
         {
             try
             {
-                var stream = _client.GetStream();
+                var stream = _writeStream.Stream = _client.GetStream();
                 if (!stream.CanWrite)
                 {
                     Log.Warning(this, "Failed to write to outbound TCP Buffer: Stream is read-only.");
                     Close(true, false);
                     return false;
                 }
-
-                _messageWriter.Write(stream, message, offset, len);
+                
+                _messageWriter.Write(_writeStream, message, offset, len);
             }
             catch (Exception exception)
             {
@@ -330,3 +332,4 @@ namespace CreateAR.EnkluPlayer
         }
     }
 }
+#endif

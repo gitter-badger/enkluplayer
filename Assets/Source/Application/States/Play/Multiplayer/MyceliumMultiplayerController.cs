@@ -34,6 +34,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
         private readonly IElementManager _elements;
+        private readonly ITcpConnectionFactory _connections;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
 
@@ -93,7 +94,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// The underlying TCP connection.
         /// </summary>
-        private TcpConnection _tcp;
+        private ITcpConnection _tcp;
 
         /// <summary>
         /// Internal connection token.
@@ -110,6 +111,12 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private int _pollId;
 
+        /// <inheritdoc />
+        public bool IsConnected
+        {
+            get { return null != _tcp && _tcp.IsConnected; }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -118,18 +125,20 @@ namespace CreateAR.EnkluPlayer
             IElementManager elements,
             IAppSceneManager scenes,
             IElementActionStrategyFactory patcherFactory,
+            ITcpConnectionFactory connections,
             ApiController api,
             ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _elements = elements;
+            _connections = connections;
             _api = api;
             _config = config;
 
             _scenePatcher = new ScenePatcher(scenes, patcherFactory);
             _sceneHandler = new SceneEventHandler(_elements, _scenePatcher);
         }
-
+        
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize()
         {
@@ -267,6 +276,8 @@ namespace CreateAR.EnkluPlayer
                         Milliseconds = milliseconds,
                         StartingValue = value
                     });
+
+                    // TODO: set a timer
                 }
             }
 
@@ -367,14 +378,12 @@ namespace CreateAR.EnkluPlayer
         private void ConnectToMycelium()
         {
             Log.Info(this, "Connecting to mycelium at {0}:{1}.",
-                _config.Network.Environment.MyceliumUrl,
+                _config.Network.Environment.MyceliumIp,
                 _config.Network.Environment.MyceliumPort);
 
-            _tcp = new TcpConnection(
-                new LengthBasedSocketMessageReader(this),
-                new LengthBasedSocketMessageWriter());
+            _tcp = _connections.Connection(this);
             if (_tcp.Connect(
-                _config.Network.Environment.MyceliumUrl,
+                _config.Network.Environment.MyceliumIp,
                 _config.Network.Environment.MyceliumPort))
             {
                 Log.Info(this, "Connected to mycelium.");
@@ -577,6 +586,9 @@ namespace CreateAR.EnkluPlayer
             Verbose("Wrote {0} bytes.", stream.WriterIndex);
 
             _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
+            
+            // return buffer
+            _buffers.Put(buffer);
         }
 
         /// <summary>

@@ -199,17 +199,19 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-#if UNITY_EDITOR
-                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-#else
-                        binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
-#endif
+    #if UNITY_EDITOR
+                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+    #else
+                    binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
+    #endif
 #elif UNITY_EDITOR
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                    binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                    binder.Bind<ITcpConnectionFactory>().To<UwpTcpConnectionFactory>().ToSingleton();
 #endif
                 }
 

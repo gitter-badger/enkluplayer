@@ -4,20 +4,6 @@ using System.IO;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Describes an object that can listen to socket events.
-    /// </summary>
-    public interface ISocketListener
-    {
-        /// <summary>
-        /// Called when the raw bytes of a message have been identified. This
-        /// will be called on the read thread and assumes bytes are consumed
-        /// synchronously.
-        /// </summary>
-        /// <param name="messageBytes">The bytes.</param>
-        void HandleSocketMessage(ArraySegment<byte> messageBytes);
-    }
-
-    /// <summary>
     /// This <see cref="ISocketMessageReader"/> implementation reads a leading N-byte length encoding to determine the amount of data
     /// to aggregate from the socket buffer before dispatching a message.
     /// </summary>
@@ -82,7 +68,18 @@ namespace CreateAR.EnkluPlayer
                 // There is a full message we can dispatch
                 if (_currentMessageLength == 0)
                 {
+#if NETFX_CORE
+                    if (_messageStream.TryGetBuffer(out var segment))
+                    {
+                        _listener.HandleSocketMessage(segment);
+                    }
+                    else
+                    {
+                        CreateAR.Commons.Unity.Logging.Log.Error(this, "Could not get buffer from message memory stream.");
+                    }
+#else
                     _listener.HandleSocketMessage(new ArraySegment<byte>(_messageStream.GetBuffer(), 0, (int)_messageStream.Length));
+#endif
                     _messageStream.Clear();
                 }
             }

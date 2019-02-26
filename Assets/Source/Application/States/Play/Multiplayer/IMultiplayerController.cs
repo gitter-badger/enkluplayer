@@ -14,6 +14,11 @@ namespace CreateAR.EnkluPlayer
     public interface IMultiplayerController
     {
         /// <summary>
+        /// True iff we are connected to multiplayer.
+        /// </summary>
+        bool IsConnected { get; }
+
+        /// <summary>
         /// Preps the multiplayer controller.
         /// </summary>
         /// <returns></returns>

@@ -17,6 +17,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// The multiplayer controller.
         /// </summary>
         private readonly IMultiplayerController _multiplayer;
+        
+        public bool isConnected
+        {
+            get { return _multiplayer.IsConnected; }
+        }
 
         /// <summary>
         /// Constructor.
@@ -25,7 +30,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _multiplayer = multiplayer;
         }
-
+        
         public MultiplayerContextJs context(ElementJs element)
         {
             MultiplayerContextJs context;

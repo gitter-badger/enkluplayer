@@ -20,6 +20,9 @@ namespace CreateAR.EnkluPlayer
         private readonly IElementManager _elements;
         private readonly IBootstrapper _bootstrapper;
 
+        /// <inheritdoc />
+        public bool IsConnected { get { return false; } }
+
         /// <summary>
         /// Constructor.
         /// </summary>

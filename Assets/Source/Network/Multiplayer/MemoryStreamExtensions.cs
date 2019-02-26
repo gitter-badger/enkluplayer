@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using CreateAR.Commons.Unity.Logging;
 
 public static class MemoryStreamExtensions
 {
@@ -8,8 +9,18 @@ public static class MemoryStreamExtensions
     /// </summary>
     public static void Clear(this MemoryStream source)
     {
+#if NETFX_CORE
+        if (!source.TryGetBuffer(out var buffer))
+        {
+            Log.Error(null, "Could not get buffer from MemoryStream!");
+            return;
+        }
+        Array.Clear(buffer.Array, buffer.Offset, buffer.Count);
+#else
         var buffer = source.GetBuffer();
         Array.Clear(buffer, 0, buffer.Length);
+#endif
+
         source.Position = 0;
         source.SetLength(0);
     }

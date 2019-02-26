@@ -534,7 +534,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Url for Mycelium.
         /// </summary>
-        public string MyceliumUrl = "127.0.0.1";
+        public string MyceliumIp = "127.0.0.1";
 
         /// <summary>
         /// Url for Mycelium.
@@ -549,7 +549,7 @@ namespace CreateAR.EnkluPlayer
         {
             return string.Format("[EnvironmentData TrellisUrl={0}, MyceliumUrl={1}:{2}, AssetsUrl={3}, BundlesUrl={4}, ThumbsUrl={5}, ScriptsUrl={6}, AnchorsUrl={7}]",
                 TrellisUrl,
-                MyceliumUrl,
+                MyceliumIp,
                 MyceliumPort,
                 AssetsUrl,
                 BundlesUrl,
