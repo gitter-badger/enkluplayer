@@ -41,12 +41,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Reads from streams.
         /// </summary>
-        private readonly ReflectionMessageReader _reader = new ReflectionMessageReader();
+        private readonly IMessageReader _reader;
 
         /// <summary>
         /// Writes to streams.
         /// </summary>
-        private readonly ReflectionMessageWriter _writer = new ReflectionMessageWriter();
+        private readonly IMessageWriter _writer;
 
         /// <summary>
         /// Byte buffers.
@@ -136,12 +136,16 @@ namespace CreateAR.EnkluPlayer
             IAppSceneManager scenes,
             IElementActionStrategyFactory patcherFactory,
             ITcpConnectionFactory connections,
+            IMessageReader reader,
+            IMessageWriter writer,
             ApiController api,
             ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _elements = elements;
             _connections = connections;
+            _reader = reader;
+            _writer = writer;
             _api = api;
             _config = config;
 
@@ -385,7 +389,7 @@ namespace CreateAR.EnkluPlayer
                 Log.Error(this, "Unknown message type {0}.", id);
                 return;
             }
-
+            
             object message;
             try
             {

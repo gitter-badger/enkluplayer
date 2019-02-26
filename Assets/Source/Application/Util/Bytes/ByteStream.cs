@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
+using CreateAR.Commons.Unity.Logging;
 using Enklu.Mycerializer;
 
 namespace CreateAR.EnkluPlayer
@@ -32,6 +34,8 @@ namespace CreateAR.EnkluPlayer
         
         public int ReadInt()
         {
+            Verbose("ReadInt()");
+
             var val = HeapByteBufferUtil.GetInt(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 4;
@@ -41,6 +45,8 @@ namespace CreateAR.EnkluPlayer
 
         public long ReadLong()
         {
+            Verbose("ReadLong()");
+
             var val = HeapByteBufferUtil.GetLong(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 8;
@@ -50,6 +56,8 @@ namespace CreateAR.EnkluPlayer
 
         public short ReadShort()
         {
+            Verbose("ReadShort()");
+
             var val = HeapByteBufferUtil.GetShort(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 2;
@@ -59,6 +67,8 @@ namespace CreateAR.EnkluPlayer
 
         public ushort ReadUnsignedShort()
         {
+            Verbose("ReadUshort()");
+
             var val = HeapByteBufferUtil.GetShort(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 2;
@@ -68,6 +78,8 @@ namespace CreateAR.EnkluPlayer
 
         public byte ReadByte()
         {
+            Verbose("ReadByte()");
+
             var val = HeapByteBufferUtil.GetByte(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 1;
@@ -77,6 +89,8 @@ namespace CreateAR.EnkluPlayer
 
         public char ReadChar()
         {
+            Verbose("ReadChar()");
+
             var val = HeapByteBufferUtil.GetShort(_handle.Buffer, _offset + _readerIndex);
 
             _readerIndex += 2;
@@ -86,21 +100,29 @@ namespace CreateAR.EnkluPlayer
 
         public float ReadFloat()
         {
+            Verbose("ReadFloat()");
+
             return HeapByteBufferUtil.Int32BitsToSingle(ReadInt());
         }
 
         public double ReadDouble()
         {
+            Verbose("ReadDouble()");
+
             return BitConverter.Int64BitsToDouble(ReadLong());
         }
 
         public bool ReadBoolean()
         {
+            Verbose("ReadBoolean()");
+
             return 0 != ReadByte();
         }
 
         public string ReadString(ushort len, Encoding encoding)
         {
+            Verbose("ReadString()");
+
             var val = Encoding.UTF8.GetString(_handle.Buffer, _readerIndex + _offset, len);
 
             _readerIndex += len;
@@ -200,6 +222,12 @@ namespace CreateAR.EnkluPlayer
             {
                 _handle.Grow();
             }
+        }
+
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string format, params object[] replacements)
+        {
+            Log.Info(this, format, replacements);
         }
     }
 }
