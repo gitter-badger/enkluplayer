@@ -75,12 +75,10 @@ namespace CreateAR.EnkluPlayer
 
                 // start worker
                 var worker = binder.GetInstance<IParserWorker>();
-#if NETFX_CORE
-                Windows.System.Threading.ThreadPool.RunAsync(_ => worker.Start());
-#elif UNITY_WEBGL
+#if UNITY_WEBGL
                 worker.Start();
 #else
-                System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
+                ThreadHelper.SyncStart(worker.Start);
 #endif
 
                 // metrics
