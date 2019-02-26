@@ -43,7 +43,7 @@ namespace CreateAR.EnkluPlayer.Editor
         /// <summary>
         /// Opens the window.
         /// </summary>
-        [MenuItem("Tools/Application Config Editor %a")]
+        [MenuItem("Tools/Application Config Editor")]
         private static void Open()
         {
             GetWindow<ApplicationConfigEditorWindow>();
