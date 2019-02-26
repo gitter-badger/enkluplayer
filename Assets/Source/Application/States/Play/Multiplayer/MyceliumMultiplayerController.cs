@@ -218,6 +218,11 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IAsyncToken<Void> Reconnect()
         {
+            lock (_synchronizationBuffer)
+            {
+                _synchronizationBuffer.Clear();
+            }
+
             // Cleanup Tcp Connection
             if (null != _tcp)
             {
@@ -463,6 +468,14 @@ namespace CreateAR.EnkluPlayer
 
                 _tcp.OnConnectionClosed += OnConnectionClosed;
 
+                // TEST: Bootstrap a 35 second timer that will disconnect (testing live reconnect + deltas)
+                /*_bootstrapper.BootstrapCoroutine(Wait(35.0f,
+                    () =>
+                    {
+                        _tcp.Close();
+                    }));
+                */
+
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
             }
@@ -533,11 +546,20 @@ namespace CreateAR.EnkluPlayer
                     Reconnect()
                         .OnSuccess(_ =>
                         {
-                            Log.Debug(this, "Reconnect Successful");
-                        })
-                        .OnFailure(e =>
-                        {
-                            Log.Debug(this, "Reconnection Failed: {0}", e);
+                            // Success for Connect always happens to prevent outside
+                            // systems from failing. Internally, we can determine
+                            // success vs failure if the TcpConnection is reporting
+                            // IsConnected
+                            if (IsConnected)
+                            {
+                                Log.Debug(this, "Reconnect Successful");
+                                return;
+                            }
+
+                            // Otherwise, we'll flip our flag back and retry after a timeout
+                            Log.Debug(this, "Reconnect Failed...");
+                            _bootstrapper.BootstrapCoroutine(
+                                Wait(5.0f, () => _isConnectionClosed = true));
                         });
                 }
             }
