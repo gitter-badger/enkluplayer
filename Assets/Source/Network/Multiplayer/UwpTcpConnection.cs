@@ -32,6 +32,7 @@ namespace CreateAR.EnkluPlayer
         public void Write(byte[] buffer, int offset, int len)
         {
             _writer.WriteBuffer(buffer.AsBuffer(), (uint) offset, (uint) len);
+            _writer.StoreAsync();
         }
     }
 
@@ -150,7 +151,7 @@ namespace CreateAR.EnkluPlayer
             ThreadHelper.SyncStart(ReadSocket);
 
             Verbose("Connect: Complete.");
-
+            
             return true;
         }
         
@@ -200,6 +201,8 @@ namespace CreateAR.EnkluPlayer
             _writerStream = new DataWriterNetworkStream(_dataWriter);
 
             Verbose("ConnectWith: Created writer.");
+
+            IsConnected = true;
         }
         
         /// <summary>
@@ -280,7 +283,6 @@ namespace CreateAR.EnkluPlayer
             }
         }
         
-
         /// <summary>
         /// Internal close which can optionally dispatch.
         /// </summary>

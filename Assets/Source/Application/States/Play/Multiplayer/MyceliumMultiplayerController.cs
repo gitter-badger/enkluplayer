@@ -53,12 +53,7 @@ namespace CreateAR.EnkluPlayer
         private readonly OptimizedObjectPool<ByteArrayHandle> _buffers = new OptimizedObjectPool<ByteArrayHandle>(
             4, 0, 1,
             () => new ByteArrayHandle(1024));
-
-        /// <summary>
-        /// Buffers events until we're fully connected.
-        /// </summary>
-        private readonly List<UpdateElementEvent> _sceneEventBuffer = new List<UpdateElementEvent>();
-
+        
         /// <summary>
         /// Handles scene events.
         /// </summary>
@@ -70,10 +65,20 @@ namespace CreateAR.EnkluPlayer
         private readonly Dictionary<Type, Delegate> _subscriptions = new Dictionary<Type, Delegate>();
 
         /// <summary>
+        /// Buffers events until we're fully connected.
+        /// </summary>
+        private readonly List<object> _eventQueue = new List<object>();
+
+        /// <summary>
         /// Buffer that read thread pushes messages onto. Main thread polls for
         /// messages to execute on main thread.
         /// </summary>
-        private readonly List<object> _eventWaitBuffer = new List<object>();
+        private readonly List<object> _synchronizationBuffer = new List<object>();
+        
+        /// <summary>
+        /// True iff we are queueing rather than dispatching to subscriptions.
+        /// </summary>
+        private bool _isQueueingEvents = false;
 
         /// <summary>
         /// The main thread copies events into this buffer from _eventWaitBuffer.
@@ -141,6 +146,9 @@ namespace CreateAR.EnkluPlayer
 
             Log.Info(this, "Requesting multiplayer access token.");
 
+            // make sure we are buffering events
+            StartBufferingEvents();
+
             // start polling the message queue
             StartPoll();
 
@@ -163,22 +171,21 @@ namespace CreateAR.EnkluPlayer
             {
                 _sceneHandler.Initialize();
                 
-                // stop buffering events and forward them to the scene handler
+                // forward events to scene handler
                 Subscribe<UpdateElementVec3Event>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementCol4Event>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementIntEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementFloatEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementStringEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementBoolEvent>(_sceneHandler.OnUpdated);
+                Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
+                Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
 
-                // forward buffered events to the scene handler
-                for (int i = 0, len = _sceneEventBuffer.Count; i < len; i++)
-                {
-                    _sceneHandler.OnUpdated(_sceneEventBuffer[i]);
-                }
+                // process buffered events
+                StopBufferingEvents();
             }
         }
-
+        
         /// <inheritdoc />
         public void Disconnect()
         {
@@ -197,7 +204,7 @@ namespace CreateAR.EnkluPlayer
             _subscriptions.Clear();
 
             // kill scene handler
-            _sceneHandler.Initialize();
+            _sceneHandler.Uninitialize();
 
             StopPoll();
         }
@@ -274,6 +281,8 @@ namespace CreateAR.EnkluPlayer
             // if the request could not be sent, set a timer to flip it back
             if (!reqSent)
             {
+                Log.Info(this, "Mycelium is not connected: Use local AutoToggle.");
+
                 _bootstrapper.BootstrapCoroutine(Wait(
                     milliseconds / 1000f,
                     () => element.Schema.Set(prop, !value)));
@@ -310,9 +319,9 @@ namespace CreateAR.EnkluPlayer
             }
 
             // push to main thread
-            lock (_eventWaitBuffer)
+            lock (_synchronizationBuffer)
             {
-                _eventWaitBuffer.Add(message);
+                _synchronizationBuffer.Add(message);
             }
         }
         
@@ -377,21 +386,7 @@ namespace CreateAR.EnkluPlayer
                 _config.Network.Environment.MyceliumPort))
             {
                 Log.Info(this, "Connected to mycelium.");
-
-                // before we login, make sure we're buffering events
-                Subscribe<UpdateElementVec3Event>(OnBufferEvent);
-                Subscribe<UpdateElementCol4Event>(OnBufferEvent);
-                Subscribe<UpdateElementIntEvent>(OnBufferEvent);
-                Subscribe<UpdateElementFloatEvent>(OnBufferEvent);
-                Subscribe<UpdateElementStringEvent>(OnBufferEvent);
-                Subscribe<UpdateElementBoolEvent>(OnBufferEvent);
-
-                // ... and listen for the scene diff
-                Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
-
-                // ... and listen to map updates
-                Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
-
+                
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
             }
@@ -408,9 +403,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void StartPoll()
         {
-            lock (_eventWaitBuffer)
+            lock (_synchronizationBuffer)
             {
-                _eventWaitBuffer.Clear();
+                _synchronizationBuffer.Clear();
             }
 
             _bootstrapper.BootstrapCoroutine(Poll());
@@ -429,9 +424,9 @@ namespace CreateAR.EnkluPlayer
                 yield return null;
                 
                 // copy events
-                lock (_eventWaitBuffer)
+                lock (_synchronizationBuffer)
                 {
-                    _eventExecutionBufferLen = _eventWaitBuffer.Count;
+                    _eventExecutionBufferLen = _synchronizationBuffer.Count;
 
                     // grow
                     while (_eventExecutionBuffer.Length < _eventExecutionBufferLen)
@@ -442,10 +437,10 @@ namespace CreateAR.EnkluPlayer
                     // copy
                     for (var i = 0; i < _eventExecutionBufferLen; i++)
                     {
-                        _eventExecutionBuffer[i] = _eventWaitBuffer[i];
+                        _eventExecutionBuffer[i] = _synchronizationBuffer[i];
                     }
 
-                    _eventWaitBuffer.Clear();
+                    _synchronizationBuffer.Clear();
                 }
                 
                 // handle events
@@ -494,15 +489,6 @@ namespace CreateAR.EnkluPlayer
         {
             _pollId = -1;
         }
-
-        /// <summary>
-        /// Called when an message is received but we are not ready for it yet, so we buffer it.
-        /// </summary>
-        /// <param name="evt"></param>
-        private void OnBufferEvent(UpdateElementEvent evt)
-        {
-            _sceneEventBuffer.Add(evt);
-        }
         
         /// <summary>
         /// Called when we receive a response from login.
@@ -515,12 +501,52 @@ namespace CreateAR.EnkluPlayer
 
             _connect.Succeed(Void.Instance);
         }
-        
+
+        private void StartBufferingEvents()
+        {
+            _isQueueingEvents = true;
+        }
+
+        private void StopBufferingEvents()
+        {
+            if (!_isQueueingEvents)
+            {
+                return;
+            }
+
+            _isQueueingEvents = false;
+
+            var copy = _eventQueue.ToArray();
+            _eventQueue.Clear();
+
+            for (int i = 0, len = copy.Length; i < len; i++)
+            {
+                Dispatch(copy[i]);
+            }
+        }
+
         /// <summary>
         /// Handles a message.
         /// </summary>
         /// <param name="message">The message to handle.</param>
         private void Handle(object message)
+        {
+            // login can sneak by queue
+            if (!(message is LoginResponse) && _isQueueingEvents)
+            {
+                _eventQueue.Add(message);
+
+                return;
+            }
+
+            Dispatch(message);
+        }
+
+        /// <summary>
+        /// Dispatches event to handler.
+        /// </summary>
+        /// <param name="message">The message</param>
+        private void Dispatch(object message)
         {
             var type = message.GetType();
             Delegate handler;

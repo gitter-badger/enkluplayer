@@ -4,6 +4,7 @@ using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
 using Enklu.Mycelium.Messages;
 using Enklu.Mycelium.Messages.Experience;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -64,13 +65,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void Initialize()
         {
-            _elementHeap.Clear();
+            Log.Info(this, "SceneEventHandler initialized.");
 
-            _map = new ElementMap
-            {
-                Elements = new ElementMap.Record[0],
-                Props = new ElementMap.Record[0]
-            };
+            _elementHeap.Clear();
         }
 
         /// <summary>
@@ -78,6 +75,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void Uninitialize()
         {
+            Log.Info(this, "SceneEventHandler uninitialized.");
+
             _elementHeap.Clear();
         }
 
@@ -148,6 +147,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="evt">The event.</param>
         public void OnUpdated<T>(T evt) where T : UpdateElementEvent
         {
+            Verbose("OnUpdated({0})", JsonConvert.SerializeObject(evt));
+
             // find element
             var elId = ElementId(evt.ElementHash);
             var el = ById(elId);
@@ -216,10 +217,12 @@ namespace CreateAR.EnkluPlayer
         /// <param name="evt">The update event.</param>
         public void OnMapUpdated(SceneMapUpdateEvent evt)
         {
+            Log.Debug(this, "Map updated: Previous map : {0}", Map);
+
             Map.Props = Map.Props.Add(evt.PropsAdded);
             Map.Elements = Map.Elements.Add(evt.ElementsAdded);
 
-            Log.Debug(this, "Map updated : {0}", Map);
+            Log.Debug(this, "Map updated: Next map : {0}", Map);
 
             BuildMapUpdate();
         }
@@ -279,6 +282,14 @@ namespace CreateAR.EnkluPlayer
                 var record = props[i];
                 _propLookup[record.Hash] = record.Value;
             }
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        private void Verbose(string format, params object[] replacements)
+        {
+            Log.Info(this, format, replacements);
         }
     }
 }
