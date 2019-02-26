@@ -153,15 +153,30 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         public float CrawlFadeOutDepthScale = 5.0f;
 
-        [Header("Resources")] 
+        /// <summary>
+        /// Material used for Text displayed Overlaid.
+        /// </summary>
+        [Header("Resources")]
         public Material TextOverlay;
 
+        /// <summary>
+        /// Material used for Text displayed Occluded.
+        /// </summary>
         public Material TextOccluded;
 
+        /// <summary>
+        /// Material used for Text displayed Hidden.
+        /// </summary>
         public Material TextHidden;
 
+        /// <summary>
+        /// Material used for Buttons displayed Overlaid.
+        /// </summary>
         public Material ButtonOverlay;
 
+        /// <summary>
+        /// Material used for Buttons displayed Occluded.
+        /// </summary>
         public Material ButtonOccluded;
         
         /// <summary>

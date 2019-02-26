@@ -3,42 +3,77 @@ using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
+    /// <summary>
+    /// Manages getting shared Unity Material instances for primitives based on their display style.
+    /// </summary>
     public class MaterialManager
     {
-        public enum DisplayType
+        /// <summary>
+        /// The style in which a primitive is displayed.
+        /// </summary>
+        public enum DisplayStyle
         {
+            /// <summary>
+            /// Default. TODO: Make this dependent on Play/Edit mode.
+            /// </summary>
             Default,
+            
+            /// <summary>
+            /// Overlaid on top of everything.
+            /// </summary>
             Overlay,
+            
+            /// <summary>
+            /// Occluded in the scene.
+            /// </summary>
             Occluded,
+            
+            /// <summary>
+            /// Requires a nearby active gesture to be visible.
+            /// TODO: Actually implement this.
+            /// </summary>
             Hidden,
         }
 
-        private WidgetConfig _config;
+        /// <summary>
+        /// Configuration for Material refs.
+        /// </summary>
+        private readonly WidgetConfig _config;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MaterialManager(WidgetConfig config)
         {
             _config = config;
         }
 
-        public Material Material(Element element, DisplayType displayType)
+        /// <summary>
+        /// Gets a shared Material instance for a primitive based on a DisplayStyle.
+        /// </summary>
+        /// <param name="primitive">The primitive.</param>
+        /// <param name="displayStyle">The display style desired.</param>
+        /// <returns>A Unity material instance.</returns>
+        /// <exception cref="ArgumentException">Throws if primitive isn't supported.</exception>
+        public Material Material(Element primitive, DisplayStyle displayStyle)
         {
-            if (element is TextPrimitive)
+            if (primitive is TextPrimitive)
             {
-                switch (displayType)
+                switch (displayStyle)
                 {
-                    case DisplayType.Occluded:
+                    case DisplayStyle.Occluded:
                         return _config.TextOccluded;
-                    case DisplayType.Hidden:
+                    case DisplayStyle.Hidden:
                         return _config.TextHidden;
                     default:
                         return _config.TextOverlay;
                 }
             } 
-            else if (element is ActivatorPrimitive)
+            else if (primitive is ActivatorPrimitive)
             {
-                switch (displayType)
+                switch (displayStyle)
                 {
-                    case DisplayType.Occluded:
+                    case DisplayStyle.Occluded:
                         return _config.ButtonOccluded;
                     default:
                         return _config.ButtonOverlay;
@@ -50,15 +85,22 @@ namespace CreateAR.EnkluPlayer.IUX
             }
         }
 
-        public Material Material(Element element, string displayTypeStr)
+        /// <summary>
+        /// Gets a shared Material instance for a primitive based on a string DisplayStyle.
+        /// Parsing errors default to DisplayStyle.Default.
+        /// </summary>
+        /// <param name="primitive">The primitive.</param>
+        /// <param name="displayTypeStr">The display style desired.</param>
+        /// <returns>A Unity material instance.</returns>
+        public Material Material(Element primitive, string displayTypeStr)
         {
-            if (string.IsNullOrEmpty(displayTypeStr) || !Enum.IsDefined(typeof(DisplayType), displayTypeStr))
+            if (string.IsNullOrEmpty(displayTypeStr) || !Enum.IsDefined(typeof(DisplayStyle), displayTypeStr))
             {
-                return Material(element, DisplayType.Default);
+                return Material(primitive, DisplayStyle.Default);
             }
             
-            var displayType = Enum.Parse(typeof(DisplayType), displayTypeStr);
-            return Material(element, (DisplayType) displayType);
+            var displayType = Enum.Parse(typeof(DisplayStyle), displayTypeStr);
+            return Material(primitive, (DisplayStyle) displayType);
         }
     }
 }
