@@ -67,18 +67,16 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
 
-                // parser is async on platforms with threads
-#if UNITY_WEBGL
-                binder.Bind<IParserWorker>().To<SyncParserWorker>().ToSingleton();
-#else
-                binder.Bind<IParserWorker>().To<ThreadedParserWorker>().ToSingleton();
-#endif
-
                 // start worker
+#if UNITY_WEBGL || UNITY_EDITOR
+                binder.Bind<IParserWorker>().To<SyncParserWorker>().ToSingleton();
+
                 var worker = binder.GetInstance<IParserWorker>();
-#if UNITY_WEBGL
                 worker.Start();
 #else
+                binder.Bind<IParserWorker>().To<ThreadedParserWorker>().ToSingleton();
+
+                var worker = binder.GetInstance<IParserWorker>();
                 ThreadHelper.SyncStart(worker.Start);
 #endif
 

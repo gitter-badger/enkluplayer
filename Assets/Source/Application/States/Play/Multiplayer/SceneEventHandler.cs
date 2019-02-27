@@ -144,11 +144,10 @@ namespace CreateAR.EnkluPlayer
         /// <param name="evt">The diff event.</param>
         public void OnDiff(SceneDiffEvent evt)
         {
-            Log.Debug(this, "Diff event received: {0}", evt.Map);
-            Log.Debug(this, "Scene Deltas: {0}", evt.SceneDiff.Count);
-
+            Log.Warning(this, "Diff event received: {0}", evt.Map);
+            
             Map = evt.Map;
-            _scenePatcher.Apply(evt.SceneDiff);
+            _scenePatcher.Apply(evt.ToActions());
         }
 
         /// <summary>

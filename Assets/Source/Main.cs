@@ -199,8 +199,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
 	    private void OnApplicationQuit()
 	    {
+	        Log.Info(this, "OnApplicationQuit.");
+
 #if UNITY_EDITOR || UNITY_IOS
-	        var bridge = _binder.GetInstance<IBridge>() as WebSocketBridge;
+            var bridge = _binder.GetInstance<IBridge>() as WebSocketBridge;
 	        if (null != bridge)
 	        {
                 Log.Info(this, "Disposing IBridge.");
