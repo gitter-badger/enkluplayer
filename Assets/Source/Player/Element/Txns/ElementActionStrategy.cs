@@ -118,7 +118,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     LogVerbose(
                         "Setting [Element id={0}].strings[{1}] = {2}",
-                        action.Element.Id,
+                        action.ElementId,
                         action.Key,
                         action.Value);
 
@@ -131,7 +131,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     LogVerbose(
                         "Setting [Element id={0}].ints[{1}] = {2}",
-                        action.Element.Id,
+                        action.ElementId,
                         action.Key,
                         action.Value);
 
@@ -144,7 +144,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     LogVerbose(
                         "Setting [Element id={0}].float[{1}] = {2}",
-                        action.Element.Id,
+                        action.ElementId,
                         action.Key,
                         action.Value);
 
@@ -157,7 +157,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     LogVerbose(
                         "Setting [Element id={0}].bools[{1}] = {2}",
-                        action.Element.Id,
+                        action.ElementId,
                         action.Key,
                         action.Value);
 
@@ -170,7 +170,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     LogVerbose(
                         "Setting [Element id={0}].vectors[{1}] = {2}",
-                        action.Element.Id,
+                        action.ElementId,
                         action.Key,
                         action.Value);
 
@@ -183,7 +183,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     LogVerbose(
                         "Setting [Element id={0}].colors[{1}] = {2}",
-                        action.Element.Id,
+                        action.ElementId,
                         action.Key,
                         action.Value);
 

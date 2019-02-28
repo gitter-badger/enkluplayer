@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -14,7 +13,6 @@ using Enklu.Mycelium.Messages;
 using Enklu.Mycelium.Messages.Experience;
 using Enklu.Mycerializer;
 using UnityEngine;
-using Enklu.Data;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -285,8 +283,21 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            _tcp.Close();
-            _tcp = null;
+            StopPoll();
+
+            if (null != _tcp)
+            {
+                _tcp.OnConnectionClosed -= OnConnectionClosed;
+                try
+                {
+                    _tcp.Close();
+                }
+                catch (Exception e)
+                {
+                    Log.Debug("Socket Close thew harmless exception on disconnect: {0}", e);
+                }
+                _tcp = null;
+            }
 
             _connect.Fail(new Exception("Disconnected."));
             _connect = null;
@@ -296,8 +307,6 @@ namespace CreateAR.EnkluPlayer
 
             // kill scene handler
             _sceneHandler.Uninitialize();
-
-            StopPoll();
         }
 
         /// <inheritdoc />
@@ -397,7 +406,7 @@ namespace CreateAR.EnkluPlayer
                 Log.Error(this, "Unknown message type {0}.", id);
                 return;
             }
-            
+
             object message;
             try
             {
