@@ -107,7 +107,7 @@ namespace CreateAR.EnkluPlayer
             if (null == element)
             {
                 error = string.Format(
-                    "Could not find element {0} to delete it!",
+                    "Could not find element {0} to update it!",
                     action.ElementId);
                 return false;
             }
