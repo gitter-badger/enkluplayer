@@ -300,13 +300,16 @@ namespace CreateAR.EnkluPlayer
             // Attempt to Join the Read thread. If it does not join,
             // Force Abort(), then Join. This blocks during the entire
             // cleanup process.
-            if (!_readThread.Join(TimeSpan.FromSeconds(0.5)))
+            if (null != _readThread)
             {
-                _readThread.Abort();
-                _readThread.Join();
-            }
+                if (!_readThread.Join(TimeSpan.FromSeconds(0.5)))
+                {
+                    _readThread.Abort();
+                    _readThread.Join();
+                }
 
-            _readThread = null;
+                _readThread = null;
+            }
 
             // Closing the connection will cause the blocking Read() to
             // throw (the stream closes), thus exiting the read thread
