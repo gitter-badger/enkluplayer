@@ -87,9 +87,7 @@ namespace CreateAR.EnkluPlayer.Assets
         {
             _bootstrapper.BootstrapCoroutine(DownloadBundle());
 
-            return Async.Map(
-                _bundleLoad,
-                _ => Void.Instance);
+            return _bundleLoad.Map(_ => Void.Instance);
         }
 
         /// <summary>
@@ -239,6 +237,22 @@ namespace CreateAR.EnkluPlayer.Assets
             }
             else
             {
+                // in the editor, destroy all the audio components
+                // this is due to a Unity bug where audio inside of bundles
+                // can kill the editor
+                if (UnityEngine.Application.isEditor)
+                {
+                    var gameObject = asset as GameObject;
+                    if (null != gameObject)
+                    {
+                        var sources = gameObject.GetComponentsInChildren<AudioSource>();
+                        foreach (var source in sources)
+                        {
+                            Object.DestroyImmediate(source, true);
+                        }
+                    }
+                }
+
                 token.Succeed(asset);
             }
         }
