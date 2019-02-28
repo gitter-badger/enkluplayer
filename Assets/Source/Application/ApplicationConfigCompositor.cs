@@ -183,7 +183,7 @@ namespace CreateAR.EnkluPlayer
             var bytes = Encoding.UTF8.GetBytes(text);
             object app;
             serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
-
+            
             return (ApplicationConfig) app;
         }
     }

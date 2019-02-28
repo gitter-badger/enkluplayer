@@ -506,15 +506,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 _tcp.OnConnectionClosed += OnConnectionClosed;
-
-                // TEST: Bootstrap a 35 second timer that will disconnect (testing live reconnect + deltas)
-                /*_bootstrapper.BootstrapCoroutine(Wait(35.0f,
-                    () =>
-                    {
-                        _tcp.Close();
-                    }));
-                */
-
+                
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
             }

@@ -89,7 +89,16 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-                return UnityUtil.CurrentPlatform();
+                try
+                {
+                    return (RuntimePlatform) Enum.Parse(
+                        typeof(RuntimePlatform),
+                        UnityUtil.CurrentPlatform());
+                }
+                catch
+                {
+                    return UnityEngine.Application.platform;
+                }
             }
         }
         

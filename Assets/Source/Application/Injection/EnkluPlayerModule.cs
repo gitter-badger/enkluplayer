@@ -450,7 +450,7 @@ namespace CreateAR.EnkluPlayer
                     UnityEngine.Application.persistentDataPath,
                     "Application.log"))
             {
-                Filter = LogLevel.Debug
+                Filter = config.ParsedLevel
             });
 #endif // UNITY_WEBGL
 
