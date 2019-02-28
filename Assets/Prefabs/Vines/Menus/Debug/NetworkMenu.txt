@@ -16,12 +16,26 @@
             alignment='MidLeft'
             position=(0, -0.1, 0)
         />
+
+        <Text 
+            id='txt-multiplayer'
+            width=1000.0
+            alignment='MidLeft'
+            position=(0, -0.2, 0)
+        />
+
+        <Button
+            id='btn-multiplayer'
+            icon='refresh'
+            position=(-0.1, -0.2, 0)
+            ready.color='Negative'
+        />
         
         <Text 
             id='txt-ping'
             width=1000.0
             alignment='MidLeft'
-            position=(0, -0.2, 0)
+            position=(0, -0.3, 0)
         />
     </Container>
 </Float>

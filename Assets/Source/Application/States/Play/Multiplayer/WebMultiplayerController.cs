@@ -23,6 +23,9 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public bool IsConnected { get { return false; } }
 
+        /// <inheritdoc />
+        public event Action<bool> OnConnectionChanged;
+
         /// <summary>
         /// Constructor.
         /// </summary>

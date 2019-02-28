@@ -125,6 +125,9 @@ namespace CreateAR.EnkluPlayer
             get { return null != _tcp && _tcp.IsConnected; }
         }
 
+        /// <inheritdoc />
+        public event Action<bool> OnConnectionChanged;
+
         /// <summary>
         /// Retrieves the underlying tcp connection.
         /// </summary>
@@ -273,6 +276,11 @@ namespace CreateAR.EnkluPlayer
 
             // Flip flag and allow Poll() to handle
             _isConnectionClosed = true;
+
+            if (null != OnConnectionChanged)
+            {
+                OnConnectionChanged(false);
+            }
         }
 
         /// <inheritdoc />
@@ -291,6 +299,11 @@ namespace CreateAR.EnkluPlayer
                 try
                 {
                     _tcp.Close();
+
+                    if (null != OnConnectionChanged)
+                    {
+                        OnConnectionChanged(false);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -486,6 +499,11 @@ namespace CreateAR.EnkluPlayer
                 _config.Network.Environment.MyceliumPort))
             {
                 Log.Info(this, "Connected to mycelium.");
+
+                if (null != OnConnectionChanged)
+                {
+                    OnConnectionChanged(true);
+                }
 
                 _tcp.OnConnectionClosed += OnConnectionClosed;
 

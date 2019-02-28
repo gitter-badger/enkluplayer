@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using Jint;
+using Jint.Native;
+using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -40,6 +43,13 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             return context;
+        }
+
+        public void onConnectionChange(Engine engine, JsFunc cb)
+        {
+            _multiplayer.OnConnectionChanged += connected => cb.Invoke(
+                JsValue.FromObject(engine, this),
+                new[] {new JsValue(connected)});
         }
     }
 }

@@ -19,6 +19,11 @@ namespace CreateAR.EnkluPlayer
         bool IsConnected { get; }
 
         /// <summary>
+        /// Called when the connection has changed.
+        /// </summary>
+        event Action<bool> OnConnectionChanged;
+
+        /// <summary>
         /// Preps the multiplayer controller.
         /// </summary>
         /// <returns></returns>
