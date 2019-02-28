@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -80,6 +81,7 @@ namespace CreateAR.EnkluPlayer
 #else
                     _listener.HandleSocketMessage(new ArraySegment<byte>(_messageStream.GetBuffer(), 0, (int)_messageStream.Length));
 #endif
+
                     _messageStream.Clear();
                 }
             }

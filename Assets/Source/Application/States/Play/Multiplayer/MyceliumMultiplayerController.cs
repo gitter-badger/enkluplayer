@@ -128,6 +128,14 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Retrieves the underlying tcp connection.
+        /// </summary>
+        public ITcpConnection Tcp
+        {
+            get { return _tcp; }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public MyceliumMultiplayerController(
@@ -734,7 +742,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging method.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void Verbose(object message, params object[] replacements)
         {
             Log.Debug(this, message, replacements);

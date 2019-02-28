@@ -46,14 +46,16 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Applies the provided <see cref="ElementActionData"/> to the scene.
         /// </summary>
-        public void Apply(List<ElementActionData> diff)
+        public void Apply(List<ElementActionData> actions)
         {
+            Log.Warning(this, "Applying {0} actions.", actions.Count);
+
             // TODO: Consider reconnection use-case:
             // TODO:   - Create occurs while connected
             // TODO:   - Delete happens during reconnect (and cancels create)
-            for (int i = 0; i < diff.Count; ++i)
+            for (int i = 0; i < actions.Count; ++i)
             {
-                var action = diff[i];
+                var action = actions[i];
                 string error;
 
                 switch (action.Type)

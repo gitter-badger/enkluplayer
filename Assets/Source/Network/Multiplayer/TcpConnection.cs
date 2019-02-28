@@ -228,21 +228,25 @@ namespace CreateAR.EnkluPlayer
                     }
                     else
                     {
-                        
+
                         _readStream.Clear();
                     }
 
                     _readStream.Write(_readBuffer, 0, bytesRead);
                     _readStream.Position = resetPosition;
 
-                    // Message Reader will advance the Position of the stream as it reads. If it does not 
-                    // consume all of the data, we will append the next read. 
+                    // Message Reader will advance the Position of the stream as it reads. If it does not
+                    // consume all of the data, we will append the next read.
                     _messageReader.DataRead(_readStream);
                 }
             }
+            catch (ThreadAbortException e)
+            {
+                // We had to force abort on the thread, we do _not_ try and close again
+            }
             catch (Exception exception)
             {
-                Log.Warning(this, "Disconnected: {0}", exception);
+                //Log.Warning(this, "Disconnected: {0}", exception);
 
                 // Since the read thread doesn't start until after we have connected, we can generally expect
                 // an exception thrown here to be the result of a socket disconnection. We'll want to dispatch
@@ -252,8 +256,8 @@ namespace CreateAR.EnkluPlayer
             {
                 _isReading.Set(false);
 
-                _messageReader.Reset();
-                _readStream.Clear();
+                //_messageReader.Reset();
+                //_readStream.Clear();
             }
         }
 
@@ -289,6 +293,14 @@ namespace CreateAR.EnkluPlayer
 
             // Close Client Connection
             CloseClient(_client);
+
+            if (!_readThread.Join(TimeSpan.FromSeconds(0.5)))
+            {
+                _readThread.Abort();
+                _readThread.Join();
+            }
+
+            _readThread = null;
 
             // Closing the connection will cause the blocking Read() to
             // throw (the stream closes), thus exiting the read thread
