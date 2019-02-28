@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
@@ -28,6 +29,8 @@ namespace CreateAR.EnkluPlayer
         private readonly MemoryStream _readStream;
         private readonly NetworkStreamWrapper _writeStream = new NetworkStreamWrapper();
 
+        private Thread _readThread;
+
         /// <summary>
         /// Whether or not the <see cref="TcpConnection"/> is connected to an endpoint.
         /// </summary>
@@ -51,7 +54,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Creates a new <see cref="TcpConnection"/> instance 
+        /// Creates a new <see cref="TcpConnection"/> instance
         /// </summary>
         /// <param name="messageReader"></param>
         /// <param name="messageWriter"></param>
@@ -115,14 +118,14 @@ namespace CreateAR.EnkluPlayer
             _messageReader.Reset();
 
             // Starts the thread and waits for the thread to actually start before returning
-            ThreadHelper.SyncStart(ReadSocket);
+            _readThread = ThreadHelper.SyncStart(ReadSocket);
 
             return true;
         }
 
         /// <summary>
         /// Uses async connect with a synchronous Wait() up to <see cref="ConnectionTimeout"/>. This does not guarantee
-        /// connection success, but ensures that we wait for no longer than the provided timeout. 
+        /// connection success, but ensures that we wait for no longer than the provided timeout.
         /// </summary>
         private void ConnectWith(TcpClient client, IPAddress address, int port)
         {
@@ -142,7 +145,7 @@ namespace CreateAR.EnkluPlayer
                 throw new Exception("EndConnect completed but client is not connected.");
             }
         }
-        
+
         /// <summary>
         /// Uses the <see cref="ISocketMessageWriter"/> to write data to the outbound TCP buffer.
         /// </summary>
@@ -159,7 +162,7 @@ namespace CreateAR.EnkluPlayer
                     Close(true, false);
                     return false;
                 }
-                
+
                 _messageWriter.Write(_writeStream, message, offset, len);
             }
             catch (Exception exception)
@@ -219,7 +222,7 @@ namespace CreateAR.EnkluPlayer
                     }
 
                     // In the event that we still have data remaining on the previous dataHandler call,
-                    // prepend the remaining data on the new buffer. Otherwise, clear out the buffer and 
+                    // prepend the remaining data on the new buffer. Otherwise, clear out the buffer and
                     // start again.
                     if (_readStream.Position != _readStream.Length)
                     {
@@ -246,7 +249,7 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception exception)
             {
-                //Log.Warning(this, "Disconnected: {0}", exception);
+                Log.Warning(this, "Disconnected: {0}", exception);
 
                 // Since the read thread doesn't start until after we have connected, we can generally expect
                 // an exception thrown here to be the result of a socket disconnection. We'll want to dispatch
@@ -256,8 +259,8 @@ namespace CreateAR.EnkluPlayer
             {
                 _isReading.Set(false);
 
-                //_messageReader.Reset();
-                //_readStream.Clear();
+                _messageReader.Reset();
+                _readStream.Clear();
             }
         }
 
@@ -294,6 +297,9 @@ namespace CreateAR.EnkluPlayer
             // Close Client Connection
             CloseClient(_client);
 
+            // Attempt to Join the Read thread. If it does not join,
+            // Force Abort(), then Join. This blocks during the entire
+            // cleanup process.
             if (!_readThread.Join(TimeSpan.FromSeconds(0.5)))
             {
                 _readThread.Abort();
@@ -334,7 +340,7 @@ namespace CreateAR.EnkluPlayer
                 Log.Info(this, "Closing Socket Exception: {0}", e);
             }
         }
-        
+
         /// <summary>
         /// Creates a new <see cref="TcpClient"/> instance.
         /// </summary>

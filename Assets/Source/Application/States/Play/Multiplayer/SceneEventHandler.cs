@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
@@ -144,10 +145,25 @@ namespace CreateAR.EnkluPlayer
         /// <param name="evt">The diff event.</param>
         public void OnDiff(SceneDiffEvent evt)
         {
-            Log.Debug(this, "Diff event received: {0}", evt.Map);
+            Log.Warning(this, "Diff event received: {0}", evt.Map);
 
             Map = evt.Map;
-            _scenePatcher.Apply(evt.ToActions());
+            _scenePatcher.Apply(Expand(evt.ToActions()));
+        }
+
+        /// <summary>
+        /// Applies the hashing to the elementId and key.
+        /// </summary>
+        private List<ElementActionData> Expand(List<ElementActionData> actions)
+        {
+            for (int i = 0; i < actions.Count; ++i)
+            {
+                var action = actions[i];
+                action.ElementId = ElementId(action.ElementHash);
+                action.Key = PropName(action.KeyHash);
+            }
+
+            return actions;
         }
 
         /// <summary>
