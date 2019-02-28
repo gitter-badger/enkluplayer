@@ -736,6 +736,11 @@ namespace CreateAR.EnkluPlayer
         /// <param name="message">The message to send.</param>
         private void Send(object message)
         {
+            if (null == _tcp || !_tcp.IsConnected)
+            {
+                return;
+            }
+
             Verbose("Sending {0}.", message);
 
             ushort id;

@@ -25,6 +25,12 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public object Read(Type type, IByteStream buffer)
         {
+            var isAllocated = buffer.ReadBoolean();
+            if (!isAllocated)
+            {
+                return null;
+            }
+
             var instance = Activator.CreateInstance(type);
 
             var fields = type
@@ -110,7 +116,12 @@ namespace CreateAR.EnkluPlayer
             {
                 // length
                 var len = buffer.ReadUnsignedShort();
-                return buffer.ReadString(len, Encoding.UTF8);
+                if (0 == len)
+                {
+                    return string.Empty;
+                }
+
+                return buffer.ReadString(len, Encoding.ASCII);
             }
 
             // DateTime
@@ -155,6 +166,25 @@ namespace CreateAR.EnkluPlayer
                 return list;
             }
 
+            // handle dictionaries
+            if (fieldType.IsGenericType() && typeof(IDictionary).IsAssignableFrom(fieldType))
+            {
+                var kType = fieldType.GetGenericArguments()[0];
+                var vType = fieldType.GetGenericArguments()[1];
+
+                var len = buffer.ReadUnsignedShort();
+                var dict = (IDictionary)Activator.CreateInstance(fieldType);
+                for (var i = 0; i < len; i++)
+                {
+                    var key = ReadValue(kType, buffer);
+                    var value = ReadValue(vType, buffer);
+
+                    dict[key] = value;
+                }
+
+                return dict;
+            }
+
             // handle composites
             return Read(fieldType, buffer);
         }
@@ -169,21 +199,28 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Write(object instance, IByteStream buffer)
         {
-            var type = instance.GetType();
-            var fields = type
-                .GetFields(BindingFlags.Instance | BindingFlags.Public)
-                .OrderBy(f => f.Name);
-            foreach (var field in fields)
+            // write a byte for allocation or not
+            var allocated = null != instance;
+            buffer.WriteBoolean(allocated);
+
+            if (allocated)
             {
-                var fieldType = field.FieldType;
-
-                // detect cycles
-                if (fieldType == type)
+                var type = instance.GetType();
+                var fields = type
+                    .GetFields(BindingFlags.Instance | BindingFlags.Public)
+                    .OrderBy(f => f.Name);
+                foreach (var field in fields)
                 {
-                    continue;
-                }
+                    var fieldType = field.FieldType;
 
-                WriteValue(fieldType, field.GetValue(instance), buffer);
+                    // detect cycles
+                    if (fieldType == type)
+                    {
+                        continue;
+                    }
+
+                    WriteValue(fieldType, field.GetValue(instance), buffer);
+                }
             }
         }
 
@@ -260,14 +297,24 @@ namespace CreateAR.EnkluPlayer
             {
                 // length
                 var str = (string)value;
-                var len = str.Length;
+                var len = 0;
+                if (!string.IsNullOrEmpty(str))
+                {
+                    len = str.Length;
+                }
+
                 if (len > ushort.MaxValue)
                 {
                     throw new Exception($"Cannot write string of length '{len}'. Max length is '{ushort.MaxValue}'. ");
                 }
 
                 buffer.WriteUnsignedShort((ushort)len);
-                buffer.WriteString(str, Encoding.UTF8);
+
+                if (len > 0)
+                {
+                    buffer.WriteString(str, Encoding.ASCII);
+                }
+
                 return;
             }
 
@@ -344,6 +391,46 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 return;
+            }
+
+            // handle dictionaries
+            if (fieldType.IsGenericType() && typeof(IDictionary).IsAssignableFrom(fieldType))
+            {
+                var dict = (IDictionary)value;
+                var kType = fieldType.GetGenericArguments()[0];
+                var vType = fieldType.GetGenericArguments()[1];
+
+                var len = 0;
+                if (null != dict)
+                {
+                    len = dict.Count;
+                }
+
+                if (len > ushort.MaxValue)
+                {
+                    throw new Exception($"Cannpt write Dictionary<{kType.Name}, {vType.Name}> of length {len}. Max length is {ushort.MaxValue}.");
+                }
+
+                buffer.WriteUnsignedShort((ushort)len);
+
+                if (null != dict)
+                {
+                    var keys = dict.Keys;
+                    foreach (var key in keys)
+                    {
+                        var val = dict[key];
+
+                        WriteValue(kType, key, buffer);
+                        WriteValue(vType, val, buffer);
+                    }
+                }
+
+                return;
+            }
+
+            if (typeof(object) == fieldType)
+            {
+                throw new Exception("Field of type 'object' is not supported. Polymorphism is not supported by this serializer: pick a type and stick to it.");
             }
 
             // handle composites
