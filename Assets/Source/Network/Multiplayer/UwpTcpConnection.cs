@@ -408,7 +408,7 @@ namespace CreateAR.EnkluPlayer
 
                 if (len > ushort.MaxValue)
                 {
-                    throw new Exception($"Cannpt write Dictionary<{kType.Name}, {vType.Name}> of length {len}. Max length is {ushort.MaxValue}.");
+                    throw new Exception($"Cannot write Dictionary<{kType.Name}, {vType.Name}> of length {len}. Max length is {ushort.MaxValue}.");
                 }
 
                 buffer.WriteUnsignedShort((ushort)len);
@@ -526,7 +526,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public UwpTcpConnection(ISocketListener listener, ISocketMessageWriter writer)
         {
-            ConnectionTimeout = TimeSpan.FromSeconds(3f);
+            ConnectionTimeout = TimeSpan.FromMilliseconds(3000);
 
             _listener = listener;
             _writer = writer;
@@ -564,7 +564,13 @@ namespace CreateAR.EnkluPlayer
             {
                 Verbose("Connect: Connect.");
 
-                ConnectWith(_socket, hostName, port).Wait(ConnectionTimeout);
+                if (!ConnectWith(_socket, hostName, port))
+                {
+                    Log.Warning(this, "Could failed: timed out.");
+                    SilentClose();
+
+                    return false;
+                }
             }
             catch (Exception exception)
             {
@@ -604,6 +610,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Close()
         {
+            Log.Info(this, "Closing Tcp connection.");
+
             Close(true, false);
         }
 
@@ -622,17 +630,25 @@ namespace CreateAR.EnkluPlayer
         /// <param name="hostName">The host.</param>
         /// <param name="port">The port.</param>
         /// <returns></returns>
-        private async Task ConnectWith(StreamSocket socket, HostName hostName, int port)
+        private bool ConnectWith(StreamSocket socket, HostName hostName, int port)
         {
-            await socket.ConnectAsync(hostName, port.ToString());
-
+            if (!socket
+                .ConnectAsync(hostName, port.ToString())
+                .AsTask()
+                .Wait(ConnectionTimeout))
+            {
+                return false;
+            }
+            
             _dataWriter = new DataWriter(socket.OutputStream);
             _dataWriter.ByteOrder = ByteOrder.BigEndian;
             _writerStream = new DataWriterNetworkStream(_dataWriter);
-
+            
             Verbose("ConnectWith: Created writer.");
 
             IsConnected = true;
+
+            return true;
         }
         
         /// <summary>
@@ -759,7 +775,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void Verbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);
