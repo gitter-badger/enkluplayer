@@ -142,7 +142,7 @@ namespace CreateAR.EnkluPlayer
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(this, "Could not setup HostedGraphiteMetricsTarget: {0}", ex);
+                        Log.Warning(this, "Could not setup HostedGraphiteMetricsTarget: {0}", ex);
                     }
                 }
 
