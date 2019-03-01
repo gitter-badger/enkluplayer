@@ -543,7 +543,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Url for Mycelium.
         /// </summary>
-        public string MyceliumIp = "127.0.0.1";
+        public string MyceliumIp = "34.216.59.227";
 
         /// <summary>
         /// Url for Mycelium.
