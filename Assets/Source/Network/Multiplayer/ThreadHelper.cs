@@ -9,6 +9,10 @@ namespace CreateAR.EnkluPlayer
     public static class ThreadHelper
     {
 #if !NETFX_CORE
+        /// <summary>
+        /// Starts a thread and waits for confirmation of start before proceeding.
+        /// </summary>
+        /// <param name="threadStart">The action to start./param>
         public static Thread SyncStart(Action threadStart)
         {
             var startedEvent = new ManualResetEvent(false);
