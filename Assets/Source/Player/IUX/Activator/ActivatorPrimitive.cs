@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -31,7 +32,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly TweenConfig _tweens;
         private readonly ColorConfig _colors;
         private readonly IMessageRouter _messages;
-        private readonly MaterialManager _materialManager;
+        private readonly IMaterialManager _materialManager;
 
         /// <summary>
         /// Target widget.
@@ -241,7 +242,7 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            MaterialManager materialManager,
+            IMaterialManager materialManager,
             Widget target)
             : base(
                 new GameObject("Activator"),
@@ -443,7 +444,15 @@ namespace CreateAR.EnkluPlayer.IUX
             var displayType = _propDisplay.Value;
             if (!string.IsNullOrEmpty(displayType))
             {
-                _renderer.Frame.Renderer.material = _materialManager.Material(this, _propDisplay.Value);
+                var mat = _materialManager.Material(this, "Button" + _propDisplay.Value);
+                if (mat == null)
+                {
+                    Log.Error(this, "No material found for " + _propDisplay.Value);
+                }
+                else
+                {
+                    _renderer.Frame.Renderer.material = mat;
+                }
             }
 
             Schema.Get<string>("ready.color").OnChanged += (prop, p, n) => _renderer.UpdateProps();

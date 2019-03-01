@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interactions;
         private readonly WidgetConfig _config;
-        private readonly MaterialManager _materialManager;
+        private readonly IMaterialManager _materialManager;
 
         /// <summary>
         /// Constructor.
@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IIntentionManager intention,
             IInteractionManager interactions,
             WidgetConfig config,
-            MaterialManager materialManager)
+            IMaterialManager materialManager)
         {
             _elements = elements;
             _layers = layers;

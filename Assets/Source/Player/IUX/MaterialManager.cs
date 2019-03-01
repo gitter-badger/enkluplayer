@@ -1,106 +1,70 @@
 using System;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
-    /// Manages getting shared Unity Material instances for primitives based on their display style.
+    /// Manages getting shared Unity Material instances for elements.
     /// </summary>
-    public class MaterialManager
+    public class MaterialManager : IMaterialManager
     {
         /// <summary>
-        /// The style in which a primitive is displayed.
+        /// Material lookup.
         /// </summary>
-        public enum DisplayStyle
-        {
-            /// <summary>
-            /// Default. TODO: Make this dependent on Play/Edit mode.
-            /// </summary>
-            Default,
-            
-            /// <summary>
-            /// Overlaid on top of everything.
-            /// </summary>
-            Overlay,
-            
-            /// <summary>
-            /// Occluded in the scene.
-            /// </summary>
-            Occluded,
-            
-            /// <summary>
-            /// Requires a nearby active gesture to be visible.
-            /// TODO: Actually implement this.
-            /// </summary>
-            Hidden,
-        }
-
-        /// <summary>
-        /// Configuration for Material refs.
-        /// </summary>
-        private readonly WidgetConfig _config;
+        private readonly Dictionary<string, Material> _materials = new Dictionary<String,Material>();
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public MaterialManager(WidgetConfig config)
         {
-            _config = config;
-        }
-
-        /// <summary>
-        /// Gets a shared Material instance for a primitive based on a DisplayStyle.
-        /// </summary>
-        /// <param name="primitive">The primitive.</param>
-        /// <param name="displayStyle">The display style desired.</param>
-        /// <returns>A Unity material instance.</returns>
-        /// <exception cref="ArgumentException">Throws if primitive isn't supported.</exception>
-        public Material Material(Element primitive, DisplayStyle displayStyle)
-        {
-            if (primitive is TextPrimitive)
-            {
-                switch (displayStyle)
-                {
-                    case DisplayStyle.Occluded:
-                        return _config.TextOccluded;
-                    case DisplayStyle.Hidden:
-                        return _config.TextHidden;
-                    default:
-                        return _config.TextOverlay;
-                }
-            } 
-            else if (primitive is ActivatorPrimitive)
-            {
-                switch (displayStyle)
-                {
-                    case DisplayStyle.Occluded:
-                        return _config.ButtonOccluded;
-                    default:
-                        return _config.ButtonOverlay;
-                }
-            }
-            else
-            {
-                throw new ArgumentException("Element must be TextPrimitive or ActivatorPrimitive");
-            }
-        }
-
-        /// <summary>
-        /// Gets a shared Material instance for a primitive based on a string DisplayStyle.
-        /// Parsing errors default to DisplayStyle.Default.
-        /// </summary>
-        /// <param name="primitive">The primitive.</param>
-        /// <param name="displayTypeStr">The display style desired.</param>
-        /// <returns>A Unity material instance.</returns>
-        public Material Material(Element primitive, string displayTypeStr)
-        {
-            if (string.IsNullOrEmpty(displayTypeStr) || !Enum.IsDefined(typeof(DisplayStyle), displayTypeStr))
-            {
-                return Material(primitive, DisplayStyle.Default);
-            }
+            var textType = typeof(TextPrimitive);
+            var activatorType = typeof(ActivatorPrimitive);
             
-            var displayType = Enum.Parse(typeof(DisplayStyle), displayTypeStr);
-            return Material(primitive, (DisplayStyle) displayType);
+            // Register materials from WidgetConfig.
+            RegisterMaterial(textType, config.TextOverlay);
+            RegisterMaterial(textType, config.TextOccluded);
+            RegisterMaterial(textType, config.TextHidden);
+            RegisterMaterial(activatorType, config.ButtonOverlay);
+            RegisterMaterial(activatorType, config.ButtonOccluded);
+        }
+
+        
+        /// <inheritdoc />
+        public Material Material(Element element, string materialStr)
+        {
+            var key = CreateKey(element.GetType(), materialStr);
+
+            Material material;
+            _materials.TryGetValue(key, out material);
+
+            return material;
+        }
+
+        /// <inheritdoc />
+        public void RegisterMaterial(Type type, Material material)
+        {
+            var matName = material.name;
+            var key = CreateKey(type, matName);
+
+            if (_materials.ContainsKey(key))
+            {
+                throw new Exception(string.Format("Material already registered for type ({0} : {1})", type, matName));
+            }
+            _materials[key] = material;
+        }
+
+        /// <summary>
+        /// Creates a key for _materials based on type/name.
+        /// </summary>
+        /// <param name="type">Element type.</param>
+        /// <param name="materialStr">Material name.</param>
+        /// <returns></returns>
+        private static string CreateKey(Type type, string materialStr)
+        {
+            return string.Format("{0}:{1}", type.FullName, materialStr);
         }
     }
 }

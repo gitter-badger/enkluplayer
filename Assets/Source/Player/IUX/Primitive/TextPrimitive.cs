@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -19,7 +20,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Material Manager.
         /// </summary>
-        private readonly MaterialManager _materialManager;
+        private readonly IMaterialManager _materialManager;
         
         /// <summary>
         /// Renders text.
@@ -260,7 +261,7 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            MaterialManager materialManager)
+            IMaterialManager materialManager)
             : base(
                 new GameObject("Text"),
                 layers,
@@ -300,7 +301,7 @@ namespace CreateAR.EnkluPlayer.IUX
             var displayType = _propDisplay.Value;
             if (!string.IsNullOrEmpty(displayType))
             {
-                _renderer.Text.material = _materialManager.Material(this, _propDisplay.Value);
+                Display_OnChanged(_propDisplay, null, _propDisplay.Value);
             }
         }
 
@@ -431,7 +432,16 @@ namespace CreateAR.EnkluPlayer.IUX
             string prev,
             string next)
         {
-            _renderer.Text.material = _materialManager.Material(this, next);
+            var mat = _materialManager.Material(this, "Text" + next);
+            
+            if (mat == null)
+            {
+                Log.Error(this, "No material found for " + _propDisplay.Value);
+            }
+            else
+            {
+                _renderer.Text.material = mat;
+            }
         }
     }
 }
