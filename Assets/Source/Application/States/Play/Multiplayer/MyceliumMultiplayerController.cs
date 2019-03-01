@@ -746,18 +746,23 @@ namespace CreateAR.EnkluPlayer
             var buffer = _buffers.Get();
             var stream = new ByteStream(buffer);
 
-            // write type first
-            stream.WriteUnsignedShort(id);
+            try
+            {
+                // write type first
+                stream.WriteUnsignedShort(id);
 
-            // write object
-            _writer.Write(message, stream);
+                // write object
+                _writer.Write(message, stream);
 
-            Verbose("Wrote {0} bytes.", stream.WriterIndex);
+                Verbose("Wrote {0} bytes.", stream.WriterIndex);
 
-            _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
-
-            // return buffer
-            _buffers.Put(buffer);
+                _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
+            }
+            finally
+            {
+                // return buffer
+                _buffers.Put(buffer);
+            }
         }
 
         /// <summary>
