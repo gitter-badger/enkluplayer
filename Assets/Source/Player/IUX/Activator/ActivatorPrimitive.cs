@@ -451,7 +451,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 else
                 {
-                    _renderer.Frame.Renderer.material = mat;
+                    _renderer.Frame.Renderer.sharedMaterial = mat;
                 }
             }
 
