@@ -131,10 +131,7 @@ namespace CreateAR.EnkluPlayer
             var playId = _metrics.Timer(MetricsKeys.APP_PLAY).Start();
 
             // allow multiplayer to apply diff before we create the scene
-            if (!_config.Edit)
-            {
-                _multiplayer.ApplyDiff(_loader);
-            }
+            _multiplayer.ApplyDiff(_loader);
 
             // now create scene
             Scenes
@@ -144,10 +141,7 @@ namespace CreateAR.EnkluPlayer
                     _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
 
                     // now switch multiplayer on
-                    if (!_config.Edit)
-                    {
-                        _multiplayer.Play();
-                    }
+                    _multiplayer.Play();
 
                     if (null != OnReady)
                     {
