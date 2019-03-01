@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -31,6 +32,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly TweenConfig _tweens;
         private readonly ColorConfig _colors;
         private readonly IMessageRouter _messages;
+        private readonly IMaterialManager _materialManager;
 
         /// <summary>
         /// Target widget.
@@ -55,6 +57,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private ElementSchemaProp<int> _propHighlightPriority;
         private ElementSchemaProp<string> _propActivationType;
         private ElementSchemaProp<bool> _propSliderBehavior;
+        private ElementSchemaProp<string> _propDisplay;
 
         /// <summary>
         /// State management for the button
@@ -239,6 +242,7 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
+            IMaterialManager materialManager,
             Widget target)
             : base(
                 new GameObject("Activator"),
@@ -252,6 +256,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _tweens = tweens;
             _layers = layers;
             _colors = colors;
+            _materialManager = materialManager;
             _messages = messages;
             _target = target;
         }
@@ -434,6 +439,21 @@ namespace CreateAR.EnkluPlayer.IUX
             _propActivationType = Schema.GetOwn("activation.type", ActivationType.Fill.ToString());
             _renderer.Activation = EnumExtensions.Parse<ActivationType>(_propActivationType.Value);
             _propSliderBehavior = Schema.GetOwn("activation.slider", false);
+
+            _propDisplay = Schema.Get<string>("display");
+            var displayType = _propDisplay.Value;
+            if (!string.IsNullOrEmpty(displayType))
+            {
+                var mat = _materialManager.Material(this, "Button" + _propDisplay.Value);
+                if (mat == null)
+                {
+                    Log.Error(this, "No material found for " + _propDisplay.Value);
+                }
+                else
+                {
+                    _renderer.Frame.Renderer.sharedMaterial = mat;
+                }
+            }
 
             Schema.Get<string>("ready.color").OnChanged += (prop, p, n) => _renderer.UpdateProps();
         }

@@ -148,7 +148,7 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
-        /// Frame base dupdate.
+        /// Frame based update.
         /// </summary>
         protected virtual void LateUpdate()
         {

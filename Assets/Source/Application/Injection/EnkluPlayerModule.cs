@@ -583,6 +583,8 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                     binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
                 }
+
+                binder.Bind<IMaterialManager>().To<MaterialManager>().ToSingleton();
             }
 
             // design
