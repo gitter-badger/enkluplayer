@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -84,11 +85,19 @@ namespace CreateAR.EnkluPlayer
 
             Id = _config.AppId;
             
-            // load data and connect to multiplayer
+            // load data
+            var tokens = new List<IAsyncToken<Void>>
+            {
+                _loader.Load(_config)
+            };
+
+            if (!config.Edit)
+            {
+                tokens.Add(_multiplayer.Initialize());
+            }
+
             return Async
-                .All(
-                    _loader.Load(_config),
-                    _multiplayer.Initialize())
+                .All(tokens.ToArray())
                 .OnSuccess(_ =>
                 {
                     Name = _loader.Name;
