@@ -89,7 +89,16 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-                return UnityUtil.CurrentPlatform();
+                try
+                {
+                    return (RuntimePlatform) Enum.Parse(
+                        typeof(RuntimePlatform),
+                        UnityUtil.CurrentPlatform());
+                }
+                catch
+                {
+                    return UnityEngine.Application.platform;
+                }
             }
         }
         
@@ -532,13 +541,25 @@ namespace CreateAR.EnkluPlayer
         public string AnchorsUrl = "localhost";
 
         /// <summary>
+        /// Url for Mycelium.
+        /// </summary>
+        public string MyceliumIp = "34.216.59.227";
+
+        /// <summary>
+        /// Url for Mycelium.
+        /// </summary>
+        public int MyceliumPort = 10103;
+
+        /// <summary>
         /// Useful ToString.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}, ScriptsUrl={4}, AnchorsUrl={5}]",
+            return string.Format("[EnvironmentData TrellisUrl={0}, MyceliumUrl={1}:{2}, AssetsUrl={3}, BundlesUrl={4}, ThumbsUrl={5}, ScriptsUrl={6}, AnchorsUrl={7}]",
                 TrellisUrl,
+                MyceliumIp,
+                MyceliumPort,
                 AssetsUrl,
                 BundlesUrl,
                 ThumbsUrl,

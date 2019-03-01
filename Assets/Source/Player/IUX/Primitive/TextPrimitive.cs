@@ -231,7 +231,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Alpha.
         /// </summary>
-        public float Alpha
+        public override float Alpha
         {
             get
             {

@@ -258,8 +258,15 @@ namespace CreateAR.EnkluPlayer
                 throw new Exception("Could not find PlayModeConfig.");
             }
             
-            // initialize with app id
-            _app.Play();
+            // start the app controller
+            if (_config.Play.Edit)
+            {
+                _app.Edit();
+            }
+            else
+            {
+                _app.Play();
+            }
 
             // start designer
             _design.Setup(_context, _app);

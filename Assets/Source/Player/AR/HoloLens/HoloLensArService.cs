@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.AR;
 using UnityEngine.XR.WSA;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer
 {

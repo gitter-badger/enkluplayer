@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using NUnit.Framework;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
+using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {
@@ -23,7 +26,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
 
             _element = Element_IntegrationTests.ElementFactory().Element(description);
         }
-        
+
         private ElementRef GenerateRefs(int index)
         {
             var children = index == _letters.Length - 1
@@ -145,7 +148,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
             Assert.AreEqual(1, elements.Count);
             Assert.AreEqual("b", elements[0].Id);
         }
-        
+
         [Test]
         public void FindAllDeeper()
         {

@@ -698,7 +698,7 @@ PlayerSettings:
     Metro: 2
   il2cppCompilerConfiguration: {}
   incrementalIl2cppBuild: {}
-  allowUnsafeCode: 0
+  allowUnsafeCode: 1
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 0
   apiCompatibilityLevelPerPlatform:
@@ -707,7 +707,7 @@ PlayerSettings:
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Enklu
-  metroPackageVersion: 0.17.0.0
+  metroPackageVersion: 0.18.0.0
   metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: CreateAR

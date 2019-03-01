@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
-using Jint;
+using Enklu.Data;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -20,9 +20,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         private IEntityJs _elementA;
         private IEntityJs _elementB;
 
-        private int enterCount = 0;
-        private int stayCount = 0;
-        private int exitCount = 0;
+        private int enterCount;
+        private int stayCount;
+        private int exitCount;
 
         [SetUp]
         public void Setup()
@@ -34,19 +34,19 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             stayCount = 0;
             exitCount = 0;
 
-            _proximityChecker.OnEnter += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnEnter += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
                 enterCount++;
             };
 
-            _proximityChecker.OnStay += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnStay += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
                 stayCount++;
             };
 
-            _proximityChecker.OnExit += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnExit += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
                 exitCount++;
@@ -101,7 +101,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void ListenersIgnoreEachOther()
         {
             // Setup elements. A and B are both listeners
-            ElementJs listenerA = BuildElementJs(true, false, 2.5f, 5);
+            BuildElementJs(true, false, 2.5f, 5);
             ElementJs listenerB = BuildElementJs(true, false, 2.5f, 5);
 
             // Check for no-op
@@ -122,7 +122,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void TriggersIgnoreEachOther()
         {
             // Setup elements. A and B are both triggers
-            ElementJs triggerA = BuildElementJs(false, true, 2.5f, 5);
+            BuildElementJs(false, true, 2.5f, 5);
             ElementJs triggerB = BuildElementJs(false, true, 2.5f, 5);
 
             // Check for no-op
@@ -187,7 +187,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void ListenersCanBeTriggers()
         {
             // Both elements are listeners and triggers
-            ElementJs mixedA = BuildElementJs(true, true, 3, 5);
+            BuildElementJs(true, true, 3, 5);
             ElementJs mixedB = BuildElementJs(true, true, 2, 5);
 
             // We'll need some custom callback logic, so clear the existing ones
@@ -198,7 +198,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             ElementJs cachedListenerElement = null;
             ElementJs cachedTriggerElement = null;
 
-            _proximityChecker.OnEnter += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnEnter += (callbackListener, callbackTrigger) => {
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
                 // Gross, but we need to check that the callbacks are actually bi-directional and not just 2x
@@ -211,14 +211,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 if (cachedTriggerElement != null)
                 {
                     Assert.AreNotEqual(cachedTriggerElement, callbackTrigger);
-                    
+
                 }
                 cachedTriggerElement = (ElementJs)callbackTrigger;
 
                 enterCount++;
             };
 
-            _proximityChecker.OnStay += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnStay += (callbackListener, callbackTrigger) => {
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
                 // Gross, but we need to check that the callbacks are actually bi-directional and not just 2x
@@ -238,7 +238,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 stayCount++;
             };
 
-            _proximityChecker.OnExit += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnExit += (callbackListener, callbackTrigger) => {
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
                 // Gross, but we need to check that the callbacks are actually bi-directional and not just 2x
@@ -306,12 +306,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _proximityChecker.OnEnter = null;
             _proximityChecker.OnStay = null;
             _proximityChecker.OnExit = null;
-            
+
             ElementJs cachedEnterTrigger = null;
             ElementJs cachedStayTrigger = null;
             ElementJs cachedExitTrigger = null;
 
-            _proximityChecker.OnEnter += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnEnter += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(listener, callbackListener);
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
@@ -324,7 +324,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 enterCount++;
             };
 
-            _proximityChecker.OnStay += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnStay += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(listener, callbackListener);
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
@@ -338,7 +338,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 stayCount++;
             };
 
-            _proximityChecker.OnExit += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
+            _proximityChecker.OnExit += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(listener, callbackListener);
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 

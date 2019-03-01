@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
@@ -7,6 +6,7 @@ using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Source.Player.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -30,11 +30,9 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
-        private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
         private readonly IScriptingHostFactory _scriptHostFactory;
         private readonly IAssetManager _assets;
-        private readonly IAssetPoolManager _pools;
         private readonly IQrReaderService _qr;
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
@@ -47,7 +45,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
         private readonly ApplicationConfig _appConfig;
-        private readonly EditorSettings _editorSettings;
         private readonly ElementSchemaDefaults _elementSchemaDefaults;
 
         /// <summary>
@@ -66,11 +63,9 @@ namespace CreateAR.EnkluPlayer.IUX
             IImageLoader imageLoader,
             IHttpService http,
             IWorldAnchorProvider provider,
-            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IScriptingHostFactory scriptHostFactory,
             IAssetManager assets,
-            IAssetPoolManager pools,
             IQrReaderService qr,
             IScanLoader scanLoader,
             IScanImporter scanImporter,
@@ -83,7 +78,6 @@ namespace CreateAR.EnkluPlayer.IUX
             TweenConfig tweens,
             WidgetConfig config,
             ApplicationConfig appConfig,
-            EditorSettings editorSettings,
             ElementSchemaDefaults elementSchemaDefaults)
         {
             _parser = parser;
@@ -100,11 +94,9 @@ namespace CreateAR.EnkluPlayer.IUX
             _imageLoader = imageLoader;
             _http = http;
             _provider = provider;
-            _resolver = resolver;
             _scripts = scripts;
             _scriptHostFactory = scriptHostFactory;
             _assets = assets;
-            _pools = pools;
             _qr = qr;
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
@@ -114,7 +106,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _elementJsFactory = elementJsFactory;
             _bootstrapper = bootstrapper;
             _appConfig = appConfig;
-            _editorSettings = editorSettings;
             _elementSchemaDefaults = elementSchemaDefaults;
         }
 
@@ -158,7 +149,7 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 children[i] = Element(childData[i]);
             }
-            
+
             // element
             var schema = new ElementSchema(data.Id);
             schema.Load(data.Schema);
@@ -260,7 +251,6 @@ namespace CreateAR.EnkluPlayer.IUX
                         _tweens,
                         _colors,
                         new AssetAssembler(_assets, _appConfig.Play),
-                        _resolver,
                         _scripts,
                         _scriptHostFactory,
                         _jsCache,
@@ -277,13 +267,13 @@ namespace CreateAR.EnkluPlayer.IUX
                 case ElementTypes.WORLD_ANCHOR:
                 {
                     return new WorldAnchorWidget(
-                        new GameObject("WorldAnchor"), 
-                        _layers, 
-                        _tweens, 
-                        _colors, 
-                        _http, 
-                        _provider, 
-                        _metrics, 
+                        new GameObject("WorldAnchor"),
+                        _layers,
+                        _tweens,
+                        _colors,
+                        _http,
+                        _provider,
+                        _metrics,
                         _messages,
                         _bootstrapper,
                         _appConfig);

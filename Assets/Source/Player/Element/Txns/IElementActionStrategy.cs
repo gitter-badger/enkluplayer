@@ -1,4 +1,5 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -13,7 +14,7 @@ namespace CreateAR.EnkluPlayer
         Element Element { get; }
 
         /// <summary>
-        /// Appllies a create action.
+        /// Applies a create action.
         /// </summary>
         /// <param name="action">The action to apply.</param>
         /// <param name="error">The error, if any.</param>
@@ -27,6 +28,15 @@ namespace CreateAR.EnkluPlayer
         /// <param name="action">The action to apply.</param>
         /// <param name="error">The error, if any.</param>
         bool ApplyDeleteAction(
+            ElementActionData action,
+            out string error);
+
+        /// <summary>
+        /// Directly applies an update without storing previous state.
+        /// </summary>
+        /// <param name="action">The action to apply.</param>
+        /// <param name="error">The error, if any.</param>
+        bool ApplyUpdateAction(
             ElementActionData action,
             out string error);
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using NUnit.Framework;
 
 namespace CreateAR.EnkluPlayer.Test.UI
@@ -17,7 +18,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
             _schema = new ElementSchema("Foo");
             _schema.Set("foo", 5);
         }
-        
+
         [Test]
         public void GetPropInt()
         {
@@ -191,7 +192,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
 
             child.Set("bar", 47);
         }
-        
+
         [Test]
         public void WrapReparent()
         {
@@ -296,20 +297,20 @@ namespace CreateAR.EnkluPlayer.Test.UI
         public void HasProp()
         {
             Assert.IsTrue(_schema.HasProp("foo"));
-            
+
             Assert.IsFalse(_schema.HasProp("bar"));
             _schema.Set("bar", 100);
             Assert.IsTrue(_schema.HasProp("bar"));
         }
-        
+
         [Test]
         public void HasPropChild()
         {
             var schema = new ElementSchema("Foo");
             schema.Wrap(_schema);
-            
+
             Assert.IsTrue(schema.HasProp("foo"));
-            
+
             Assert.IsFalse(schema.HasProp("bar"));
             _schema.Set("bar", 100);
             Assert.IsTrue(schema.HasProp("bar"));
@@ -320,7 +321,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
         {
             var schema = new ElementSchema("Foo");
             schema.Wrap(_schema);
-            
+
             Assert.IsTrue(_schema.HasOwnProp("foo"));
             Assert.IsFalse(schema.HasOwnProp("foo"));
         }
@@ -332,11 +333,11 @@ namespace CreateAR.EnkluPlayer.Test.UI
             schema.Wrap(_schema);
 
             schema.Get<int>("foo");
-            
+
             Assert.IsTrue(_schema.HasOwnProp("foo"));
             Assert.IsFalse(schema.HasOwnProp("foo"));
         }
-        
+
         [Test]
         public void HasOwnPropUnLinked()
         {
@@ -345,7 +346,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
 
             var prop = schema.Get<int>("foo");
             prop.Value = 12;
-            
+
             Assert.IsTrue(_schema.HasOwnProp("foo"));
             Assert.IsTrue(schema.HasOwnProp("foo"));
         }
@@ -464,7 +465,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
                 }
             });
             c.Wrap(b);
-            
+
             var propsC = c.ToArray();
             Assert.AreEqual(1, propsC.Length);
             Assert.AreEqual("c", ((ElementSchemaProp<string>) propsC[0]).Value);
@@ -581,10 +582,10 @@ namespace CreateAR.EnkluPlayer.Test.UI
             a.GetOwn("foo", "a").OnChanged += (_, __, next) =>
             {
                 called = true;
-                
+
                 Assert.AreEqual(next, "b");
             };
-            
+
             a.Set("foo", "b");
 
             Assert.IsTrue(called);

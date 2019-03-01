@@ -8,6 +8,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -26,7 +27,7 @@ namespace CreateAR.EnkluPlayer
             /// The associated GameObject.
             /// </summary>
             public readonly GameObject GameObject;
-            
+
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -164,7 +165,7 @@ namespace CreateAR.EnkluPlayer
         /// Caption on UI.
         /// </summary>
         private TextWidget _cpnProgress;
-        
+
         /// <summary>
         /// Caption on UI.
         /// </summary>
@@ -210,7 +211,7 @@ namespace CreateAR.EnkluPlayer
         /// Whether the bypass button should be disabled or not.
         /// </summary>
         private ElementSchemaProp<bool> _disableBypassProp;
-        
+
         /// <summary>
         /// Read only collection of currently tracked anchors.
         /// </summary>
@@ -319,7 +320,7 @@ namespace CreateAR.EnkluPlayer
 
                 _locatingMessageProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
                 _disableBypassProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
-                
+
                 SetupAnchors();
             }
             else
@@ -378,7 +379,7 @@ namespace CreateAR.EnkluPlayer
                 _surfaces[id] = new SurfaceRecord(filter.gameObject);
             }
         }
-        
+
         /// <summary>
         /// Modifies a position/rotation relative to a located anchor. The primary anchor is prioritized.
         /// The anchor used for relative positioning is returned. If all anchors aren't located, null is returned.
@@ -390,7 +391,7 @@ namespace CreateAR.EnkluPlayer
         public WorldAnchorWidget RelativeTransform(ref Vector3 position, ref Quaternion rotation)
         {
             WorldAnchorWidget refAnchor = null;
-            
+
             // Attempt to use the primary... primarily
             if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
             {
@@ -471,10 +472,10 @@ namespace CreateAR.EnkluPlayer
 
                 return;
             }
-            
+
             var root = _scenes.Root(_sceneId);
             FindPrimaryAnchor(root);
-            
+
             // poll for anchors
             _pollAnchors = true;
             _bootstrapper.BootstrapCoroutine(PollAnchors());
@@ -668,7 +669,7 @@ namespace CreateAR.EnkluPlayer
                         out importing,
                         out unlocated,
                         out numLocated);
-                    
+
                     UpdateStatusUI(errors, downloading, importing, unlocated, numLocated);
 
                     if (!AreAllAnchorsReady && numLocated > 0 && importing == 0)
@@ -687,7 +688,7 @@ namespace CreateAR.EnkluPlayer
                         _metrics.Value(MetricsKeys.ANCHOR_STATE_UNLOCATEDRATIO).Value((float) _pollUnlocated / _anchors.Count);
                     }
                 }
-                
+
                 yield return null;
             }
         }
@@ -784,14 +785,14 @@ namespace CreateAR.EnkluPlayer
             {
                 _cpnProgress.LocalVisible = true;
                 _cpnLocating.LocalVisible = false;
-                
+
                 UpdateProgressUI(errors, downloading, importing, unlocated, located);
             }
             else if (0 == located)
             {
                 _cpnLocating.LocalVisible = true;
                 _cpnProgress.LocalVisible = false;
-                
+
                 UpdateLocatingUI();
             }
             else
@@ -817,7 +818,7 @@ Errors: {3} / {0}",
                 errors);
 
             _rootUI.Schema.Set("visible", true);
-            
+
             if (unlocated + errors == _anchors.Count)
             {
                 _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
@@ -1007,7 +1008,7 @@ Errors: {3} / {0}",
 
             anchor.Export(_config.Play.AppId, _sceneId, _txns);
         }
-        
+
         /// <summary>
         /// Called when anchors have been enabled/disabled.
         /// </summary>
@@ -1031,7 +1032,7 @@ Errors: {3} / {0}",
                 Ready();
             }
         }
-        
+
         /// <summary>
         /// Called when a widget wants to auto-export.
         /// </summary>
@@ -1047,7 +1048,7 @@ Errors: {3} / {0}",
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
                 // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added.
-                // This occurs when anchors are created after the initial scene graph is searched for anchors.    
+                // This occurs when anchors are created after the initial scene graph is searched for anchors.
                 if (!_anchors.Contains(anchor))
                 {
                     // Super ugly. I'm the worst.
@@ -1058,9 +1059,9 @@ Errors: {3} / {0}",
                     if (OnAnchorElementUpdate != null)
                     {
                         OnAnchorElementUpdate();
-                    } 
+                    }
                 }
-                
+
                 // Trigger relative positioning update so the anchor pending export
                 //    has the right position before it is saved.
                 UpdateRelativePositioning();

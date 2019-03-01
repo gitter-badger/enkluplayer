@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -134,9 +135,15 @@ namespace CreateAR.EnkluPlayer
                     Log.Info(this, "Adding HostedGraphiteMetricsTarget.");
 
                     var target = _binder.GetInstance<IHostedGraphiteMetricsTarget>();
-                    target.Setup(config.Hostname, config.ApplicationKey);
-
-                    metrics.AddTarget(target);
+                    try
+                    {
+                        target.Setup(config.Hostname, config.ApplicationKey);
+                        metrics.AddTarget(target);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning(this, "Could not setup HostedGraphiteMetricsTarget: {0}", ex);
+                    }
                 }
 
                 if (targets.Contains(FileMetricsTarget.TYPE))
@@ -192,8 +199,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
 	    private void OnApplicationQuit()
 	    {
+	        Log.Info(this, "OnApplicationQuit.");
+
 #if UNITY_EDITOR || UNITY_IOS
-	        var bridge = _binder.GetInstance<IBridge>() as WebSocketBridge;
+            var bridge = _binder.GetInstance<IBridge>() as WebSocketBridge;
 	        if (null != bridge)
 	        {
                 Log.Info(this, "Disposing IBridge.");
@@ -201,6 +210,9 @@ namespace CreateAR.EnkluPlayer
 	            bridge.Dispose();
 	        }
 #endif
+
+	        var multiplayer = _binder.GetInstance<IMultiplayerController>();
+            multiplayer.Disconnect();
 
             // clean up loggers
 	        var targets = Log.Targets;

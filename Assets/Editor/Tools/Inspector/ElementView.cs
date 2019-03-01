@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using UnityEditor;
 using UnityEngine;
 

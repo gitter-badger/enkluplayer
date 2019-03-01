@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Util;
+using Enklu.Data;
 using NUnit.Framework;
 using UnityEngine;
 

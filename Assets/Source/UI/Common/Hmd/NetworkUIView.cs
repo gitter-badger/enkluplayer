@@ -13,9 +13,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         [Inject] 
         public ApplicationConfig Config { get; set; }
-        
         [Inject]
         public AwsPingController PingController { get; set; }
+        [Inject]
+        public IMultiplayerController Multiplayer { get; set; }
         
         /// <summary>
         /// Injected Elements.
@@ -28,9 +29,15 @@ namespace CreateAR.EnkluPlayer
         
         [InjectElements("..txt-network")]
         public TextWidget TxtNetwork { get; set; }
-        
+
+        [InjectElements("..txt-multiplayer")]
+        public TextWidget TxtMultiplayer { get; set; }
+
         [InjectElements("..txt-ping")]
         public TextWidget TxtPing { get; set; }
+
+        [InjectElements("..btn-multiplayer")]
+        public ButtonWidget BtnDisconnect { get; set; }
 
         /// <summary>
         /// Invoked when the UI should close.
@@ -49,6 +56,15 @@ namespace CreateAR.EnkluPlayer
                     OnClose();
                 }
             };
+
+            BtnDisconnect.OnActivated += _ =>
+            {
+                var mycelium = Multiplayer as MyceliumMultiplayerController;
+                if (null != mycelium)
+                {
+                    mycelium.Tcp.Close();
+                }
+            };
         }
 
         /// <summary>
@@ -58,6 +74,7 @@ namespace CreateAR.EnkluPlayer
         {
             TxtConfig.Label = "Config Online: " + !Config.Network.Offline;
             TxtNetwork.Label = "Network Online: " + PingController.Online;
+            TxtMultiplayer.Label = "Multiplayer Online: " + Multiplayer.IsConnected;
             TxtPing.Label = "Ping: " + (int) PingController.PingMs;
         }
     }
