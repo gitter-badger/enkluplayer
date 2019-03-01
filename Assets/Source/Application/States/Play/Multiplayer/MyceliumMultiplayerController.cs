@@ -6,6 +6,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.DataStructures;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
@@ -34,6 +35,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IBootstrapper _bootstrapper;
         private readonly IElementManager _elements;
         private readonly ITcpConnectionFactory _connections;
+        private readonly IMessageRouter _messageRouter;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
 
@@ -53,6 +55,13 @@ namespace CreateAR.EnkluPlayer
         private readonly OptimizedObjectPool<ByteArrayHandle> _buffers = new OptimizedObjectPool<ByteArrayHandle>(
             4, 0, 1,
             () => new ByteArrayHandle(1024));
+
+        /// <summary>
+        /// Back off calculation that occurs each reconnect attempt. Provides a nice spacing between
+        /// attempts preventing spam when the server isn't available.
+        /// </summary>
+        private readonly IBackOff _backOff = new ExponentialBackOff(5.0, 60.0);
+        //private readonly IBackOff _backOff = new LinearBackOff(5.0, 3.0, 60.0);
 
         /// <summary>
         /// Handles scene events.
@@ -118,7 +127,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Flag whether or not the connection has been closed.
         /// </summary>
-        private bool _isConnectionClosed = false;
+        private bool _needsReconnect = false;
+
+        /// <summary>
+        /// Flag to denote we're either reconnecting or waiting to reconnect.
+        /// </summary>
+        private bool _isReconnecting = false;
 
         /// <inheritdoc />
         public bool IsConnected
@@ -146,6 +160,7 @@ namespace CreateAR.EnkluPlayer
             IAppSceneManager scenes,
             IElementActionStrategyFactory patcherFactory,
             ITcpConnectionFactory connections,
+            IMessageRouter messageRouter,
             IMessageReader reader,
             IMessageWriter writer,
             ApiController api,
@@ -154,6 +169,7 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper = bootstrapper;
             _elements = elements;
             _connections = connections;
+            _messageRouter = messageRouter;
             _reader = reader;
             _writer = writer;
             _api = api;
@@ -170,6 +186,9 @@ namespace CreateAR.EnkluPlayer
             {
                 return _connect.Token();
             }
+
+            // Add OnResume subscriber to handle reconnects
+            _messageRouter.Subscribe(MessageTypes.APPLICATION_RESUME, OnApplicationResume);
 
             // make sure we are buffering events
             StartQueueingMessages();
@@ -276,7 +295,7 @@ namespace CreateAR.EnkluPlayer
             Log.Debug(this, "OnConnectionClosed[ResetByPeer: {0}]", resetByPeer);
 
             // Flip flag and allow Poll() to handle
-            _isConnectionClosed = true;
+            _needsReconnect = true;
 
             if (null != OnConnectionChanged)
             {
@@ -321,6 +340,16 @@ namespace CreateAR.EnkluPlayer
 
             // kill scene handler
             _sceneHandler.Uninitialize();
+        }
+
+        /// <summary>
+        /// When the application resumes, we always assume a disconnected state and reconnect.
+        /// </summary>
+        private void OnApplicationResume(object obj)
+        {
+            Log.Warning(this, "OnApplicationResume!");
+
+            _needsReconnect = true;
         }
 
         /// <inheritdoc />
@@ -507,13 +536,18 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 _tcp.OnConnectionClosed += OnConnectionClosed;
-                
+
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
             }
             else
             {
                 Log.Warning(this, "Could not connect to mycelium. Succeeding token and using local fallback.");
+
+                if (!_isReconnecting)
+                {
+                    _needsReconnect = true;
+                }
 
                 _connect.Succeed(Void.Instance);
             }
@@ -571,10 +605,14 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 // check for flagged connection close
-                if (_isConnectionClosed)
+                if (_needsReconnect)
                 {
                     // Reset Flag, Reconnect
-                    _isConnectionClosed = false;
+                    _needsReconnect = false;
+
+                    // Flag Reconnect
+                    _isReconnecting = true;
+
                     Reconnect()
                         .OnSuccess(_ =>
                         {
@@ -585,13 +623,19 @@ namespace CreateAR.EnkluPlayer
                             if (IsConnected)
                             {
                                 Log.Debug(this, "Reconnect Successful");
+
+                                // Reset Connection Back Off
+                                _backOff.Reset();
+
                                 return;
                             }
 
                             // Otherwise, we'll flip our flag back and retry after a timeout
-                            Log.Debug(this, "Reconnect Failed...");
+                            var nextRetryTime = (float) _backOff.Next();
+                            Log.Debug(this, "Reconnect Failed; Trying again in: {0} seconds", nextRetryTime);
+
                             _bootstrapper.BootstrapCoroutine(
-                                Wait(5.0f, () => _isConnectionClosed = true));
+                                Wait(nextRetryTime, () => _needsReconnect = true));
                         });
                 }
             }
