@@ -1,5 +1,5 @@
-﻿using Enklu.Data;
-using UnityEngine;
+using Enklu.Data;
+﻿using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -153,6 +153,32 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Defines how far text pushes backwards as it fades as multiple of CrawlFadeOutOffset.
         /// </summary>
         public float CrawlFadeOutDepthScale = 5.0f;
+
+        /// <summary>
+        /// Material used for Text displayed Overlaid.
+        /// </summary>
+        [Header("Resources")]
+        public Material TextOverlay;
+
+        /// <summary>
+        /// Material used for Text displayed Occluded.
+        /// </summary>
+        public Material TextOccluded;
+
+        /// <summary>
+        /// Material used for Text displayed Hidden.
+        /// </summary>
+        public Material TextHidden;
+
+        /// <summary>
+        /// Material used for Buttons displayed Overlaid.
+        /// </summary>
+        public Material ButtonOverlay;
+
+        /// <summary>
+        /// Material used for Buttons displayed Occluded.
+        /// </summary>
+        public Material ButtonOccluded;
         
         /// <summary>
         /// Text prefab.

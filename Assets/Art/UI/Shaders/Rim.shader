@@ -1,4 +1,4 @@
-﻿Shader "Spire Player/Rim"
+﻿Shader "Enklu/Rim - Occluded"
 {
 	Properties
 	{
@@ -9,7 +9,7 @@
 	SubShader
 	{
 		// Subshader Tags
-		Tags { "Queue"="Geometry" "RenderType"="Transparent" }
+		Tags { "Queue"="Transparent" "RenderType"="Transparent" }
 		Blend SrcAlpha OneMinusSrcAlpha
 		Cull Back
 		ZWrite Off
