@@ -60,11 +60,6 @@ namespace CreateAR.EnkluPlayer
         private readonly SceneEventHandler _sceneHandler;
 
         /// <summary>
-        /// Handles patching the current scene with diffs created in a multiplayer environment.
-        /// </summary>
-        private readonly ScenePatcher _scenePatcher;
-
-        /// <summary>
         /// Maps message type to the delegate that should handle it.
         /// </summary>
         private readonly Dictionary<Type, Delegate> _subscriptions = new Dictionary<Type, Delegate>();
@@ -158,9 +153,10 @@ namespace CreateAR.EnkluPlayer
             _writer = writer;
             _api = api;
             _config = config;
-
-            _scenePatcher = new ScenePatcher(scenes, patcherFactory);
-            _sceneHandler = new SceneEventHandler(_elements, _scenePatcher);
+            
+            _sceneHandler = new SceneEventHandler(
+                _elements,
+                new ScenePatcher(scenes, patcherFactory));
         }
 
         /// <inheritdoc />
