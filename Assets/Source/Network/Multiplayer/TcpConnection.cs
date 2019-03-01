@@ -18,40 +18,62 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public static TimeSpan ConnectionTimeout { get; set; }
 
-        private TcpClient _client;
+        /// <summary>
+        /// Reads from stream.
+        /// </summary>
         private readonly ISocketMessageReader _messageReader;
-        private readonly ISocketMessageWriter _messageWriter;
-
-        private readonly AtomicBool _isReading = new AtomicBool(false);
-        private readonly AtomicBool _initialized = new AtomicBool(false);
-
-        private readonly byte[] _readBuffer;
-        private readonly MemoryStream _readStream;
-        private readonly NetworkStreamWrapper _writeStream = new NetworkStreamWrapper();
-
-        private Thread _readThread;
 
         /// <summary>
-        /// Whether or not the <see cref="TcpConnection"/> is connected to an endpoint.
+        /// Writes to stream.
         /// </summary>
+        private readonly ISocketMessageWriter _messageWriter;
+
+        /// <summary>
+        /// True iff we are reading from a stream.
+        /// </summary>
+        private readonly AtomicBool _isReading = new AtomicBool(false);
+
+        /// <summary>
+        /// True iff the connection has been initialized.
+        /// </summary>
+        private readonly AtomicBool _initialized = new AtomicBool(false);
+
+        /// <summary>
+        /// Buffer we read data into.
+        /// </summary>
+        private readonly byte[] _readBuffer;
+
+        /// <summary>
+        /// Memory stream for reading.
+        /// </summary>
+        private readonly MemoryStream _readStream;
+
+        /// <summary>
+        /// Stream wrapper for writing.
+        /// </summary>
+        private readonly NetworkStreamWrapper _writeStream = new NetworkStreamWrapper();
+
+        /// <summary>
+        /// The read thread.
+        /// </summary>
+        private Thread _readThread;
+
+        /// <inheritdoc />
         public bool IsConnected
         {
             get
             {
-                return null != _client && _client.Connected;
+                return null != Client && Client.Connected;
             }
         }
 
-        /// <summary>
-        /// Fired when the connection is closed. The <see cref="bool"/> flag is set to
-        /// <c>true</c> when the connection has been dropped from the server.
-        /// </summary>
+        /// <inheritdoc />
         public Action<bool> OnConnectionClosed { get; set; }
 
-        public TcpClient TemporaryDebugging
-        {
-            get { return _client; }
-        }
+        /// <summary>
+        /// The TCP client.
+        /// </summary>
+        public TcpClient Client { get; private set; }
 
         /// <summary>
         /// Creates a new <see cref="TcpConnection"/> instance
@@ -69,9 +91,7 @@ namespace CreateAR.EnkluPlayer
             _readStream = new MemoryStream();
         }
 
-        /// <summary>
-        /// Synchronously connects the the target host and port.
-        /// </summary>
+        /// <inheritdoc />
         public bool Connect(string host, int port)
         {
             if (!_initialized.CompareAndSet(false, true))
@@ -92,12 +112,12 @@ namespace CreateAR.EnkluPlayer
 
 
             // Use IP Address' Family
-            _client = NewTcpClient(ipAddress.AddressFamily);
+            Client = NewTcpClient(ipAddress.AddressFamily);
 
             // Connect directly using IPAddress and port
             try
             {
-                ConnectWith(_client, ipAddress, port);
+                ConnectWith(Client, ipAddress, port);
             }
             catch (Exception e)
             {
@@ -108,7 +128,7 @@ namespace CreateAR.EnkluPlayer
             }
 
             // Valid TcpClient at this point, so check for connection
-            if (!_client.Connected)
+            if (!Client.Connected)
             {
                 SilentClose();
                 return false;
@@ -121,6 +141,37 @@ namespace CreateAR.EnkluPlayer
             _readThread = ThreadHelper.SyncStart(ReadSocket);
 
             return true;
+        }
+        
+        /// <inheritdoc />
+        public bool Send(byte[] message, int offset, int len)
+        {
+            try
+            {
+                var stream = _writeStream.Stream = Client.GetStream();
+                if (!stream.CanWrite)
+                {
+                    Log.Warning(this, "Failed to write to outbound TCP Buffer: Stream is read-only.");
+                    Close(true, false);
+                    return false;
+                }
+
+                _messageWriter.Write(_writeStream, message, offset, len);
+            }
+            catch (Exception exception)
+            {
+                Log.Warning(this, "Failed to write to outbound TCP Buffer: {0}", exception);
+                Close(true, false);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <inheritdoc />
+        public void Close()
+        {
+            Close(true, false);
         }
 
         /// <summary>
@@ -147,35 +198,6 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Uses the <see cref="ISocketMessageWriter"/> to write data to the outbound TCP buffer.
-        /// </summary>
-        /// <param name="message">The binary payload to write to the outbound buffer.</param>
-        /// <returns><c>true</c> if the write succeeded. Otherwise, <c>false</c></returns>
-        public bool Send(byte[] message, int offset, int len)
-        {
-            try
-            {
-                var stream = _writeStream.Stream = _client.GetStream();
-                if (!stream.CanWrite)
-                {
-                    Log.Warning(this, "Failed to write to outbound TCP Buffer: Stream is read-only.");
-                    Close(true, false);
-                    return false;
-                }
-
-                _messageWriter.Write(_writeStream, message, offset, len);
-            }
-            catch (Exception exception)
-            {
-                Log.Warning(this, "Failed to write to outbound TCP Buffer: {0}", exception);
-                Close(true, false);
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// Performs a blocking read from the network stream. This
         /// </summary>
         private void ReadSocket()
@@ -183,7 +205,7 @@ namespace CreateAR.EnkluPlayer
             NetworkStream stream;
             try
             {
-                stream = _client.GetStream();
+                stream = Client.GetStream();
             }
             catch (Exception exception)
             {
@@ -243,7 +265,7 @@ namespace CreateAR.EnkluPlayer
                     _messageReader.DataRead(_readStream);
                 }
             }
-            catch (ThreadAbortException e)
+            catch (ThreadAbortException)
             {
                 // We had to force abort on the thread, we do _not_ try and close again
             }
@@ -262,14 +284,6 @@ namespace CreateAR.EnkluPlayer
                 _messageReader.Reset();
                 _readStream.Clear();
             }
-        }
-
-        /// <summary>
-        /// Closes the TCP connection and stops the socket reading thread.
-        /// </summary>
-        public void Close()
-        {
-            Close(true, false);
         }
 
         /// <summary>
@@ -295,7 +309,7 @@ namespace CreateAR.EnkluPlayer
             _isReading.Set(false);
 
             // Close Client Connection
-            CloseClient(_client);
+            CloseClient(Client);
 
             // Attempt to Join the Read thread. If it does not join,
             // Force Abort(), then Join. This blocks during the entire
@@ -313,7 +327,7 @@ namespace CreateAR.EnkluPlayer
 
             // Closing the connection will cause the blocking Read() to
             // throw (the stream closes), thus exiting the read thread
-            _client = null;
+            Client = null;
 
             // If the client existed prior to closing and flagged for dispatch
             if (dispatch)

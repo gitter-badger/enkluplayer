@@ -83,5 +83,10 @@
         public const string MEDIA_VIDEO_START = "Media.Video.Start";
         public const string MEDIA_VIDEO_SUCCESS = "Media.Video.Success";
         public const string MEDIA_VIDEO_FAILURE = "Media.Video.Failure";
+
+        ///////////////////////////////////////////////////////////////////////
+        /// Metrics
+        ///////////////////////////////////////////////////////////////////////
+        public const string NETWORK_CONNECTSYNC = "Network.ConnectSync";
     }
 }

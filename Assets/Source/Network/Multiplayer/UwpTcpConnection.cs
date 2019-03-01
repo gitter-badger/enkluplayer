@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
@@ -476,6 +475,11 @@ namespace CreateAR.EnkluPlayer
         public static TimeSpan ConnectionTimeout { get; set; }
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Listener for socket events.
         /// </summary>
         private readonly ISocketListener _listener;
@@ -524,10 +528,14 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public UwpTcpConnection(ISocketListener listener, ISocketMessageWriter writer)
+        public UwpTcpConnection(
+            IMetricsService metrics,
+            ISocketListener listener,
+            ISocketMessageWriter writer)
         {
             ConnectionTimeout = TimeSpan.FromMilliseconds(3000);
 
+            _metrics = metrics;
             _listener = listener;
             _writer = writer;
         }
@@ -635,13 +643,19 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private bool ConnectWith(StreamSocket socket, HostName hostName, int port)
         {
+            var timer = _metrics.Timer(MetricsKeys.NETWORK_CONNECTSYNC);
+            var id = timer.Start();
+
             if (!socket
                 .ConnectAsync(hostName, port.ToString())
                 .AsTask()
                 .Wait(ConnectionTimeout))
             {
+                timer.Abort(id);
                 return false;
             }
+
+            timer.Stop(id);
             
             _dataWriter = new DataWriter(socket.OutputStream);
             _dataWriter.ByteOrder = ByteOrder.BigEndian;

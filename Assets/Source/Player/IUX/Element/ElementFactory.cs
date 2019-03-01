@@ -30,7 +30,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
-        private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
         private readonly IScriptingHostFactory _scriptHostFactory;
         private readonly IAssetManager _assets;
@@ -64,7 +63,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IImageLoader imageLoader,
             IHttpService http,
             IWorldAnchorProvider provider,
-            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IScriptingHostFactory scriptHostFactory,
             IAssetManager assets,
@@ -96,7 +94,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _imageLoader = imageLoader;
             _http = http;
             _provider = provider;
-            _resolver = resolver;
             _scripts = scripts;
             _scriptHostFactory = scriptHostFactory;
             _assets = assets;
@@ -254,7 +251,6 @@ namespace CreateAR.EnkluPlayer.IUX
                         _tweens,
                         _colors,
                         new AssetAssembler(_assets, _appConfig.Play),
-                        _resolver,
                         _scripts,
                         _scriptHostFactory,
                         _jsCache,

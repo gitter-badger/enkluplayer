@@ -69,11 +69,6 @@ namespace CreateAR.EnkluPlayer
         private readonly SceneEventHandler _sceneHandler;
 
         /// <summary>
-        /// Handles patching the current scene with diffs created in a multiplayer environment.
-        /// </summary>
-        private readonly ScenePatcher _scenePatcher;
-
-        /// <summary>
         /// Maps message type to the delegate that should handle it.
         /// </summary>
         private readonly Dictionary<Type, Delegate> _subscriptions = new Dictionary<Type, Delegate>();
@@ -174,9 +169,10 @@ namespace CreateAR.EnkluPlayer
             _writer = writer;
             _api = api;
             _config = config;
-
-            _scenePatcher = new ScenePatcher(scenes, patcherFactory);
-            _sceneHandler = new SceneEventHandler(_elements, _scenePatcher);
+            
+            _sceneHandler = new SceneEventHandler(
+                _elements,
+                new ScenePatcher(scenes, patcherFactory));
         }
 
         /// <inheritdoc />
@@ -392,8 +388,12 @@ namespace CreateAR.EnkluPlayer
             // set prop locally
             element.Schema.Set(prop, value);
 
-            // first, try to send a request
-            var reqSent = false;
+            // set a timer to flip back
+            _bootstrapper.BootstrapCoroutine(Wait(
+                milliseconds / 1000f,
+                () => element.Schema.Set(prop, !value)));
+
+            // try to send a request
             if (_tcp.IsConnected)
             {
                 // we need the hash to send a request
@@ -407,8 +407,6 @@ namespace CreateAR.EnkluPlayer
                 // hash found, send request
                 else
                 {
-                    reqSent = true;
-
                     Send(new AutoToggleEvent
                     {
                         ElementHash = hash,
@@ -416,19 +414,7 @@ namespace CreateAR.EnkluPlayer
                         Milliseconds = milliseconds,
                         StartingValue = value
                     });
-
-                    // TODO: set a timer
                 }
-            }
-
-            // if the request could not be sent, set a timer to flip it back
-            if (!reqSent)
-            {
-                Log.Info(this, "Mycelium is not connected: Use local AutoToggle.");
-
-                _bootstrapper.BootstrapCoroutine(Wait(
-                    milliseconds / 1000f,
-                    () => element.Schema.Set(prop, !value)));
             }
         }
 
@@ -794,18 +780,23 @@ namespace CreateAR.EnkluPlayer
             var buffer = _buffers.Get();
             var stream = new ByteStream(buffer);
 
-            // write type first
-            stream.WriteUnsignedShort(id);
+            try
+            {
+                // write type first
+                stream.WriteUnsignedShort(id);
 
-            // write object
-            _writer.Write(message, stream);
+                // write object
+                _writer.Write(message, stream);
 
-            Verbose("Wrote {0} bytes.", stream.WriterIndex);
+                Verbose("Wrote {0} bytes.", stream.WriterIndex);
 
-            _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
-
-            // return buffer
-            _buffers.Put(buffer);
+                _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
+            }
+            finally
+            {
+                // return buffer
+                _buffers.Put(buffer);
+            }
         }
 
         /// <summary>
