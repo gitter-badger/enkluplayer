@@ -548,7 +548,10 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception ex)
             {
-                Log.Warning(this, $"Invalid hostname: {0}.", ex);
+                Log.Warning(this, "Connection to '{0}:{1}' failed: invalid hostname - {1}.",
+                    host,
+                    port,
+                    ex);
 
                 SilentClose();
                 return false;
@@ -566,7 +569,7 @@ namespace CreateAR.EnkluPlayer
 
                 if (!ConnectWith(_socket, hostName, port))
                 {
-                    Log.Warning(this, "Could failed: timed out.");
+                    Log.Warning(this, "Connection to {0}:{1} failed: timed out.", host, port);
                     SilentClose();
 
                     return false;
@@ -574,7 +577,7 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception exception)
             {
-                Log.Warning(this, "Connection failed: {0}", exception);
+                Log.Warning(this, "Connection to {0}:{1} failed: {2}", host, port, exception);
                 SilentClose();
 
                 return false;
@@ -775,7 +778,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);

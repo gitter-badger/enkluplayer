@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -512,7 +513,7 @@ namespace CreateAR.EnkluPlayer
             }
             else
             {
-                Log.Error(this, "Could not connect to mycelium. Succeeding token and using local fallback.");
+                Log.Warning(this, "Could not connect to mycelium. Succeeding token and using local fallback.");
 
                 _connect.Succeed(Void.Instance);
             }
@@ -766,7 +767,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging method.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(object message, params object[] replacements)
         {
             Log.Debug(this, message, replacements);
