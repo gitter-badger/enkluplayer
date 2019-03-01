@@ -359,8 +359,12 @@ namespace CreateAR.EnkluPlayer
             // set prop locally
             element.Schema.Set(prop, value);
 
-            // first, try to send a request
-            var reqSent = false;
+            // set a timer to flip back
+            _bootstrapper.BootstrapCoroutine(Wait(
+                milliseconds / 1000f,
+                () => element.Schema.Set(prop, !value)));
+
+            // try to send a request
             if (_tcp.IsConnected)
             {
                 // we need the hash to send a request
@@ -374,8 +378,6 @@ namespace CreateAR.EnkluPlayer
                 // hash found, send request
                 else
                 {
-                    reqSent = true;
-
                     Send(new AutoToggleEvent
                     {
                         ElementHash = hash,
@@ -383,19 +385,7 @@ namespace CreateAR.EnkluPlayer
                         Milliseconds = milliseconds,
                         StartingValue = value
                     });
-
-                    // TODO: set a timer
                 }
-            }
-
-            // if the request could not be sent, set a timer to flip it back
-            if (!reqSent)
-            {
-                Log.Info(this, "Mycelium is not connected: Use local AutoToggle.");
-
-                _bootstrapper.BootstrapCoroutine(Wait(
-                    milliseconds / 1000f,
-                    () => element.Schema.Set(prop, !value)));
             }
         }
 
