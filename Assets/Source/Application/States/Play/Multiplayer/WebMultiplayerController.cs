@@ -36,7 +36,7 @@ namespace CreateAR.EnkluPlayer
             _elements = elements;
             _bootstrapper = bootstrapper;
         }
-
+        
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize()
         {
@@ -58,7 +58,10 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Disconnect()
         {
-            // 
+            if (null != OnConnectionChanged)
+            {
+                OnConnectionChanged(false);
+            }
         }
 
         /// <inheritdoc />
