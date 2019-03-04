@@ -662,26 +662,26 @@ namespace CreateAR.EnkluPlayer
                 {
                     UpdateRelativePositioning();
 
-                    int errors, downloading, importing, unlocated, numLocated;
+                    int errors, downloading, importing, notLocated, numLocated;
                     CountAnchors(
                         out errors,
                         out downloading,
                         out importing,
-                        out unlocated,
+                        out notLocated,
                         out numLocated);
 
-                    UpdateStatusUI(errors, downloading, importing, unlocated, numLocated);
+                    UpdateStatusUI(errors, downloading, importing, notLocated, numLocated);
 
-                    if (!AreAllAnchorsReady && numLocated > 0 && importing == 0)
+                    if (!AreAllAnchorsReady && numLocated > 0 && downloading == 0 && importing == 0)
                     {
                         Ready();
                     }
 
                     // metrics
                     if (0 == importing && 0 == errors
-                        && (_pollUnlocated != unlocated || _pollLocated != numLocated))
+                        && (_pollUnlocated != notLocated || _pollLocated != numLocated))
                     {
-                        _pollUnlocated = unlocated;
+                        _pollUnlocated = notLocated;
                         _pollLocated = numLocated;
 
                         _metrics.Value(MetricsKeys.ANCHOR_STATE_LOCATEDRATIO).Value((float) _pollLocated / _anchors.Count);
@@ -848,14 +848,14 @@ Errors: {3} / {0}",
         /// <param name="errors">Number of anchors in an error state.</param>
         /// <param name="downloading">Number of anchors currently downloading.</param>
         /// <param name="importing">Number of anchors currently importing.</param>
-        /// <param name="unlocated">Number of anchors currently unlocated.</param>
-        /// <param name="located">Number of locatd anchors.</param>
-        private void CountAnchors(out int errors, out int downloading, out int importing, out int unlocated, out int located)
+        /// <param name="notLocated">Number of anchors currently not located.</param>
+        /// <param name="located">Number of located anchors.</param>
+        private void CountAnchors(out int errors, out int downloading, out int importing, out int notLocated, out int located)
         {
             errors = 0;
             downloading = 0;
             importing = 0;
-            unlocated = 0;
+            notLocated = 0;
             located = 0;
 
             for (int i = 0, len = _anchors.Count; i < len; i++)
@@ -879,7 +879,7 @@ Errors: {3} / {0}",
                     }
                     case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
                     {
-                        unlocated += 1;
+                        notLocated += 1;
                         break;
                     }
                     case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
