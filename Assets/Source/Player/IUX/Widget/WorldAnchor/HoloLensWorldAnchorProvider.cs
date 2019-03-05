@@ -273,26 +273,44 @@ namespace CreateAR.EnkluPlayer.IUX
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     Windows.System.Threading.ThreadPool.RunAsync(context =>
                     {
-                        byte[] compressed;
-                        using (var memoryStream = new MemoryStream())
+                        byte[] compressed = null;
+
+                        try
                         {
-                            using (var deflate = new DeflateStream(memoryStream, CompressionMode.Compress))
+                            using (var memoryStream = new MemoryStream())
                             {
-                                deflate.Write(buffer.ToArray(), 0, buffer.Count);
+                                using (var deflate = new DeflateStream(memoryStream, CompressionMode.Compress))
+                                {
+                                    deflate.Write(buffer.ToArray(), 0, buffer.Count);
+                                }
+
+                                compressed = memoryStream.ToArray();
                             }
-
-                            compressed = memoryStream.ToArray();
                         }
-
-                        // metrics
-                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RAW).Value(buffer.Count);
-                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_COMPRESSED).Value(compressed.Length);
-                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RATIO).Value(compressed.Length / (float) buffer.Count);
-
+                        catch
+                        {
+                            // ignore
+                        }
+                        
                         Synchronize(() =>
                         {
                             _exports.Remove(gameObject);
-                            
+
+                            if (null == compressed)
+                            {
+                                Log.Warning(this, "{0}::Anchor export failed: out of memory.", id);
+
+                                token.Fail(new Exception("Could not compress anchor: out of memory."));
+
+                                _isProcessingQueues = false;
+                                return;
+                            }
+
+                            // metrics
+                            _metrics.Value(MetricsKeys.ANCHOR_SIZE_RAW).Value(buffer.Count);
+                            _metrics.Value(MetricsKeys.ANCHOR_SIZE_COMPRESSED).Value(compressed.Length);
+                            _metrics.Value(MetricsKeys.ANCHOR_SIZE_RATIO).Value(compressed.Length / (float)buffer.Count);
+
                             Log.Info(this,
                                 "{0}::Compression complete. Saved {1} bytes.",
                                 id,
@@ -399,7 +417,7 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 Log.Info(this, "{0}::Begin queued import.", id);
                 
-                byte[] decompressed;
+                byte[] decompressed = null;
 
                 // number of retries
                 var retries = 3;
@@ -465,27 +483,48 @@ namespace CreateAR.EnkluPlayer.IUX
                 Windows.System.Threading.ThreadPool.RunAsync(context =>
                 {
                     // decompress bytes
-                    using (var output = new MemoryStream())
+                    try
                     {
-                        using (var input = new MemoryStream(bytes))
+                        using (var output = new MemoryStream())
                         {
-                            using (var deflate = new DeflateStream(input, CompressionMode.Decompress))
+                            using (var input = new MemoryStream(bytes))
                             {
-                                deflate.CopyTo(output);
+                                using (var deflate = new DeflateStream(input, CompressionMode.Decompress))
+                                {
+                                    deflate.CopyTo(output);
+                                }
                             }
+
+                            decompressed = output.ToArray();
                         }
-
-                        decompressed = output.ToArray();
                     }
-
-                    // metrics
-                    _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Stop(compressId);
-
+                    catch
+                    {
+                        // ignore
+                    }
+                    
                     // import must be started from main thread
                     Synchronize(() =>
                     {
+                        if (null == decompressed)
+                        {
+                            Log.Warning(this, "{0}::Decompression failed: out of memory.", id);
+
+                            // metrics
+                            _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Abort(compressId);
+
+                            // done processing
+                            _isProcessingQueues = false;
+
+                            token.Fail(new Exception("Ran out of memory when decompressing."));
+                            return;
+                        }
+
                         Log.Info(this, "{0}::Decompression complete.", id);
-                        
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Stop(compressId);
+
                         // metrics
                         importMetricId = _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Start();
 

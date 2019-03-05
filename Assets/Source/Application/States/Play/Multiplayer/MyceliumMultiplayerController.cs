@@ -487,17 +487,39 @@ namespace CreateAR.EnkluPlayer
                         }
                         else
                         {
-                            _connect.Fail(new Exception(string.Format(
-                                "Could not create multiplayer token: {0}.", res.Payload.Error)));
+                            Log.Warning(this, "Could not connect to trellis for multiplayer token. Succeeding token and using local fallback.");
+
+                            if (!_isReconnecting)
+                            {
+                                _needsReconnect = true;
+                            }
+
+                            _connect.Succeed(Void.Instance);
                         }
                     }
                     else
                     {
-                        _connect.Fail(new Exception(string.Format(
-                            "Could not create multiplayer token: {0}.", Encoding.UTF8.GetString(res.Raw))));
+                        Log.Warning(this, "Could not connect to trellis for multiplayer token. Succeeding token and using local fallback.");
+
+                        if (!_isReconnecting)
+                        {
+                            _needsReconnect = true;
+                        }
+
+                        _connect.Succeed(Void.Instance);
                     }
                 })
-                .OnFailure(_connect.Fail);
+                .OnFailure(ex =>
+                {
+                    Log.Warning(this, "Could not connect to trellis for multiplayer token. Succeeding token and using local fallback.");
+
+                    if (!_isReconnecting)
+                    {
+                        _needsReconnect = true;
+                    }
+
+                    _connect.Succeed(Void.Instance);
+                });
         }
 
         /// <summary>

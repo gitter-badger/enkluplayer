@@ -67,8 +67,7 @@ namespace CreateAR.EnkluPlayer
             IElementTxnManager txns,
             IConnection connection,
             IMetricsService metrics,
-            IMultiplayerController multiplayer,
-            ApplicationConfig config)
+            IMultiplayerController multiplayer)
         {
             _loader = loader;
             Scenes = scenes;
