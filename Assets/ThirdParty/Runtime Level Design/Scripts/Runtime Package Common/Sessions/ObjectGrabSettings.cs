@@ -142,7 +142,9 @@ namespace RLD
 
             content.text = "Surface flags";
             content.tooltip = "Allows you to specify the types of surfaces that can be used during a grab session.";
+#pragma warning disable CS0618 // Type or member is obsolete
             newInt = (int)((ObjectGrabSurfaceFlags)EditorGUILayout.EnumMaskPopup(content, (ObjectGrabSurfaceFlags)SurfaceFlags));
+#pragma warning restore CS0618 // Type or member is obsolete
             if (newInt != (int)SurfaceFlags)
             {
                 EditorUndoEx.Record(undoRecordObject);

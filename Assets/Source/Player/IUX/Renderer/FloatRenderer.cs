@@ -1,6 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using System.Diagnostics;
 using CreateAR.EnkluPlayer.IUX.Dynamics;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX

@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using Jint.Runtime;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -31,7 +32,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             Txn = txn;
         }
-        
+
         public ElementTxnJs update(string elementId, string schemaType, string key, object value)
         {
             switch (schemaType)
@@ -87,10 +88,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return this;
             }
 
-            var data = new ElementData(template)
-            {
-                Id = elementId
-            };
+            var data = template.ToElementData();
+            data.Id = elementId;
             data.Schema.Strings["id"] = elementId;
             Txn.Create(parentId, data);
 

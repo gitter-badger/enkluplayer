@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using NUnit.Framework;
 using Source.Player.IUX;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
+using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {
@@ -111,10 +114,10 @@ namespace CreateAR.EnkluPlayer.Test.UI
         {
             var element = _factory.Element(_data);
             var newElement = _factory.Element(_newElement);
-            
+
             var aa = element.Children[0];
             aa.AddChild(newElement);
-            
+
             Assert.AreEqual(FUZZ, newElement.Schema.Get<int>("fuzz").Value);
             Assert.AreEqual(FOO, newElement.Schema.Get<int>("foo").Value);
         }
@@ -131,7 +134,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
             Assert.AreEqual(FUZZ, newElement.Schema.Get<int>("fuzz").Value);
 
             aa.RemoveChild(newElement);
-            
+
             Assert.AreEqual(0, newElement.Schema.Get<int>("fuzz").Value);
         }
     }

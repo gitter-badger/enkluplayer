@@ -15,7 +15,12 @@ namespace CreateAR.EnkluPlayer
         /// Token for loading user preferences.
         /// </summary>
         private IAsyncToken<SynchronizedObject<UserPreferenceData>> _loadToken;
-        
+
+        /// <summary>
+        /// True iff dirty
+        /// </summary>
+        private readonly AtomicBool _isDirty = new AtomicBool(false);
+
         /// <summary>
         /// Injected elements.
         /// </summary>
@@ -48,7 +53,7 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            UpdateTextField();
+            _isDirty.Set(true);
         }
 
         /// <inheritdoc />
@@ -107,6 +112,17 @@ namespace CreateAR.EnkluPlayer
             }
 
             Log.RemoveLogTarget(this);
+        }
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        private void Update()
+        {
+            if (_isDirty.CompareAndSet(true, false))
+            {
+                UpdateTextField();
+            }
         }
 
         /// <summary>

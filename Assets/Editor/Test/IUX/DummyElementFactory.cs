@@ -1,5 +1,7 @@
 ﻿using System;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {
@@ -14,7 +16,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
         {
             throw new NotImplementedException();
         }
-        
+
         private Element Element(ElementData data)
         {
             // children first

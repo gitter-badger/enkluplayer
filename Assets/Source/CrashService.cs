@@ -39,6 +39,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Useful paths.
         /// </summary>
+        private readonly string _persistentDataPath;
         private readonly string _bootLockPath;
         private readonly string _shutdownLockPath;
         private readonly string _statsPath;
@@ -66,6 +67,7 @@ namespace CreateAR.EnkluPlayer
             _api = api;
             _stats = stats;
 
+            _persistentDataPath = UnityEngine.Application.persistentDataPath;
             _bootLockPath = GetPath("Boot.lock");
             _shutdownLockPath = GetPath("Shutdown.lock");
             _statsPath = GetPath("Stats.log");
@@ -449,10 +451,10 @@ namespace CreateAR.EnkluPlayer
         /// Appends last log file.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        private static void BuildLogDump(StringBuilder builder)
+        private void BuildLogDump(StringBuilder builder)
         {
             var logPath = Path.Combine(
-                UnityEngine.Application.persistentDataPath,
+                _persistentDataPath,
                 "Application.previous.log");
             if (File.Exists(logPath))
             {
@@ -523,10 +525,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="fileName">The name of the file.</param>
         /// <returns></returns>
-        private static string GetPath(string fileName)
+        private string GetPath(string fileName)
         {
             return Path.Combine(
-                UnityEngine.Application.persistentDataPath,
+                _persistentDataPath,
                 Path.Combine(
                     "Diagnostics",
                     fileName));
@@ -535,7 +537,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Generates a unique path for a dump.
         /// </summary>
-        private static string GetUniqueDumpPath()
+        private string GetUniqueDumpPath()
         {
             return Path.Combine(
                 GetDumpFolder(),
@@ -546,10 +548,10 @@ namespace CreateAR.EnkluPlayer
         /// Retrieves the dump folder.
         /// </summary>
         /// <returns></returns>
-        private static string GetDumpFolder()
+        private string GetDumpFolder()
         {
             return Path.Combine(
-                UnityEngine.Application.persistentDataPath,
+                _persistentDataPath,
                 Path.Combine(
                     "Diagnostics",
                     "Dumps"));

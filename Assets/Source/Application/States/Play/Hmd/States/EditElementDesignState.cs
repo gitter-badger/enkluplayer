@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -24,7 +25,7 @@ namespace CreateAR.EnkluPlayer
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
-        
+
         /// <summary>
         /// Content controller.
         /// </summary>
@@ -169,7 +170,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            
+
         }
 
         /// <inheritdoc />
@@ -239,7 +240,7 @@ namespace CreateAR.EnkluPlayer
 
             // duplicate data
             var element = controller.Element;
-            var data = new ElementData(element);
+            var data = element.ToElementData();
             GenerateSafeIds(data);
 
             // find parent
@@ -280,7 +281,7 @@ namespace CreateAR.EnkluPlayer
             // close UIs
             _ui.Close(_adjustId);
             _ui.Close(_editId);
-            
+
             int id;
             _ui
                 .Open<ConfirmationUIView>(new UIReference
@@ -299,7 +300,7 @@ namespace CreateAR.EnkluPlayer
                     el.OnConfirm += () =>
                     {
                         _design.Elements.Destroy(elementController.Element);
-                        
+
                         // back to main
                         _design.ChangeState<MainDesignState>();
                     };
@@ -319,7 +320,7 @@ namespace CreateAR.EnkluPlayer
         {
             // force final state update
             controller.FinalizeState();
-            
+
             // back to main
             _design.ChangeState<MainDesignState>();
         }

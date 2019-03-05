@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -32,6 +32,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IMetricsService _metrics;
 
         /// <summary>
+        /// Multiplayer.
+        /// </summary>
+        private readonly IMultiplayerController _multiplayer;
+
+        /// <summary>
         /// True iff the app has been loaded.
         /// </summary>
         private bool _isLoaded;
@@ -40,19 +45,13 @@ namespace CreateAR.EnkluPlayer
         /// Configuration.
         /// </summary>
         private PlayAppConfig _config;
-
+        
         /// <inheritdoc />
         public string Id { get; private set; }
 
         /// <inheritdoc />
         public string Name { get; private set; }
-
-        /// <inheritdoc />
-        public bool CanEdit { get; private set; }
-
-        /// <inheritdoc />
-        public bool CanDelete { get; private set; }
-
+        
         /// <inheritdoc />
         public event Action OnReady;
 
@@ -67,13 +66,15 @@ namespace CreateAR.EnkluPlayer
             IAppSceneManager scenes,
             IElementTxnManager txns,
             IConnection connection,
-            IMetricsService metrics)
+            IMetricsService metrics,
+            IMultiplayerController multiplayer)
         {
             _loader = loader;
             Scenes = scenes;
             _txns = txns;
             _connection = connection;
             _metrics = metrics;
+            _multiplayer = multiplayer;
         }
         
         /// <inheritdoc />
@@ -82,32 +83,27 @@ namespace CreateAR.EnkluPlayer
             _config = config;
 
             Id = _config.AppId;
-
-            CanEdit = true;
-            CanDelete = true;
-
-            LogVerbose("Load().");
-
-            // metrics
-            var loadId = _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Start();
             
-            return _loader
-                .Load(_config)
+            // load data
+            var tokens = new List<IAsyncToken<Void>>
+            {
+                _loader.Load(_config)
+            };
+
+            if (!config.Edit)
+            {
+                tokens.Add(_multiplayer.Initialize());
+            }
+
+            return Async
+                .All(tokens.ToArray())
                 .OnSuccess(_ =>
                 {
                     Name = _loader.Name;
 
-                    // metrics
-                    _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Stop(loadId);
-
                     _isLoaded = true;
                 })
-                .OnFailure(ex =>
-                {
-                    // metrics
-                    _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Abort(loadId);
-                })
-                .Token();
+                .Map(_ => Void.Instance);
         }
 
         /// <inheritdoc />
@@ -115,6 +111,7 @@ namespace CreateAR.EnkluPlayer
         {
             _isLoaded = false;
 
+            _multiplayer.Disconnect();
             _loader.Unload();
             Scenes.Uninitialize();
             _txns.Uninitialize();
@@ -128,52 +125,26 @@ namespace CreateAR.EnkluPlayer
                 throw new Exception("App has not been loaded!");
             }
 
+            Log.Info(this, "Starting play mode.");
+
             var playId = _metrics.Timer(MetricsKeys.APP_PLAY).Start();
 
-            // init scenes
+            // allow multiplayer to apply diff before we create the scene
+            _multiplayer.ApplyDiff(_loader);
+
+            // now create scene
             Scenes
                 .Initialize(Id, _loader)
                 .OnSuccess(_ =>
                 {
-                    // edit mode
-                    if (_config.Edit)
+                    _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
+
+                    // now switch multiplayer on
+                    _multiplayer.Play();
+
+                    if (null != OnReady)
                     {
-                        var authenticate = DeviceHelper.IsWebGl() || _connection.IsConnected;
-
-                        _txns
-                            .Initialize(new AppTxnConfiguration
-                            {
-                                AppId = Id,
-                                Scenes = Scenes,
-                                AuthenticateTxns = authenticate
-                            })
-                            .OnSuccess(__ =>
-                            {
-                                Log.Info(this, "Txns initialized.");
-
-                                _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
-
-                                if (null != OnReady)
-                                {
-                                    OnReady();
-                                }
-                            })
-                            .OnFailure(exception =>
-                            {
-                                Log.Error(this, "Could not initialize txns : {0}.", exception);
-
-                                _metrics.Timer(MetricsKeys.APP_PLAY).Abort(playId);
-                            });
-                    }
-                    // play mode
-                    else
-                    {
-                        _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
-
-                        if (null != OnReady)
-                        {
-                            OnReady();
-                        }
+                        OnReady();
                     }
                 })
                 .OnFailure(exception =>
@@ -183,14 +154,57 @@ namespace CreateAR.EnkluPlayer
                     _metrics.Timer(MetricsKeys.APP_PLAY).Abort(playId);
                 });
         }
-        
-        /// <summary>
-        /// Logging.
-        /// </summary>
-        [Conditional("VERBOSE_LOGGING")]
-        private void LogVerbose(string message, params object[] replacements)
+
+        /// <inheritdoc />
+        public void Edit()
         {
-            Log.Info(this, message, replacements);
+            if (!_isLoaded)
+            {
+                throw new Exception("App has not been loaded!");
+            }
+
+            var editId = _metrics.Timer(MetricsKeys.APP_EDIT).Start();
+
+            Log.Info(this, "Starting Edit mode.");
+
+            // create scene
+            Scenes
+                .Initialize(Id, _loader)
+                .OnSuccess(_ =>
+                {
+                    var authenticate = DeviceHelper.IsWebGl() || _connection.IsConnected;
+
+                    _txns
+                        .Initialize(new AppTxnConfiguration
+                        {
+                            AppId = Id,
+                            Scenes = Scenes,
+                            AuthenticateTxns = authenticate
+                        })
+                        .OnSuccess(__ =>
+                        {
+                            Log.Info(this, "Edit mode started.");
+
+                            _metrics.Timer(MetricsKeys.APP_EDIT).Stop(editId);
+
+                            if (null != OnReady)
+                            {
+                                OnReady();
+                            }
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this, "Could not initialize txns for edit mode : {0}.", exception);
+
+                            _metrics.Timer(MetricsKeys.APP_EDIT).Abort(editId);
+                        });
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not initialize scenes for edit mode : {0}.", exception);
+
+                    _metrics.Timer(MetricsKeys.APP_EDIT).Abort(editId);
+                });
         }
     }
 }

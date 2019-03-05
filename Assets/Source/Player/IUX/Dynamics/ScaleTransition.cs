@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.IUX
+﻿using Enklu.Data;
+
+namespace CreateAR.EnkluPlayer.IUX
 {
     using System;
     using System.Collections.Generic;

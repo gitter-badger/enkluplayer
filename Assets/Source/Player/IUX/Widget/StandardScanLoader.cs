@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -39,6 +40,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc />
         public IAsyncToken<byte[]> Load(string uri)
         {
+            Log.Debug(this, "Download from {0}.", _urls.Url(uri));
+
             return _cache.Request(
                 HttpRequestCacher.LoadBehavior.NetworkFirst,
                 uri,
