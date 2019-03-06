@@ -270,16 +270,7 @@ namespace CreateAR.EnkluPlayer
 
                 _tcp = null;
             }
-
-            // Reset Connection token
-            if (null != _connect)
-            {
-                // This case might be possible. Just ensure we pass the error along.
-                // Or we could Abort()?
-                _connect.Fail(new Exception("Attempted Reconnection during Connect."));
-            }
-            _connect = null;
-
+            
             return Connect();
         }
 
