@@ -40,42 +40,77 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<HttpResponse<T>> Get<T>(string url)
         {
+            if (null != OnRequest)
+            {
+                OnRequest("GET", url, Headers, null);
+            }
+
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }
 
         /// <inheritdoc />
         public IAsyncToken<HttpResponse<T>> Post<T>(string url, object payload)
         {
+            if (null != OnRequest)
+            {
+                OnRequest("POST", url, Headers, payload);
+            }
+
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }
 
         /// <inheritdoc />
         public IAsyncToken<HttpResponse<T>> Put<T>(string url, object payload)
         {
+            if (null != OnRequest)
+            {
+                OnRequest("PUT", url, Headers, payload);
+            }
+
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }
 
         /// <inheritdoc />
         public IAsyncToken<HttpResponse<T>> Delete<T>(string url)
         {
+            if (null != OnRequest)
+            {
+                OnRequest("DELETE", url, Headers, null);
+            }
+
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }
 
         /// <inheritdoc />
         public IAsyncToken<HttpResponse<T>> PostFile<T>(string url, IEnumerable<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
+            if (null != OnRequest)
+            {
+                OnRequest("POST", url, Headers, null);
+            }
+
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }
 
         /// <inheritdoc />
         public IAsyncToken<HttpResponse<T>> PutFile<T>(string url, IEnumerable<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
+            if (null != OnRequest)
+            {
+                OnRequest("PUT", url, Headers, null);
+            }
+
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }
 
         /// <inheritdoc />
         public IAsyncToken<HttpResponse<byte[]>> Download(string url)
         {
+            if (null != OnRequest)
+            {
+                OnRequest("GET", url, Headers, null);
+            }
+
             return new AsyncToken<HttpResponse<byte[]>>(new Exception("Network error."));
         }
     }
