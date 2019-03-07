@@ -228,7 +228,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="overrideConfig">The config to override with.</param>
         public void Override(LogAppConfig overrideConfig)
         {
-            if (null == overrideConfig)
+            if (null == overrideConfig || null == overrideConfig.Targets)
             {
                 return;
             }
