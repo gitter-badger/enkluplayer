@@ -24,9 +24,24 @@ Remaining options are grouped into sub-objects.
 
 ##### Log
 
-| Name  | Default Value | Description                                          |
-| ----- | ------------- | ---------------------------------------------------- |
-| Level | Debug         | Can be set to Debug, Info, Warning, Error, or Fatal. |
+| Name    | Default Value | Description                                                  |
+| ------- | ------------- | ------------------------------------------------------------ |
+| Targets | []            | Sets configuration for each log target, given by **TargetConfig**. |
+
+**TargetConfig**
+
+| **Name**         | **Default Value** | **Description**                                              |
+| ---------------- | ----------------- | ------------------------------------------------------------ |
+| Target           | ""                | The type of log target. Supported types include "unity", "file", or "loggly". |
+| Level            | "Debug"           | The filter level of the target.                              |
+| Enabled          | true              | Enables or disables the target.                              |
+| Meta             | []                | Array of strings that are pumped into custom log targets.    |
+| IncludeLevel     | true              | If true, the log level will be output in the target.         |
+| IncludeTimestamp | true              | If true, the timestamp will be output in the target.         |
+| IncludeType      | true              | If true, the type will be output in the target.              |
+| IncludeObject    | true              | If true, the object's ToString() will be output in the target. |
+
+
 
 ##### Play
 
