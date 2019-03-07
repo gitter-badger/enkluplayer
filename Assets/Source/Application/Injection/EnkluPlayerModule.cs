@@ -753,34 +753,42 @@ namespace CreateAR.EnkluPlayer
             switch (config.Target)
             {
                 case "unity":
-                    {
-                        return new UnityLogTarget(Formatter(config));
-                    }
+                {
+                    return new UnityLogTarget(Formatter(config));
+                }
                 case "file":
-                    {
-                        return new FileLogTarget(
-                            Formatter(config),
-                            System.IO.Path.Combine(
-                                UnityEngine.Application.persistentDataPath,
-                                "Application.log"));
-                    }
+                {
+                    return new FileLogTarget(
+                        Formatter(config),
+                        System.IO.Path.Combine(
+                            UnityEngine.Application.persistentDataPath,
+                            "Application.log"));
+                }
                 case "loggly":
-                    {
-                        if (2 != config.Meta.Length)
-                        {
-                            throw new Exception("Loggly target must include customer token and tag in Meta");
-                        }
-
-                        return new LogglyLogTarget(
-                            config.Meta[0],
-                            config.Meta[1],
-                            binder.GetInstance<ILogglyMetadataProvider>(),
-                            binder.GetInstance<IBootstrapper>());
-                    }
-                default:
+                {
+                    // do not allow loggly whilst in editor
+                    if (UnityEngine.Application.isEditor)
                     {
                         return null;
                     }
+
+                    if (2 != config.Meta.Length)
+                    {
+                        throw new Exception("Loggly target must include customer token and tag in Meta");
+                    }
+
+                    binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>();
+
+                    return new LogglyLogTarget(
+                        config.Meta[0],
+                        config.Meta[1],
+                        binder.GetInstance<ILogglyMetadataProvider>(),
+                        binder.GetInstance<IBootstrapper>());
+                }
+                default:
+                {
+                    return null;
+                }
             }
         }
 
