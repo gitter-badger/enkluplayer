@@ -111,7 +111,7 @@ namespace CreateAR.EnkluPlayer.Editor
             UnityEditor.EditorApplication.update += _bootstrapper.Update;
 
             Serializer = new JsonSerializer();
-            Http = new EditorHttpService(Serializer, Bootstrapper);
+            Http = new EditorHttpService(Serializer, Bootstrapper, new UrlFormatterCollection());
             Api = new ApiController(Http);
             Config = new EditorConfigurationManager();
             Config.OnUpdate += Config_OnUpdate;
