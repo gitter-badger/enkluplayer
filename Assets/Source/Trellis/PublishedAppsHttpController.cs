@@ -57,5 +57,12 @@ namespace CreateAR.Trellis.Messages
             return _http.Get<CreateAR.Trellis.Messages.SearchPublishedApps.Response>(
                 _http.Urls.Url("trellis://" + string.Format("/app?query={0}", publicAppQuery)));
         }
-    }
+    
+        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateMultiplayerToken.Response>> CreateMultiplayerToken(string appId, CreateAR.Trellis.Messages.CreateMultiplayerToken.Request request)
+        {
+            return _http.Post<CreateAR.Trellis.Messages.CreateMultiplayerToken.Response>(
+                _http.Urls.Url("trellis://" + string.Format("/app/{0}/token", appId)),
+                request);
+        }
+}
 }

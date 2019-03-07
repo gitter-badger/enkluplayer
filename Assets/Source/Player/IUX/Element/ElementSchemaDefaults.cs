@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 
 namespace Source.Player.IUX
 {
@@ -11,7 +12,7 @@ namespace Source.Player.IUX
         /// All widgets inherit this base schema
         /// </summary>
         private readonly ElementSchema _baseSchema = new ElementSchema("Base");
-        
+
         /// <summary>
         /// Lookup from element type to base schema for that type.
         /// </summary>
@@ -31,7 +32,7 @@ namespace Source.Player.IUX
             _baseSchema.Set("layerMode", LayerMode.Default);
             _baseSchema.Set("autoDestroy", false);
             _baseSchema.Set("font", "Watchword_bold");
-            
+
             // load defaults
             var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema("Base.Button");
             buttonSchema.Load(new ElementSchemaData
@@ -76,14 +77,14 @@ namespace Source.Player.IUX
             });
             buttonSchema.Inherit(_baseSchema);
             _typeSchema[ElementTypes.SELECT] = _typeSchema[ElementTypes.TOGGLE] = buttonSchema;
-            
+
             var textSchema = new ElementSchema("Base.Text");
             textSchema.Load(new ElementSchemaData
             {
                 Strings = new Dictionary<string, string>
                 {
                     { "verticalOverflow", "Overflow" },
-                    { "font", "Watchword_bold" }  
+                    { "font", "Watchword_bold" }
                 },
                 Ints = new Dictionary<string, int>
                 {
@@ -95,7 +96,7 @@ namespace Source.Player.IUX
                 }
             });
             _typeSchema[ElementTypes.CAPTION] = textSchema;
-            
+
             var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema("Base.Menu");
             menuSchema.Load(new ElementSchemaData
             {
@@ -204,7 +205,7 @@ namespace Source.Player.IUX
         {
             return _typeSchema.ContainsKey(type);
         }
-        
+
         /// <summary>
         /// Gets the default schema for the specified type. Returns a default schema if the specified does not exist.
         /// </summary>

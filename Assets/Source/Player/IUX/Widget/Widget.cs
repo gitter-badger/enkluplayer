@@ -1,6 +1,7 @@
 using System;
 using CreateAR.Commons.Unity.Logging;
 using System.Diagnostics;
+using Enklu.Data;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -162,7 +163,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Alpha, which is multiplied up the hierarchy.
         /// </summary>
-        public float Alpha
+        public virtual float Alpha
         {
             get
             {
@@ -173,8 +174,12 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 return _alphaProp.Value;
             }
+            set
+            {
+                // 
+            }
         }
-        
+
         /// <summary>
         /// Tween for the widget.
         /// </summary>

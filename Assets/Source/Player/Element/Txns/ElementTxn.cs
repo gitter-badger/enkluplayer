@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -26,7 +27,7 @@ namespace CreateAR.EnkluPlayer
         /// PRNG.
         /// </summary>
         private static readonly Random _Random = new Random();
-        
+
         /// <summary>
         /// Unique id.
         /// </summary>
@@ -46,7 +47,7 @@ namespace CreateAR.EnkluPlayer
         /// Actions.
         /// </summary>
         public readonly List<ElementActionData> Actions = new List<ElementActionData>();
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -55,7 +56,7 @@ namespace CreateAR.EnkluPlayer
             SceneId = sceneId;
             Id = GenerateTxnId();
         }
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -105,7 +106,7 @@ namespace CreateAR.EnkluPlayer
 
             return this;
         }
-        
+
         /// <summary>
         /// Creates a delete element action and returns self.
         /// </summary>

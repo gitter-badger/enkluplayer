@@ -7,34 +7,40 @@ using System.Linq;
 using System.Reflection;
 #endif
 using System.Text;
+using Enklu.Data;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
     /// Base class for UI elements.
-    /// 
+    ///
     /// Flows:
-    /// 
+    ///
     /// Load()
     ///     > LoadInternalBeforeChildren
     ///     > Children > AddChild()
     ///     > LoadInternalAfterChildren
-    /// 
+    ///
     /// Unload()
     ///     > UnloadInternalBeforeChildren
     ///     > Children > Unload()
     ///     > UnloadInternalAfterChildren
-    /// 
+    ///
     /// Destroy()
     ///     > UnloadInternalBeforeChildren
     ///     > Children > Destroy()
-    ///     > UnloadInternalAfterChildren 
+    ///     > UnloadInternalAfterChildren
     ///     > DestroyInternal
-    /// 
+    ///
     /// </summary>
     public class Element
     {
+        /// <summary>
+        /// Stack used for FindFast.
+        /// </summary>
+        private static readonly int[] _NextChildIndices = new int[128];
+
         /// <summary>
         /// Internal list of children.
         /// </summary>
@@ -44,7 +50,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Scratch list for FindAll.
         /// </summary>
         private readonly List<Element> _findAllScratch = new List<Element>();
-        
+
         /// <summary>
         /// Id prop.
         /// </summary>
@@ -59,7 +65,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Unique id stored in data for this element.
         /// </summary>
         public string Id { get; private set; }
-        
+
         /// <summary>
         /// State.
         /// </summary>
@@ -69,7 +75,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Copy of children collection.
         /// </summary>
         public ReadOnlyCollection<Element> Children { get; private set; }
-        
+
         /// <summary>
         /// The element's parent.
         /// </summary>
@@ -103,7 +109,7 @@ namespace CreateAR.EnkluPlayer.IUX
             Children = new ReadOnlyCollection<Element>(_children);
             Schema = new ElementSchema("Unknown");
         }
-        
+
         /// <summary>
         /// String override
         /// </summary>
@@ -181,7 +187,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _children.Clear();
 
             LogVerbose("Unload({0})", Guid);
-            
+
             UnloadInternalAfterChildren();
 
             _idProp.OnChanged -= Id_OnChange;
@@ -190,7 +196,7 @@ namespace CreateAR.EnkluPlayer.IUX
             // TODO: create on Load(), NOT constructor/Unload
             Schema = new ElementSchema("Unknown");
         }
-        
+
         /// <summary>
         /// Frame based update.
         /// </summary>
@@ -257,7 +263,7 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 element.Parent.RemoveChild(element);
             }
-            
+
             // add to this element's list
             _children.Add(element);
             element.Parent = this;
@@ -305,7 +311,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 {
                     element.OnRemoved(element);
                 }
-                
+
                 if (null != OnChildRemoved)
                 {
                     OnChildRemoved(this, element);
@@ -324,7 +330,7 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             _findAllScratch.Clear();
             Find(query, _findAllScratch);
-            
+
             return _findAllScratch
 #if NETFX_CORE
                 .Where(el => el.GetType() == typeof(T) || el.GetType().GetTypeInfo().IsSubclassOf(typeof(T)))
@@ -333,6 +339,69 @@ namespace CreateAR.EnkluPlayer.IUX
 #endif
                 .Cast<T>()
                 .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Stack-less search through hierarchy for an element that matches by
+        /// id.
+        /// </summary>
+        /// <param name="root">Where to start the search.</param>
+        /// <param name="id">The id to look for.</param>
+        /// <returns></returns>
+        public Element FindFast(Element root, string id)
+        {
+            var el = root;
+            var compare = true;
+
+            // prep indices
+            var depthIndex = 0;
+            _NextChildIndices[0] = 0;
+
+            // search!
+            while (true)
+            {
+                if (compare && el.Id == id)
+                {
+                    return el;
+                }
+
+                // get the index to the next child at this depth
+                var nextChildIndex = _NextChildIndices[depthIndex];
+
+                // proceed to next child
+                if (nextChildIndex < el.Children.Count)
+                {
+                    // increment next child index at this depth
+                    _NextChildIndices[depthIndex]++;
+
+                    // get the next child
+                    el = el.Children[nextChildIndex];
+
+                    // move to the next depth
+                    _NextChildIndices[++depthIndex] = 0;
+
+                    // switch compare back on
+                    compare = true;
+                }
+                // there is no next child
+                else
+                {
+                    // move up a level
+                    depthIndex--;
+
+                    // there is nowhere else to go
+                    if (depthIndex < 0)
+                    {
+                        return null;
+                    }
+
+                    // parent element
+                    el = el.Parent;
+
+                    // don't compare ids, we've already checked this element
+                    compare = false;
+                }
+            }
         }
 
         /// <summary>
@@ -356,7 +425,7 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 return;
             }
-            
+
             // split at recursive queries
             var current = new List<Element> { this };
             var recur = false;
@@ -448,7 +517,7 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 recur = true;
             }
-            
+
             // add
             for (int i = 0, len = current.Count; i < len; i++)
             {
@@ -483,13 +552,13 @@ namespace CreateAR.EnkluPlayer.IUX
         {
 
         }
-        
+
         /// <summary>
         /// For base classes to override.
         /// </summary>
         protected virtual void LoadInternalAfterChildren()
         {
-            
+
         }
 
         /// <summary>
@@ -521,7 +590,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         protected virtual void UpdateInternal()
         {
-            
+
         }
 
         /// <summary>
@@ -537,7 +606,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         protected virtual void AddChildInternal(Element element)
         {
-            
+
         }
 
         /// <summary>

@@ -31,7 +31,9 @@ namespace RLD
             var content = new GUIContent();
             content.text = "Object types";
             content.tooltip = "The types of objects that can participate in the conversion operation. Applies to both scene objects and prefabs.";
+#pragma warning disable 618
             newInt = (int)((GameObjectType)EditorGUILayout.EnumMaskPopup(content, (GameObjectType)_convertableObjectTypes));
+#pragma warning restore 618
             if (newInt != (int)_convertableObjectTypes)
             {
                 EditorUndoEx.Record(undoRecordObject);

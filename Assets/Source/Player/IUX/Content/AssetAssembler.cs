@@ -2,6 +2,7 @@ using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Assets;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer

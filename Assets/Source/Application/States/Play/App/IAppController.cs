@@ -18,17 +18,7 @@ namespace CreateAR.EnkluPlayer
         /// Current App name.
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// True iff we have edit permissions.
-        /// </summary>
-        bool CanEdit { get; }
-
-        /// <summary>
-        /// True iff we have delete permissions.
-        /// </summary>
-        bool CanDelete { get; }
-
+        
         /// <summary>
         /// Called when app is sufficiently loaded.
         /// </summary>
@@ -55,5 +45,10 @@ namespace CreateAR.EnkluPlayer
         /// Plays the app.
         /// </summary>
         void Play();
+
+        /// <summary>
+        /// Edits the app.
+        /// </summary>
+        void Edit();
     }
 }

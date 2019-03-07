@@ -20,5 +20,16 @@ namespace CreateAR.EnkluPlayer
         {
             return new AsyncToken<Void>(new Exception("Offline."));
         }
+
+        /// <summary>
+        /// Forces even to be called.
+        /// </summary>
+        public void ForceConnect()
+        {
+            if (null != OnConnected)
+            {
+                OnConnected();
+            }
+        }
     }
 }

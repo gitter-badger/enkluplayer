@@ -15,11 +15,6 @@ namespace CreateAR.EnkluPlayer
     public class ContentWidget : Widget
     {
         /// <summary>
-        /// Resolver for JsApi `requires` functionality.
-        /// </summary>
-        private readonly IScriptRequireResolver _resolver;
-
-        /// <summary>
         /// Token for asset readiness.
         /// </summary>
         private readonly MutableAsyncToken<ContentWidget> _onAssetLoaded = new MutableAsyncToken<ContentWidget>();
@@ -123,7 +118,6 @@ namespace CreateAR.EnkluPlayer
             TweenConfig tweens,
             ColorConfig colors,
             IAssetAssembler assembler,
-            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IScriptingHostFactory scriptHostFactory,
             IElementJsCache cache,
@@ -134,7 +128,6 @@ namespace CreateAR.EnkluPlayer
                 tweens,
                 colors)
         {
-            _resolver = resolver;
             _scripts = scripts;
             _scriptHostFactory = scriptHostFactory;
             _assembler = assembler;

@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.IUX
+﻿using Enklu.Data;
+
+namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
     /// Interface for intention. This is for the purposes of abstracting away

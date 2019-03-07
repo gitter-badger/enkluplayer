@@ -1,6 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -60,7 +61,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            // 
+            //
         }
 
         /// <inheritdoc />
@@ -78,7 +79,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Uninitialize()
         {
-            // 
+            //
         }
 
         /// <summary>

@@ -147,15 +147,16 @@ namespace CreateAR.EnkluPlayer.IUX
 
                         Log.Info(this, "Import complete. Constructing mesh.");
 
-                        var bounds = action(_meshCaptureGameObject);
-
                         // update collider with new bounds
-                        /*var collider = EditCollider;
+                        /*
+                        var bounds = action(_meshCaptureGameObject); 
+                        var collider = EditCollider;
                         if (null != collider)
                         {
                             collider.center = bounds.center;
                             collider.size = bounds.size;
-                        }*/
+                        }
+                        */
                     });
                 })
                 .OnFailure(exception => Log.Error(this, "Could not download mesh capture : {0}", exception));
