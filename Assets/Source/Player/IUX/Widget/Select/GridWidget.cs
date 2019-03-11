@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Enklu.Data;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -80,8 +81,8 @@ namespace CreateAR.EnkluPlayer.IUX
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IElementFactory elements)
             : base(
                 gameObject,

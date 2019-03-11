@@ -1,4 +1,5 @@
 ﻿using System;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -207,8 +208,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public SliderWidget(
             GameObject gameObject,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IElementFactory elements,
             IIntentionManager intentions)
             : base(

@@ -89,7 +89,16 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-                return UnityUtil.CurrentPlatform();
+                try
+                {
+                    return (RuntimePlatform) Enum.Parse(
+                        typeof(RuntimePlatform),
+                        UnityUtil.CurrentPlatform());
+                }
+                catch
+                {
+                    return UnityEngine.Application.platform;
+                }
             }
         }
         
@@ -305,19 +314,24 @@ namespace CreateAR.EnkluPlayer
         public float AssetDownloadLagSec;
 
         /// <summary>
-        /// Likelyhood of forcing an asset download to fail.
+        /// Likelihood of forcing an asset download to fail.
         /// </summary>
         public float AssetDownloadFailChance;
 
         /// <summary>
-        /// Likelyhood of forcing an anchor download to fail.
+        /// Likelihood of forcing an anchor download to fail.
         /// </summary>
         public float AnchorDownloadFailChance = 0.0f;
 
         /// <summary>
-        /// Likelyhood of forcing anchor import to fail.
+        /// Likelihood of forcing anchor import to fail.
         /// </summary>
         public float AnchorImportFailChance = 0.0f;
+
+        /// <summary>
+        /// Likelihood of forcing script download to fail.
+        /// </summary>
+        public float ScriptDownloadFailChance;
 
         /// <summary>
         /// If true, forces all Http requests to fail.
@@ -458,6 +472,11 @@ namespace CreateAR.EnkluPlayer
                 AnchorImportFailChance = overrideConfig.AnchorImportFailChance;
             }
 
+            if (overrideConfig.ScriptDownloadFailChance > Mathf.Epsilon)
+            {
+                ScriptDownloadFailChance = overrideConfig.ScriptDownloadFailChance;
+            }
+
             if (!string.IsNullOrEmpty(overrideConfig.ApiVersion))
             {
                 ApiVersion = overrideConfig.ApiVersion;
@@ -522,13 +541,25 @@ namespace CreateAR.EnkluPlayer
         public string AnchorsUrl = "localhost";
 
         /// <summary>
+        /// Url for Mycelium.
+        /// </summary>
+        public string MyceliumIp = "34.216.59.227";
+
+        /// <summary>
+        /// Url for Mycelium.
+        /// </summary>
+        public int MyceliumPort = 10103;
+
+        /// <summary>
         /// Useful ToString.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}, ScriptsUrl={4}, AnchorsUrl={5}]",
+            return string.Format("[EnvironmentData TrellisUrl={0}, MyceliumUrl={1}:{2}, AssetsUrl={3}, BundlesUrl={4}, ThumbsUrl={5}, ScriptsUrl={6}, AnchorsUrl={7}]",
                 TrellisUrl,
+                MyceliumIp,
+                MyceliumPort,
                 AssetsUrl,
                 BundlesUrl,
                 ThumbsUrl,
@@ -794,6 +825,11 @@ namespace CreateAR.EnkluPlayer
         /// Email address to send debug dumps.
         /// </summary>
         public string DumpEmail = "";
+        
+        /// <summary>
+        /// If true, the scripting engine will enable debugging.
+        /// </summary>
+        public bool EnableScriptDebugging = false;
 
         /// <summary>
         /// Overrides settings.
@@ -809,6 +845,11 @@ namespace CreateAR.EnkluPlayer
             if (config.DisableAdminLock)
             {
                 DisableAdminLock = true;
+            }
+
+            if (config.EnableScriptDebugging)
+            {
+                EnableScriptDebugging = true;
             }
 
             if (!string.IsNullOrEmpty(config.DumpEmail))

@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.IUX
+﻿using Enklu.Data;
+
+namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
     /// References an <c>ElementData</c> instance. May contain child references
@@ -10,7 +12,7 @@
         /// Unique id of the <c>ElementData</c> to reference.
         /// </summary>
         public string Id;
-        
+
         /// <summary>
         /// List of child references.
         /// </summary>

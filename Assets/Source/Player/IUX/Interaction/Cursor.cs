@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Enklu.Data;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -11,7 +12,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Dependencies.
         /// </summary>
         private readonly WidgetConfig _config;
-        private readonly ITweenConfig _tweens;
+        private readonly TweenConfig _tweens;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interaction;
         private readonly IPrimitiveFactory _primitives;
@@ -65,8 +66,8 @@ namespace CreateAR.EnkluPlayer.IUX
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IIntentionManager intention,
             IInteractionManager interaction,
             IPrimitiveFactory primitives,

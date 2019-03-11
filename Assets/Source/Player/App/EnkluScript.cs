@@ -88,6 +88,11 @@ namespace CreateAR.EnkluPlayer
         /// Load status.
         /// </summary>
         public LoadStatus Status { get; set; }
+
+        /// <summary>
+        /// True iff the script is enabled.
+        /// </summary>
+        public bool Enabled { get; set; }
         
         /// <summary>
         /// Dispatched when a load is successful.
@@ -117,6 +122,8 @@ namespace CreateAR.EnkluPlayer
         {
             _parser = parser;
             _loader = loader;
+
+            Enabled = true;
 
             Load(data);
         }

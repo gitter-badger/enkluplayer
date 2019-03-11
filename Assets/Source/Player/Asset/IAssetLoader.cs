@@ -1,6 +1,8 @@
+using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.EnkluPlayer.Assets
 {
@@ -13,7 +15,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Builds URLs.
         /// </summary>
         UrlFormatterCollection Urls { get; }
-
+        
         /// <summary>
         /// Loads an asset.
         /// </summary>
@@ -26,7 +28,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// Clears the download queue.
         /// </summary>
-        void ClearDownloadQueue();
+        void Clear();
 
         /// <summary>
         /// Destroys the loader and everything in it.

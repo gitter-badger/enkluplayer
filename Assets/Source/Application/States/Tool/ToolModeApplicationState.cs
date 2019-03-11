@@ -1,7 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -16,19 +13,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
-        /// Routes messages about.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
-        public ToolModeApplicationState(
-            IVoiceCommandManager voice,
-            IMessageRouter messages)
+        public ToolModeApplicationState(IVoiceCommandManager voice)
         {
             _voice = voice;
-            _messages = messages;
         }
 
         /// <inheritdoc cref="IState"/>

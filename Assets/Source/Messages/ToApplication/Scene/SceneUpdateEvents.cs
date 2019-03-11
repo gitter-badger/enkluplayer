@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -38,7 +39,7 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class SceneCreateEvent : SceneEvent
     {
-        // 
+        //
     }
 
     /// <summary>
@@ -76,6 +77,6 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class SceneDeleteEvent : SceneEvent
     {
-        // 
+        //
     }
 }

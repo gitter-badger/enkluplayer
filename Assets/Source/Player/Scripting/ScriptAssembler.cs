@@ -25,7 +25,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IScriptManager _scriptManager;
         private readonly IScriptFactory _scriptFactory;
         private readonly IElementJsCache _jsCache;
-        private readonly IScriptRequireResolver _requireResolver;
+        private readonly IScriptingHostFactory _scriptingHostFactory;
         private readonly AppJsApi _appJsApi;
 
         /// <summary>
@@ -63,13 +63,13 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptManager scriptManager, 
             IScriptFactory scriptFactory, 
             IElementJsCache jsCache,
-            IScriptRequireResolver requireResolver,
+            IScriptingHostFactory scriptingHostFactory,
             AppJsApi appJsApi)
         {
             _scriptManager = scriptManager;
             _scriptFactory = scriptFactory;
             _jsCache = jsCache;
-            _requireResolver = requireResolver;
+            _scriptingHostFactory = scriptingHostFactory;
             _appJsApi = appJsApi;
         }
 
@@ -86,7 +86,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             var contentWidget = widget as ContentWidget;
             if (contentWidget != null)
             {
-                contentWidget.OnAssetLoaded.OnFinally(_ => SetupScripts());
+                contentWidget.OnLoaded.OnFinally(_ => SetupScripts());
             }
             else
             {
@@ -316,7 +316,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <returns></returns>
         private UnityScriptingHost CreateBehaviorHost()
         {
-            var host = new UnityScriptingHost(_widget, _requireResolver, _scriptManager);
+            var host = _scriptingHostFactory.NewScriptingHost(_widget);
             host.SetValue("system", SystemJsApi.Instance);
             host.SetValue("app", _appJsApi);
             host.SetValue("this", _jsCache.Element(_widget));

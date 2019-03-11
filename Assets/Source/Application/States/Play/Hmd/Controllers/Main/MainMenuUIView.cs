@@ -60,9 +60,6 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..btn-deviceregistration")]
         public ButtonWidget BtnRegistration { get; set; }
 
-        [InjectElements("..btn-logging")]
-        public ButtonWidget BtnLogging { get; set; }
-
         [InjectElements("..btn-exp-new")]
         public ButtonWidget BtnExpNew { get; set; }
 
@@ -77,9 +74,6 @@ namespace CreateAR.EnkluPlayer
 
         [InjectElements("..txt-deviceName")]
         public TextWidget TxtDeviceName { get; set; }
-
-        [InjectElements("..btn-metrics")]
-        public ButtonWidget BtnMetrics { get; set; }
 
         /// <summary>
         /// Quality settings.
@@ -119,6 +113,24 @@ namespace CreateAR.EnkluPlayer
 
         [InjectElements("..btn-logout")]
         public ButtonWidget BtnLogout { get; set; }
+        
+        /// <summary>
+        /// Tools
+        /// </summary>
+        [InjectElements("..btn-logging")]
+        public ButtonWidget BtnLogging { get; set; }
+        
+        [InjectElements("..btn-metrics")]
+        public ButtonWidget BtnMetrics { get; set; }
+        
+        [InjectElements("..btn-experience")]
+        public ButtonWidget BtnExperience { get; set; }
+        
+        [InjectElements("..btn-network")]
+        public ButtonWidget BtnNetwork { get; set; }
+        
+        [InjectElements("..btn-anchors")]
+        public ButtonWidget BtnAnchors { get; set; }
 
         /// <summary>
         /// Called when we wish to go back.
@@ -169,6 +181,21 @@ namespace CreateAR.EnkluPlayer
         /// Opens logging hud.
         /// </summary>
         public event Action OnLoggingHud;
+
+        /// <summary>
+        /// Opens experience hud.
+        /// </summary>
+        public event Action OnExperienceHud;
+        
+        /// <summary>
+        /// Opens network hud.
+        /// </summary>
+        public event Action OnNetworkHud;
+        
+        /// <summary>
+        /// Opens anchors hud.
+        /// </summary>
+        public event Action OnAnchorsHud;
 
         /// <summary>
         /// Id of the scene.
@@ -250,13 +277,6 @@ namespace CreateAR.EnkluPlayer
                     OnDeviceRegistration();
                 }
             };
-            BtnLogging.OnActivated += _ =>
-            {
-                if (null != OnLoggingHud)
-                {
-                    OnLoggingHud();
-                }
-            };
 
             BtnLogout.OnActivated += _ =>
             {
@@ -270,13 +290,7 @@ namespace CreateAR.EnkluPlayer
             BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
             BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
 
-            BtnMetrics.OnActivated += _ =>
-            {
-                if (null != OnMetricsHud)
-                {
-                    OnMetricsHud();
-                }
-            };
+            
 
             // options
             {
@@ -413,6 +427,49 @@ namespace CreateAR.EnkluPlayer
                             string.Format(AppQualityController.PROP_TEMPLATE_BLENDWEIGHTS, platform),
                             value))
                         .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
+            }
+            
+            // tools
+            {
+                BtnLogging.OnActivated += _ =>
+                {
+                    if (null != OnLoggingHud)
+                    {
+                        OnLoggingHud();
+                    }
+                };
+                
+                BtnMetrics.OnActivated += _ =>
+                {
+                    if (null != OnMetricsHud)
+                    {
+                        OnMetricsHud();
+                    }
+                };
+                
+                BtnExperience.OnActivated += _ =>
+                {
+                    if (null != OnExperienceHud)
+                    {
+                        OnExperienceHud();
+                    }
+                };
+                
+                BtnNetwork.OnActivated += _ =>
+                {
+                    if (null != OnNetworkHud)
+                    {
+                        OnNetworkHud();
+                    }
+                };
+                
+                BtnAnchors.OnActivated += _ =>
+                {
+                    if (null != OnAnchorsHud)
+                    {
+                        OnAnchorsHud();
+                    }
                 };
             }
         }

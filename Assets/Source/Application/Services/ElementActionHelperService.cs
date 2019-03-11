@@ -153,16 +153,7 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            var content = element as ContentWidget;
-            if (null == content)
-            {
-                Log.Warning(this,
-                    "Received refresh event for {0} element, but only valid for ContentWigets.",
-                    element.GetType().Name);
-                return;
-            }
-
-            content.RefreshScripts();
+            // TODO: Support this
         }
 
         /// <summary>

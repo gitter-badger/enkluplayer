@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -15,6 +14,7 @@ using CreateAR.EnkluPlayer.States.HoloLogin;
 using CreateAR.EnkluPlayer.Util;
 using CreateAR.EnkluPlayer.Vine;
 using CreateAR.Trellis.Messages;
+using Enklu.Mycerializer;
 using Jint.Parser;
 using Newtonsoft.Json;
 using strange.extensions.injector.impl;
@@ -44,10 +44,13 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<DrawingJsApi>().To(LookupComponent<DrawingJsApi>());
             }
 
+            binder.Bind<PerfMetricsCollector>().To<PerfMetricsCollector>().ToSingleton();
+            binder.Bind<RuntimeStats>().To<RuntimeStats>().ToSingleton();
+
             // required for loggly
             binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 
-            // load configuration
+            // get configuration
             var config = ApplicationConfigCompositor.Config;
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
@@ -64,21 +67,17 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
 
-                // parser is async on platforms with threads
-#if UNITY_WEBGL
-                binder.Bind<IParserWorker>().To<SyncParserWorker>().ToSingleton();
-#else
-                binder.Bind<IParserWorker>().To<ThreadedParserWorker>().ToSingleton();
-#endif
-
                 // start worker
+#if UNITY_WEBGL || UNITY_EDITOR
+                binder.Bind<IParserWorker>().To<SyncParserWorker>().ToSingleton();
+
                 var worker = binder.GetInstance<IParserWorker>();
-#if NETFX_CORE
-                Windows.System.Threading.ThreadPool.RunAsync(_ => worker.Start());
-#elif UNITY_WEBGL
                 worker.Start();
 #else
-                System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
+                binder.Bind<IParserWorker>().To<ThreadedParserWorker>().ToSingleton();
+
+                var worker = binder.GetInstance<IParserWorker>();
+                ThreadHelper.SyncStart(worker.Start);
 #endif
 
                 // metrics
@@ -183,22 +182,40 @@ namespace CreateAR.EnkluPlayer
                 }
                 else
                 {
+                    if (config.ParsedPlatform == RuntimePlatform.WebGLPlayer)
+                    {
+                        binder.Bind<IMultiplayerController>().To<WebMultiplayerController>().ToSingleton();
+                    }
+                    else
+                    {
+                        binder.Bind<IMultiplayerController>().To<MyceliumMultiplayerController>().ToSingleton();
+                    }
+
 #if UNITY_IOS || UNITY_ANDROID
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                    binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                    binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                    binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
 #if UNITY_EDITOR
-                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #else
-                        binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
+                    binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
 #endif
 #elif UNITY_EDITOR
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                    binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                    binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                    binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                    binder.Bind<ITcpConnectionFactory>().To<UwpTcpConnectionFactory>().ToSingleton();
+                    binder.Bind<IMessageReader>().To<UwpReflectionMessageReader>();
+                    binder.Bind<IMessageWriter>().To<UwpReflectionMessageWriter>();
 #endif
                 }
 
@@ -435,8 +452,7 @@ namespace CreateAR.EnkluPlayer
                     UnityEngine.Application.persistentDataPath,
                     "Application.log"))
             {
-                // warning and up
-                Filter = LogLevel.Debug
+                Filter = config.ParsedLevel
             });
 #endif // UNITY_WEBGL
 
@@ -572,8 +588,8 @@ namespace CreateAR.EnkluPlayer
                 // configs
                 {
                     binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
-                    binder.Bind<ITweenConfig>().ToValue(LookupComponent<TweenConfig>());
-                    binder.Bind<IColorConfig>().ToValue(LookupComponent<ColorConfig>());
+                    binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfigMonoBehaviour>());
+                    binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfigMonoBehaviour>().ColorConfig);
                     binder.Bind<IFontConfig>().ToValue(LookupComponent<FontConfig>());
                 }
 
@@ -584,6 +600,8 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                     binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
                 }
+
+                binder.Bind<IMaterialManager>().To<MaterialManager>().ToSingleton();
             }
 
             // design
@@ -686,6 +704,7 @@ namespace CreateAR.EnkluPlayer
 
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new EnkluScriptRequireResolver(binder));
+                binder.Bind<IScriptingHostFactory>().To<ScriptingHostFactory>().ToSingleton();
                 binder.Bind<IElementJsCache>().To<ElementJsCache>().ToSingleton();
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
@@ -707,6 +726,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                     binder.Bind<ChecksumJsInterface>().To<ChecksumJsInterface>().ToSingleton();
                     binder.Bind<VoiceJsInterface>().To<VoiceJsInterface>().ToSingleton();
+                    binder.Bind<MultiplayerJsInterface>().To<MultiplayerJsInterface>().ToSingleton();
                 }
             }
 
@@ -726,8 +746,9 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IDeviceMetaProvider>(),
                     binder.GetInstance<IImageCapture>(),
                     binder.GetInstance<IVideoCapture>(),
-                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<IAppSceneManager>(),
+                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
                 

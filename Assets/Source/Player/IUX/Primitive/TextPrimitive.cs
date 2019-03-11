@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -15,6 +16,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Configuration.
         /// </summary>
         private readonly WidgetConfig _config;
+
+        /// <summary>
+        /// Material Manager.
+        /// </summary>
+        private readonly IMaterialManager _materialManager;
         
         /// <summary>
         /// Renders text.
@@ -27,12 +33,16 @@ namespace CreateAR.EnkluPlayer.IUX
         private ElementSchemaProp<string> _propAlignment;
         private ElementSchemaProp<string> _propFont;
         private ElementSchemaProp<int> _propFontSize;
+        private ElementSchemaProp<string> _propDisplay;
 
         /// <summary>
         /// Tracks how textrect changes over frames.
         /// </summary>
         private Rectangle _bakedTextRect;
 
+        /// <summary>
+        /// True when the text has been updated.
+        /// </summary>
         private bool _isDirty = true;
         
         /// <summary>
@@ -221,7 +231,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Alpha.
         /// </summary>
-        public float Alpha
+        public override float Alpha
         {
             get
             {
@@ -249,8 +259,9 @@ namespace CreateAR.EnkluPlayer.IUX
         public TextPrimitive(
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors)
+            TweenConfig tweens,
+            ColorConfig colors,
+            IMaterialManager materialManager)
             : base(
                 new GameObject("Text"),
                 layers,
@@ -258,6 +269,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 colors)
         {
             _config = config;
+            _materialManager = materialManager;
         }
         
         /// <inheritdoc cref="Element"/>
@@ -283,6 +295,14 @@ namespace CreateAR.EnkluPlayer.IUX
             _propFontSize = Schema.Get<int>("fontSize");
             _propFontSize.OnChanged += FontSize_OnChanged;
             _renderer.FontSize = _propFontSize.Value;
+
+            _propDisplay = Schema.Get<string>("display");
+            _propDisplay.OnChanged += Display_OnChanged;
+            var displayType = _propDisplay.Value;
+            if (!string.IsNullOrEmpty(displayType))
+            {
+                Display_OnChanged(_propDisplay, null, _propDisplay.Value);
+            }
         }
 
         /// <inheritdoc cref="Element"/>
@@ -399,6 +419,29 @@ namespace CreateAR.EnkluPlayer.IUX
             _renderer.Font = next;
 
             _isDirty = true;
+        }
+        
+        /// <summary>
+        /// Called when the display type has been updated.
+        /// </summary>
+        /// <param name="prop">Display prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Display_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            var mat = _materialManager.Material(this, "Text" + next);
+            
+            if (mat == null)
+            {
+                Log.Error(this, "No material found for " + _propDisplay.Value);
+            }
+            else
+            {
+                _renderer.Text.material = mat;
+            }
         }
     }
 }

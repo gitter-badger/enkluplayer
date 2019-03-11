@@ -1,4 +1,5 @@
 ﻿using System;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -11,8 +12,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Configuration.
         /// </summary>
-        private readonly ITweenConfig _tweens;
-        private readonly IColorConfig _colors;
+        private readonly TweenConfig _tweens;
+        private readonly ColorConfig _colors;
         
         /// <summary>
         /// The button to affect.
@@ -45,8 +46,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Constructor.
         /// </summary>
         public ButtonStateRenderer(
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             ButtonWidget button)
         {
             _tweens = tweens;

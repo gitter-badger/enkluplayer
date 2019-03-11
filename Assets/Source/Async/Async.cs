@@ -136,7 +136,7 @@ namespace CreateAR.Commons.Unity.Async
 
             return returnToken;
         }
-
+        
         /// <summary>
         /// Maps a token to another token type.
         /// </summary>
@@ -146,7 +146,7 @@ namespace CreateAR.Commons.Unity.Async
         /// <param name="map">Function to map between types.</param>
         /// <returns></returns>
         public static IAsyncToken<R> Map<T, R>(
-            IAsyncToken<T> token,
+            this IAsyncToken<T> token,
             Func<T, R> map)
         {
             var output = new AsyncToken<R>();
@@ -177,23 +177,6 @@ namespace CreateAR.Commons.Unity.Async
                 .OnFailure(output.Fail);
 
             return output;
-        }
-
-        /// <summary>
-        /// Makes an immutable token out of a mutable token.
-        /// </summary>
-        /// <typeparam name="T">Type parameter.</typeparam>
-        /// <param name="mutableToken">The mutable token to convert.</param>
-        /// <returns></returns>
-        public static IAsyncToken<T> ToImmutable<T>(IMutableAsyncToken<T> mutableToken)
-        {
-            var token = new AsyncToken<T>();
-
-            mutableToken
-                .OnSuccess(token.Succeed)
-                .OnFailure(token.Fail);
-
-            return token;
         }
     }
 }

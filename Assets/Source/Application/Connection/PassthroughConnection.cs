@@ -18,6 +18,11 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
+            if (null != OnConnected)
+            {
+                OnConnected();
+            }
+
             return new AsyncToken<Void>(Void.Instance);
         }
     }

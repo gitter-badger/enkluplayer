@@ -1,0 +1,41 @@
+<?Vine>
+
+<Float focus.visible=false>
+	<Container position=(0.3, 0, 0)>
+		<Button id='btn-close' label='Close' position=(0, 0.1, 0) icon='arrow-left' ready.color='Negative' />
+		
+        <Text 
+            id='txt-config'
+            width=1000.0
+            alignment='MidLeft'
+        />
+        
+        <Text 
+            id='txt-network'
+            width=1000.0
+            alignment='MidLeft'
+            position=(0, -0.1, 0)
+        />
+
+        <Text 
+            id='txt-multiplayer'
+            width=1000.0
+            alignment='MidLeft'
+            position=(0, -0.2, 0)
+        />
+
+        <Button
+            id='btn-multiplayer'
+            icon='refresh'
+            position=(-0.1, -0.2, 0)
+            ready.color='Negative'
+        />
+        
+        <Text 
+            id='txt-ping'
+            width=1000.0
+            alignment='MidLeft'
+            position=(0, -0.3, 0)
+        />
+    </Container>
+</Float>

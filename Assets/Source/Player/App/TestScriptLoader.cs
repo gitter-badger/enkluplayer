@@ -28,5 +28,10 @@ namespace CreateAR.EnkluPlayer
 
             return new AsyncToken<string>(Program);
         }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

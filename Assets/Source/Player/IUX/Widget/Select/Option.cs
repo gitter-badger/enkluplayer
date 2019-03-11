@@ -20,10 +20,19 @@
             {
                 if (null == _labelProp)
                 {
-                    _labelProp = Schema.Get<string>("label");
+                    _labelProp = Schema.GetOwn("label", "New Option");
                 }
 
                 return _labelProp.Value;
+            }
+            set
+            {
+                if (null == _labelProp)
+                {
+                    _labelProp = Schema.GetOwn("label", "New Option");
+                }
+
+                _labelProp.Value = value;
             }
         }
 
@@ -36,10 +45,20 @@
             {
                 if (null == _valueProp)
                 {
-                    _valueProp = Schema.Get<string>("value");
+                    _valueProp = Schema.GetOwn("value", "value");
                 }
 
                 return _valueProp.Value;
+            }
+
+            set
+            {
+                if (null == _valueProp)
+                {
+                    _valueProp = Schema.GetOwn("value", "value");
+                }
+
+                _valueProp.Value = value;
             }
         }
 

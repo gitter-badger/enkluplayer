@@ -20,7 +20,7 @@ namespace CreateAR.EnkluPlayer
     public class PlayApplicationState : IState
     {
         /// <summary>
-        /// Name of the playmode scene to load.
+        /// Name of the play mode scene to load.
         /// </summary>
         private const string SCENE_NAME = "PlayMode";
 
@@ -36,8 +36,8 @@ namespace CreateAR.EnkluPlayer
         private readonly IUIManager _ui;
         private readonly IConnection _connection;
         private readonly IMessageRouter _messages;
-        private readonly IVoiceCommandManager _voice;
         private readonly IAssetLoader _assetLoader;
+        private readonly IScriptLoader _scriptLoader;
         private readonly IMetricsService _metrics;
         private readonly IAppQualityController _quality;
         private readonly ITweenManager _tweens;
@@ -103,8 +103,8 @@ namespace CreateAR.EnkluPlayer
             IUIManager ui,
             IConnection connection,
             IMessageRouter messages,
-            IVoiceCommandManager voice,
             IAssetLoader assetLoader,
+            IScriptLoader scriptLoader,
             IMetricsService metrics,
             IAppQualityController quality,
             ITweenManager tweens,
@@ -121,8 +121,8 @@ namespace CreateAR.EnkluPlayer
             _ui = ui;
             _connection = connection;
             _messages = messages;
-            _voice = voice;
             _assetLoader = assetLoader;
+            _scriptLoader = scriptLoader;
             _metrics = metrics;
             _quality = quality;
             _tweens = tweens;
@@ -171,12 +171,8 @@ namespace CreateAR.EnkluPlayer
 
             // watch loading
             _app.OnReady += App_OnReady;
-
-            // listen for reset command
-            _voice.Register("reset", Voice_OnReset);
-            _voice.Register("update", Voice_OnUpdate);
             
-            // load playmode scene
+            // load play mode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
                     SCENE_NAME,
@@ -215,11 +211,6 @@ namespace CreateAR.EnkluPlayer
             // unsubscribe from critical errors
             _criticalErrorUnsub();
             _criticalErrorId = -1;
-
-            // stop listening for voice commands
-            _voice.Unregister("reset");
-            _voice.Unregister("performance");
-            _voice.Unregister("logging");
             
             // Cleanup image/video capture in case the experience didn't 
             _imageCapture.Abort();
@@ -238,14 +229,15 @@ namespace CreateAR.EnkluPlayer
             // teardown designer
             _design.Teardown();
             
-            // unload playmode scene
+            // unload play mode scene
             SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
 
             // close UI
             _frame.Release();
 
             // clear everything in the queue
-            _assetLoader.ClearDownloadQueue();
+            _assetLoader.Clear();
+            _scriptLoader.Clear();
 
             // set the cursor back to always drawing
             _config.Cursor.ForceShow = true;
@@ -266,36 +258,18 @@ namespace CreateAR.EnkluPlayer
                 throw new Exception("Could not find PlayModeConfig.");
             }
             
-            // initialize with app id
-            _app.Play();
+            // start the app controller
+            if (_config.Play.Edit)
+            {
+                _app.Edit();
+            }
+            else
+            {
+                _app.Play();
+            }
 
             // start designer
             _design.Setup(_context, _app);
-
-            // perf
-            _voice.Register("performance", _ =>
-            {
-                // open
-                int hudId;
-                _ui
-                    .OpenOverlay<PerfDisplayUIView>(new UIReference
-                    {
-                        UIDataId = "Perf.Hud"
-                    }, out hudId)
-                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
-            });
-
-            // logging
-            _voice.Register("logging", _ =>
-            {
-                int hudId;
-                _ui
-                    .OpenOverlay<LoggingUIView>(new UIReference
-                    {
-                        UIDataId = "Logging.Hud"
-                    }, out hudId)
-                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
-            });
         }
 
         /// <summary>
@@ -322,7 +296,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Called when there is some critical application error and we need to go back to userprofile.
+        /// Called when there is some critical application error and we need to go back to user profile.
         /// </summary>
         private void Messages_OnCriticalError(object _)
         {
@@ -405,52 +379,6 @@ namespace CreateAR.EnkluPlayer
             {
                 _quality.Setup(_app.Scenes.Root(id));
             }
-        }
-
-        /// <summary>
-        /// Called when the reset command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnReset(string command)
-        {
-            int id;
-            _ui
-                .Open<ConfirmationUIView>(new UIReference
-                {
-                    UIDataId = UIDataIds.CONFIRMATION
-                }, out id)
-                .OnSuccess(el =>
-                {
-                    el.Message = "Are you sure you want to exit the application?";
-                    el.OnConfirm += UnityEngine.Application.Quit;
-                    el.OnCancel += () => _ui.Close(id);
-                })
-                .OnFailure(ex => Log.Error(this, "Could not open reset confirmation popup : {0}", ex));
-        }
-
-        /// <summary>
-        /// Called when the update command is recognized.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void Voice_OnUpdate(string command)
-        {
-            int id;
-            _ui
-                .Open<ConfirmationUIView>(new UIReference
-                {
-                    UIDataId = UIDataIds.CONFIRMATION
-                }, out id)
-                .OnSuccess(el =>
-                {
-                    el.Message = "Are you sure you want to update the application?";
-                    el.OnConfirm += () =>
-                    {
-                        // HACK
-                        AppDataLoader.ForceUpdate = true;
-                    };
-                    el.OnCancel += () => _ui.Close(id);
-                })
-                .OnFailure(ex => Log.Error(this, "Could not open update confirmation popup : {0}", ex));
         }
     }
 }

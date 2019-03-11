@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Scripting;
+using Enklu.Data;
 using Jint;
 using Jint.Native;
 
@@ -17,15 +18,9 @@ namespace CreateAR.EnkluPlayer
         public UnityScriptingHost(
             object context,
             IScriptRequireResolver resolver,
-            IScriptManager scripts)
-            : base(options =>
-            {
-                options.AllowClr();
-                options.CatchClrExceptions(exception =>
-                {
-                    throw exception;
-                });
-            })
+            IScriptManager scripts,
+            Action<Options> engineOptions)
+            : base(engineOptions)
         {
             SetValue("log", new LogJsApi(context));
             SetValue("require", new Func<string, JsValue>(

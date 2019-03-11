@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Enklu.Data;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -54,8 +55,8 @@ namespace CreateAR.EnkluPlayer.IUX
             WidgetConfig config,
             IIntentionManager intention,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors)
+            TweenConfig tweens,
+            ColorConfig colors)
             : base(
                 gameObject,
                 layers,

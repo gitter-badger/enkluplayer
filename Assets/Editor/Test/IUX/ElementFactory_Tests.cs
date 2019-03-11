@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using NUnit.Framework;
+using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
+using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {

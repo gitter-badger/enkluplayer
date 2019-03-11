@@ -1,4 +1,4 @@
-﻿Shader "Spire Player/UI Rim"
+﻿Shader "Enklu/Rim - Overlay"
 {
 	Properties
 	{

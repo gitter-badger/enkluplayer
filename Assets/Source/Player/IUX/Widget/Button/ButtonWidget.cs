@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -149,8 +150,8 @@ namespace CreateAR.EnkluPlayer.IUX
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IVoiceCommandManager voice,
             IImageLoader loader)
             : base(

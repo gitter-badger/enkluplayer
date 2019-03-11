@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
@@ -7,6 +6,7 @@ using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Source.Player.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -30,18 +30,15 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
-        private readonly IScriptRequireResolver _resolver;
-        private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
         private readonly IQrReaderService _qr;
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
         private readonly IMessageRouter _messages;
-        private readonly IElementJsCache _jsCache;
         private readonly IBootstrapper _bootstrapper;
-        private readonly IColorConfig _colors;
-        private readonly ITweenConfig _tweens;
+        private readonly ColorConfig _colors;
+        private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
         private readonly ApplicationConfig _appConfig;
         private readonly ElementSchemaDefaults _elementSchemaDefaults;
@@ -62,23 +59,17 @@ namespace CreateAR.EnkluPlayer.IUX
             IImageLoader imageLoader,
             IHttpService http,
             IWorldAnchorProvider provider,
-            IScriptRequireResolver resolver,
-            IScriptManager scripts,
             IAssetManager assets,
-            IAssetPoolManager pools,
             IQrReaderService qr,
             IScanLoader scanLoader,
             IScanImporter scanImporter,
             IMetricsService metrics,
             IMessageRouter messages,
-            IElementJsCache jsCache,
-            IElementJsFactory elementJsFactory,
             IBootstrapper bootstrapper,
-            IColorConfig colors,
-            ITweenConfig tweens,
+            ColorConfig colors,
+            TweenConfig tweens,
             WidgetConfig config,
             ApplicationConfig appConfig,
-            EditorSettings editorSettings,
             ElementSchemaDefaults elementSchemaDefaults)
         {
             _parser = parser;
@@ -95,15 +86,12 @@ namespace CreateAR.EnkluPlayer.IUX
             _imageLoader = imageLoader;
             _http = http;
             _provider = provider;
-            _resolver = resolver;
-            _scripts = scripts;
             _assets = assets;
             _qr = qr;
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
             _metrics = metrics;
             _messages = messages;
-            _jsCache = jsCache;
             _bootstrapper = bootstrapper;
             _appConfig = appConfig;
             _elementSchemaDefaults = elementSchemaDefaults;
@@ -112,10 +100,14 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Constructor for tests. Not to be used in production code.
         /// </summary>
-        public ElementFactory(IElementManager elements, IGizmoManager gizmos)
+        public ElementFactory(
+            IElementManager elements,
+            IGizmoManager gizmos,
+            ElementSchemaDefaults defaults)
         {
             _elements = elements;
             _gizmos = gizmos;
+            _elementSchemaDefaults = defaults;
         }
 
         /// <inheritdoc />
@@ -145,7 +137,7 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 children[i] = Element(childData[i]);
             }
-            
+
             // element
             var schema = new ElementSchema(data.Id);
             schema.Load(data.Schema);
@@ -246,10 +238,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
-                        new AssetAssembler(_assets, _appConfig.Play),
-                        _resolver,
-                        _scripts,
-                        _jsCache);
+                        new AssetAssembler(_assets, _appConfig.Play));
                 }
                 case ElementTypes.TRANSITION:
                 {
@@ -262,13 +251,13 @@ namespace CreateAR.EnkluPlayer.IUX
                 case ElementTypes.WORLD_ANCHOR:
                 {
                     return new WorldAnchorWidget(
-                        new GameObject("WorldAnchor"), 
-                        _layers, 
-                        _tweens, 
-                        _colors, 
-                        _http, 
-                        _provider, 
-                        _metrics, 
+                        new GameObject("WorldAnchor"),
+                        _layers,
+                        _tweens,
+                        _colors,
+                        _http,
+                        _provider,
+                        _metrics,
                         _messages,
                         _bootstrapper,
                         _appConfig);

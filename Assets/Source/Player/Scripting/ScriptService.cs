@@ -29,7 +29,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             IMessageRouter messages,
             IScriptManager scriptManager,
             IScriptFactory scriptFactory,
-            IScriptRequireResolver requireResolver,
+            IScriptingHostFactory scriptingHostFactory,
             IAppSceneManager sceneManager,
             IElementManager elementManager,
             IElementJsCache elementJsCache,
@@ -39,7 +39,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _elementManager = elementManager;
             
             _scriptRunner = new ScriptRunner(
-                scriptManager, scriptFactory, elementJsCache, requireResolver, appJsApi);
+                scriptManager, scriptFactory, elementJsCache, scriptingHostFactory, appJsApi);
         }
 
         /// <inheritdoc />

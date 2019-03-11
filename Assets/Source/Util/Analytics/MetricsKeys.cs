@@ -15,6 +15,7 @@
         ///////////////////////////////////////////////////////////////////////
         public const string APP_DATA_LOAD = "App.Data.Load";
         public const string APP_PLAY = "App.Play";
+        public const string APP_EDIT = "App.Edit";
 
         ///////////////////////////////////////////////////////////////////////
         /// States
@@ -82,5 +83,10 @@
         public const string MEDIA_VIDEO_START = "Media.Video.Start";
         public const string MEDIA_VIDEO_SUCCESS = "Media.Video.Success";
         public const string MEDIA_VIDEO_FAILURE = "Media.Video.Failure";
+
+        ///////////////////////////////////////////////////////////////////////
+        /// Metrics
+        ///////////////////////////////////////////////////////////////////////
+        public const string NETWORK_CONNECTSYNC = "Network.ConnectSync";
     }
 }

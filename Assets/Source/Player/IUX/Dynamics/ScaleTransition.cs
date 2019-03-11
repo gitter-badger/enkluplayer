@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.IUX
+﻿using Enklu.Data;
+
+namespace CreateAR.EnkluPlayer.IUX
 {
     using System;
     using System.Collections.Generic;
@@ -90,7 +92,7 @@
         /// <summary>
         /// Configuration.
         /// </summary>
-        private readonly ITweenConfig _tweens;
+        private readonly TweenConfig _tweens;
 
         /// <summary>
         /// A record for each element that has been added.
@@ -105,7 +107,7 @@
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ScaleTransition(GameObject gameObject, ITweenConfig tweens)
+        public ScaleTransition(GameObject gameObject, TweenConfig tweens)
         {
             GameObject = gameObject;
 

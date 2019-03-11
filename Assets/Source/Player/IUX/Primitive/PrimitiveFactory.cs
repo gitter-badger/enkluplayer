@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -12,12 +13,13 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
-        private readonly IColorConfig _colors;
-        private readonly ITweenConfig _tweens;
+        private readonly ColorConfig _colors;
+        private readonly TweenConfig _tweens;
         private readonly IMessageRouter _messages;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interactions;
         private readonly WidgetConfig _config;
+        private readonly IMaterialManager _materialManager;
 
         /// <summary>
         /// Constructor.
@@ -25,12 +27,13 @@ namespace CreateAR.EnkluPlayer.IUX
         public PrimitiveFactory(
             IElementManager elements,
             ILayerManager layers,
-            IColorConfig colors,
-            ITweenConfig tweens,
+            ColorConfig colors,
+            TweenConfig tweens,
             IMessageRouter messages,
             IIntentionManager intention,
             IInteractionManager interactions,
-            WidgetConfig config)
+            WidgetConfig config,
+            IMaterialManager materialManager)
         {
             _elements = elements;
             _layers = layers;
@@ -40,6 +43,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _intention = intention;
             _interactions = interactions;
             _config = config;
+            _materialManager = materialManager;
         }
 
         /// <inheritdoc cref="IPrimitiveFactory"/>
@@ -49,7 +53,8 @@ namespace CreateAR.EnkluPlayer.IUX
                 _config,
                 _layers,
                 _tweens,
-                _colors);
+                _colors,
+                _materialManager);
 
             var textSchema = new ElementSchema("TextPrimitive");
             textSchema.Wrap(schema);
@@ -77,6 +82,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 _layers,
                 _tweens,
                 _colors,
+                _materialManager,
                 target);
 
             var activatorSchema = new ElementSchema("ActivatorPrimitive");

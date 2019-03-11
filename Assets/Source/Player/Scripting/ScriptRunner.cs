@@ -163,14 +163,14 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptManager scriptManager, 
             IScriptFactory scriptFactory, 
             IElementJsCache jsCache,
-            IScriptRequireResolver requireResolver,
+            IScriptingHostFactory scriptingHostFactory,
             AppJsApi appJsApi)
         {
             _createScriptAssembler = () => new ScriptAssembler(
                 scriptManager,
                 scriptFactory,
                 jsCache,
-                requireResolver,
+                scriptingHostFactory,
                 appJsApi);
         }
 
@@ -363,7 +363,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                         }
                         catch (Exception e)
                         {
-                            Log.Error(this, "Error entering script ({0})", vine);
+                            Log.Error(this, "Error entering script ({0} : {1})", vine, e);
                         }
                     }
                 }

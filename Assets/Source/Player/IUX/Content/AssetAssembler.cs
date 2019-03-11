@@ -1,6 +1,8 @@
 using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Assets;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -41,9 +43,19 @@ namespace CreateAR.EnkluPlayer
         private Transform _transform;
 
         /// <summary>
-        /// Action for unwatching.
+        /// Action for un-watching.
         /// </summary>
         private Action _unwatchUpdate;
+
+        /// <summary>
+        /// True iff the asset configuration asks for the asset to be hidden.
+        /// </summary>
+        private bool _isHidden;
+
+        /// <summary>
+        /// The token returned from calling Load on the asset.
+        /// </summary>
+        private IAsyncToken<GameObject> _loadToken;
 
         /// <inheritdoc />
         public Bounds Bounds
@@ -157,7 +169,11 @@ namespace CreateAR.EnkluPlayer
                     version);
                 return;
             }
-            
+
+            // safely listen for asset configuration updates
+            _asset.OnConfigurationUpdated -= Asset_OnConfigurationUpdated;
+            _asset.OnConfigurationUpdated += Asset_OnConfigurationUpdated;
+
             // safely listen for asset load errors
             _asset.OnLoadError -= Asset_OnLoadError;
             _asset.OnLoadError += Asset_OnLoadError;
@@ -178,7 +194,7 @@ namespace CreateAR.EnkluPlayer
             else
             {
                 // load
-                _asset
+                _loadToken = _asset
                     .Load<GameObject>()
                     .OnSuccess(SetupInstance);
 
@@ -206,7 +222,7 @@ namespace CreateAR.EnkluPlayer
                 }
             }
         }
-
+        
         /// <summary>
         /// Teardown related to the asset.
         /// </summary>
@@ -215,7 +231,13 @@ namespace CreateAR.EnkluPlayer
             if (null != _asset)
             {
                 _asset.OnLoadError -= Asset_OnLoadError;
-                _asset = null;
+                _asset.OnConfigurationUpdated -= Asset_OnConfigurationUpdated;
+            }
+
+            if (null != _loadToken)
+            {
+                _loadToken.Abort();
+                _loadToken = null;
             }
 
             // shut off outline
@@ -248,7 +270,13 @@ namespace CreateAR.EnkluPlayer
             Assembly = UnityEngine.Object.Instantiate(value,
                 Vector3.zero,
                 Quaternion.identity);
-            
+
+            // force off, but do not force on, as prefab may be disabled
+            if (_isHidden)
+            {
+                Assembly.SetActive(false);
+            }
+
             // dispatch update
             if (null != OnAssemblyUpdated)
             {
@@ -278,6 +306,35 @@ namespace CreateAR.EnkluPlayer
             if (null != _outline)
             {
                 _outline.ShowError(error);
+            }
+        }
+
+        /// <summary>
+        /// Configuration.
+        /// </summary>
+        /// <param name="flags">The config.</param>
+        private void Asset_OnConfigurationUpdated(AssetFlags flags)
+        {
+            _isHidden = 0 != (flags & AssetFlags.Hidden);
+
+            if (null == Assembly)
+            {
+                return;
+            }
+
+            if (_isHidden)
+            {
+                // force off
+                Assembly.SetActive(false);
+            }
+            else
+            {
+                // revert to what the prefab had
+                var prefab = _asset.As<GameObject>();
+                if (null != prefab)
+                {
+                    Assembly.SetActive(prefab.activeSelf);
+                }
             }
         }
     }

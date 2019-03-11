@@ -1,4 +1,5 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
+using Jint.Runtime;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -47,7 +48,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             : base(scripts, cache, element)
         {
             _contentWidget = (ContentWidget) _element;
-            _contentWidget.OnAssetLoaded.OnSuccess(CacheComponents);
+            _contentWidget.OnLoaded.OnSuccess(CacheComponents);
         }
 
         /// <inheritdoc />
@@ -55,7 +56,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             base.Cleanup();
 
-            _contentWidget.OnAssetLoaded.Remove(CacheComponents);
+            _contentWidget.OnLoaded.Remove(CacheComponents);
             
             TeardownComponents();
         }

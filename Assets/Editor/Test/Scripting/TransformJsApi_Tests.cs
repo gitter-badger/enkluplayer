@@ -1,6 +1,7 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using Enklu.Data;
 using Jint;
 using NUnit.Framework;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         // Use a non-epsilon tolerance, since Quat math uses floats and Unity's uses doubles.
         // TODO: Update Quat math to use doubles, for parity with Unity?
         private const float TOLERANCE = 0.0001f;
-        
+
         private Engine _engine;
         private ElementJs _parent;
         private ElementJs _element;
@@ -25,11 +26,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var parent = new Widget(new GameObject("TransformJsApi_Tests"), null, null, null);
             var child = new Widget(new GameObject("TransformJsApi_Tests"), null, null, null);
-            
+
             parent.Load(new ElementData(), parent.Schema, new Element[0]);
             child.Load(new ElementData(), child.Schema, new Element[0]);
             parent.AddChild(child);
-            
+
             var cache = new ElementJsCache(new ElementJsFactory(null));
             _engine = new Engine();
             _parent = new ElementJs(null, cache, parent);
@@ -63,7 +64,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var childPos = new Vec3(-3, 2, -1);
             _element.transform.position = childPos;
             _unityChild.transform.localPosition = childPos.ToVector();
-            
+
             Assert.IsTrue(CompareVectors(_unityChild.transform.position, _element.transform.worldPosition));
             Assert.IsTrue(CompareVectors(_unityChild.transform.localPosition, _element.transform.position));
         }
@@ -75,9 +76,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var childRot = Quat.Euler(-45, 30, 12);
             _element.transform.rotation = childRot;
             _unityChild.transform.localRotation = childRot.ToQuaternion();
-            
+
             Assert.IsTrue(CompareVectors(
-                _unityChild.transform.rotation.eulerAngles, 
+                _unityChild.transform.rotation.eulerAngles,
                 _element.transform.worldRotation.ToQuaternion().eulerAngles.ToVec()));
             Assert.IsTrue(CompareVectors(
                 _unityChild.transform.localRotation.eulerAngles,
@@ -91,7 +92,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var childScale = new Vec3(2, -1, 0.5f);
             _element.transform.scale = childScale;
             _unityChild.transform.localScale = childScale.ToVector();
-            
+
             Assert.IsTrue(CompareVectors(_unityChild.transform.lossyScale, _element.transform.worldScale));
             Assert.IsTrue(CompareVectors(_unityChild.transform.localScale, _element.transform.scale));
         }
@@ -105,7 +106,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 var euler = TestData.EulerArray[i];
                 _element.transform.rotation = Quat.Euler(euler);
                 _unityChild.transform.rotation = Quaternion.Euler(euler.ToVector());
-                
+
                 var enkluForward = _engine.Run<Vec3>("element.transform.forward");
                 var unityForward = _unityChild.transform.forward;
                 Assert.IsTrue(Vector3.Angle(enkluForward.ToVector(), unityForward) < Mathf.Epsilon);
@@ -130,7 +131,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _element.transform.position = new Vec3(1, 2, 3);
             _element.transform.rotation = Quat.Euler(0, 90, 0);
             _element.transform.scale = new Vec3(3, -1, 0.5f);
-            
+
             var point = _engine.Run<Vec3>(@"
                 element.transform.localToWorld(v.create(4, -5, 6));
             ");
@@ -138,17 +139,17 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = (Widget) _element.Element;
 
             var unity = widget.GameObject.transform.TransformPoint(4, -5, 6).ToVec();
-            
+
             Assert.IsTrue(unity.Approximately(point, TOLERANCE));
         }
-        
+
         [Test]
         public void InverseTransformPoint()
         {
             _element.transform.position = new Vec3(1, 2, 3);
             _element.transform.rotation = Quat.Euler(0, 90, 0);
             _element.transform.scale = new Vec3(3, -1, 0.5f);
-            
+
             var point = _engine.Run<Vec3>(@"
                 element.transform.worldToLocal(v.create(4, -5, 6));
             ");
@@ -156,7 +157,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = (Widget) _element.Element;
 
             var unity = widget.GameObject.transform.InverseTransformPoint(4, -5, 6).ToVec();
-            
+
             Assert.IsTrue(unity.Approximately(point, TOLERANCE));
         }
 
@@ -171,5 +172,5 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             return equal;
         }
-    }    
+    }
 }

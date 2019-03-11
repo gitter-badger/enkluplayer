@@ -44,8 +44,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public SubMenuWidget(
             GameObject gameObject,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IElementFactory elements)
             : base(gameObject, layers, tweens, colors)
         {

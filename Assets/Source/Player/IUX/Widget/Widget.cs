@@ -1,6 +1,7 @@
 using System;
 using CreateAR.Commons.Unity.Logging;
 using System.Diagnostics;
+using Enklu.Data;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -58,8 +59,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Dependencies.
         /// </summary>
         private readonly ILayerManager _layers;
-        private readonly IColorConfig _colors;
-        private readonly ITweenConfig _tweens;
+        private readonly ColorConfig _colors;
+        private readonly TweenConfig _tweens;
 
         /// <summary>
         /// True iff <c>LoadInternal</c> has been called.
@@ -74,7 +75,7 @@ namespace CreateAR.EnkluPlayer.IUX
             get { return _nameProp.Value; }
             set { _nameProp.Value = value; }
         }
-        
+
         /// <summary>
         /// Color accessor.
         /// </summary>
@@ -162,7 +163,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Alpha, which is multiplied up the hierarchy.
         /// </summary>
-        public float Alpha
+        public virtual float Alpha
         {
             get
             {
@@ -173,8 +174,12 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 return _alphaProp.Value;
             }
+            set
+            {
+                // 
+            }
         }
-        
+
         /// <summary>
         /// Tween for the widget.
         /// </summary>
@@ -287,8 +292,8 @@ namespace CreateAR.EnkluPlayer.IUX
         public Widget(
             GameObject gameObject,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors)
+            TweenConfig tweens,
+            ColorConfig colors)
         {
             if (null == gameObject)
             {

@@ -1,5 +1,6 @@
 using System;
 using CreateAR.Commons.Unity.Messaging;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -108,8 +109,8 @@ namespace CreateAR.EnkluPlayer.IUX
         protected InteractableWidget(
             GameObject gameObject,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages,
             IInteractionManager interactions)
             : base(

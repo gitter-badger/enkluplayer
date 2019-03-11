@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -23,17 +24,17 @@ namespace CreateAR.EnkluPlayer
         /// Txns.
         /// </summary>
         private readonly IElementTxnManager _txns;
-        
+
         /// <summary>
         /// UI frame.
         /// </summary>
         private UIManagerFrame _frame;
-        
+
         /// <summary>
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
-        
+
         /// <summary>
         /// Controller we're moving.
         /// </summary>
@@ -98,7 +99,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            
+
         }
 
         /// <inheritdoc />
@@ -159,7 +160,7 @@ namespace CreateAR.EnkluPlayer
                     _design.ChangeState<MainDesignState>();
                 });
         }
-        
+
         /// <summary>
         /// Called when the move menu wants to finish moving.
         /// </summary>
@@ -173,7 +174,7 @@ namespace CreateAR.EnkluPlayer
             _moveController.Anchor.Schema.Set("position", position);
             _moveController.Anchor.GameObject.transform.position = position.ToVector();
             _moveController.Renderer.gameObject.SetActive(true);
-            
+
             _txns
                 .Request(new ElementTxn(_elementUpdater.Active).Update(_moveController.Anchor.Id, "position.rel", position))
                 .OnSuccess(_ =>
@@ -255,7 +256,7 @@ namespace CreateAR.EnkluPlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not open confirmation dialog : {0}", exception);                  
+                    Log.Error(this, "Could not open confirmation dialog : {0}", exception);
                     OpenAdjustMenu();
 
                 });

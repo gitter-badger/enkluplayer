@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using Enklu.Data;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,8 +15,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Dependencies.
         /// </summary>
         private WidgetConfig _config;
-        private ITweenConfig _tweens;
-        private IColorConfig _colors;
+        private TweenConfig _tweens;
+        private ColorConfig _colors;
         private ActivatorPrimitive _activator;
 
         /// <summary>
@@ -108,8 +109,8 @@ namespace CreateAR.EnkluPlayer.IUX
             ActivatorPrimitive activator,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention, 
             IInteractionManager interaction)

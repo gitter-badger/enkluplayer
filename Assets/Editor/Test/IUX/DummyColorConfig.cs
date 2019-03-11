@@ -3,7 +3,7 @@ using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {
-    public class DummyColorConfig : IColorConfig
+    public class DummyColorConfig
     {
         public string CurrentProfileName { get; private set; }
         public ColorProfile CurrentProfile { get; private set; }

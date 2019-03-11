@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -25,7 +27,7 @@ namespace CreateAR.EnkluPlayer
             /// The associated GameObject.
             /// </summary>
             public readonly GameObject GameObject;
-            
+
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -41,6 +43,8 @@ namespace CreateAR.EnkluPlayer
         public const string PROP_TAG_KEY = "tag";
         public const string PROP_TAG_VALUE = "primary";
         public const string PROP_ENABLED_KEY = "worldanchor.enabled";
+        public const string PROP_LOCATING_MESSAGE_KEY = "anchoring.locatingMessage";
+        public const string PROP_DISABLE_BYPASS_KEY = "anchoring.disableBypass";
 
         /// <summary>
         /// True iff all anchors are ready to go.
@@ -115,7 +119,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// List of anchors in scene, including the primary anchor.
         /// </summary>
-        private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
+        private ReadOnlyCollection<WorldAnchorWidget> _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
 
         /// <summary>
         /// Callbacks for ready.
@@ -160,7 +164,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Caption on UI.
         /// </summary>
-        private TextWidget _cpn;
+        private TextWidget _cpnProgress;
+
+        /// <summary>
+        /// Caption on UI.
+        /// </summary>
+        private TextWidget _cpnLocating;
 
         /// <summary>
         /// True iff world anchors are enabled.
@@ -193,6 +202,24 @@ namespace CreateAR.EnkluPlayer
         private int _pollUnlocated;
         private int _pollLocated;
 
+        /// <summary>
+        /// A custom locating message.
+        /// </summary>
+        private ElementSchemaProp<string> _locatingMessageProp;
+
+        /// <summary>
+        /// Whether the bypass button should be disabled or not.
+        /// </summary>
+        private ElementSchemaProp<bool> _disableBypassProp;
+
+        /// <summary>
+        /// Read only collection of currently tracked anchors.
+        /// </summary>
+        public ReadOnlyCollection<WorldAnchorWidget> Anchors
+        {
+            get { return _anchors; }
+        }
+
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
@@ -219,6 +246,9 @@ namespace CreateAR.EnkluPlayer
 
         /// <inheritdoc />
         public WorldAnchorWidget Anchor { get; private set; }
+
+        /// <inheritdoc />
+        public event Action OnAnchorElementUpdate;
 
         /// <summary>
         /// Constructor.
@@ -273,7 +303,11 @@ namespace CreateAR.EnkluPlayer
             AreAllAnchorsReady = false;
 
             // reset anchors
-            _anchors.Clear();
+            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
+            if (OnAnchorElementUpdate != null)
+            {
+                OnAnchorElementUpdate();
+            }
 
             // see if we need to use anchors
             _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
@@ -281,6 +315,12 @@ namespace CreateAR.EnkluPlayer
 
             if (_anchorsEnabledProp.Value)
             {
+                _locatingMessageProp = root.Schema.GetOwn(PROP_LOCATING_MESSAGE_KEY, "Attempting to locate content.\nPlease walk around space.");
+                _disableBypassProp = root.Schema.GetOwn(PROP_DISABLE_BYPASS_KEY, false);
+
+                _locatingMessageProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
+                _disableBypassProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
+
                 SetupAnchors();
             }
             else
@@ -341,6 +381,42 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Modifies a position/rotation relative to a located anchor. The primary anchor is prioritized.
+        /// The anchor used for relative positioning is returned. If all anchors aren't located, null is returned.
+        /// TODO: Remove UnityEngine dependencies
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public WorldAnchorWidget RelativeTransform(ref Vector3 position, ref Quaternion rotation)
+        {
+            WorldAnchorWidget refAnchor = null;
+
+            // Attempt to use the primary... primarily
+            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+            {
+                refAnchor = Anchor;
+            }
+            else
+            {
+                // Fallback to any located anchor
+                var located = FirstLocatedAnchor();
+                if (null != located)
+                {
+                    refAnchor = located;
+                }
+            }
+
+            if (null != refAnchor)
+            {
+                position = refAnchor.GameObject.transform.InverseTransformPoint(position);
+                rotation = Quaternion.Inverse(rotation) * refAnchor.GameObject.transform.rotation;
+            }
+
+            return refAnchor;
+        }
+
+        /// <summary>
         /// Called when ready methods should be called.
         /// </summary>
         private void Ready()
@@ -396,10 +472,10 @@ namespace CreateAR.EnkluPlayer
 
                 return;
             }
-            
+
             var root = _scenes.Root(_sceneId);
             FindPrimaryAnchor(root);
-            
+
             // poll for anchors
             _pollAnchors = true;
             _bootstrapper.BootstrapCoroutine(PollAnchors());
@@ -441,8 +517,14 @@ namespace CreateAR.EnkluPlayer
         /// <param name="root">The root element.</param>
         private void FindPrimaryAnchor(Element root)
         {
-            _anchors.Clear();
-            root.Find("..(@type=WorldAnchorWidget)", _anchors);
+            var anchors = new List<WorldAnchorWidget>();
+            root.Find("..(@type=WorldAnchorWidget)", anchors);
+            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(anchors);
+
+            if (OnAnchorElementUpdate != null)
+            {
+                OnAnchorElementUpdate();
+            }
 
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
@@ -538,11 +620,13 @@ namespace CreateAR.EnkluPlayer
         {
             _rootUI = _elements.Element(@"
 <?Vine>
-<Float>
-    <Caption id='cpn' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
+<Float focus.visible=false>
+    <Caption id='cpn-progress' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
+    <Caption visible=false id='cpn-locating' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
     <Button id='btn' position=(0, -0.1, 0) label='Bypass' visible=false />
 </Float>");
-            _cpn = _rootUI.FindOne<TextWidget>("..cpn");
+            _cpnProgress = _rootUI.FindOne<TextWidget>("..cpn-progress");
+            _cpnLocating = _rootUI.FindOne<TextWidget>("..cpn-locating");
             _bypassBtn = _rootUI.FindOne<ButtonWidget>("..btn");
             _bypassBtn.OnActivated += _ => BypassAnchorRequirement();
         }
@@ -578,33 +662,33 @@ namespace CreateAR.EnkluPlayer
                 {
                     UpdateRelativePositioning();
 
-                    int errors, downloading, importing, unlocated, numLocated;
+                    int errors, downloading, importing, notLocated, numLocated;
                     CountAnchors(
                         out errors,
                         out downloading,
                         out importing,
-                        out unlocated,
+                        out notLocated,
                         out numLocated);
-                    
-                    UpdateStatusUI(errors, downloading, importing, unlocated, numLocated);
 
-                    if (!AreAllAnchorsReady && numLocated > 0 && importing == 0)
+                    UpdateStatusUI(errors, downloading, importing, notLocated, numLocated);
+
+                    if (!AreAllAnchorsReady && numLocated > 0 && downloading == 0 && importing == 0)
                     {
                         Ready();
                     }
 
                     // metrics
                     if (0 == importing && 0 == errors
-                        && (_pollUnlocated != unlocated || _pollLocated != numLocated))
+                        && (_pollUnlocated != notLocated || _pollLocated != numLocated))
                     {
-                        _pollUnlocated = unlocated;
+                        _pollUnlocated = notLocated;
                         _pollLocated = numLocated;
 
                         _metrics.Value(MetricsKeys.ANCHOR_STATE_LOCATEDRATIO).Value((float) _pollLocated / _anchors.Count);
                         _metrics.Value(MetricsKeys.ANCHOR_STATE_UNLOCATEDRATIO).Value((float) _pollUnlocated / _anchors.Count);
                     }
                 }
-                
+
                 yield return null;
             }
         }
@@ -692,41 +776,70 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void UpdateStatusUI(int errors, int downloading, int importing, int unlocated, int located)
         {
-            if (null == _cpn || null == _rootUI)
+            if (null == _cpnProgress || null == _rootUI)
             {
                 return;
             }
 
             if (downloading + importing + errors > 0)
             {
-                _cpn.Label = string.Format(
-@"Please wait...
+                _cpnProgress.LocalVisible = true;
+                _cpnLocating.LocalVisible = false;
 
-Downloading: {1} / {0}
-Importing: {2} / {0}
-Errors: {3} / {0}",
-                    _anchors.Count,
-                    downloading,
-                    importing,
-                    errors);
-
-                _rootUI.Schema.Set("visible", true);
+                UpdateProgressUI(errors, downloading, importing, unlocated, located);
             }
             else if (0 == located)
             {
-                _cpn.Label = "Attempting to locate content.\nPlease walk around space.";
+                _cpnLocating.LocalVisible = true;
+                _cpnProgress.LocalVisible = false;
 
-                _rootUI.Schema.Set("visible", true);
+                UpdateLocatingUI();
             }
             else
             {
                 _rootUI.Schema.Set("visible", false);
             }
-            
+        }
+
+        /// <summary>
+        /// Updates the progress UI.
+        /// </summary>
+        private void UpdateProgressUI(int errors, int downloading, int importing, int unlocated, int located)
+        {
+            _cpnProgress.Label = string.Format(
+                @"Please wait...
+
+Downloading: {1} / {0}
+Importing: {2} / {0}
+Errors: {3} / {0}",
+                _anchors.Count,
+                downloading,
+                importing,
+                errors);
+
+            _rootUI.Schema.Set("visible", true);
+
             if (unlocated + errors == _anchors.Count)
             {
-                _bypassBtn.Schema.Set("visible", true);
+                _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
             }
+        }
+
+        /// <summary>
+        /// Updates the locating UI.
+        /// </summary>
+        private void UpdateLocatingUI()
+        {
+            if (_cpnLocating == null)
+            {
+                // Safety in case custom messages are set before the vine has been built.
+                return;
+            }
+
+            _cpnLocating.Label = _locatingMessageProp.Value;
+
+            _rootUI.Schema.Set("visible", true);
+            _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
         }
 
         /// <summary>
@@ -735,14 +848,14 @@ Errors: {3} / {0}",
         /// <param name="errors">Number of anchors in an error state.</param>
         /// <param name="downloading">Number of anchors currently downloading.</param>
         /// <param name="importing">Number of anchors currently importing.</param>
-        /// <param name="unlocated">Number of anchors currently unlocated.</param>
-        /// <param name="located">Number of locatd anchors.</param>
-        private void CountAnchors(out int errors, out int downloading, out int importing, out int unlocated, out int located)
+        /// <param name="notLocated">Number of anchors currently not located.</param>
+        /// <param name="located">Number of located anchors.</param>
+        private void CountAnchors(out int errors, out int downloading, out int importing, out int notLocated, out int located)
         {
             errors = 0;
             downloading = 0;
             importing = 0;
-            unlocated = 0;
+            notLocated = 0;
             located = 0;
 
             for (int i = 0, len = _anchors.Count; i < len; i++)
@@ -766,7 +879,7 @@ Errors: {3} / {0}",
                     }
                     case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
                     {
-                        unlocated += 1;
+                        notLocated += 1;
                         break;
                     }
                     case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
@@ -804,7 +917,7 @@ Errors: {3} / {0}",
             {
                 _rootUI.Destroy();
                 _rootUI = null;
-                _cpn = null;
+                _cpnProgress = null;
             }
         }
 
@@ -895,7 +1008,7 @@ Errors: {3} / {0}",
 
             anchor.Export(_config.Play.AppId, _sceneId, _txns);
         }
-        
+
         /// <summary>
         /// Called when anchors have been enabled/disabled.
         /// </summary>
@@ -919,7 +1032,7 @@ Errors: {3} / {0}",
                 Ready();
             }
         }
-        
+
         /// <summary>
         /// Called when a widget wants to auto-export.
         /// </summary>
@@ -934,12 +1047,21 @@ Errors: {3} / {0}",
             {
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
-                // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added
+                // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added.
+                // This occurs when anchors are created after the initial scene graph is searched for anchors.
                 if (!_anchors.Contains(anchor))
                 {
-                    _anchors.Add(anchor);
+                    // Super ugly. I'm the worst.
+                    var tmp = new List<WorldAnchorWidget>(_anchors);
+                    tmp.Add(anchor);
+                    _anchors = new ReadOnlyCollection<WorldAnchorWidget>(tmp);
+
+                    if (OnAnchorElementUpdate != null)
+                    {
+                        OnAnchorElementUpdate();
+                    }
                 }
-                
+
                 // Trigger relative positioning update so the anchor pending export
                 //    has the right position before it is saved.
                 UpdateRelativePositioning();

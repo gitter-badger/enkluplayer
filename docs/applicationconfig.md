@@ -1,6 +1,6 @@
 ### Overview
 
-Configuration settings are applied through the *ApplicationConfig.json* file found in *Resources/ApplicationConfig.json*. A default config is provided in the repository.
+Configuration settings are applied through the *ApplicationConfig.json* file found in *Resources/ApplicationConfig.json*. A default config is provided in the repository. These json files are composed and deserialized into a C# `ApplicationConfig` object that is then used by all the subsystems. Adding a new configuration value is easy: simply add the field to the C# object and make sure the `Override` function properly composes it.
 
 #### Platform Specific Configs
 

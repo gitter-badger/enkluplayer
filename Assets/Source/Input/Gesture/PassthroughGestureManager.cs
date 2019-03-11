@@ -82,5 +82,49 @@ namespace CreateAR.EnkluPlayer
             velocity = Vector3.zero;
             return false;
         }
+
+        /// <summary>
+        /// Forcibly calls started event.
+        /// </summary>
+        public void ForcePointerStarted()
+        {
+            if (null != OnPointerStarted)
+            {
+                OnPointerStarted(0);
+            }
+        }
+
+        /// <summary>
+        /// Forcibly calls ended event.
+        /// </summary>
+        public void ForcePointerEnded()
+        {
+            if (null != OnPointerEnded)
+            {
+                OnPointerEnded(0);
+            }
+        }
+
+        /// <summary>
+        /// Forcibly calls pressed event.
+        /// </summary>
+        public void ForcePointerPressed()
+        {
+            if (null != OnPointerPressed)
+            {
+                OnPointerPressed(0);
+            }
+        }
+
+        /// <summary>
+        /// Forcibly calls released event.
+        /// </summary>
+        public void ForcePointerReleased()
+        {
+            if (null != OnPointerReleased)
+            {
+                OnPointerReleased(0);
+            }
+        }
     }
 }
