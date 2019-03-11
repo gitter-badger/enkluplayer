@@ -27,7 +27,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 _scriptManager, 
                 _scriptFactory,
                 new ElementJsCache(new ElementJsFactory(_scriptManager)),
-                null,
+                new ScriptingHostFactory(null, null, new ApplicationConfig()), 
                 null
             );
             

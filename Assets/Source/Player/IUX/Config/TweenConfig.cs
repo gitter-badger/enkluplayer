@@ -59,12 +59,15 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <returns></returns>
         public float DurationSeconds(TweenType type)
         {
-            for (int i = 0, len = Profiles.Length; i < len; i++)
+            if (Profiles != null)
             {
-                var profile = Profiles[i];
-                if (profile.Type == type)
+                for (int i = 0, len = Profiles.Length; i < len; i++)
                 {
-                    return profile.DurationSeconds;
+                    var profile = Profiles[i];
+                    if (profile.Type == type)
+                    {
+                        return profile.DurationSeconds;
+                    }
                 }
             }
 

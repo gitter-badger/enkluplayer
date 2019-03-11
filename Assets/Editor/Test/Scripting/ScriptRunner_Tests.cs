@@ -27,7 +27,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 _scriptManager, 
                 _scriptFactory, 
                 new ElementJsCache(new ElementJsFactory(_scriptManager)),
-                null, 
+                new ScriptingHostFactory(null, null, new ApplicationConfig()), 
                 null);
             
             var parser = new DefaultScriptParser(
@@ -384,12 +384,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         #region Hierarchy
 
         [Test]
-        public void Reparenting()
-        {
-            
-        }
-
-        [Test]
         public void MixedElements()
         {
             // Ensure all widgets are found, even with a boring Element in between.
@@ -438,6 +432,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(0, behavior0.LastExitInvokeId);
             Assert.AreEqual(1, behavior1.LastExitInvokeId);
             Assert.AreEqual(2, behavior2.LastExitInvokeId);
+        }
+        
+        [Test]
+        public void Reparenting()
+        {
+            
         }
         
         #endregion

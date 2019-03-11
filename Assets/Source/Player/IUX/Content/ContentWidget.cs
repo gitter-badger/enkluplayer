@@ -225,9 +225,10 @@ namespace CreateAR.EnkluPlayer
                     collider.center = bounds.center;
                     collider.size = bounds.size;
                 }
-
-                _onAssetLoaded.Succeed(this);
             }
+            
+            // Not having an asset should still mark loading as complete
+            _onAssetLoaded.Succeed(this);
         }
 
         /// <summary>
