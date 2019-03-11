@@ -57,7 +57,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IBootstrapper _bootstrapper;
         
         /// <summary>
-        /// PRNG.
+        /// Pseudo random number generator.
         /// </summary>
         private static readonly Random _Prng = new Random();
         
@@ -217,9 +217,24 @@ namespace CreateAR.EnkluPlayer
         {
             var id = _metrics.Timer(MetricsKeys.SCRIPT_DOWNLOADTIME).Start();
 
+            var start = DateTime.Now;
             var req = UnityWebRequest.Get(url);
+            req.SendWebRequest();
 
-            yield return req.SendWebRequest();
+            while (!req.isDone)
+            {
+                if (_http.TimeoutMs > 0 && DateTime.Now.Subtract(start).TotalMilliseconds > _http.TimeoutMs)
+                {
+                    // request timed out
+                    req.Dispose();
+
+                    token.Fail(new Exception("Request timed out."));
+
+                    yield break;
+                }
+
+                yield return null;
+            }
 
             if (req.isNetworkError || req.isHttpError)
             {

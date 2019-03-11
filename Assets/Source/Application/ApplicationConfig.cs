@@ -369,6 +369,30 @@ namespace CreateAR.EnkluPlayer
         public CredentialsData[] AllCredentials = new CredentialsData[0];
 
         /// <summary>
+        /// Log level.
+        /// </summary>
+        public string LogLevel;
+
+        /// <summary>
+        /// Parsed level.
+        /// </summary>
+        [JsonIgnore]
+        public LogLevel ParsedLogLevel
+        {
+            get
+            {
+                try
+                {
+                    return (LogLevel) Enum.Parse(typeof(LogLevel), LogLevel);
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
+        /// <summary>
         /// Retrieves the current environment.
         /// </summary>
         public EnvironmentData Environment
@@ -490,6 +514,11 @@ namespace CreateAR.EnkluPlayer
             if (overrideConfig.DiskFallbackSecs > float.Epsilon)
             {
                 DiskFallbackSecs = overrideConfig.DiskFallbackSecs;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.LogLevel))
+            {
+                LogLevel = overrideConfig.LogLevel;
             }
 
             Offline = overrideConfig.Offline;

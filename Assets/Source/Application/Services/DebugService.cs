@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -8,6 +9,7 @@ using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -24,6 +26,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IVoiceCommandManager _voice;
         private readonly IDeviceMetaProvider _meta;
         private readonly IUIManager _ui;
+        private readonly IHttpService _http;
         private readonly PrimaryAnchorManager _anchorManager;
         private readonly StandardScriptLoader _scriptLoader;
         private readonly StandardAssetLoader _assetLoader;
@@ -62,7 +65,7 @@ namespace CreateAR.EnkluPlayer
         /// Unsub action for load app message.
         /// </summary>
         private Action _loadAppUnsub;
-        
+
         /// <inheritdoc />
         public LogLevel Filter
         {
@@ -89,6 +92,7 @@ namespace CreateAR.EnkluPlayer
             IUIManager ui,
             IScriptLoader scriptLoader,
             IAssetLoader assetLoader,
+            IHttpService http,
             PerfMetricsCollector perfMetricsCollector,
             RuntimeStats runtimeStats,
             ApiController api,
@@ -104,6 +108,7 @@ namespace CreateAR.EnkluPlayer
             _ui = ui;
             _scriptLoader = (StandardScriptLoader) scriptLoader;
             _assetLoader = (StandardAssetLoader) assetLoader;
+            _http = http;
             _api = api;
             _config = config;
 
@@ -132,8 +137,10 @@ namespace CreateAR.EnkluPlayer
 
             RestartTrace();
 
-            // memory
+            // http logging
+            _http.OnRequest += Http_OnRequest;
 
+            // voice commands
             _voice.Register("reset", Voice_OnReset);
             _voice.Register("update", Voice_OnUpdate);
             _voice.Register("experience", Voice_OnExperience);
@@ -144,7 +151,7 @@ namespace CreateAR.EnkluPlayer
             _voice.Register("optimization", Voice_Optimization);
             _voice.RegisterAdmin("crash", _ => Log.Fatal(this, "Test crash."));
         }
-
+        
         /// <inheritdoc />
         public override void Stop()
         {
@@ -156,7 +163,10 @@ namespace CreateAR.EnkluPlayer
             _anchorManager.OnAnchorElementUpdate -= Anchor_SceneChange;
 
             ReleaseTraceResources();
-            
+
+            _http.OnRequest -= Http_OnRequest;
+
+            // voice commands
             _voice.Unregister("reset");
             _voice.Unregister("performance");
             _voice.Unregister("logging");
@@ -555,6 +565,43 @@ namespace CreateAR.EnkluPlayer
         private void App_OnLoad(object something)
         {
             _runtimeStats.Experience.ExperienceId = _config.Play.AppId;
+        }
+
+        /// <summary>
+        /// Called when an HTTP request is made.
+        /// </summary>
+        /// <param name="verb">The HTTP verb.</param>
+        /// <param name="uri">The uri.</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="payload">The payload.</param>
+        private void Http_OnRequest(
+            string verb,
+            string uri,
+            Dictionary<string, string> headers,
+            object payload)
+        {
+            var message = string.Format("curl -X {0} {1}", verb, uri);
+            foreach (var pair in headers)
+            {
+                message += string.Format("\\\n\t-H '{0}: {1}'", pair.Key, pair.Value);
+            }
+
+            if (null != payload)
+            {
+                var stringPayload = payload.ToString();
+                try
+                {
+                    stringPayload = JsonConvert.SerializeObject(payload);
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                message += string.Format("\\\n\t-d '{0}'", stringPayload);
+            }
+
+            Log.Info(this, message);
         }
     }
 }

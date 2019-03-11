@@ -61,6 +61,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         public MessagingJsInterface(JsMessageRouter messages)
         {
             _messages = messages;
+
+            _messages.Subscribe(
+                MessageTypes.APPLICATION_RESUME,
+                _ => dispatch("system.resume"));
         }
 
         /// <summary>
