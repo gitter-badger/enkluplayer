@@ -20,9 +20,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         private IEntityJs _elementA;
         private IEntityJs _elementB;
 
-        private int enterCount;
-        private int stayCount;
-        private int exitCount;
+        private int _enterCount;
+        private int _stayCount;
+        private int _exitCount;
 
         [SetUp]
         public void Setup()
@@ -30,26 +30,26 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _gameObjects = new List<GameObject>();
             _proximityChecker = new ProximityChecker();
 
-            enterCount = 0;
-            stayCount = 0;
-            exitCount = 0;
+            _enterCount = 0;
+            _stayCount = 0;
+            _exitCount = 0;
 
             _proximityChecker.OnEnter += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
-                enterCount++;
+                _enterCount++;
             };
 
             _proximityChecker.OnStay += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
-                stayCount++;
+                _stayCount++;
             };
 
             _proximityChecker.OnExit += (callbackListener, callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
-                exitCount++;
+                _exitCount++;
             };
         }
 
@@ -215,7 +215,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 }
                 cachedTriggerElement = (ElementJs)callbackTrigger;
 
-                enterCount++;
+                _enterCount++;
             };
 
             _proximityChecker.OnStay += (callbackListener, callbackTrigger) => {
@@ -235,7 +235,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 }
                 cachedTriggerElement = (ElementJs)callbackTrigger;
 
-                stayCount++;
+                _stayCount++;
             };
 
             _proximityChecker.OnExit += (callbackListener, callbackTrigger) => {
@@ -255,7 +255,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 }
                 cachedTriggerElement = (ElementJs)callbackTrigger;
 
-                exitCount++;
+                _exitCount++;
             };
 
             // Check for no-op
@@ -321,7 +321,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 }
                 cachedEnterTrigger = (ElementJs)callbackTrigger;
 
-                enterCount++;
+                _enterCount++;
             };
 
             _proximityChecker.OnStay += (callbackListener, callbackTrigger) => {
@@ -335,7 +335,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 }
                 cachedStayTrigger = (ElementJs)callbackTrigger;
 
-                stayCount++;
+                _stayCount++;
             };
 
             _proximityChecker.OnExit += (callbackListener, callbackTrigger) => {
@@ -349,7 +349,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 }
                 cachedExitTrigger = (ElementJs)callbackTrigger;
 
-                exitCount++;
+                _exitCount++;
             };
 
             // Check for no-op
@@ -428,7 +428,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var gameObject = new GameObject("Proximity Tests");
             _gameObjects.Add(gameObject);
-            var contentWidget = new ContentWidget(gameObject, new DummyScriptManager(false), new DummyAssetAssembler());
+            var contentWidget = new ContentWidget(gameObject, new DummyAssetAssembler());
             contentWidget.Load(new ElementData(), new ElementSchema(), new Element[0]);
 
             var element = new ElementJs(null, null, contentWidget);
@@ -439,9 +439,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         private void CheckCallbackCounts(int enterCount, int stayCount, int exitCount)
         {
-            Assert.AreEqual(enterCount, this.enterCount);
-            Assert.AreEqual(stayCount, this.stayCount);
-            Assert.AreEqual(exitCount, this.exitCount);
+            Assert.AreEqual(enterCount, this._enterCount);
+            Assert.AreEqual(stayCount, this._stayCount);
+            Assert.AreEqual(exitCount, this._exitCount);
         }
     }
 }

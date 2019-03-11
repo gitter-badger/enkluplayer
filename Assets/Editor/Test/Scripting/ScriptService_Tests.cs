@@ -14,8 +14,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         private IElementManager _elementManager;
         
         private TestScriptFactory _scriptFactory;
-        private EnkluScript[] _behaviors = new EnkluScript[3];
-        private EnkluScript[] _vines = new EnkluScript[3];
+//        private EnkluScript[] _behaviors = new EnkluScript[3];
+//        private EnkluScript[] _vines = new EnkluScript[3];
 
         private IAppSceneManager _sceneManager;
         

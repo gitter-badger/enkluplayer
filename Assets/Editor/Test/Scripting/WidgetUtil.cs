@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Test.UI;
+using Enklu.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -32,12 +33,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = new ContentWidget(
                 new GameObject("WidgetUtil"), 
                 null, 
-                new DummyTweenConfig(), 
-                new DummyColorConfig(), 
-                assetAssembler,
-                null,
-                scriptManager,
-                null);
+                new TweenConfig(), 
+                new ColorConfig(), 
+                assetAssembler);
             AddScriptToWidget(widget, scriptManager, scripts);
             
             // Will all tests require this, or need it deferred?

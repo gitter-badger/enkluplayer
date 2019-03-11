@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -36,12 +37,19 @@ namespace CreateAR.EnkluPlayer.IUX
         public float DurationSeconds = 0.2f;
     }
     
-    public interface TweenConfig
+    [Serializable]
+    public class TweenConfig
     {
+        /// <summary>
+        /// Backing Unity serialized field.
+        /// </summary>
+        [SerializeField]
+        private TweenProfile[] _profiles;
+        
         /// <summary>
         /// All profiles.
         /// </summary>
-        TweenProfile[] Profiles { get; }
+        public TweenProfile[] Profiles { get { return _profiles; } }
 
         /// <summary>
         /// Retrieves the duration in seconds of a particular tween, or -1 if
@@ -49,6 +57,18 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         /// <param name="type">The type of tween.</param>
         /// <returns></returns>
-        float DurationSeconds(TweenType type);
+        public float DurationSeconds(TweenType type)
+        {
+            for (int i = 0, len = Profiles.Length; i < len; i++)
+            {
+                var profile = Profiles[i];
+                if (profile.Type == type)
+                {
+                    return profile.DurationSeconds;
+                }
+            }
+
+            return -1f;
+        }
     }
 }

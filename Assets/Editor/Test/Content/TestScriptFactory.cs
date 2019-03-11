@@ -62,7 +62,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// </summary>
         public TestVineMonoBehaviour GetVine(Widget widget, EnkluScript script)
         {
-            TestVineMonoBehaviour component;
             var entry =  _vineCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
             return entry.Value;
         }
@@ -72,7 +71,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// </summary>
         public TestBehaviorMonoBehaviour GetBehavior(Widget widget, EnkluScript script)
         {
-            TestBehaviorMonoBehaviour component;
             var entry =  _behaviorCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
             return entry.Value;
         }

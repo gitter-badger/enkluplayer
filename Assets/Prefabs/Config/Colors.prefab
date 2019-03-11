@@ -51,33 +51,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1123ffcdebab6ce41a2bf38d0e93f318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentProfileName: Default
-  Profiles:
-  - Name: Default
-    VirtualColors:
-    - VirtualColor: 1
-      Color: {r: 0.34901962, g: 0.8, b: 1, a: 0.6156863}
-    - VirtualColor: 2
-      Color: {r: 1, g: 1, b: 1, a: 1}
-    - VirtualColor: 3
-      Color: {r: 0.49803922, g: 0.49803922, b: 0.49803922, a: 0.5764706}
-    - VirtualColor: 4
-      Color: {r: 0.8784314, g: 0.92941177, b: 1, a: 1}
-    - VirtualColor: 5
-      Color: {r: 0.34901962, g: 0.8, b: 1, a: 1}
-    - VirtualColor: 6
-      Color: {r: 1, g: 0.22745098, b: 0.22745098, a: 1}
-    - VirtualColor: 7
-      Color: {r: 0.30588236, g: 1, b: 0.22745098, a: 1}
-    - VirtualColor: 8
-      Color: {r: 1, g: 0.22745098, b: 0.22745098, a: 1}
-    - VirtualColor: 9
-      Color: {r: 1, g: 0.6901961, b: 0.40784317, a: 1}
-    - VirtualColor: 10
-      Color: {r: 1, g: 0.378, b: 0.69, a: 1}
-    - VirtualColor: 11
-      Color: {r: 1, g: 0.459, b: 0.961, a: 1}
-    - VirtualColor: 12
-      Color: {r: 0.459, g: 0.503, b: 1, a: 1}
-    - VirtualColor: 13
-      Color: {r: 0.32156864, g: 1, b: 0.68235296, a: 1}
+  ColorConfig:
+    _currentProfileName: Default
+    _profiles:
+    - Name: Default
+      VirtualColors:
+      - VirtualColor: 1
+        Color: {r: 0.34901962, g: 0.8, b: 1, a: 0.6156863}
+      - VirtualColor: 2
+        Color: {r: 1, g: 1, b: 1, a: 1}
+      - VirtualColor: 3
+        Color: {r: 0.49803922, g: 0.49803922, b: 0.49803922, a: 0.5764706}
+      - VirtualColor: 4
+        Color: {r: 0.8784314, g: 0.92941177, b: 1, a: 1}
+      - VirtualColor: 5
+        Color: {r: 0.34901962, g: 0.8, b: 1, a: 1}
+      - VirtualColor: 6
+        Color: {r: 1, g: 0.22745098, b: 0.22745098, a: 1}
+      - VirtualColor: 7
+        Color: {r: 0.30588236, g: 1, b: 0.22745098, a: 1}
+      - VirtualColor: 8
+        Color: {r: 1, g: 0.22745098, b: 0.22745098, a: 1}
+      - VirtualColor: 9
+        Color: {r: 1, g: 0.6901961, b: 0.40784317, a: 1}
+      - VirtualColor: 10
+        Color: {r: 1, g: 0.378, b: 0.69, a: 1}
+      - VirtualColor: 11
+        Color: {r: 1, g: 0.459, b: 0.961, a: 1}
+      - VirtualColor: 12
+        Color: {r: 0.459, g: 0.503, b: 1, a: 1}
+      - VirtualColor: 13
+        Color: {r: 0.32156864, g: 1, b: 0.68235296, a: 1}

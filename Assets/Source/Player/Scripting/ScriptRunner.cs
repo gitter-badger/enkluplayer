@@ -96,7 +96,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Invoked when scripts have updated, with the old then new as payloads.
             /// </summary>
-            public Action<Script[], Script[]> OnScriptsUpdated;
+            public event Action<Script[], Script[]> OnScriptsUpdated;
 
             /// <summary>
             /// Cached load token.

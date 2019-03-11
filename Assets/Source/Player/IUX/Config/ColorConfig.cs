@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Enklu.Data;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -33,6 +34,7 @@ namespace CreateAR.EnkluPlayer.IUX
         Count
     }
     
+    [Serializable]
     public class ColorConfig
     {
         /// <summary>
@@ -92,20 +94,51 @@ namespace CreateAR.EnkluPlayer.IUX
             }
         }
         
+        [SerializeField] 
+        private string _currentProfileName;
+
+        [SerializeField]
+        private List<ColorConfig.ColorProfile> _profiles = new List<ColorConfig.ColorProfile>();
+        
         /// <summary>
         /// Name of the currently active profile.
         /// </summary>
-        public string CurrentProfileName { get; private set; }
+        public string CurrentProfileName
+        {
+            get { return _currentProfileName; }
+        }
         
         /// <summary>
         /// Retrieves the current <c>ColorProfile</c>.
         /// </summary>
-        public ColorProfile CurrentProfile { get; private set; }
+        public ColorProfile CurrentProfile
+        {
+            get
+            {
+                if (Profiles != null
+                    && Profiles[0] != null)
+                {
+                    for (int i = 0, count = Profiles.Count; i < count; ++i)
+                    {
+                        var profile = Profiles[i];
+                        if (profile != null
+                            && profile.Name == CurrentProfileName)
+                        {
+                            return profile;
+                        }
+                    }
+
+                    return Profiles[0];
+                }
+
+                return null;
+            }
+        }
         
         /// <summary>
         /// List of color profiles.
         /// </summary>
-        public List<ColorProfile> Profiles { get; private set; }
+        public List<ColorProfile> Profiles { get { return _profiles; } }
 
         /// <summary>
         /// Attempts to get a color.
