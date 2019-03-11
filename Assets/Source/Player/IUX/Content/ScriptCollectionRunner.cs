@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Orchid;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -47,7 +48,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Creates new <see cref="UnityScriptingHost"/> instances.
         /// </summary>
-        private readonly IScriptingHostFactory _scriptHostFactory;
+        private readonly IScriptExecutorFactory _scriptHostFactory;
 
         /// <summary>
         /// GameObject to attach scripts to.
@@ -82,13 +83,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Tracks hosts.
         /// </summary>
-        private readonly List<UnityScriptingHost> _hosts = new List<UnityScriptingHost>();
+        private readonly List<IJsExecutionContext> _hosts = new List<IJsExecutionContext>();
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public ScriptCollectionRunner(
-            IScriptingHostFactory scriptHostFactory,
+            IScriptExecutorFactory scriptHostFactory,
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
             GameObject root,
@@ -113,7 +114,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             _setupState = SetupState.Initializing;
-            
+
             // start all vines first
             var len = scripts.Count;
             var vineSetupTokens = new List<IAsyncToken<Void>>(len);
@@ -221,7 +222,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             // destroy engines
             for (int i = 0, len = _hosts.Count; i < len; i++)
             {
-                _hosts[i].Destroy();
+                var disposable = _hosts[i] as IDisposable;
+                if (null != disposable)
+                {
+                    disposable.Dispose();
+                }
             }
             _hosts.Clear();
         }
@@ -240,7 +245,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 .Configure()
                 .OnSuccess(_ => component.Enter());
         }
-        
+
         /// <summary>
         /// Runs a behavior script.
         /// </summary>
@@ -249,9 +254,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Log.Info(this, "RunBehavior({0}) : {1}", script.Data, script.Source);
 
-            var host = _scriptHostFactory.NewScriptingHost(this);
+            var host = _scriptHostFactory.NewExecutionContext(this);
 
-            // TODO: Does it make sense to move the following to the factory? 
+            // TODO: Does it make sense to move the following to the factory?
             host.SetValue("system", SystemJsApi.Instance);
             host.SetValue("app", Main.NewAppJsApi(_jsCache));
             host.SetValue("this", _jsCache.Element(_element));

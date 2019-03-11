@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
-using Jint.Native;
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -21,23 +19,23 @@ namespace CreateAR.EnkluPlayer
             /// <summary>
             /// The function to invoke.
             /// </summary>
-            public JsFunc Callback;
-            
+            public IJsCallback Callback;
+
             /// <summary>
             /// The context to invoke it with.
             /// </summary>
-            public JsValue This;
+            public object This;
         }
-        
+
         /// <summary>
         /// The backing IVoiceCommandManager.
         /// </summary>
         private readonly IVoiceCommandManager _voice;
-        
+
         /// <summary>
         /// Cache of bound commands/callbacks.
         /// </summary>
-        private readonly Dictionary<string, JsCallback> _callbacks = new Dictionary<string, JsCallback>(); 
+        private readonly Dictionary<string, JsCallback> _callbacks = new Dictionary<string, JsCallback>();
 
         /// <summary>
         /// Constructor.
@@ -47,20 +45,20 @@ namespace CreateAR.EnkluPlayer
         {
             _voice = voice;
         }
-        
+
         /// <summary>
         /// Registers a voice command to trigger a callback.
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="command"></param>
         /// <param name="callback"></param>
-        public void register(Engine engine, string command, JsFunc callback)
+        public void register(string command, IJsCallback callback)
         {
             if (_voice.Register(command, Voice_OnRecognized))
             {
                 _callbacks[command] = new JsCallback
                 {
-                    This = JsValue.FromObject(engine, this),
+                    This = this,
                     Callback = callback
                 };
             }
@@ -76,13 +74,13 @@ namespace CreateAR.EnkluPlayer
         /// <param name="engine"></param>
         /// <param name="command"></param>
         /// <param name="callback"></param>
-        public void registerAdmin(Engine engine, string command, JsFunc callback)
+        public void registerAdmin(string command, IJsCallback callback)
         {
             if (_voice.RegisterAdmin(command, Voice_OnRecognized))
             {
                 _callbacks[command] = new JsCallback
                 {
-                    This = JsValue.FromObject(engine, this),
+                    This = this,
                     Callback = callback
                 };
             }
@@ -123,13 +121,13 @@ namespace CreateAR.EnkluPlayer
 
             try
             {
-                jsCallback.Callback(jsCallback.This, new JsValue[] { command });
+                jsCallback.Callback.Apply(jsCallback.This, command);
             }
             catch (Exception e)
             {
                 Log.Error(this, "Error invoking scripting callback ({0})", e);
             }
-            
+
         }
     }
 }

@@ -31,7 +31,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
         private readonly IScriptManager _scripts;
-        private readonly IScriptingHostFactory _scriptHostFactory;
+        private readonly IScriptExecutorFactory _scriptHostFactory;
         private readonly IAssetManager _assets;
         private readonly IQrReaderService _qr;
         private readonly IScanLoader _scanLoader;
@@ -64,7 +64,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IHttpService http,
             IWorldAnchorProvider provider,
             IScriptManager scripts,
-            IScriptingHostFactory scriptHostFactory,
+            IScriptExecutorFactory scriptHostFactory,
             IAssetManager assets,
             IQrReaderService qr,
             IScanLoader scanLoader,

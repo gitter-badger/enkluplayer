@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Test.Scripting;
 using CreateAR.EnkluPlayer.Util;
 using Jint;
 using NUnit.Framework;
@@ -24,7 +25,7 @@ namespace CreateAR.EnkluPlayer.Test.Util.Tween
             var scripts = new DummyScriptManager(false);
             _el = new ElementJs(scripts, new ElementJsCache(new ElementJsFactory(scripts)), new Element());
         }
-        
+
         [Test]
         public void TweenData()
         {
@@ -61,23 +62,23 @@ namespace CreateAR.EnkluPlayer.Test.Util.Tween
                 .number(_el, "foo")
                 .to(1f)
                 .duration(1f)
-                .onStart((a, b) =>
+                .onStart(new TestJsCallback((a, b) =>
                 {
                     startCalled = true;
 
                     return null;
-                })
-                .onComplete((a, b) =>
+                }))
+                .onComplete(new TestJsCallback((a, b) =>
                 {
                     completeCalled = true;
 
                     return null;
-                });
+                }));
 
             Assert.IsFalse(startCalled);
             Assert.IsFalse(completeCalled);
 
-            tween.start(new Engine());
+            tween.start();
 
             Assert.IsTrue(startCalled);
             Assert.IsFalse(completeCalled);

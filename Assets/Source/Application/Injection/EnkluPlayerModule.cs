@@ -115,7 +115,7 @@ namespace CreateAR.EnkluPlayer
 
                 binder.Bind<ElementSchemaDefaults>().To<ElementSchemaDefaults>().ToSingleton();
                 binder.Bind<EditorSettings>().To<EditorSettings>().ToSingleton();
-                
+
                 // assets
                 {
                     binder.Bind<IScanImporter>().To<ScanImporter>().ToSingleton();
@@ -124,7 +124,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
                     binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 }
-                
+
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
                 binder.Bind<IImageLoader>().To<StandardImageLoader>().ToSingleton();
 
@@ -136,7 +136,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     binder.Bind<IGizmoManager>().To<PassthroughGizmoManager>().ToSingleton();
                 }
-                
+
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
                 binder.Bind<VineLoader>().To<VineLoader>().ToSingleton();
@@ -145,7 +145,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();
                 binder.Bind<IStorageService>().To<StorageService>().ToSingleton();
                 binder.Bind<IElementActionStrategyFactory>().To<ElementActionStrategyFactory>();
-                
+
                 binder.Bind<IElementTxnTransport>().To<HttpElementTxnTransport>();
                 binder.Bind<IAppTxnAuthenticator>().To<HttpAppTxnAuthenticator>();
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
@@ -174,7 +174,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<MessageFilter>().To<MessageFilter>().ToSingleton();
                 binder.Bind<ConnectionMessageHandler>().To<ConnectionMessageHandler>().ToSingleton();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
-                
+
                 if (config.Network.Offline)
                 {
                     binder.Bind<IConnection>().To<OfflineConnection>().ToSingleton();
@@ -301,7 +301,7 @@ namespace CreateAR.EnkluPlayer
                         binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                         binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
                         binder.Bind<IuxDesignerApplicationState>().To<IuxDesignerApplicationState>();
-                        
+
                         // tools
                         {
                             binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
@@ -372,7 +372,7 @@ namespace CreateAR.EnkluPlayer
                                     {
                                         binder.GetInstance<HmdStateFlow>()
                                     }));
-                                    
+
                                     break;
                             }
                             default:
@@ -388,13 +388,13 @@ namespace CreateAR.EnkluPlayer
                                     {
                                         binder.GetInstance<WebStateFlow>()
                                     }));
-                                    
+
                                     break;
                             }
                         }
                     }
                 }
-                
+
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
@@ -544,7 +544,7 @@ namespace CreateAR.EnkluPlayer
             // Gesture
             {
 #if NETFX_CORE
-                binder.Bind<IGestureManager>().To<HoloLensGestureManager>().ToSingleton();          
+                binder.Bind<IGestureManager>().To<HoloLensGestureManager>().ToSingleton();
 #else
                 binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
 #endif
@@ -561,7 +561,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IVideoCapture>().To<PassthroughVideoCapture>().ToSingleton();
 #endif
             }
-            
+
             // Storage
             {
 #if NETFX_CORE
@@ -698,10 +698,15 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IScriptCache>().To<DelayedScriptCache>().ToSingleton();
 #endif
                 }
-                
+
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new EnkluScriptRequireResolver(binder));
-                binder.Bind<IScriptingHostFactory>().To<ScriptingHostFactory>().ToSingleton();
+#if NETFX_CORE
+                binder.Bind<IScriptRuntimeFactory>().To<ChakraScriptRuntimeFactory>().ToSingleton();
+#else
+                binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
+#endif
+                binder.Bind<IScriptExecutorFactory>().To<ScriptExecutorFactory>().ToSingleton();
                 binder.Bind<IElementJsCache>().To<ElementJsCache>().ToSingleton();
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
@@ -738,7 +743,7 @@ namespace CreateAR.EnkluPlayer
 
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
-                
+
                 SystemJsApi.Initialize(
                     binder.GetInstance<IDeviceMetaProvider>(),
                     binder.GetInstance<IImageCapture>(),

@@ -1,8 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
-using Jint.Native;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -71,7 +69,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Connects to Trellis.
         /// </summary>
-        public void connect(Engine engine, Func<JsValue, JsValue[], JsValue> cb)
+        public void connect(Action<string> cb)
         {
             if (null == _connectToken)
             {
@@ -100,12 +98,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             _connectToken
-                .OnSuccess(_ => cb(
-                    JsValue.FromObject(engine, this),
-                    new JsValue[0]))
-                .OnFailure(ex => cb(
-                    JsValue.FromObject(engine, this),
-                    new[] { new JsValue(ex.Message) }));
+                .OnSuccess(_ => cb(null))
+                .OnFailure(ex => cb(ex.Message));
         }
     }
 }

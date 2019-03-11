@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Jint;
+using Enklu.Orchid;
 using Jint.Native;
 using UnityEngine;
 
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using JsFunc = Enklu.Orchid.IJsCallback;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -15,11 +15,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private class CallbackRecord
         {
-            /// <summary>
-            /// The calling engine.
-            /// </summary>
-            public Engine Engine;
-
             /// <summary>
             /// The associated category that can be filtered on.
             /// </summary>
@@ -59,22 +54,20 @@ namespace CreateAR.EnkluPlayer
         {
             _filter = (filter ?? string.Empty).ToLower();
         }
-        
+
         /// <summary>
         /// Registers a callback for drawing.
         /// </summary>
-        /// <param name="engine">The engine.</param>
         /// <param name="category">The category associated with this callback.</param>
         /// <param name="fn">The callback.</param>
-        public void register(Engine engine, string category, JsFunc fn)
+        public void register(string category, JsFunc fn)
         {
             // this may be called multiple times on the same engine
-            engine.OnDestroy -= Engine_OnDestroy;
-            engine.OnDestroy += Engine_OnDestroy;
+            //engine.OnDestroy -= Engine_OnDestroy;
+            //engine.OnDestroy += Engine_OnDestroy;
 
             _cbs.Add(new CallbackRecord
             {
-                Engine = engine,
                 Category = category.ToLower(),
                 Callback = fn
             });
@@ -83,9 +76,8 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Removes a callback for drawing.
         /// </summary>
-        /// <param name="engine">The calling engine.</param>
         /// <param name="fn">The callback to remove.</param>
-        public void unregister(Engine engine, JsFunc fn)
+        public void unregister(JsFunc fn)
         {
             for (int i = 0, len = _cbs.Count; i < len; i++)
             {
@@ -129,27 +121,26 @@ namespace CreateAR.EnkluPlayer
 
                     try
                     {
-                        record.Callback(
-                            JsValue.FromObject(record.Engine, this),
-                            new[] {JsValue.FromObject(record.Engine, _context)});
+                        record.Callback.Apply(this, _context);
                     }
                     catch
                     {
-                        // 
+                        //
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Called when an engine has been destroyed.
+        /// Called when an execution context has been destroyed.
         /// </summary>
         /// <param name="engine"></param>
-        private void Engine_OnDestroy(Engine engine)
+        private void Engine_OnDestroy(IJsExecutionContext jsExecutionContext)
         {
-            engine.OnDestroy -= Engine_OnDestroy;
+            //engine.OnDestroy -= Engine_OnDestroy;
 
             // remove all callbacks related to this engine
+            /*
             for (var i = _cbs.Count - 1; i >= 0; i--)
             {
                 if (_cbs[i].Engine == engine)
@@ -157,6 +148,7 @@ namespace CreateAR.EnkluPlayer
                     _cbs.RemoveAt(i);
                 }
             }
+            */
         }
     }
 }

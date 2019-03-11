@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
-using Jint.Native;
-using Jint.Runtime;
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using JsFunc = Enklu.Orchid.IJsCallback;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -69,16 +66,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Subscribes to an event.
         /// </summary>
-        /// <param name="engine">The calling engine.</param>
         /// <param name="eventType">The event type to listen for.</param>
         /// <param name="callback">The callback to call.</param>
-        public void on(Engine engine, string eventType, JsFunc callback)
+        public void on(string eventType, JsFunc callback)
         {
             var unsubscribe = _messages.Subscribe(
                 ToMessageType(eventType),
-                evt => callback(
-                    JsValue.FromObject(engine, this),
-                    new [] { JsValue.FromObject(engine, evt) }));
+                evt => callback.Apply(this, evt));
 
             var record = new SubscriptionRecord(eventType, callback, unsubscribe);
 
@@ -88,10 +82,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Removes an event listener.
         /// </summary>
-        /// <param name="engine">The calling engine.</param>
         /// <param name="eventType">The event type.</param>
         /// <param name="callback">The callback.</param>
-        public void off(Engine engine, string eventType, JsFunc callback)
+        public void off(string eventType, JsFunc callback)
         {
             for (var i = _records.Count - 1; i >= 0; i--)
             {
@@ -126,7 +119,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 _messages.Publish(ToMessageType(eventType), value);
             }
-            catch (JavaScriptException ex)
+            catch (Exception ex)
             {
                 Log.Warning(this, "Error dispatching event : {0}.", ex);
             }

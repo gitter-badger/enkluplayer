@@ -169,7 +169,7 @@ namespace CreateAR.EnkluPlayer
             _writer = writer;
             _api = api;
             _config = config;
-            
+
             _sceneHandler = new SceneEventHandler(
                 _elements,
                 new ScenePatcher(scenes, patcherFactory));
@@ -276,7 +276,7 @@ namespace CreateAR.EnkluPlayer
             {
                 // This case might be possible. Just ensure we pass the error along.
                 // Or we could Abort()?
-                _connect.Fail(new Exception("Attempted Reconnection during Connect."));
+                //_connect.Fail(new Exception("Attempted Reconnection during Connect."));
             }
             _connect = null;
 

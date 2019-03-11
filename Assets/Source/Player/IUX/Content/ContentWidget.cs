@@ -47,7 +47,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Creates scripting host instances.
         /// </summary>
-        private readonly IScriptingHostFactory _scriptHostFactory;
+        private readonly IScriptExecutorFactory _scriptHostFactory;
 
         /// <summary>
         /// Caches elements.
@@ -119,7 +119,7 @@ namespace CreateAR.EnkluPlayer
             ColorConfig colors,
             IAssetAssembler assembler,
             IScriptManager scripts,
-            IScriptingHostFactory scriptHostFactory,
+            IScriptExecutorFactory scriptHostFactory,
             IElementJsCache cache,
             IElementJsFactory elementFactory)
             : base(
