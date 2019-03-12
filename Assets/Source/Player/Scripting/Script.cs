@@ -6,7 +6,7 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// <summary>
     /// A base class for all instances of EnkluScripts.
     /// </summary>
-    public abstract class Script : MonoBehaviour
+    public abstract class Script
     {
         /// <summary>
         /// Retrieves the <c>EnkluScript</c> instance.

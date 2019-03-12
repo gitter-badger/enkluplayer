@@ -59,7 +59,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [TearDown]
         public void Teardown()
         {
-            TestBehaviorMonoBehaviour.ResetInvokeIds();
+            TestBehaviorScript.ResetInvokeIds();
         }
         
         #region Existing Scripts
@@ -87,8 +87,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
 
-            TestVineMonoBehaviour vine0 = null;
-            TestVineMonoBehaviour vine1 = null;
+            TestVineScript vine0 = null;
+            TestVineScript vine1 = null;
             var cbCalled = 0;
             token
                 .OnSuccess(_ =>
@@ -129,8 +129,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
 
-            TestBehaviorMonoBehaviour behavior0 = null;
-            TestBehaviorMonoBehaviour behavior1 = null;
+            TestBehaviorScript behavior0 = null;
+            TestBehaviorScript behavior1 = null;
             var cbCalled = 0;
             token
                 .OnSuccess(_ =>
@@ -168,12 +168,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
 
-            TestVineMonoBehaviour vine0 = null;
-            TestVineMonoBehaviour vine1 = null;
-            TestVineMonoBehaviour vine2 = null;
-            TestBehaviorMonoBehaviour behavior0 = null;
-            TestBehaviorMonoBehaviour behavior1 = null;
-            TestBehaviorMonoBehaviour behavior2 = null;
+            TestVineScript vine0 = null;
+            TestVineScript vine1 = null;
+            TestVineScript vine2 = null;
+            TestBehaviorScript behavior0 = null;
+            TestBehaviorScript behavior1 = null;
+            TestBehaviorScript behavior2 = null;
             var cbCalled = 0;
             token
                 .OnSuccess(_ =>
@@ -233,8 +233,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddSceneRoot(widgetA);
 
-            TestVineMonoBehaviour vine = null;
-            TestBehaviorMonoBehaviour behavior = null;
+            TestVineScript vine = null;
+            TestBehaviorScript behavior = null;
 
             var cbCalled = 0;
             _scriptRunner.StartAllScripts()
@@ -278,8 +278,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
 
-            TestVineMonoBehaviour initialVine = null;
-            TestBehaviorMonoBehaviour behavior = null;
+            TestVineScript initialVine = null;
+            TestBehaviorScript behavior = null;
             var cbCalled = 0;
             token
                 .OnSuccess(_ =>
@@ -333,8 +333,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
 
-            TestVineMonoBehaviour vine = null;
-            TestBehaviorMonoBehaviour initialBehavior = null;
+            TestVineScript vine = null;
+            TestBehaviorScript initialBehavior = null;
             var cbCalled = 0;
             token
                 .OnSuccess(_ =>
@@ -398,9 +398,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddSceneRoot(widgetA);
 
-            TestBehaviorMonoBehaviour behavior0 = null;
-            TestBehaviorMonoBehaviour behavior1 = null;
-            TestBehaviorMonoBehaviour behavior2 = null;
+            TestBehaviorScript behavior0 = null;
+            TestBehaviorScript behavior1 = null;
+            TestBehaviorScript behavior2 = null;
             var cbCalled = 0;
             _scriptRunner.StartAllScripts()
                 .OnSuccess(_ =>
@@ -437,7 +437,44 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Reparenting()
         {
+            // Ensure all widgets are found, even with a boring Element in between.
+            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widgetB = WidgetUtil.CreateWidget(_scriptManager, _behaviors[1]);
+            var widgetC = WidgetUtil.CreateWidget(_scriptManager, _behaviors[2]);
             
+            widgetB.AddChild(widgetC);
+            widgetA.AddChild(widgetB);
+            
+            _scriptRunner.AddSceneRoot(widgetA);
+
+            TestBehaviorScript behavior0 = null;
+            TestBehaviorScript behavior1 = null;
+            TestBehaviorScript behavior2 = null;
+            var cbCalled = 0;
+            _scriptRunner.StartAllScripts()
+                .OnSuccess(_ =>
+                {
+                    cbCalled++;
+                    
+                    behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+                    behavior1 = _scriptFactory.GetBehavior(widgetB, _behaviors[1]);
+                    behavior2 = _scriptFactory.GetBehavior(widgetC, _behaviors[2]);
+                    
+                    _scriptRunner.Update();
+                    Assert.AreEqual(0, behavior0.LastUpdateInvokeId);
+                    Assert.AreEqual(1, behavior1.LastUpdateInvokeId);
+                    Assert.AreEqual(2, behavior2.LastUpdateInvokeId);
+                    
+                    widgetA.AddChild(widgetC);
+                    
+                    // Ensure invoke order changes after reparenting
+                    _scriptRunner.Update();
+                    Assert.AreEqual(3, behavior0.LastUpdateInvokeId);
+                    Assert.AreEqual(5, behavior1.LastUpdateInvokeId);
+                    Assert.AreEqual(4, behavior2.LastUpdateInvokeId);
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled);
         }
         
         #endregion
@@ -454,8 +491,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddSceneRoot(widgetA);
 
-            TestBehaviorMonoBehaviour aBehavior = null;
-            TestBehaviorMonoBehaviour bBehavior = null;
+            TestBehaviorScript aBehavior = null;
+            TestBehaviorScript bBehavior = null;
             var cbCalled = 0;
             _scriptRunner.StartAllScripts()
                 .OnSuccess(_ =>

@@ -588,7 +588,7 @@ namespace CreateAR.EnkluPlayer
                 // configs
                 {
                     binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
-                    binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfigMonoBehaviour>());
+                    binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfigMonoBehaviour>().TweenConfig);
                     binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfigMonoBehaviour>().ColorConfig);
                     binder.Bind<IFontConfig>().ToValue(LookupComponent<FontConfig>());
                 }

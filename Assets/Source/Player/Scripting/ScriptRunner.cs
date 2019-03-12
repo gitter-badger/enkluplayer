@@ -277,6 +277,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 Assembler = _createScriptAssembler()
             };
 
+//            widget.OnChildRemoved += Element_OnChildRemoved;
+
             record.Assembler.OnScriptsUpdated += (old, @new) => OnWidgetUpdated(record, old, @new);
 
             // Populate descendent records.
@@ -520,6 +522,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 StartRecord(record, ScriptType.Behavior, false);
             }
         }
+
+//        private void Element_OnChildRemoved(Element element, )
+//        {
+//            
+//        }
 
         /// <summary>
         /// Find all immediate Widget descendents of a Widget. If a child isn't a Widget then its

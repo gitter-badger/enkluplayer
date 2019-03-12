@@ -8,18 +8,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     /// <summary>
     /// Mimics a VineMonoBehaviour and counts invokes on general script flow calls.
     /// </summary>
-    public class TestVineMonoBehaviour : VineScript
+    public class TestVineScript : VineScript
     {
         public int EnterInvoked { get; private set; }
         public int ExitInvoked { get; private set; }
 
         private readonly AsyncToken<Void> _configureToken = new AsyncToken<Void>();
 
-        public override void Initialize(
-            Element parent,
-            EnkluScript script,
-            VineImporter importer,
-            IElementFactory elements)
+        public TestVineScript(EnkluScript script) : base(null, script, null, null)
         {
             EnkluScript = script;
         }

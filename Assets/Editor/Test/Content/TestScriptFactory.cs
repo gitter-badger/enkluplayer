@@ -16,8 +16,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             public EnkluScript EnkluScript;
         }
         
-        private readonly Dictionary<Record, TestVineMonoBehaviour> _vineCache = new Dictionary<Record, TestVineMonoBehaviour>();
-        private readonly Dictionary<Record, TestBehaviorMonoBehaviour> _behaviorCache = new Dictionary<Record, TestBehaviorMonoBehaviour>();
+        private readonly Dictionary<Record, TestVineScript> _vineCache = new Dictionary<Record, TestVineScript>();
+        private readonly Dictionary<Record, TestBehaviorScript> _behaviorCache = new Dictionary<Record, TestBehaviorScript>();
         
         /// <inheritdoc />
         public VineScript Vine(Widget widget, EnkluScript script)
@@ -28,8 +28,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 EnkluScript = script
             };
             
-            var component = widget.GameObject.AddComponent<TestVineMonoBehaviour>();
-            component.Initialize(widget.Parent, script, null, null);
+            var component = new TestVineScript(script);
 
             _vineCache[record] = component;
 
@@ -49,8 +48,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 EnkluScript = script
             };
             
-            var component = widget.GameObject.AddComponent<TestBehaviorMonoBehaviour>();
-            component.Initialize(jsCache, null, host, script, widget);
+            var component = new TestBehaviorScript(script);
 
             _behaviorCache[record] = component;
             
@@ -60,7 +58,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// <summary>
         /// Gets a Vine component that was given out.
         /// </summary>
-        public TestVineMonoBehaviour GetVine(Widget widget, EnkluScript script)
+        public TestVineScript GetVine(Widget widget, EnkluScript script)
         {
             var entry =  _vineCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
             return entry.Value;
@@ -69,7 +67,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// <summary>
         /// Gets a Behavior component that was given out.
         /// </summary>
-        public TestBehaviorMonoBehaviour GetBehavior(Widget widget, EnkluScript script)
+        public TestBehaviorScript GetBehavior(Widget widget, EnkluScript script)
         {
             var entry =  _behaviorCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
             return entry.Value;

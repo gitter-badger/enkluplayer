@@ -8,17 +8,20 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     /// <summary>
     /// Mimics an EnkluScriptElementBehavior and counts invokes on general script flow calls.
     /// </summary>
-    public class TestBehaviorMonoBehaviour : BehaviorScript
+    public class TestBehaviorScript : BehaviorScript
     {
         private static int _enterInvokeId = 0;
         private static int _exitInvokeId = 0;
+        private static int _updateInvokeId = 0;
         
         public int EnterInvoked { get; private set; }
         public int ExitInvoked { get; private set; }
+        public int UpdateInvoked { get; private set; }
         public int LastEnterInvokeId { get; private set; }
-        public int LastExitInvokeId { get; private set; } 
+        public int LastExitInvokeId { get; private set; }
+        public int LastUpdateInvokeId { get; private set; }
         
-        public override void Initialize(IElementJsCache jsCache, IElementJsFactory factory, Engine engine, EnkluScript script, Widget widget)
+        public TestBehaviorScript(EnkluScript script) : base(null, null, null, script, null)
         {
             EnkluScript = script;
         }
@@ -39,7 +42,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         public override void FrameUpdate()
         {
-            
+            UpdateInvoked++;
+            LastUpdateInvokeId = _updateInvokeId++;
         }
 
         public override void Exit()
@@ -55,6 +59,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             _enterInvokeId = 0;
             _exitInvokeId = 0;
+            _updateInvokeId = 0;
         }
     }
 }

@@ -43,10 +43,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Vine attached to non-widget?!");
             }
             
-            var component = widget.GameObject.AddComponent<VineMonoBehaviour>();
-            component.Initialize(widget, script, _vineImporter, _elementFactory);
-            
-            return component;
+            return new VineScript(widget, script, _vineImporter, _elementFactory);
         }
 
         /// <inheritdoc />
@@ -60,11 +57,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 throw new Exception("Vine attached to non-widget?!");
             }
-            
-            var component = widget.GameObject.AddComponent<EnkluScriptElementBehavior>();
-            component.Initialize(jsCache, _elementJsFactory, host, script, widget);
 
-            return component;
+            return new BehaviorScript(jsCache, _elementJsFactory, host, script, widget);
         }
     }
 }
