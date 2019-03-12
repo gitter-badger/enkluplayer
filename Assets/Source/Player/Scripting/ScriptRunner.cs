@@ -12,7 +12,7 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
-    /// Handles running all scripts for a given scene root and its descendent Widgets.
+    /// Handles running all scripts for a given scene root and its descendent Elements.
     /// Script loading and running is centralized and deterministic.
     /// </summary>
     public class ScriptRunner
@@ -44,7 +44,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
         
         /// <summary>
-        /// The state a WidgetRecord is in.
+        /// The state a ElementRecord is in.
         /// </summary>
         public enum RecordState
         {
@@ -54,14 +54,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Tracks a Widget's scripts and their current state with the runner.
+        /// Tracks an Element's scripts and their current state with the runner.
         /// </summary>
-        private class WidgetRecord
+        private class ElementRecord
         {
             /// <summary>
-            /// The widget.
+            /// The Element.
             /// </summary>
-            public Widget Widget;
+            public Element Element;
 
             /// <summary>
             /// The state of the record.
@@ -69,7 +69,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             public RecordState RecordState;
             
             /// <summary>
-            /// The IScriptAssembler used for this widget.
+            /// The IScriptAssembler used for this Element.
             /// </summary>
             public IScriptAssembler Assembler;
 
@@ -86,12 +86,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// The record above this record.
             /// </summary>
-            public WidgetRecord ParentRecord;
+            public ElementRecord ParentRecord;
             
             /// <summary>
             /// The records below this record in the hierarchy.
             /// </summary>
-            public List<WidgetRecord> DescendentRecords;
+            public List<ElementRecord> ChildRecords;
 
             /// <summary>
             /// Invoked when scripts have updated, with the old then new as payloads.
@@ -119,12 +119,12 @@ namespace CreateAR.EnkluPlayer.Scripting
                 {
                     if (RecordState == RecordState.Loading)
                     {
-                        // First time this Widget's scripts are ready.
-                        var descendentTokens = new IAsyncToken<Void>[DescendentRecords.Count];
+                        // First time this Element's scripts are ready.
+                        var descendentTokens = new IAsyncToken<Void>[ChildRecords.Count];
                             
-                        for (var i = 0; i < DescendentRecords.Count; i++)
+                        for (var i = 0; i < ChildRecords.Count; i++)
                         {
-                            var subRecord = DescendentRecords[i];
+                            var subRecord = ChildRecords[i];
                             descendentTokens[i] = subRecord.LoadScripts();
                         }
 
@@ -135,7 +135,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     
                     OnScriptsUpdated.Execute(old, @new);
                 };
-                Assembler.Setup(Widget);
+                Assembler.Setup(Element);
 
                 return _loadToken;
             }
@@ -149,7 +149,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// The scene's root record.
         /// </summary>
-        private WidgetRecord _rootRecord;
+        private ElementRecord _rootRecord;
 
         /// <summary>
         /// The state of the runner.
@@ -175,9 +175,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Adds a Widget as the root element.
+        /// Adds an Element as the root element.
         /// </summary>
-        public void AddSceneRoot(Widget root)
+        public void AddSceneRoot(Element root)
         {
             _rootRecord = CreateRecord(root);
             _rootRecord.LoadScripts();
@@ -266,46 +266,43 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Creates a WidgetRecord and all of its descendent records.
+        /// Creates an ElementRecord and all of its descendent records.
         /// </summary>
-        private WidgetRecord CreateRecord(Widget widget)
+        private ElementRecord CreateRecord(Element element)
         {
-            var record = new WidgetRecord
+            var record = new ElementRecord
             {
-                Widget = widget,
+                Element = element,
                 RecordState = RecordState.None,
                 Assembler = _createScriptAssembler()
             };
 
 //            widget.OnChildRemoved += Element_OnChildRemoved;
 
-            record.Assembler.OnScriptsUpdated += (old, @new) => OnWidgetUpdated(record, old, @new);
+            record.Assembler.OnScriptsUpdated += (old, @new) => Element_OnScriptsUpdated(record, old, @new);
 
-            // Populate descendent records.
-            var descendents = new List<Widget>();
-            FindWidgetDescendents(widget, descendents);
-
-            var descendentRecords = new List<WidgetRecord>(widget.Children.Count); 
+            var childCount = element.Children.Count;
+            var childrenRecords = new List<ElementRecord>(element.Children.Count); 
             
-            for (int i = 0, len = descendents.Count; i < len; i++)
+            for (var i = 0; i < childCount; i++)
             {
-                var descendentRecord = CreateRecord(descendents[i]);
+                var descendentRecord = CreateRecord(element.Children[i]);
                 descendentRecord.ParentRecord = record;
-                descendentRecords.Add(descendentRecord);
+                childrenRecords.Add(descendentRecord);
             }
-            record.DescendentRecords = descendentRecords;
+            record.ChildRecords = childrenRecords;
 
             return record;
         }
 
         /// <summary>
-        /// Configures a WidgetRecord's scripts.
+        /// Configures a ElementRecord's scripts.
         /// </summary>
         /// <param name="record">The record to configure.</param>
         /// <param name="type">The Type of script to configure.</param>
         /// <param name="tokenContainer">The container configuration tokens will be put in.</param>
         /// <param name="recursive">Whether or not this configuration should affect descendent records or not.</param>
-        private static void ConfigureRecord(WidgetRecord record, ScriptType type, List<IAsyncToken<Void>> tokenContainer, bool recursive = true)
+        private static void ConfigureRecord(ElementRecord record, ScriptType type, List<IAsyncToken<Void>> tokenContainer, bool recursive = true)
         {
             switch (type)
             {
@@ -334,9 +331,9 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             if (recursive)
             {
-                for (int i = 0, len = record.DescendentRecords.Count; i < len; i++)
+                for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
                 {
-                    ConfigureRecord(record.DescendentRecords[i], type, tokenContainer, recursive);
+                    ConfigureRecord(record.ChildRecords[i], type, tokenContainer, recursive);
                 }
             }
         }
@@ -347,7 +344,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="record">The record to start.</param>
         /// <param name="type">The type of scripts to start.</param>
         /// <param name="recursive">Whether to affect descendent records or not.</param>
-        private void StartRecord(WidgetRecord record, ScriptType type, bool recursive = true)
+        private void StartRecord(ElementRecord record, ScriptType type, bool recursive = true)
         {
             // TODO: Make the ScriptType parameter a bitmask so both can be run together?
             
@@ -372,9 +369,9 @@ namespace CreateAR.EnkluPlayer.Scripting
                 
                 if (recursive)
                 {
-                    for (int i = 0, len = record.DescendentRecords.Count; i < len; i++)
+                    for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
                     {
-                        StartRecord(record.DescendentRecords[i], ScriptType.Vine);
+                        StartRecord(record.ChildRecords[i], ScriptType.Vine);
                     }
                 }
             }
@@ -400,9 +397,9 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                 if (recursive)
                 {
-                    for (int i = 0, len = record.DescendentRecords.Count; i < len; i++)
+                    for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
                     {
-                        StartRecord(record.DescendentRecords[i], ScriptType.Behavior);
+                        StartRecord(record.ChildRecords[i], ScriptType.Behavior);
                     }
                 }
             }
@@ -413,7 +410,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="record">The record to stop.</param>
         /// <param name="recursive">Whether descendent records should be affected or not.</param>
-        private void StopRecord(WidgetRecord record, bool recursive = true)
+        private void StopRecord(ElementRecord record, bool recursive = true)
         {
             if (record.Vines != null)
             {
@@ -447,9 +444,9 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             if (recursive)
             {
-                for (int i = 0, len = record.DescendentRecords.Count; i < len; i++)
+                for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
                 {
-                    StopRecord(record.DescendentRecords[i]);
+                    StopRecord(record.ChildRecords[i]);
                 }
             }
         }
@@ -458,7 +455,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Updates a record, and all of its descendents.
         /// </summary>
         /// <param name="record"></param>
-        private void UpdateRecord(WidgetRecord record)
+        private void UpdateRecord(ElementRecord record)
         {
             // Vines don't have an update step. No need to worry for now!
             for (int i = 0, len = record.Behaviors.Length; i < len; i++)
@@ -474,9 +471,9 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
             }
 
-            for (int i = 0, len = record.DescendentRecords.Count; i < len; i++)
+            for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
             {
-                UpdateRecord(record.DescendentRecords[i]);
+                UpdateRecord(record.ChildRecords[i]);
             }
         }
 
@@ -486,7 +483,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="record"></param>
         /// <param name="old"></param>
         /// <param name="new"></param>
-        private void OnWidgetUpdated(WidgetRecord record, Script[] old, Script[] @new)
+        private void Element_OnScriptsUpdated(ElementRecord record, Script[] old, Script[] @new)
         {
             if (_runnerState == RunnerState.Running)
             {
@@ -527,44 +524,5 @@ namespace CreateAR.EnkluPlayer.Scripting
 //        {
 //            
 //        }
-
-        /// <summary>
-        /// Find all immediate Widget descendents of a Widget. If a child isn't a Widget then its
-        /// children are searched recursively until a Widget is found.
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="container"></param>
-        private void FindWidgetDescendents(Element element, List<Widget> container)
-        {
-            if (element.Children.Count == 0)
-            {
-                return;
-            }
-            
-            /*    Traverse children recursively looking for Widgets, ignoring children of Widgets.
-             
-                R            R  - Root Widget
-               / \           W  - Widget, added to container
-              /   \          W* - Widget, not included since it has a parent Widget
-             W     E         E  - Element, its children are traversed to potentially be added.
-             |     | \
-             |     |  \
-             W*    W   W
-             
-            */
-
-            for (int i = 0, len = element.Children.Count; i < len; i++)
-            {
-                var childWidget = element.Children[i] as Widget;
-                if (childWidget != null)
-                {
-                    container.Add(childWidget);
-                }
-                else
-                {
-                    FindWidgetDescendents(element.Children[i], container);
-                }
-            }
-        }
     }
 }

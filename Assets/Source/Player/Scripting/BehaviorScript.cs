@@ -22,7 +22,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// The element this is running on.
         /// </summary>
-        private Widget _widget;
+        private Element _element;
 
         /// <summary>
         /// Caches JS objects.
@@ -60,7 +60,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public ElementSchema Data
         {
-            get { return null == _widget ? null : _widget.Schema; }
+            get { return null == _element ? null : _element.Schema; }
         }
 
         /// <summary>
@@ -71,10 +71,10 @@ namespace CreateAR.EnkluPlayer.Scripting
             IElementJsFactory factory,
             Engine engine,
             EnkluScript script,
-            Widget widget)
+            Element element)
         {
             _engine = engine;
-            _widget = widget;
+            _element = element;
             _jsCache = jsCache;
             _factory = factory;
 
@@ -89,7 +89,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             var thisBinding = JsValue.FromObject(
                 _engine,
-                _factory.Instance(_jsCache, _widget));
+                _factory.Instance(_jsCache, _element));
             _engine.ExecutionContext.ThisBinding = thisBinding;
 
             try
@@ -124,7 +124,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Script already started.");
             }
 
-            Log.Info(this, "Entering script {0} ({1}).", EnkluScript.Data.Name, _widget.Name);
+            Log.Info(this, "Entering script {0} ({1}).", EnkluScript.Data.Name, _element.Name);
 
             _isStarted = true;
 
@@ -136,7 +136,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 catch (JavaScriptException exception)
                 {
-                    Log.Warning(this, "JavaScript error ({0}) : {1}.", _widget.Name, exception);
+                    Log.Warning(this, "JavaScript error ({0}) : {1}.", _element.Name, exception);
                 }
             }
         }
@@ -152,7 +152,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 catch (JavaScriptException exception)
                 {
-                    Log.Warning(this, "JavaScript error ({0}) : {1}.", _widget.Name, exception);
+                    Log.Warning(this, "JavaScript error ({0}) : {1}.", _element.Name, exception);
                 }
             }
         }

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
-    /// Handles loading a set of scripts and creating instances for a Widget.
+    /// Handles loading a set of scripts and creating instances for an Element.
     /// </summary>
     public class ScriptAssembler : IScriptAssembler
     {
@@ -29,12 +29,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly AppJsApi _appJsApi;
 
         /// <summary>
-        /// The backing widget.
+        /// The backing Element.
         /// </summary>
-        private Widget _widget;
+        private Element _element;
         
         /// <summary>
-        /// The widget's schema prop for scripts.
+        /// The Element's schema prop for scripts.
         /// </summary>
         private ElementSchemaProp<string> _schemaProp;
 
@@ -74,16 +74,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void Setup(Widget widget)
+        public void Setup(Element element)
         {
-            Log.Info(this, "Loading scripts for {0}", widget);
-            _widget = widget;
+            Log.Info(this, "Loading scripts for {0}", element);
+            _element = element;
             _engine = CreateBehaviorHost();
 
-            _schemaProp = widget.Schema.GetOwn(SCHEMA_SOURCE, "[]");
+            _schemaProp = element.Schema.GetOwn(SCHEMA_SOURCE, "[]");
             _schemaProp.OnChanged += Schema_OnUpdated;
 
-            var contentWidget = widget as ContentWidget;
+            var contentWidget = element as ContentWidget;
             if (contentWidget != null)
             {
                 contentWidget.OnLoaded.OnFinally(_ => SetupScripts());
@@ -106,18 +106,18 @@ namespace CreateAR.EnkluPlayer.Scripting
                 script.OnUpdated -= Script_OnUpdated;
             }
 
-            _scriptManager.ReleaseAll(_widget.Id);
+            _scriptManager.ReleaseAll(_element.Id);
             _scriptComponents.Clear();
         }
 
         /// <summary>
-        /// Handles creating new scripts and removing old scripts for the Widget based on its schema.
+        /// Handles creating new scripts and removing old scripts for the Element based on its schema.
         /// </summary>
         private void SetupScripts()
         {
             var currentIds = GetScriptIds();
             var idsLen = currentIds.Length;
-            Log.Info(this, "\tLoading {0} scripts for {1}.", idsLen, _widget);
+            Log.Info(this, "\tLoading {0} scripts for {1}.", idsLen, _element);
 
             var removals = new List<EnkluScript>();
             var additions = new List<EnkluScript>();
@@ -140,7 +140,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     continue;
                 }
                 
-                var script = _scriptManager.Create(currentIds[i], _widget.Id);
+                var script = _scriptManager.Create(currentIds[i], _element.Id);
                 if (script == null)
                 {
                     Log.Error(this, "Unable to create script {0}", currentIds[i]);
@@ -189,7 +189,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             var existingInstances = _scriptComponents.Values.ToArray();
 
-            // Remove scripts that no longer are on this Widget.
+            // Remove scripts that no longer are on this Element.
             if (removed != null)
             {
                 for (var i = 0; i < removed.Count; i++)
@@ -202,7 +202,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             var configurationTokens = new IAsyncToken<Script>[tokenCount];
             var tokenIndex = 0;
 
-            // Create instances for scripts newly added to this Widget.
+            // Create instances for scripts newly added to this Element.
             if (added != null)
             {
                 for (var i = 0; i < added.Count; i++)
@@ -247,10 +247,10 @@ namespace CreateAR.EnkluPlayer.Scripting
             switch (script.Data.Type)
             {
                 case ScriptType.Vine:
-                    newScript = _scriptFactory.Vine(_widget, script);
+                    newScript = _scriptFactory.Vine(_element, script);
                     break;
                 case ScriptType.Behavior:
-                    newScript = _scriptFactory.Behavior(_widget, _jsCache, _engine, script);
+                    newScript = _scriptFactory.Behavior(_element, _jsCache, _engine, script);
                     break;
                 default:
                     throw new Exception("Is there a new script type?!");
@@ -260,11 +260,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Called when script schema changes. Scripts have been removed or added to the Widget.
+        /// Called when script schema changes. Scripts have been removed or added to the Element.
         /// </summary>
         private void Schema_OnUpdated(ElementSchemaProp<string> prop, string prev, string next)
         {
-            Log.Info(this, "Widget script list updated ({0})", _widget);
+            Log.Info(this, "Element script list updated ({0})", _element);
             SetupScripts();
         }
         
@@ -273,7 +273,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private void Script_OnUpdated(EnkluScript script)
         {
-            Log.Info(this, "Updating script ({0} {1})", script.Data.Id, _widget);
+            Log.Info(this, "Updating script ({0} {1})", script.Data.Id, _element);
             UpdateScriptInstances(null, null, new List<EnkluScript> { script });
         }
         
@@ -316,10 +316,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <returns></returns>
         private UnityScriptingHost CreateBehaviorHost()
         {
-            var host = _scriptingHostFactory.NewScriptingHost(_widget);
+            var host = _scriptingHostFactory.NewScriptingHost(_element);
             host.SetValue("system", SystemJsApi.Instance);
             host.SetValue("app", _appJsApi);
-            host.SetValue("this", _jsCache.Element(_widget));
+            host.SetValue("this", _jsCache.Element(_element));
             
             return host;
         }

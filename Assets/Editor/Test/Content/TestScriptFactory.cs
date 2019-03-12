@@ -12,7 +12,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     {
         private struct Record
         {
-            public Widget Widget;
+            public Element Element;
             public EnkluScript EnkluScript;
         }
         
@@ -20,11 +20,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         private readonly Dictionary<Record, TestBehaviorScript> _behaviorCache = new Dictionary<Record, TestBehaviorScript>();
         
         /// <inheritdoc />
-        public VineScript Vine(Widget widget, EnkluScript script)
+        public VineScript Vine(Element element, EnkluScript script)
         {
             Record record = new Record
             {
-                Widget = widget,
+                Element = element,
                 EnkluScript = script
             };
             
@@ -37,14 +37,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
-            Widget widget,
+            Element element,
             IElementJsCache jsCache,  
             UnityScriptingHost host,
             EnkluScript script)
         {
             Record record = new Record
             {
-                Widget = widget,
+                Element = element,
                 EnkluScript = script
             };
             
@@ -60,7 +60,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// </summary>
         public TestVineScript GetVine(Widget widget, EnkluScript script)
         {
-            var entry =  _vineCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
+            var entry =  _vineCache.First(kvp => kvp.Key.Element == widget && kvp.Key.EnkluScript == script);
             return entry.Value;
         }
 
@@ -69,7 +69,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// </summary>
         public TestBehaviorScript GetBehavior(Widget widget, EnkluScript script)
         {
-            var entry =  _behaviorCache.First(kvp => kvp.Key.Widget == widget && kvp.Key.EnkluScript == script);
+            var entry =  _behaviorCache.First(kvp => kvp.Key.Element == widget && kvp.Key.EnkluScript == script);
             return entry.Value;
         }
     }

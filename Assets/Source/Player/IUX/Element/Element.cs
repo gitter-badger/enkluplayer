@@ -57,6 +57,11 @@ namespace CreateAR.EnkluPlayer.IUX
         private ElementSchemaProp<string> _idProp;
 
         /// <summary>
+        /// Name prop.
+        /// </summary>
+        private ElementSchemaProp<string> _nameProp;
+
+        /// <summary>
         /// Unique internal id for this element.
         /// </summary>
         public string Guid { get; private set;  }
@@ -65,6 +70,15 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Unique id stored in data for this element.
         /// </summary>
         public string Id { get; private set; }
+        
+        /// <summary>
+        /// Name accessor.
+        /// </summary>
+        public string Name
+        {
+            get { return _nameProp.Value; }
+            set { _nameProp.Value = value; }
+        }
 
         /// <summary>
         /// State.
@@ -153,6 +167,8 @@ namespace CreateAR.EnkluPlayer.IUX
             _idProp.OnChanged += Id_OnChange;
 
             Id = Schema.Identifier = _idProp.Value;
+
+            _nameProp = schema.GetOwn("name", string.Empty);
 
             LoadInternalBeforeChildren();
 

@@ -52,15 +52,9 @@ namespace CreateAR.EnkluPlayer.Scripting
                 Log.Warning(this, "Scene OnInitialized");
 
                 // TODO: Handle multiple scenes
-                var widgetRoot = _sceneManager.Root(_sceneManager.All[0]) as Widget;
-
-                if (widgetRoot == null)
-                {
-                    Log.Error(this, "Scene root isn't a Widget!");
-                    return;
-                }
+                var root = _sceneManager.Root(_sceneManager.All[0]);
                 
-                _scriptRunner.AddSceneRoot(widgetRoot);
+                _scriptRunner.AddSceneRoot(root);
                 _scriptRunner.StartAllScripts();
             };
         }

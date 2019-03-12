@@ -36,29 +36,29 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
         
         /// <inheritdoc />
-        public VineScript Vine(Widget widget, EnkluScript script)
+        public VineScript Vine(Element element, EnkluScript script)
         {
-            if (widget == null)
+            if (element == null)
             {
                 throw new Exception("Vine attached to non-widget?!");
             }
             
-            return new VineScript(widget, script, _vineImporter, _elementFactory);
+            return new VineScript(element, script, _vineImporter, _elementFactory);
         }
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
-            Widget widget,
+            Element element,
             IElementJsCache jsCache,  
             UnityScriptingHost host, 
             EnkluScript script)
         {
-            if (widget == null)
+            if (element == null)
             {
                 throw new Exception("Vine attached to non-widget?!");
             }
 
-            return new BehaviorScript(jsCache, _elementJsFactory, host, script, widget);
+            return new BehaviorScript(jsCache, _elementJsFactory, host, script, element);
         }
     }
 }
