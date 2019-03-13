@@ -24,7 +24,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public AnimatorControllerParameter[] Parameters
         {
-            get { return _animator.parameters; }
+            get
+            {
+                return _animator.runtimeAnimatorController != null ? _animator.parameters : new AnimatorControllerParameter[0];
+            }
         }
 
         /// <inheritdoc />
