@@ -58,18 +58,18 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// <summary>
         /// Gets a Vine component that was given out.
         /// </summary>
-        public TestVineScript GetVine(Widget widget, EnkluScript script)
+        public TestVineScript GetVine(Element element, EnkluScript script)
         {
-            var entry =  _vineCache.First(kvp => kvp.Key.Element == widget && kvp.Key.EnkluScript == script);
+            var entry =  _vineCache.First(kvp => kvp.Key.Element == element && kvp.Key.EnkluScript == script);
             return entry.Value;
         }
 
         /// <summary>
         /// Gets a Behavior component that was given out.
         /// </summary>
-        public TestBehaviorScript GetBehavior(Widget widget, EnkluScript script)
+        public TestBehaviorScript GetBehavior(Element element, EnkluScript script)
         {
-            var entry =  _behaviorCache.First(kvp => kvp.Key.Element == widget && kvp.Key.EnkluScript == script);
+            var entry =  _behaviorCache.First(kvp => kvp.Key.Element == element && kvp.Key.EnkluScript == script);
             return entry.Value;
         }
     }

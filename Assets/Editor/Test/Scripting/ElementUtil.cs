@@ -9,18 +9,13 @@ using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
-    public static class WidgetUtil
+    public static class ElementUtil
     {
-        public static Widget CreateWidget()
+        public static Element CreateElement(TestScriptManager scriptManager, params EnkluScript[] scripts)
         {
-            return new Widget(new GameObject("WidgetUtil"), null, null, null);
-        }
-        
-        public static Widget CreateWidget(TestScriptManager scriptManager, params EnkluScript[] scripts)
-        {
-            var widget = new Widget(new GameObject("WidgetUtil"), null, null, null);
-            AddScriptToWidget(widget, scriptManager, scripts);
-            return widget;
+            var element = new Element();
+            AddScriptToElement(element, scriptManager, scripts);
+            return element;
         }
 
         public static ContentWidget CreateContentWidget(TestScriptManager scriptManager, params EnkluScript[] scripts)
@@ -36,7 +31,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 new TweenConfig(), 
                 new ColorConfig(), 
                 assetAssembler);
-            AddScriptToWidget(widget, scriptManager, scripts);
+            AddScriptToElement(widget, scriptManager, scripts);
             
             // Will all tests require this, or need it deferred?
             widget.Load(new ElementData(), widget.Schema, new Element[] {});
@@ -44,10 +39,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             return widget;
         }
 
-        public static void AddScriptToWidget(Widget widget, TestScriptManager scriptManager,  params EnkluScript[] scripts)
+        public static void AddScriptToElement(Element element, TestScriptManager scriptManager,  params EnkluScript[] scripts)
         {
             var existingScripts = JArray.Parse(
-                widget.Schema.GetOwn("scripts", "[]").Value);
+                element.Schema.GetOwn("scripts", "[]").Value);
 
             for (int i = 0, len = scripts.Length; i < len; i++)
             {
@@ -64,21 +59,21 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 }
             }
 
-            widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
+            element.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
         }
 
-        public static void RemoveScriptFromWidget(Widget widget, TestScriptManager scriptManager, EnkluScript script)
+        public static void RemoveScriptFromElement(Element element, TestScriptManager scriptManager, EnkluScript script)
         {
             var existingScripts = JArray.Parse(
-                widget.Schema.GetOwn("scripts", "[]").Value);
+                element.Schema.GetOwn("scripts", "[]").Value);
 
-            for (int i = 0; i < existingScripts.Count; i++)
+            for (var i = 0; i < existingScripts.Count; i++)
             {
                 if (existingScripts[i]["id"].ToObject<string>() == script.Data.Id)
                 {
                     existingScripts.RemoveAt(i);
                     scriptManager.RemoveEntry(script.Data.Id);
-                    widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
+                    element.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
                     return;
                 }
             }

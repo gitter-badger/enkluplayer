@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
@@ -62,7 +63,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Initial_None()
         {
-            var widget = WidgetUtil.CreateWidget();
+            var widget = new Element();
 
             var cbCalled = 0;
             _scriptAssembler.OnScriptsUpdated += (old, @new) =>
@@ -79,7 +80,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Initial_Vine()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _vines[1]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _vines[1]);
 
             var cbCalled = 0;
             _scriptAssembler.OnScriptsUpdated += (old, @new) =>
@@ -109,7 +110,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Initial_Behavior()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _behaviors[1]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0], _behaviors[1]);
 
             var cbCalled = 0;
             _scriptAssembler.OnScriptsUpdated += (old, @new) =>
@@ -131,7 +132,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Initial_Mixed()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _vines[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0], _vines[0]);
 
             var cbCalled = 0;
             _scriptAssembler.OnScriptsUpdated += (old, @new) =>
@@ -159,7 +160,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void New_NoPrior()
         {
-            var widget = WidgetUtil.CreateWidget();
+            var widget = new Element();
 
             var cbCalled = 0;
 
@@ -188,7 +189,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated -= initialInvoke;
             _scriptAssembler.OnScriptsUpdated += updateInvoke;
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
+            ElementUtil.AddScriptToElement(widget, _scriptManager, _behaviors[0]);
             
             Assert.AreEqual(2, cbCalled);
         }
@@ -196,7 +197,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void New_VinePrior()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0]);
 
             var cbCalled = 0;
 
@@ -232,7 +233,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated -= initialInvoke;
             _scriptAssembler.OnScriptsUpdated += updateInvoke;
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
+            ElementUtil.AddScriptToElement(widget, _scriptManager, _behaviors[0]);
             
             // The component is rebuilt, so it needs to be finalized again.
             vineComponent = _scriptFactory.GetVine(widget, _vines[0]);
@@ -244,7 +245,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void New_BehaviorPrior()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
 
             var cbCalled = 0;
 
@@ -276,7 +277,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated -= initialInvoke;
             _scriptAssembler.OnScriptsUpdated += updateInvoke;
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0]);
+            ElementUtil.AddScriptToElement(widget, _scriptManager, _vines[0]);
             
             var vineComponent = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent.FinishConfigure();
@@ -287,7 +288,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void New_Multiple()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
 
             var cbCalled = 0;
 
@@ -321,7 +322,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated -= initialInvoke;
             _scriptAssembler.OnScriptsUpdated += updateInvoke;
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0], _behaviors[1]);
+            ElementUtil.AddScriptToElement(widget, _scriptManager, _vines[0], _behaviors[1]);
             
             var vineComponent = _scriptFactory.GetVine(widget, _vines[0]);
             vineComponent.FinishConfigure();
@@ -335,7 +336,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Updating_Vine()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _vines[1]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _vines[1]);
 
             var cbCalled = 0;
             Action<Script[], Script[]> initialInvoke = (old, @new) =>
@@ -385,7 +386,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Updating_Behavior()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _behaviors[1]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0], _behaviors[1]);
 
             var cbCalled = 0;
             Action<Script[], Script[]> initialInvoke = (old, @new) =>
@@ -434,7 +435,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Removal()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _vines[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0], _vines[0]);
 
             var cbCalled = 0;
             
@@ -471,7 +472,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated -= initialInvoke;
             _scriptAssembler.OnScriptsUpdated += firstRemoval;
             
-            WidgetUtil.RemoveScriptFromWidget(widget, _scriptManager, _vines[0]);
+            ElementUtil.RemoveScriptFromElement(widget, _scriptManager, _vines[0]);
             
             Assert.AreEqual(2, cbCalled);
             
@@ -485,7 +486,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler.OnScriptsUpdated -= firstRemoval;
             _scriptAssembler.OnScriptsUpdated += secondRemoval;
             
-            WidgetUtil.RemoveScriptFromWidget(widget, _scriptManager, _behaviors[0]);
+            ElementUtil.RemoveScriptFromElement(widget, _scriptManager, _behaviors[0]);
             
             Assert.AreEqual(3, cbCalled);
         }
@@ -497,7 +498,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void NoAsset()
         {
-            var widget = WidgetUtil.CreateContentWidget(_scriptManager);
+            var widget = ElementUtil.CreateContentWidget(_scriptManager);
 
             var cbCalled = 0;
             _scriptAssembler.OnScriptsUpdated += (old, @new) =>
@@ -516,7 +517,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void DelayedAsset()
         {
             var assetAssembler = new TestAssetAssembler();
-            var widget = WidgetUtil.CreateContentWidget(_scriptManager, assetAssembler);
+            var widget = ElementUtil.CreateContentWidget(_scriptManager, assetAssembler);
 
             var cbCalled = 0;
             _scriptAssembler.OnScriptsUpdated += (old, @new) =>
@@ -538,7 +539,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void AssetUpdated()
         {
             var assetAssembler = new TestAssetAssembler();
-            var widget = WidgetUtil.CreateContentWidget(_scriptManager, assetAssembler);
+            var widget = ElementUtil.CreateContentWidget(_scriptManager, assetAssembler);
 
             var cbCalled = 0;
             _scriptAssembler.OnScriptsUpdated += (old, @new) =>

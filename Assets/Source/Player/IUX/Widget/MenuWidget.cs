@@ -202,7 +202,7 @@ namespace CreateAR.EnkluPlayer.IUX
             UpdateHeaderLayout();
             UpdateChildLayout();
 
-            OnChildAdded += This_OnChildAdded;
+            OnDescendentAdded += ThisOnDescendentAdded;
 
             _titlePrimitive.OnTextRectUpdated += Header_TextRectUpdated;
             _descriptionPrimitive.OnTextRectUpdated += Header_TextRectUpdated;
@@ -213,7 +213,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternalAfterChildren()
         {
-            OnChildAdded -= This_OnChildAdded;
+            OnDescendentAdded -= ThisOnDescendentAdded;
 
             _titleProp.OnChanged -= Title_OnChanged;
             _fontSizeProp.OnChanged -= FontSize_OnChanged;
@@ -513,7 +513,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         /// <param name="parent">Parent.</param>
         /// <param name="child">Added element.</param>
-        private void This_OnChildAdded(Element parent, Element child)
+        private void ThisOnDescendentAdded(Element parent, Element child)
         {
             if (parent != this)
             {

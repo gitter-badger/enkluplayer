@@ -67,7 +67,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void SingleWidget_NoScripts()
         {
-            var widget = WidgetUtil.CreateWidget();
+            var widget = new Element();
             
             _scriptRunner.AddSceneRoot(widget);
             _scriptRunner.StartAllScripts()
@@ -82,7 +82,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void SingleWidget_Vines()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _vines[1]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _vines[1]);
             
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
@@ -124,7 +124,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void SingleWidget_Behaviors()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0], _behaviors[1]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0], _behaviors[1]);
             
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
@@ -163,7 +163,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void SingleWidget_Mixed()
         {
             // Order matters and will be checked in this test.
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
             
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
@@ -226,8 +226,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void MultipleWidgets()
         {
-            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
-            var widgetB = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
+            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var widgetB = ElementUtil.CreateElement(_scriptManager, _vines[0]);
             
             widgetA.AddChild(widgetB);
             
@@ -273,7 +273,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Update_Vine()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _behaviors[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
             
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
@@ -328,7 +328,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Update_Behavior()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0], _behaviors[0]);
+            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
             
             _scriptRunner.AddSceneRoot(widget);
             var token = _scriptRunner.StartAllScripts();
@@ -384,13 +384,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         #region Hierarchy
 
         [Test]
-        public void MixedElements()
+        public void PlainElements()
         {
             // Ensure all widgets are found, even with a boring Element in between.
-            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
             var elementB = new Element();
-            var widgetC = WidgetUtil.CreateWidget(_scriptManager, _behaviors[1]);
-            var widgetD = WidgetUtil.CreateWidget(_scriptManager, _behaviors[2]);
+            var widgetC = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            var widgetD = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
             
             widgetC.AddChild(widgetD);
             elementB.AddChild(widgetC);
@@ -433,23 +433,78 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(1, behavior1.LastExitInvokeId);
             Assert.AreEqual(2, behavior2.LastExitInvokeId);
         }
+
+        [Test]
+        public void AddChild()
+        {
+            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var widgetB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            
+            _scriptRunner.AddSceneRoot(widgetA);
+            var cbCalled = 0;
+            _scriptRunner.StartAllScripts()
+                .OnSuccess(_ => cbCalled++)
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled, "Expected Start to be synchronous.");
+
+            var behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+            Assert.AreEqual(1, behavior0.EnterInvoked);
+            
+            widgetA.AddChild(widgetB);
+            
+            var behavior1 = _scriptFactory.GetBehavior(widgetB, _behaviors[1]);
+            Assert.AreEqual(1, behavior1.EnterInvoked);
+        }
+
+        [Test]
+        public void RemoveChild()
+        {
+            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var widgetB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            widgetA.AddChild(widgetB);
+            
+            _scriptRunner.AddSceneRoot(widgetA);
+            var cbCalled = 0;
+            _scriptRunner.StartAllScripts()
+                .OnSuccess(_ => cbCalled++)
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled, "Expected Start to be synchronous.");
+
+            var behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+            var behavior1 = _scriptFactory.GetBehavior(widgetB, _behaviors[1]);
+            
+            _scriptRunner.Update();
+            Assert.AreEqual(1, behavior0.UpdateInvoked);
+            Assert.AreEqual(1, behavior1.UpdateInvoked);
+
+            widgetA.RemoveChild(widgetB);
+            _scriptRunner.Update();
+            Assert.AreEqual(2, behavior0.UpdateInvoked);
+            Assert.AreEqual(1, behavior1.UpdateInvoked);
+            
+            Assert.AreEqual(0, behavior0.ExitInvoked);
+            Assert.AreEqual(1, behavior1.ExitInvoked);
+        }
         
         [Test]
         public void Reparenting()
         {
             // Ensure all widgets are found, even with a boring Element in between.
-            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
-            var widgetB = WidgetUtil.CreateWidget(_scriptManager, _behaviors[1]);
-            var widgetC = WidgetUtil.CreateWidget(_scriptManager, _behaviors[2]);
+            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var widgetB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            var widgetC = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
+            var widgetD = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
             
             widgetB.AddChild(widgetC);
+            widgetB.AddChild(widgetD);
             widgetA.AddChild(widgetB);
             
             _scriptRunner.AddSceneRoot(widgetA);
 
-            TestBehaviorScript behavior0 = null;
-            TestBehaviorScript behavior1 = null;
-            TestBehaviorScript behavior2 = null;
+            TestBehaviorScript behavior0;
+            TestBehaviorScript behavior1;
+            TestBehaviorScript behavior2_c;
+            TestBehaviorScript behavior2_d;
             var cbCalled = 0;
             _scriptRunner.StartAllScripts()
                 .OnSuccess(_ =>
@@ -458,20 +513,24 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                     
                     behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
                     behavior1 = _scriptFactory.GetBehavior(widgetB, _behaviors[1]);
-                    behavior2 = _scriptFactory.GetBehavior(widgetC, _behaviors[2]);
+                    behavior2_c = _scriptFactory.GetBehavior(widgetC, _behaviors[2]);
+                    behavior2_d = _scriptFactory.GetBehavior(widgetD, _behaviors[2]);
                     
                     _scriptRunner.Update();
                     Assert.AreEqual(0, behavior0.LastUpdateInvokeId);
                     Assert.AreEqual(1, behavior1.LastUpdateInvokeId);
-                    Assert.AreEqual(2, behavior2.LastUpdateInvokeId);
+                    Assert.AreEqual(2, behavior2_c.LastUpdateInvokeId);
+                    Assert.AreEqual(3, behavior2_d.LastUpdateInvokeId);
                     
                     widgetA.AddChild(widgetC);
+                    behavior2_c = _scriptFactory.GetBehavior(widgetC, _behaviors[2]);
                     
                     // Ensure invoke order changes after reparenting
                     _scriptRunner.Update();
-                    Assert.AreEqual(3, behavior0.LastUpdateInvokeId);
+                    Assert.AreEqual(4, behavior0.LastUpdateInvokeId);
                     Assert.AreEqual(5, behavior1.LastUpdateInvokeId);
-                    Assert.AreEqual(4, behavior2.LastUpdateInvokeId);
+                    Assert.AreEqual(7, behavior2_c.LastUpdateInvokeId);
+                    Assert.AreEqual(6, behavior2_d.LastUpdateInvokeId);
                 })
                 .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             Assert.AreEqual(1, cbCalled);
@@ -484,8 +543,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void ScriptSharing()
         {
-            var widgetA = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
-            var widgetB = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var widgetB = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
             
             widgetA.AddChild(widgetB);
             

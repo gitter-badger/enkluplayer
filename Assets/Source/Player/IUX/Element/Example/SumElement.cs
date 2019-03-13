@@ -24,8 +24,8 @@ namespace CreateAR.EnkluPlayer.IUX
 
             SumChildren();
 
-            OnChildAdded += This_OnChildUpdated;
-            OnChildRemoved += This_OnChildUpdated;
+            OnDescendentAdded += ThisOnDescendentUpdated;
+            OnDescendentRemoved += ThisOnDescendentUpdated;
         }
 
         /// <inheritdoc />
@@ -33,8 +33,8 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             base.UnloadInternalBeforeChildren();
 
-            OnChildAdded -= This_OnChildUpdated;
-            OnChildRemoved -= This_OnChildUpdated;
+            OnDescendentAdded -= ThisOnDescendentUpdated;
+            OnDescendentRemoved -= ThisOnDescendentUpdated;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         /// <param name="parent">The parent.</param>
         /// <param name="child">The child.</param>
-        private void This_OnChildUpdated(Element parent, Element child)
+        private void ThisOnDescendentUpdated(Element parent, Element child)
         {
             if (parent == this)
             {

@@ -277,8 +277,6 @@ namespace CreateAR.EnkluPlayer.Scripting
                 Assembler = _createScriptAssembler()
             };
 
-//            widget.OnChildRemoved += Element_OnChildRemoved;
-
             record.Assembler.OnScriptsUpdated += (old, @new) => Element_OnScriptsUpdated(record, old, @new);
 
             var childCount = element.Children.Count;
@@ -286,11 +284,16 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             for (var i = 0; i < childCount; i++)
             {
-                var descendentRecord = CreateRecord(element.Children[i]);
-                descendentRecord.ParentRecord = record;
-                childrenRecords.Add(descendentRecord);
+                var child = element.Children[i];
+                var childRecord = CreateRecord(child);
+                childRecord.ParentRecord = record;
+                
+                childrenRecords.Add(childRecord);
             }
             record.ChildRecords = childrenRecords;
+
+            element.OnChildAdded += Element_OnChildAdded;
+            element.OnChildRemoved += Element_OnChildRemoved;
 
             return record;
         }
@@ -333,7 +336,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
                 {
-                    ConfigureRecord(record.ChildRecords[i], type, tokenContainer, recursive);
+                    ConfigureRecord(record.ChildRecords[i], type, tokenContainer);
                 }
             }
         }
@@ -478,14 +481,45 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Invoked when a record's scripts have updated.
+        /// Recursively finds an ElementRecord for a given Element, using an optional starting record.
+        /// Returns null if no record is found.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="searchStart"></param>
+        /// <returns></returns>
+        private ElementRecord FindRecord(Element element, ElementRecord searchStart = null)
+        {
+            if (searchStart == null)
+            {
+                searchStart = _rootRecord;
+            }
+            
+            if (searchStart.Element == element)
+            {
+                return searchStart;
+            }
+
+            for (int i = 0, len = searchStart.ChildRecords.Count; i < len; i++)
+            {
+                var record = FindRecord(element, searchStart.ChildRecords[i]);
+                if (record != null)
+                {
+                    return record;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Invoked when a record's scripts have updated. This can be called before a record has been configured.
         /// </summary>
         /// <param name="record"></param>
         /// <param name="old"></param>
         /// <param name="new"></param>
         private void Element_OnScriptsUpdated(ElementRecord record, Script[] old, Script[] @new)
         {
-            if (_runnerState == RunnerState.Running)
+            if (record.RecordState == RecordState.Ready && _runnerState == RunnerState.Running)
             {
                 StopRecord(record, false);
             }
@@ -513,16 +547,75 @@ namespace CreateAR.EnkluPlayer.Scripting
             record.Vines = vines.ToArray();
             record.Behaviors = behaviors.ToArray();
 
-            if (_runnerState == RunnerState.Running)
+            if (record.RecordState == RecordState.Ready && _runnerState == RunnerState.Running)
             {
                 StartRecord(record, ScriptType.Vine, false);
                 StartRecord(record, ScriptType.Behavior, false);
             }
         }
 
-//        private void Element_OnChildRemoved(Element element, )
-//        {
-//            
-//        }
+        /// <summary>
+        /// Invoked when an Element has been removed from its parent.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="prevChild"></param>
+        /// <exception cref="Exception"></exception>
+        private void Element_OnChildRemoved(Element parent, Element prevChild)
+        {
+            Log.Warning(this, "OnChildRemoved");
+            var parentRecord = FindRecord(parent);
+            ElementRecord prevChildRecord = null;
+
+            for (int i = 0, len = parentRecord.ChildRecords.Count; i < len; i++)
+            {
+                var childRecord = parentRecord.ChildRecords[i];
+                if (childRecord.Element == prevChild)
+                {
+                    prevChildRecord = childRecord;
+                    break;
+                }
+            }
+
+            if (prevChildRecord == null)
+            {
+                throw new Exception("No record found for removed child.");
+            }
+
+            StopRecord(prevChildRecord);
+            parentRecord.ChildRecords.Remove(prevChildRecord);
+        }
+
+        /// <summary>
+        /// Called when an Element gets a new child.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="child"></param>
+        private void Element_OnChildAdded(Element parent, Element child)
+        {
+            Log.Warning(this, "OnChildAdded");
+            var parentRecord = FindRecord(parent);
+            var childRecord = CreateRecord(child);
+            childRecord.LoadScripts().OnSuccess(_ =>
+            {
+                var vineTokens = new List<IAsyncToken<Void>>();
+                ConfigureRecord(childRecord, ScriptType.Vine, vineTokens);
+
+                Async.All(vineTokens.ToArray()).OnSuccess(__ =>
+                {
+                    Log.Warning(this, "Vines");
+                    var behaviorTokens = new List<IAsyncToken<Void>>();
+                    ConfigureRecord(childRecord, ScriptType.Behavior, behaviorTokens);
+
+                    Async.All(behaviorTokens.ToArray()).OnSuccess(___ =>
+                    {
+                        Log.Warning(this, "Behaviours");
+                        parentRecord.ChildRecords.Add(childRecord);
+                        
+                        StartRecord(childRecord, ScriptType.Vine);
+                        StartRecord(childRecord, ScriptType.Behavior);
+                    });
+                });
+            });
+        }
     }
 }

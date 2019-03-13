@@ -72,7 +72,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
             var isCalled = false;
             var child = new Element();
 
-            _root.OnChildAdded += (root, value) =>
+            _root.OnDescendentAdded += (root, value) =>
             {
                 isCalled = true;
                 Assert.AreSame(child, value);
@@ -91,7 +91,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
 
             var grandchild = new Element();
 
-            _root.OnChildAdded += (root, value) =>
+            _root.OnDescendentAdded += (root, value) =>
             {
                 isCalled = true;
 
@@ -144,7 +144,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
             var child = new Element();
             _root.AddChild(child);
 
-            _root.OnChildRemoved += (root, value) =>
+            _root.OnDescendentRemoved += (root, value) =>
             {
                 isCalled = true;
 
@@ -166,7 +166,7 @@ namespace CreateAR.EnkluPlayer.Test.UI
             var grandchild = new Element();
             child.AddChild(grandchild);
 
-            _root.OnChildRemoved += (root, value) =>
+            _root.OnDescendentRemoved += (root, value) =>
             {
                 isCalled = true;
 
