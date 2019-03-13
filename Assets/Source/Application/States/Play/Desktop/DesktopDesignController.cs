@@ -107,7 +107,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     var id = scenes[i];
                     var root = app.Scenes.Root(id);
-                    root.OnChildAdded += Root_OnChildAdded;
+                    root.OnDescendentAdded += Root_OnDescendentAdded;
 
                     RecursivelyAddUpdater(root);
                 }
@@ -375,7 +375,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="root">The element on which the event was called.</param>
         /// <param name="element">The element that was added.</param>
-        private void Root_OnChildAdded(Element root, Element element)
+        private void Root_OnDescendentAdded(Element root, Element element)
         {
             RecursivelyAddUpdater(element);
         }

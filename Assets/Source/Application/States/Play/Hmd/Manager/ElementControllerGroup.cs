@@ -540,8 +540,8 @@ namespace CreateAR.EnkluPlayer
             ElementAdded(root);
 
             // listen for future child updates
-            root.OnChildAdded += SceneRoot_OnChildAdded;
-            root.OnChildRemoved += SceneRoot_OnChildRemoved;
+            root.OnDescendentAdded += SceneRoot_OnDescendentAdded;
+            root.OnDescendentRemoved += SceneRoot_OnDescendentRemoved;
         }
 
         /// <summary>
@@ -553,8 +553,8 @@ namespace CreateAR.EnkluPlayer
             var root = _scenes.Root(sceneId);
 
             // stop listening to root
-            root.OnChildAdded -= SceneRoot_OnChildAdded;
-            root.OnChildRemoved -= SceneRoot_OnChildRemoved;
+            root.OnDescendentAdded -= SceneRoot_OnDescendentAdded;
+            root.OnDescendentRemoved -= SceneRoot_OnDescendentRemoved;
 
             // remove controllers
             ElementRemoved(root);
@@ -579,7 +579,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="root">The root element.</param>
         /// <param name="element">The child that was added.</param>
-        private void SceneRoot_OnChildAdded(Element root, Element element)
+        private void SceneRoot_OnDescendentAdded(Element root, Element element)
         {
             ElementAdded(element);
         }
@@ -589,7 +589,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="root">The root element.</param>
         /// <param name="element">The child that was removed.</param>
-        private void SceneRoot_OnChildRemoved(Element root, Element element)
+        private void SceneRoot_OnDescendentRemoved(Element root, Element element)
         {
             // the controllers have already been removed via Controller_OnDestroyed flow
             var unityElement = element as IUnityElement;

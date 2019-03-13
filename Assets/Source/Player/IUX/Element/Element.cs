@@ -108,10 +108,20 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Called when a child, at any depth, has been removed from the graph.
         /// </summary>
-        public event Action<Element, Element> OnChildRemoved;
+        public event Action<Element, Element> OnDescendentRemoved;
 
         /// <summary>
         /// Called when a child, at any depth, has been added to the graph.
+        /// </summary>
+        public event Action<Element, Element> OnDescendentAdded;
+
+        /// <summary>
+        /// Called when an immediate child has been removed from the graph.
+        /// </summary>
+        public event Action<Element, Element> OnChildRemoved;
+
+        /// <summary>
+        /// Called when an immediate child has been added to the graph.
         /// </summary>
         public event Action<Element, Element> OnChildAdded;
 
@@ -283,8 +293,8 @@ namespace CreateAR.EnkluPlayer.IUX
             // add to this element's list
             _children.Add(element);
             element.Parent = this;
-            element.OnChildAdded += Child_OnChildAdded;
-            element.OnChildRemoved += Child_OnChildRemoved;
+            element.OnDescendentAdded += Child_OnDescendentAdded;
+            element.OnDescendentRemoved += Child_OnDescendentRemoved;
             element.OnDestroyed += Child_OnDestroyed;
 
             // hook up schema
@@ -292,10 +302,8 @@ namespace CreateAR.EnkluPlayer.IUX
 
             AddChildInternal(element);
 
-            if (null != OnChildAdded)
-            {
-                OnChildAdded(this, element);
-            }
+            OnDescendentAdded.Execute(this, element);
+            OnChildAdded.Execute(this, element);
         }
 
         /// <summary>
@@ -314,8 +322,8 @@ namespace CreateAR.EnkluPlayer.IUX
             if (removed)
             {
                 element.Parent = null;
-                element.OnChildAdded -= Child_OnChildAdded;
-                element.OnChildRemoved -= Child_OnChildRemoved;
+                element.OnDescendentAdded -= Child_OnDescendentAdded;
+                element.OnDescendentRemoved -= Child_OnDescendentRemoved;
                 element.OnDestroyed -= Child_OnDestroyed;
 
                 // unwrap schema
@@ -323,15 +331,10 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 RemoveChildInternal(element);
 
-                if (null != element.OnRemoved)
-                {
-                    element.OnRemoved(element);
-                }
-
-                if (null != OnChildRemoved)
-                {
-                    OnChildRemoved(this, element);
-                }
+                // emit events
+                element.OnRemoved.Execute(element);
+                OnDescendentRemoved.Execute(this, element);
+                OnChildRemoved.Execute(this, element);
             }
 
             return removed;
@@ -679,11 +682,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         /// <param name="_">The parent, which we disregard.</param>
         /// <param name="child">The child.</param>
-        private void Child_OnChildAdded(Element _, Element child)
+        private void Child_OnDescendentAdded(Element _, Element child)
         {
-            if (null != OnChildAdded)
+            if (null != OnDescendentAdded)
             {
-                OnChildAdded(this, child);
+                OnDescendentAdded(this, child);
             }
         }
 
@@ -692,11 +695,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         /// <param name="_">The parent, which we disregard.</param>
         /// <param name="child">The child.</param>
-        private void Child_OnChildRemoved(Element _, Element child)
+        private void Child_OnDescendentRemoved(Element _, Element child)
         {
-            if (null != OnChildRemoved)
+            if (null != OnDescendentRemoved)
             {
-                OnChildRemoved(this, child);
+                OnDescendentRemoved(this, child);
             }
         }
 
