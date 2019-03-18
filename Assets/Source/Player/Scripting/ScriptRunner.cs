@@ -120,15 +120,15 @@ namespace CreateAR.EnkluPlayer.Scripting
                     if (RecordState == RecordState.Loading)
                     {
                         // First time this Element's scripts are ready.
-                        var descendentTokens = new IAsyncToken<Void>[ChildRecords.Count];
+                        var childTokens = new IAsyncToken<Void>[ChildRecords.Count];
                             
                         for (var i = 0; i < ChildRecords.Count; i++)
                         {
                             var subRecord = ChildRecords[i];
-                            descendentTokens[i] = subRecord.LoadScripts();
+                            childTokens[i] = subRecord.LoadScripts();
                         }
 
-                        Async.All(descendentTokens).OnFinally(_ => _loadToken.Succeed(Void.Instance));
+                        Async.All(childTokens).OnFinally(_ => _loadToken.Succeed(Void.Instance));
 
                         RecordState = RecordState.Ready;
                     }
@@ -186,7 +186,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Start all scripts.
         /// </summary>
-        public IAsyncToken<Void> StartAllScripts()
+        public IAsyncToken<Void> StartRunner()
         {
             Log.Warning(this, "StartAllScripts");
 
@@ -200,7 +200,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             return _rootRecord.LoadScripts()
                 .OnSuccess(_ =>
                 {
-                    Log.Info(this, "All scripts loaded. Configuring Vines.");
+                    Log.Warning(this, "All scripts loaded. Configuring Vines.");
                     
                     var vineTokens = new List<IAsyncToken<Void>>();
                     var behaviorTokens = new List<IAsyncToken<Void>>();
@@ -210,13 +210,13 @@ namespace CreateAR.EnkluPlayer.Scripting
                     Async.All(vineTokens.ToArray())
                         .OnFinally(__ =>
                         {
-                            Log.Info(this, "All Vines ({0}) configured. Configuring Behaviors.", vineTokens.Count);
+                            Log.Warning(this, "All Vines ({0}) configured. Configuring Behaviors.", vineTokens.Count);
                             ConfigureRecord(_rootRecord, ScriptType.Behavior, behaviorTokens);
     
                             Async.All(behaviorTokens.ToArray())
                                 .OnFinally(___ =>
                                 {
-                                    Log.Info(this, "All Behaviors ({0}) configured. Starting Scripts", behaviorTokens.Count);
+                                    Log.Warning(this, "All Behaviors ({0}) configured. Starting Scripts", behaviorTokens.Count);
                                     
                                     if (_runnerState != RunnerState.Starting)
                                     {
@@ -237,7 +237,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Stop all scripts.
         /// </summary>
-        public void StopAllScripts()
+        public void StopRunner()
         {
             Log.Warning(this, "StopAllScripts");
             
@@ -592,30 +592,33 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="child"></param>
         private void Element_OnChildAdded(Element parent, Element child)
         {
-            Log.Warning(this, "OnChildAdded");
-            var parentRecord = FindRecord(parent);
-            var childRecord = CreateRecord(child);
-            childRecord.LoadScripts().OnSuccess(_ =>
+            // Ignore if the runner isn't running. This will proc as elements in the initial scene graph get built up.
+            if (_runnerState == RunnerState.Running)
             {
-                var vineTokens = new List<IAsyncToken<Void>>();
-                ConfigureRecord(childRecord, ScriptType.Vine, vineTokens);
-
-                Async.All(vineTokens.ToArray()).OnSuccess(__ =>
+                var parentRecord = FindRecord(parent);
+                var childRecord = CreateRecord(child);
+                childRecord.LoadScripts().OnSuccess(_ =>
                 {
-                    Log.Warning(this, "Vines");
-                    var behaviorTokens = new List<IAsyncToken<Void>>();
-                    ConfigureRecord(childRecord, ScriptType.Behavior, behaviorTokens);
+                    var vineTokens = new List<IAsyncToken<Void>>();
+                    ConfigureRecord(childRecord, ScriptType.Vine, vineTokens);
 
-                    Async.All(behaviorTokens.ToArray()).OnSuccess(___ =>
+                    Async.All(vineTokens.ToArray()).OnSuccess(__ =>
                     {
-                        Log.Warning(this, "Behaviours");
-                        parentRecord.ChildRecords.Add(childRecord);
+                        Log.Warning(this, "Vines");
+                        var behaviorTokens = new List<IAsyncToken<Void>>();
+                        ConfigureRecord(childRecord, ScriptType.Behavior, behaviorTokens);
+
+                        Async.All(behaviorTokens.ToArray()).OnSuccess(___ =>
+                        {
+                            Log.Warning(this, "Behaviours");
+                            parentRecord.ChildRecords.Add(childRecord);
                         
-                        StartRecord(childRecord, ScriptType.Vine);
-                        StartRecord(childRecord, ScriptType.Behavior);
+                            StartRecord(childRecord, ScriptType.Vine);
+                            StartRecord(childRecord, ScriptType.Behavior);
+                        });
                     });
                 });
-            });
+            }
         }
     }
 }

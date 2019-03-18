@@ -87,6 +87,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             if (contentWidget != null)
             {
                 contentWidget.OnLoaded.OnFinally(_ => SetupScripts());
+                
+                if (!contentWidget.Visible) SetupScripts();
             }
             else
             {

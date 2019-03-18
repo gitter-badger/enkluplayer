@@ -55,7 +55,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 var root = _sceneManager.Root(_sceneManager.All[0]);
                 
                 _scriptRunner.AddSceneRoot(root);
-                _scriptRunner.StartAllScripts();
+                _scriptRunner.StartRunner();
             };
         }
 
@@ -74,7 +74,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             _elementManager.OnCreated -= Element_OnCreated;
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
         }
 
         /// <summary>

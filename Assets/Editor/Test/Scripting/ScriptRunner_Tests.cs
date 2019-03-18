@@ -70,11 +70,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = new Element();
             
             _scriptRunner.AddSceneRoot(widget);
-            _scriptRunner.StartAllScripts()
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ => Assert.Pass())
                 .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             
             Assert.Fail("Start scripts wasn't synchronous in this test");
         }
@@ -85,7 +85,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _vines[1]);
             
             _scriptRunner.AddSceneRoot(widget);
-            var token = _scriptRunner.StartAllScripts();
+            var token = _scriptRunner.StartRunner();
 
             TestVineScript vine0 = null;
             TestVineScript vine1 = null;
@@ -116,7 +116,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             vine1.FinishConfigure();
             Assert.AreEqual(1, cbCalled);
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             Assert.AreEqual(1, vine0.ExitInvoked);
             Assert.AreEqual(1, vine1.ExitInvoked);
         }
@@ -127,7 +127,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[0], _behaviors[1]);
             
             _scriptRunner.AddSceneRoot(widget);
-            var token = _scriptRunner.StartAllScripts();
+            var token = _scriptRunner.StartRunner();
 
             TestBehaviorScript behavior0 = null;
             TestBehaviorScript behavior1 = null;
@@ -154,7 +154,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             // Behaviors parse synchronously
             Assert.AreEqual(1, cbCalled);
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             Assert.AreEqual(1, behavior0.ExitInvoked);
             Assert.AreEqual(1, behavior1.ExitInvoked);
         }
@@ -166,7 +166,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = ElementUtil.CreateElement(_scriptManager, _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
             
             _scriptRunner.AddSceneRoot(widget);
-            var token = _scriptRunner.StartAllScripts();
+            var token = _scriptRunner.StartRunner();
 
             TestVineScript vine0 = null;
             TestVineScript vine1 = null;
@@ -211,7 +211,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             vine2.FinishConfigure();
             Assert.AreEqual(1, cbCalled);
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             Assert.AreEqual(1, vine0.ExitInvoked);
             Assert.AreEqual(1, vine1.ExitInvoked);
             Assert.AreEqual(1, vine2.ExitInvoked);
@@ -237,7 +237,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             TestBehaviorScript behavior = null;
 
             var cbCalled = 0;
-            _scriptRunner.StartAllScripts()
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ =>
                 {
                     Assert.NotNull(vine);
@@ -260,7 +260,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             Assert.AreEqual(1, cbCalled);
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             Assert.AreEqual(1, vine.ExitInvoked);
             Assert.AreEqual(1, behavior.ExitInvoked);
             Assert.AreEqual(0, behavior.LastExitInvokeId);
@@ -276,7 +276,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
             
             _scriptRunner.AddSceneRoot(widget);
-            var token = _scriptRunner.StartAllScripts();
+            var token = _scriptRunner.StartRunner();
 
             TestVineScript initialVine = null;
             TestBehaviorScript behavior = null;
@@ -319,7 +319,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(1, updatedVine.EnterInvoked);
             Assert.AreEqual(2, behavior.EnterInvoked);
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             Assert.AreEqual(1, initialVine.ExitInvoked);
             Assert.AreEqual(1, updatedVine.ExitInvoked);
             Assert.AreEqual(2, behavior.ExitInvoked);
@@ -331,7 +331,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
             
             _scriptRunner.AddSceneRoot(widget);
-            var token = _scriptRunner.StartAllScripts();
+            var token = _scriptRunner.StartRunner();
 
             TestVineScript vine = null;
             TestBehaviorScript initialBehavior = null;
@@ -373,7 +373,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(1, updatedVine.EnterInvoked);
             Assert.AreEqual(2, initialBehavior.EnterInvoked);
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             Assert.AreEqual(1, vine.ExitInvoked);
             Assert.AreEqual(1, updatedVine.ExitInvoked);
             Assert.AreEqual(2, initialBehavior.ExitInvoked);
@@ -402,7 +402,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             TestBehaviorScript behavior1 = null;
             TestBehaviorScript behavior2 = null;
             var cbCalled = 0;
-            _scriptRunner.StartAllScripts()
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ =>
                 {
                     behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
@@ -424,7 +424,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             Assert.AreEqual(1, cbCalled);
             
-            _scriptRunner.StopAllScripts();
+            _scriptRunner.StopRunner();
             
             Assert.AreEqual(1, behavior0.ExitInvoked);
             Assert.AreEqual(1, behavior1.ExitInvoked);
@@ -442,7 +442,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddSceneRoot(widgetA);
             var cbCalled = 0;
-            _scriptRunner.StartAllScripts()
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ => cbCalled++)
                 .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             Assert.AreEqual(1, cbCalled, "Expected Start to be synchronous.");
@@ -465,7 +465,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddSceneRoot(widgetA);
             var cbCalled = 0;
-            _scriptRunner.StartAllScripts()
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ => cbCalled++)
                 .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             Assert.AreEqual(1, cbCalled, "Expected Start to be synchronous.");
@@ -506,7 +506,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             TestBehaviorScript behavior2_c;
             TestBehaviorScript behavior2_d;
             var cbCalled = 0;
-            _scriptRunner.StartAllScripts()
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ =>
                 {
                     cbCalled++;
@@ -537,6 +537,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
         
         #endregion
+        
+        #region Visibility
+        
+        
+        
+        #endregion
 
         #region Misc
         
@@ -553,7 +559,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             TestBehaviorScript aBehavior = null;
             TestBehaviorScript bBehavior = null;
             var cbCalled = 0;
-            _scriptRunner.StartAllScripts()
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ =>
                 {
                     aBehavior = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
@@ -574,7 +580,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 
            Assert.AreEqual(cbCalled, 1);
            
-           _scriptRunner.StopAllScripts();
+           _scriptRunner.StopRunner();
            Assert.AreEqual(1, aBehavior.ExitInvoked);
            Assert.AreEqual(1, bBehavior.ExitInvoked);
            Assert.AreEqual(0, aBehavior.LastExitInvokeId);
