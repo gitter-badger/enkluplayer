@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
@@ -61,11 +62,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Constructor.
         /// </summary>
-        public MessagingJsInterface(JsMessageRouter messages)
+        public MessagingJsInterface(IMessageRouter systemRouter, JsMessageRouter jsRouter)
         {
-            _messages = messages;
+            _messages = jsRouter;
 
-            _messages.Subscribe(
+            systemRouter.Subscribe(
                 MessageTypes.APPLICATION_RESUME,
                 _ => dispatch("system.resume"));
         }
@@ -116,7 +117,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void dispatch(string eventType)
         {
             dispatch(eventType, Void.Instance);
-            
         }
 
         /// <summary>
