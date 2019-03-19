@@ -1,4 +1,5 @@
 
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using Jint;
@@ -34,18 +35,38 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Preps the video capture system. Optional.
+        /// Preps the video capture system.
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>
         public void setup(Engine engine, JsFunc callback)
         {
-            JsCallback(engine, _videoCapture.Setup(), callback); 
+            JsCallback(engine, _videoCapture.Setup(VideoAudioSource.Mixed), callback); 
+        }
+        
+        /// <summary>
+        /// Preps the video capture system.
+        /// TODO: Remove this overload when EK-1124 is resolved.
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="callback"></param>
+        public void setupSource(Engine engine, JsFunc callback, string audioSourceStr)
+        {
+            var audioSource = VideoAudioSource.Mixed;
+            try
+            {
+                audioSource = (VideoAudioSource) Enum.Parse(typeof(VideoAudioSource), audioSourceStr);
+            }
+            catch (ArgumentException)
+            {
+                Log.Error(this, "Unknown AudioSource ({0})", audioSourceStr);
+            }
+            
+            JsCallback(engine, _videoCapture.Setup(audioSource), callback); 
         }
 
         /// <summary>
         /// Starts a recording.
-        /// TODO: Remove this overload when EK-1124 is resolved.
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>
@@ -56,6 +77,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         
         /// <summary>
         /// Starts a recording.
+        /// /// TODO: Remove this overload when EK-1124 is resolved.
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>

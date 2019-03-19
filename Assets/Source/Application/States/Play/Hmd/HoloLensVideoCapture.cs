@@ -1,10 +1,8 @@
 #if UNITY_WSA
 
 using System;
-using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine.XR.WSA.WebCam;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -17,6 +15,9 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class HoloLensVideoCapture : IVideoCapture
     {
+        /// <summary>
+        /// The Video capture state.
+        /// </summary>
         private enum CaptureState
         {
             /// <summary>
@@ -127,7 +128,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Setup()
+        public IAsyncToken<Void> Setup(VideoAudioSource videoAudioSource = VideoAudioSource.Mixed)
         {
             if (_currentState != CaptureState.Idle)
             {
@@ -150,7 +151,24 @@ namespace CreateAR.EnkluPlayer
                 _videoCapture = captureObject;
                 _currentState = CaptureState.EnteringVideoMode;
 
-                _videoCapture.StartVideoModeAsync(_cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio,
+                var unityAudioState = VideoCapture.AudioState.ApplicationAndMicAudio;
+                switch (videoAudioSource)
+                {
+                    case VideoAudioSource.Experience:
+                        unityAudioState = VideoCapture.AudioState.ApplicationAudio;
+                        break;
+                    case VideoAudioSource.Mic:
+                        unityAudioState = VideoCapture.AudioState.MicAudio;    
+                        break;
+                    case VideoAudioSource.Mixed:
+                        unityAudioState = VideoCapture.AudioState.ApplicationAndMicAudio;    
+                        break;
+                    case VideoAudioSource.None:
+                        unityAudioState = VideoCapture.AudioState.None;
+                        break;
+                }
+
+                _videoCapture.StartVideoModeAsync(_cameraParameters, unityAudioState,
                     result =>
                     {
                         if (result.success)
