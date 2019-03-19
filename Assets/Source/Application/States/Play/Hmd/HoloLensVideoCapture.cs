@@ -155,17 +155,25 @@ namespace CreateAR.EnkluPlayer
                 switch (videoAudioSource)
                 {
                     case VideoAudioSource.Experience:
+                    {
                         unityAudioState = VideoCapture.AudioState.ApplicationAudio;
                         break;
+                    }
                     case VideoAudioSource.Mic:
-                        unityAudioState = VideoCapture.AudioState.MicAudio;    
+                    {
+                        unityAudioState = VideoCapture.AudioState.MicAudio;
                         break;
+                    }
                     case VideoAudioSource.Mixed:
-                        unityAudioState = VideoCapture.AudioState.ApplicationAndMicAudio;    
+                    {
+                        unityAudioState = VideoCapture.AudioState.ApplicationAndMicAudio;
                         break;
+                    }
                     case VideoAudioSource.None:
+                    {
                         unityAudioState = VideoCapture.AudioState.None;
                         break;
+                    }
                 }
 
                 _videoCapture.StartVideoModeAsync(_cameraParameters, unityAudioState,

@@ -5,6 +5,7 @@ using CreateAR.Commons.Unity.Logging;
 using Jint;
 using Jint.Native;
 using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -52,17 +53,19 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="callback"></param>
         public void setupSource(Engine engine, JsFunc callback, string audioSourceStr)
         {
-            var audioSource = VideoAudioSource.Mixed;
+            VideoAudioSource audioSource;
             try
             {
                 audioSource = (VideoAudioSource) Enum.Parse(typeof(VideoAudioSource), audioSourceStr);
             }
             catch (ArgumentException)
             {
-                Log.Error(this, "Unknown AudioSource ({0})", audioSourceStr);
+                var exception = new Exception(string.Format("Unknown AudioSource ({0})", audioSourceStr));
+                JsCallback(engine, new AsyncToken<Void>(exception), callback);
+                return;
             }
             
-            JsCallback(engine, _videoCapture.Setup(audioSource), callback); 
+            JsCallback(engine, _videoCapture.Setup(audioSource), callback);
         }
 
         /// <summary>
