@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Setup()
+        public IAsyncToken<Void> Setup(VideoAudioSource audioSource)
         {
             return new AsyncToken<Void>(new NotSupportedException());
         }
