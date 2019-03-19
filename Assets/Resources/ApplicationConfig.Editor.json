@@ -1,5 +1,5 @@
 {
-	"Log": {
+    "Log": {
         "Targets": [
             {
                 "Target": "unity",
@@ -9,8 +9,12 @@
             },
             {
                 "Target": "file",
-                "Enabled": false
+                "Level": "Debug",
+                "IncludeObject": true
             }
         ]
     },
+	"Metrics": {
+		"Enabled": false
+	}
 }

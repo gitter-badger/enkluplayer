@@ -153,28 +153,74 @@ namespace CreateAR.EnkluPlayer
     public class LogAppConfig
     {
         /// <summary>
-        /// Log level.
+        /// Target configuration.
         /// </summary>
-        public string Level;
-
-        /// <summary>
-        /// Parsed level.
-        /// </summary>
-        [JsonIgnore]
-        public LogLevel ParsedLevel
+        public class TargetConfig
         {
-            get
+            /// <summary>
+            /// The target.
+            /// </summary>
+            public string Target;
+
+            /// <summary>
+            /// The level.
+            /// </summary>
+            public string Level;
+
+            /// <summary>
+            /// True iff target is enabled.
+            /// </summary>
+            public bool Enabled = true;
+
+            /// <summary>
+            /// Meta information.
+            /// </summary>
+            public string[] Meta = new string[0];
+
+            /// <summary>
+            /// Includes the level in logs.
+            /// </summary>
+            public bool IncludeLevel = true;
+
+            /// <summary>
+            /// Includes the timestamp in logs.
+            /// </summary>
+            public bool IncludeTimestamp = true;
+
+            /// <summary>
+            /// Includes the type in logs.
+            /// </summary>
+            public bool IncludeType = true;
+
+            /// <summary>
+            /// Includes the object in logs.
+            /// </summary>
+            public bool IncludeObject = false;
+
+            /// <summary>
+            /// Parsed level.
+            /// </summary>
+            [JsonIgnore]
+            public LogLevel ParsedLevel
             {
-                try
+                get
                 {
-                    return (LogLevel) Enum.Parse(typeof(LogLevel), Level);
-                }
-                catch
-                {
-                    return 0;
+                    try
+                    {
+                        return (LogLevel) Enum.Parse(typeof(LogLevel), Level);
+                    }
+                    catch
+                    {
+                        return 0;
+                    }
                 }
             }
         }
+
+        /// <summary>
+        /// Log targets.
+        /// </summary>
+        public TargetConfig[] Targets;
 
         /// <summary>
         /// Applies the settings from a config to this config.
@@ -182,9 +228,37 @@ namespace CreateAR.EnkluPlayer
         /// <param name="overrideConfig">The config to override with.</param>
         public void Override(LogAppConfig overrideConfig)
         {
-            if (!string.IsNullOrEmpty(overrideConfig.Level))
+            if (null == overrideConfig || null == overrideConfig.Targets)
             {
-                Level = overrideConfig.Level;
+                return;
+            }
+
+            if (null == Targets)
+            {
+                Targets = new TargetConfig[0];
+            }
+
+            for (int i = 0, ilen = overrideConfig.Targets.Length; i < ilen; i++)
+            {
+                var overrideTarget = overrideConfig.Targets[i];
+
+                var found = false;
+                for (int j = 0, jlen = Targets.Length; j < jlen; j++)
+                {
+                    var target = Targets[j];
+                    if (target.Target == overrideTarget.Target)
+                    {
+                        Targets[j] = overrideTarget;
+                        found = true;
+                    }
+                }
+
+                if (found)
+                {
+                    continue;
+                }
+
+                Targets = Targets.Add(overrideTarget);
             }
         }
     }
