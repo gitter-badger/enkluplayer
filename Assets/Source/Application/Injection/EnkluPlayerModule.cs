@@ -423,59 +423,6 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Sets up log targets.
-        /// </summary>
-        private void SetupLogging(InjectionBinder binder, LogAppConfig config)
-        {
-            // forward logs to unity
-            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-            {
-                Level = false,
-                Timestamp = false,
-                TypeName = true
-            })
-            {
-                Filter = config.ParsedLevel
-            });
-
-            // non-webgl should log to file
-#if !UNITY_WEBGL
-            Log.AddLogTarget(new FileLogTarget(
-                new DefaultLogFormatter
-                {
-                    Level = true,
-                    Timestamp = true,
-                    TypeName = true
-                },
-                System.IO.Path.Combine(
-                    UnityEngine.Application.persistentDataPath,
-                    "Application.log"))
-            {
-                Filter = config.ParsedLevel
-            });
-#endif // UNITY_WEBGL
-
-            // non-editor builds should log to loggly
-            if (!UnityEngine.Application.isEditor)
-            {
-                binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
-
-                Log.AddLogTarget(new LogglyLogTarget(
-                    // TODO: move to config
-                    "1f0810f5-db28-4ea3-aeea-ec83d8cb3c0f",
-                    "EnkluPlayer",
-                    binder.GetInstance<ILogglyMetadataProvider>(),
-                    binder.GetInstance<IBootstrapper>())
-                {
-                    Filter = LogLevel.Error
-                });
-            }
-
-            // Set the Orchid log adapter to passthrough to our logger.
-            Enklu.Orchid.Logging.Log.SetAdapter(new OrchidLogAdapter());
-        }
-
-        /// <summary>
         /// Adds bindings for player.
         /// </summary>
         private void AddPlayerBindings(
@@ -797,6 +744,91 @@ namespace CreateAR.EnkluPlayer
             }
 
             return value;
+        }
+
+        /// <summary>
+        /// Sets up log targets.
+        /// </summary>
+        private static void SetupLogging(InjectionBinder binder, LogAppConfig config)
+        {
+            // targets!
+            foreach (var targetConfig in config.Targets)
+            {
+                var target = Target(binder, targetConfig);
+                if (null != target)
+                {
+                    Log.AddLogTarget(target);
+                }
+            }
+
+            // Set the Orchid log adapter to passthrough to our logger.
+            Enklu.Orchid.Logging.Log.SetAdapter(new OrchidLogAdapter());
+        }
+
+        /// <summary>
+        /// Creates a log target from a target config,
+        /// </summary>
+        /// <param name="binder">IoC binder.</param>
+        /// <param name="config">The target config.</param>
+        /// <returns></returns>
+        private static ILogTarget Target(InjectionBinder binder, LogAppConfig.TargetConfig config)
+        {
+            switch (config.Target)
+            {
+                case "unity":
+                {
+                    return new UnityLogTarget(Formatter(config));
+                }
+                case "file":
+                {
+                    return new FileLogTarget(
+                        Formatter(config),
+                        System.IO.Path.Combine(
+                            UnityEngine.Application.persistentDataPath,
+                            "Application.log"));
+                }
+                case "loggly":
+                {
+                    // do not allow loggly whilst in editor
+                    if (UnityEngine.Application.isEditor)
+                    {
+                        return null;
+                    }
+
+                    if (2 != config.Meta.Length)
+                    {
+                        throw new Exception("Loggly target must include customer token and tag in Meta");
+                    }
+
+                    binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>();
+
+                    return new LogglyLogTarget(
+                        config.Meta[0],
+                        config.Meta[1],
+                        binder.GetInstance<ILogglyMetadataProvider>(),
+                        binder.GetInstance<IBootstrapper>());
+                }
+                default:
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a formatter for a config.
+        /// </summary>
+        /// <param name="config">The config for a log target.</param>
+        /// <returns></returns>
+        private static ILogFormatter Formatter(LogAppConfig.TargetConfig config)
+        {
+            return new DefaultLogFormatter
+            {
+                Level = config.IncludeLevel,
+                ObjectToString = config.IncludeObject,
+                Timestamp = config.IncludeTimestamp,
+                TypeName = config.IncludeType
+            };
         }
     }
 }

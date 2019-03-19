@@ -1,7 +1,9 @@
 
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using JsFunc = Enklu.Orchid.IJsCallback;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -32,17 +34,39 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Preps the video capture system. Optional.
+        /// Preps the video capture system.
         /// </summary>
         /// <param name="callback"></param>
         public void setup(JsFunc callback)
         {
-            JsCallback(_videoCapture.Setup(), callback); 
+            JsCallback(_videoCapture.Setup(VideoAudioSource.Mixed), callback); 
+        }
+        
+        /// <summary>
+        /// Preps the video capture system with a specific audio source.
+        /// TODO: Remove this overload when EK-1124 is resolved.
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="callback"></param>
+        public void setupSource(JsFunc callback, string audioSourceStr)
+        {
+            VideoAudioSource audioSource;
+            try
+            {
+                audioSource = (VideoAudioSource) Enum.Parse(typeof(VideoAudioSource), audioSourceStr);
+            }
+            catch (ArgumentException)
+            {
+                var exception = new Exception(string.Format("Unknown AudioSource ({0})", audioSourceStr));
+                JsCallback(new AsyncToken<Void>(exception), callback);
+                return;
+            }
+            
+            JsCallback(_videoCapture.Setup(audioSource), callback);
         }
 
         /// <summary>
         /// Starts a recording.
-        /// TODO: Remove this overload when EK-1124 is resolved.
         /// </summary>
         /// <param name="callback"></param>
         public void start(JsFunc callback)
@@ -52,6 +76,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         
         /// <summary>
         /// Starts a recording.
+        /// /// TODO: Remove this overload when EK-1124 is resolved.
         /// </summary>
         /// <param name="callback"></param>
         /// <param name="customPath"></param>
