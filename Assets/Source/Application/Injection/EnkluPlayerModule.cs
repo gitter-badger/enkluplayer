@@ -743,7 +743,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// /Creates a log target from a target config,
+        /// Creates a log target from a target config,
         /// </summary>
         /// <param name="binder">IoC binder.</param>
         /// <param name="config">The target config.</param>
