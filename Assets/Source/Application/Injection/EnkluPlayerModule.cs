@@ -705,9 +705,22 @@ namespace CreateAR.EnkluPlayer
 
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new EnkluScriptRequireResolver(binder));
-#if NETFX_CORE
-                //binder.Bind<IScriptRuntimeFactory>().To<ChakraScriptRuntimeFactory>().ToSingleton();
-                binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
+
+                // scripting runtime -- invalid defaults to Jint
+                var scriptRuntime = config.Play.ParsedScriptRuntime;
+                if (scriptRuntime == PlayAppConfig.ScriptRuntimeType.Invalid)
+                {
+                    scriptRuntime = PlayAppConfig.ScriptRuntimeType.Jint;
+                }
+#if !UNITY_EDITOR && UNITY_WSA
+                if (scriptRuntime == PlayAppConfig.ScriptRuntimeType.Chakra)
+                {
+                    binder.Bind<IScriptRuntimeFactory>().To<ChakraScriptRuntimeFactory>().ToSingleton();
+                }
+                else if (scriptRuntime == PlayAppConfig.ScriptRuntimeType.Jint)
+                {
+                    binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
+                }
 #else
                 binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
 #endif
