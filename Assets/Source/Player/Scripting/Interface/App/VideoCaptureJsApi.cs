@@ -45,7 +45,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
         
         /// <summary>
-        /// Preps the video capture system.
+        /// Preps the video capture system with a specific audio source.
         /// TODO: Remove this overload when EK-1124 is resolved.
         /// </summary>
         /// <param name="engine"></param>
