@@ -6,9 +6,13 @@ Configuration settings are applied through the *ApplicationConfig.json* file fou
 
 Each platform has its own `ApplicationConfig` that overrides any settings in `ApplicationConfig.json`. These configs are given by `ApplicationConfig.[RuntimePlatform].json`. So, for example, both `WebGLPlayer` and `WSAPlayerX86` have separate configurations.
 
+#### Editor Override
+
+A config is also provided that is applied only in the Unity Editor: *ApplicationConfig.Editor.json*. This applied after the platform configs.
+
 #### Override
 
-You may also specify an override, called *ApplicationConfig.Override.json*, which has been added to the `.gitignore`. This file is layered on top of the platform specific config and allows you to edit config locally without worrying about it accidentally being added to version control.
+You may also specify an override, called *ApplicationConfig.Override.json*, which has been added to the `.gitignore`. This file is layered on top of all other configs and allows you to edit config locally without worrying about it accidentally being added to version control.
 
 #### Options
 
