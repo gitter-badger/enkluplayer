@@ -1,4 +1,4 @@
-﻿#if !NETFX_CORE
+﻿//#if !NETFX_CORE
 using Enklu.Orchid;
 using Enklu.Orchid.Jint;
 using Jint;
@@ -45,4 +45,4 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
     }
 }
-#endif
+//#endif

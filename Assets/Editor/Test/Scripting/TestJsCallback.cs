@@ -20,5 +20,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             return _handler(null, args);
         }
+
+        public IJsExecutionContext ExecutionContext { get; private set; }
     }
 }

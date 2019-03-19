@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using JsFunc = Enklu.Orchid.IJsCallback;
+using Enklu.Orchid;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// JS interface for messages.
-    /// 
+    ///
     /// TODO: Call callbacks with same this as was called with.
     /// </summary>
     [JsInterface("messages")]
@@ -27,7 +27,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Callback to call.
             /// </summary>
-            public readonly JsFunc Callback;
+            public readonly IJsCallback Callback;
 
             /// <summary>
             /// Action to unsubscribe.
@@ -37,7 +37,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Constructor.
             /// </summary>
-            public SubscriptionRecord(string eventType, JsFunc callback, Action unsubscribe)
+            public SubscriptionRecord(string eventType, IJsCallback callback, Action unsubscribe)
             {
                 EventType = eventType;
                 Callback = callback;
@@ -54,7 +54,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// List of subscriptions.
         /// </summary>
         private readonly List<SubscriptionRecord> _records = new List<SubscriptionRecord>();
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -72,11 +72,21 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="eventType">The event type to listen for.</param>
         /// <param name="callback">The callback to call.</param>
-        public void on(string eventType, JsFunc callback)
+        public void on(string eventType, IJsCallback callback)
         {
             var unsubscribe = _messages.Subscribe(
                 ToMessageType(eventType),
-                evt => callback.Apply(this, evt));
+                evt =>
+                {
+                    try
+                    {
+                        callback.Apply(this, evt);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Warning(this, "JavaScript error : {0}.", exception);
+                    }
+                });
 
             var record = new SubscriptionRecord(eventType, callback, unsubscribe);
 
@@ -88,7 +98,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="eventType">The event type.</param>
         /// <param name="callback">The callback.</param>
-        public void off(string eventType, JsFunc callback)
+        public void off(string eventType, IJsCallback callback)
         {
             for (var i = _records.Count - 1; i >= 0; i--)
             {
@@ -109,7 +119,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void dispatch(string eventType)
         {
             dispatch(eventType, Void.Instance);
-            
+
         }
 
         /// <summary>
@@ -128,7 +138,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 Log.Warning(this, "Error dispatching event : {0}.", ex);
             }
         }
-        
+
         /// <summary>
         /// Converts a string to an int with decent hash collision characteristics.
         /// </summary>

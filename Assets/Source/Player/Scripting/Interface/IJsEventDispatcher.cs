@@ -31,6 +31,12 @@ namespace CreateAR.EnkluPlayer
         /// Dispatches an event.
         /// </summary>
         /// <param name="eventType">The type of event.</param>
+        void dispatch(string eventType);
+
+        /// <summary>
+        /// Dispatches an event.
+        /// </summary>
+        /// <param name="eventType">The type of event.</param>
         /// <param name="evt">The event.</param>
         void dispatch(string eventType, object evt);
     }

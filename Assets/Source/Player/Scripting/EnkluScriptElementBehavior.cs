@@ -13,6 +13,11 @@ namespace CreateAR.EnkluPlayer.Scripting
     public class EnkluScriptElementBehavior : MonoBehaviour, EnkluScript.IScriptExecutor
     {
         /// <summary>
+        /// Module id increment
+        /// </summary>
+        private static int _moduleIds = 1;
+
+        /// <summary>
         /// The JS execution context
         /// </summary>
         private IJsExecutionContext _jsContext;
@@ -30,7 +35,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Creates ElementJs instances.
         /// </summary>
-        private IElementJsFactory _factory;
+        //private IElementJsFactory _factory;
 
         /// <summary>
         /// True iff has been started.
@@ -40,6 +45,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// References to JS functions.
         /// </summary>
+        private IJsModule _module;
         private IJsCallback _msgMissing;
         private IJsCallback _enter;
         private IJsCallback _update;
@@ -65,13 +71,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Initializes the host.
         /// </summary>
         /// <param name="jsCache">Js cache.</param>
-        /// <param name="factory">Creates elements.</param>
         /// <param name="jsContext">JS execution context.</param>
         /// <param name="script">The script to execute.</param>
         /// <param name="element">The element.</param>
         public void Initialize(
             IElementJsCache jsCache,
-            IElementJsFactory factory,
             IJsExecutionContext jsContext,
             EnkluScript script,
             Element element)
@@ -84,7 +88,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             _jsContext = jsContext;
             _element = element;
             _jsCache = jsCache;
-            _factory = factory;
 
             Script = script;
             Script.Executor = this;
@@ -95,12 +98,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void Configure()
         {
-            _this = _factory.Instance(_jsCache, _element);
+            _module = _jsContext.NewModule("module_" + _moduleIds++);
+            _this = _jsCache.Element(_element); //_factory.Instance(_jsCache, _element);
 
             try
             {
                 Log.Info(this, "Execute : {0}", Script.Source);
-                _jsContext.RunScript(_this, Script.Program);
+                _jsContext.RunScript(_this, Script.Program, _module);
             }
             catch (Exception exception)
             {
@@ -109,10 +113,10 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return;
             }
 
-            _msgMissing = _jsContext.GetValue<IJsCallback>("msgMissing");
-            _enter = _jsContext.GetValue<IJsCallback>("enter");
-            _update = _jsContext.GetValue<IJsCallback>("update");
-            _exit = _jsContext.GetValue<IJsCallback>("exit");
+            _msgMissing = _module.GetExportedValue<IJsCallback>("msgMissing");
+            _enter = _module.GetExportedValue<IJsCallback>("enter");
+            _update = _module.GetExportedValue<IJsCallback>("update");
+            _exit = _module.GetExportedValue<IJsCallback>("exit");
         }
 
         /// <summary>
@@ -125,7 +129,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Script already started.");
             }
 
-            Log.Info(this, "Entering script {0}.", Script.Data.Name);
+            var scriptName = Script.Data.Name;
+            var elementName = _element.Schema.Get<string>("name").Value;
+
+            Log.Info(this, "Entering script {0} on element: {1}.",
+                scriptName, elementName);
 
             _isStarted = true;
 
@@ -191,7 +199,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void Send(string name, params object[] parameters)
         {
             var len = parameters.Length;
-            var fn = _jsContext.GetValue<IJsCallback>(name);
+            var fn = _module.GetExportedValue<IJsCallback>(name);
             if (null != fn)
             {
                 if (len == 0)

@@ -10,6 +10,7 @@ using CreateAR.EnkluPlayer.BLE;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Scripting.Logging;
 using CreateAR.EnkluPlayer.States.HoloLogin;
 using CreateAR.EnkluPlayer.Util;
 using CreateAR.EnkluPlayer.Vine;
@@ -469,6 +470,9 @@ namespace CreateAR.EnkluPlayer
                     Filter = LogLevel.Error
                 });
             }
+
+            // Set the Orchid log adapter to passthrough to our logger.
+            Enklu.Orchid.Logging.Log.SetAdapter(new OrchidLogAdapter());
         }
 
         /// <summary>
@@ -702,7 +706,8 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new EnkluScriptRequireResolver(binder));
 #if NETFX_CORE
-                binder.Bind<IScriptRuntimeFactory>().To<ChakraScriptRuntimeFactory>().ToSingleton();
+                //binder.Bind<IScriptRuntimeFactory>().To<ChakraScriptRuntimeFactory>().ToSingleton();
+                binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
 #else
                 binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
 #endif

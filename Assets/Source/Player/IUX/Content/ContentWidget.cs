@@ -55,11 +55,6 @@ namespace CreateAR.EnkluPlayer
         private readonly IElementJsCache _jsCache;
 
         /// <summary>
-        /// Creates elements.
-        /// </summary>
-        private readonly IElementJsFactory _elementJsFactory;
-        
-        /// <summary>
         /// Runs scripts.
         /// </summary>
         private ScriptCollectionRunner _runner;
@@ -69,7 +64,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private ElementSchemaProp<string> _srcAssetProp;
         private ElementSchemaProp<string> _scriptsProp;
-        
+
         /// <summary>
         /// Token, lazily created through property OnLoaded.
         /// </summary>
@@ -89,7 +84,7 @@ namespace CreateAR.EnkluPlayer
         /// Cached from the callback of the <see cref="IAssetAssembler"/>.
         /// </summary>
         public GameObject Asset { get; private set; }
-        
+
         /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
@@ -120,8 +115,7 @@ namespace CreateAR.EnkluPlayer
             IAssetAssembler assembler,
             IScriptManager scripts,
             IScriptExecutorFactory scriptHostFactory,
-            IElementJsCache cache,
-            IElementJsFactory elementFactory)
+            IElementJsCache cache)
             : base(
                 gameObject,
                 layers,
@@ -132,15 +126,14 @@ namespace CreateAR.EnkluPlayer
             _scriptHostFactory = scriptHostFactory;
             _assembler = assembler;
             _jsCache = cache;
-            _elementJsFactory = elementFactory;
         }
 
         /// <summary>
         /// Constructor used for testing.
         /// </summary>
         public ContentWidget(
-            GameObject gameObject, 
-            IScriptManager scripts, 
+            GameObject gameObject,
+            IScriptManager scripts,
             IAssetAssembler assembler)
             : base(gameObject, null, null, null)
         {
@@ -168,7 +161,6 @@ namespace CreateAR.EnkluPlayer
                 _runner = new ScriptCollectionRunner(
                     _scriptHostFactory,
                     _jsCache,
-                    _elementJsFactory,
                     GameObject,
                     this);
             }
@@ -232,7 +224,7 @@ namespace CreateAR.EnkluPlayer
 
             _scriptsProp = Schema.GetOwn("scripts", "[]");
             _scriptsProp.OnChanged += Scripts_OnChanged;
-            
+
             UpdateAsset();
         }
 
@@ -240,7 +232,7 @@ namespace CreateAR.EnkluPlayer
         protected override void UnloadInternalAfterChildren()
         {
             base.UnloadInternalAfterChildren();
-            
+
             _srcAssetProp.OnChanged -= AssetSrc_OnChanged;
             _scriptsProp.OnChanged -= Scripts_OnChanged;
 
@@ -373,7 +365,7 @@ namespace CreateAR.EnkluPlayer
 
             return ids;
         }
-        
+
         /// <summary>
         /// Aborts load, stops scripts, destroys scripts.
         /// </summary>
@@ -398,7 +390,7 @@ namespace CreateAR.EnkluPlayer
             // release scripts we created
             _scripts.ReleaseAll(Id);
         }
-        
+
         /// <summary>
         /// Loads all scripts and watches for updates.
         /// </summary>
@@ -424,7 +416,7 @@ namespace CreateAR.EnkluPlayer
                 if (null == script)
                 {
                     Log.Error(this, "Could not create script.");
-                    
+
                     AbortScripts();
 
                     return;
@@ -520,7 +512,7 @@ namespace CreateAR.EnkluPlayer
 
                 _onAssetLoaded.Succeed(this);
             }
-            
+
             // trigger refresh, so component specific references are new
             RefreshScripts();
         }

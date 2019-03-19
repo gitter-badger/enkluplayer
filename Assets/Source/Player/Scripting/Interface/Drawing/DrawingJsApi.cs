@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using Enklu.Orchid;
-using Jint.Native;
 using UnityEngine;
-
-using JsFunc = Enklu.Orchid.IJsCallback;
 
 namespace CreateAR.EnkluPlayer
 {
     [JsInterface("drawing")]
+    [JsDeclaredOnly]
     public class DrawingJsApi : MonoBehaviour
     {
         /// <summary>
@@ -23,7 +21,12 @@ namespace CreateAR.EnkluPlayer
             /// <summary>
             /// The callback to call.
             /// </summary>
-            public JsFunc Callback;
+            public IJsCallback Callback;
+
+            /// <summary>
+            /// The execution context used to execute the callback
+            /// </summary>
+            public IJsExecutionContext ExecutionContext;
         }
 
         /// <summary>
@@ -60,16 +63,20 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="category">The category associated with this callback.</param>
         /// <param name="fn">The callback.</param>
-        public void register(string category, JsFunc fn)
+        public void register(string category, IJsCallback fn)
         {
+            // Execution Context used in callback
+            var executionContext = fn.ExecutionContext;
+
             // this may be called multiple times on the same engine
-            //engine.OnDestroy -= Engine_OnDestroy;
-            //engine.OnDestroy += Engine_OnDestroy;
+            executionContext.OnExecutionContextDisposing -= OnExecutionContextDisposing;
+            executionContext.OnExecutionContextDisposing += OnExecutionContextDisposing;
 
             _cbs.Add(new CallbackRecord
             {
                 Category = category.ToLower(),
-                Callback = fn
+                Callback = fn,
+                ExecutionContext = executionContext
             });
         }
 
@@ -77,7 +84,7 @@ namespace CreateAR.EnkluPlayer
         /// Removes a callback for drawing.
         /// </summary>
         /// <param name="fn">The callback to remove.</param>
-        public void unregister(JsFunc fn)
+        public void unregister(IJsCallback fn)
         {
             for (int i = 0, len = _cbs.Count; i < len; i++)
             {
@@ -135,20 +142,18 @@ namespace CreateAR.EnkluPlayer
         /// Called when an execution context has been destroyed.
         /// </summary>
         /// <param name="engine"></param>
-        private void Engine_OnDestroy(IJsExecutionContext jsExecutionContext)
+        private void OnExecutionContextDisposing(IJsExecutionContext jsExecutionContext)
         {
-            //engine.OnDestroy -= Engine_OnDestroy;
+            jsExecutionContext.OnExecutionContextDisposing -= OnExecutionContextDisposing;
 
             // remove all callbacks related to this engine
-            /*
             for (var i = _cbs.Count - 1; i >= 0; i--)
             {
-                if (_cbs[i].Engine == engine)
+                if (_cbs[i].ExecutionContext == jsExecutionContext)
                 {
                     _cbs.RemoveAt(i);
                 }
             }
-            */
         }
     }
 }

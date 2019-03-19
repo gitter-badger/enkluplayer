@@ -1,4 +1,5 @@
 ﻿#if NETFX_CORE
+using System;
 using Enklu.Orchid;
 using Enklu.Orchid.Chakra;
 
@@ -28,5 +29,4 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
     }
 }
-
 #endif

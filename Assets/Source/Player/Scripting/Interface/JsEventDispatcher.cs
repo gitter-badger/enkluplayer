@@ -43,7 +43,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void dispatch(string eventType, object evt = null)
+        public void dispatch(string eventType)
+        {
+            dispatch(eventType, null);
+        }
+
+        /// <inheritdoc />
+        public void dispatch(string eventType, object evt)
         {
             var list = EventList(eventType);
             var count = list.Count;
