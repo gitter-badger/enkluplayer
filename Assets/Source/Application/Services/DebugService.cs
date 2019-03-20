@@ -583,7 +583,14 @@ namespace CreateAR.EnkluPlayer
             var message = string.Format("curl -X {0} {1}", verb, uri);
             foreach (var pair in headers)
             {
-                message += string.Format("\\\n\t-H '{0}: {1}'", pair.Key, pair.Value);
+                var key = pair.Key;
+                var value = pair.Value;
+                if (key == "Authorization")
+                {
+                    value = "[Hidden]";
+                }
+
+                message += string.Format("\\\n\t-H '{0}: {1}'", key, value);
             }
 
             if (null != payload)
