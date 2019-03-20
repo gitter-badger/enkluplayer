@@ -232,6 +232,7 @@ namespace CreateAR.EnkluPlayer
             {
                 _asset.OnLoadError -= Asset_OnLoadError;
                 _asset.OnConfigurationUpdated -= Asset_OnConfigurationUpdated;
+                _asset = null;
             }
 
             if (null != _loadToken)
