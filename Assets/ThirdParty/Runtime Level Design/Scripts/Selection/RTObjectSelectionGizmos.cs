@@ -153,10 +153,10 @@ namespace RLD
 
         public event Action<GizmoSpace> OnSpaceUpdated;
 
-        #if UNITY_EDITOR
+        //#if UNITY_EDITOR
         public EditorToolbar MainToolbar { get { return _mainToolbar; } }
         public UniversalGizmoConfig UniversalGizmoConfig { get { return _universalGizmoConfig; } }
-        #endif
+        //#endif
 
         public void SetTargetObjectCollection(IEnumerable<GameObject> targetObjectCollection)
         {
