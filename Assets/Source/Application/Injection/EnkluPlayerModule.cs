@@ -773,6 +773,11 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private static ILogTarget Target(InjectionBinder binder, LogAppConfig.TargetConfig config)
         {
+            if (!config.Enabled)
+            {
+                return null;
+            }
+
             switch (config.Target)
             {
                 case "unity":
