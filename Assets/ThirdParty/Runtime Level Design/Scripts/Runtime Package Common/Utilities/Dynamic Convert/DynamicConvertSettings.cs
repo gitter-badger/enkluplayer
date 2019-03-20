@@ -61,6 +61,12 @@ namespace RLD
                 ProcessPrefabSubfolders = newBool;
             }
         }
-        #endif
+#else
+        public Rect FixCompile(Rect a)
+        {
+            _prefabFolderDropRect = a;
+            return _prefabFolderDropRect;
+        }
+#endif
     }
 }
