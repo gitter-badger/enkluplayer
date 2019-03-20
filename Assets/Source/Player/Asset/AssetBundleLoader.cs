@@ -170,12 +170,13 @@ namespace CreateAR.EnkluPlayer.Assets
 
             while (!request.isDone)
             {
-                if (_http.TimeoutMs > 0 && DateTime.Now.Subtract(start).TotalMilliseconds > _http.TimeoutMs)
+                var duration = DateTime.Now.Subtract(start).TotalMilliseconds;
+                if (_http.TimeoutMs > 0 && duration > _http.TimeoutMs)
                 {
                     // request timed out
                     request.Dispose();
 
-                    _bundleLoad.Fail(new Exception("Request timed out."));
+                    _bundleLoad.Fail(new Exception(string.Format("Request timed out downloading from '{0}': {1} over {2} ms.", _url, duration, _http.TimeoutMs)));
 
                     yield break;
                 }

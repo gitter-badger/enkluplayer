@@ -751,15 +751,22 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private static void SetupLogging(InjectionBinder binder, LogAppConfig config)
         {
+            /*
             // targets!
             foreach (var targetConfig in config.Targets)
             {
                 var target = Target(binder, targetConfig);
                 if (null != target)
                 {
+                    target.Filter = targetConfig.ParsedLevel;
+
                     Log.AddLogTarget(target);
                 }
-            }
+            }*/
+            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter())
+            {
+                Filter = LogLevel.Warning
+            });
 
             // Set the Orchid log adapter to passthrough to our logger.
             Enklu.Orchid.Logging.Log.SetAdapter(new OrchidLogAdapter());
