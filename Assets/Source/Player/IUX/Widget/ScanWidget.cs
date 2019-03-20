@@ -113,14 +113,14 @@ namespace CreateAR.EnkluPlayer.IUX
 
             var uri = "meshcapture://" + _srcUrlProp.Value;
 
-            Log.Info(this, "Downloading mesh capture from {0}...", uri);
+            Log.Debug(this, "Downloading mesh capture from {0}...", uri);
 
             // download
             _meshDownload = _loader
                 .Load(uri)
                 .OnSuccess(bytes =>
                 {
-                    Log.Info(this, "Mesh capture download complete. Starting import.");
+                    Log.Debug(this, "Mesh capture download complete. Starting import.");
 
                     if (null != _meshCaptureGameObject)
                     {
@@ -146,6 +146,8 @@ namespace CreateAR.EnkluPlayer.IUX
                         }
 
                         Log.Info(this, "Import complete. Constructing mesh.");
+
+                        action(_meshCaptureGameObject);
 
                         // update collider with new bounds
                         /*
