@@ -47,12 +47,12 @@ namespace RLD
         public bool HasRuntimeUI { get { return _runtimeUI != null && _runtimeUI.gameObject.activeInHierarchy && _runtimeUI.enabled; } }
         public PrefabLibDbSettings Settings { get { return _settings; } }
 
-        #if UNITY_EDITOR
+        //#if UNITY_EDITOR
         public string NewLibName { get { return _newLibName; } set { if (value != null) _newLibName = value; } }
         public Vector2 PrefabScrollPos { get { return _prefabScrollPos; } set { _prefabScrollPos = value; } }
         public EditorPrefabPreviewGen EditorPrefabPreviewGen { get { return _editorPrefabPreviewGen; } }
         public int NumPrefabsPerRow { get { return _numPrefabsPerRow; } set { _numPrefabsPerRow = Mathf.Max(1, value); } }
-        #endif
+        //#endif
 
         #if UNITY_EDITOR
         public void RefreshEditorPrefabPreviews()
