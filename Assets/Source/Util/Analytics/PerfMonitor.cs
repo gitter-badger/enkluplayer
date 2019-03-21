@@ -86,7 +86,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Number of samples to take.
         /// </summary>
-        private const int NUM_SAMPLES = 1024;
+        private const int NUM_SAMPLES = 256;
 
         /// <summary>
         /// Frame time data.
