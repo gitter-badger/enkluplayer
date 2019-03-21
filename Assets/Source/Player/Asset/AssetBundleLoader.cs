@@ -19,12 +19,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Configuration for networking.
         /// </summary>
         private readonly NetworkConfig _config;
-
-        /// <summary>
-        /// Http service.
-        /// </summary>
-        private readonly IHttpService _http;
-
+        
         /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
@@ -60,12 +55,10 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         public AssetBundleLoader(
             NetworkConfig config,
-            IHttpService http,
             IBootstrapper bootstrapper,
             string url)
         {
             _config = config;
-            _http = http;
             _bootstrapper = bootstrapper;
             _url = url;
         }
@@ -164,23 +157,11 @@ namespace CreateAR.EnkluPlayer.Assets
                 yield break;
             }
 
-            var start = DateTime.Now;
             var request = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
             request.SendWebRequest();
 
             while (!request.isDone)
             {
-                var duration = DateTime.Now.Subtract(start).TotalMilliseconds;
-                if (_http.TimeoutMs > 0 && duration > _http.TimeoutMs)
-                {
-                    // request timed out
-                    request.Dispose();
-
-                    _bundleLoad.Fail(new Exception(string.Format("Request timed out downloading from '{0}': {1} over {2} ms.", _url, duration, _http.TimeoutMs)));
-
-                    yield break;
-                }
-
                 Progress.Value = request.downloadProgress;
                 
                 yield return null;

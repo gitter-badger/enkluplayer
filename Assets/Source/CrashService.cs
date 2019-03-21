@@ -272,7 +272,7 @@ namespace CreateAR.EnkluPlayer
                     EmailAddress = _config.Debug.DumpEmail,
                     Body = dump,
                     FirstName = "",
-                    Subject = DateTime.Now.ToString(CultureInfo.InvariantCulture)
+                    Subject = "Crash: " + DateTime.Now.ToString(CultureInfo.InvariantCulture)
                 })
                 .OnSuccess(res =>
                 {
