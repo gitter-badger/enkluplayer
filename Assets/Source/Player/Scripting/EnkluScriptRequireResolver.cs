@@ -49,6 +49,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Tracks JsInterface implementations.
         /// </summary>
+        /// <inheritdoc />
         private class JsInterfaceRecord<T> : IJsInterfaceRecord
         {
             /// <inheritdoc />
@@ -71,7 +72,7 @@ namespace CreateAR.EnkluPlayer
             /// <inheritdoc />
             public IRequireRecord NewRecord(string varName, IJsExecutionContext executionContext)
             {
-                executionContext.SetValue<T>(varName, _value);
+                executionContext.SetValue(varName, _value);
 
                 return new RequireRecord<T>(Id, _value);
             }
@@ -80,6 +81,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Tracks require.
         /// </summary>
+        /// <inheritdoc />
         private class RequireRecord<T> : IRequireRecord
         {
             /// <summary>
@@ -122,6 +124,12 @@ var module = module || {
 var {{variableName}} = module.exports;
 module = null;
 ";
+
+        /// <summary>
+        /// Cache Generic Method Info
+        /// </summary>
+        private static readonly MethodInfo _NewInterfaceMethodInfo = typeof(EnkluScriptRequireResolver)
+            .GetMethod("NewInterfaceRecord", BindingFlags.Static | BindingFlags.NonPublic);
 
         /// <summary>
         /// Sequential ids for requires.
@@ -285,30 +293,16 @@ module = null;
 
             return records;
         }
-
-        /// <summary>
-        /// Cache Generic Method Info
-        /// </summary>
-        private static readonly MethodInfo NewInterfaceMethodInfo = typeof(EnkluScriptRequireResolver)
-            .GetMethod("NewInterfaceRecord", BindingFlags.Static | BindingFlags.NonPublic);
-
+        
         /// <summary>
         /// Creates a new <see cref="IJsInterfaceRecord"/> implementation by passing the <see cref="Type"/>
         /// as a generic parameter into a factory method.
         /// </summary>
         private static IJsInterfaceRecord MakeInterfaceRecord(string id, IInjectionBinder binder, Type type)
         {
-            var genericMethod = NewInterfaceMethodInfo.MakeGenericMethod(type);
+            var genericMethod = _NewInterfaceMethodInfo.MakeGenericMethod(type);
 
             return (IJsInterfaceRecord) genericMethod.Invoke(null, new object[] { id, binder });
-        }
-
-        /// <summary>
-        /// Generic factory method we call via reflection to ensure type parameters are carried through.
-        /// </summary>
-        private static IJsInterfaceRecord NewInterfaceRecord<T>(string id, IInjectionBinder binder)
-        {
-            return new JsInterfaceRecord<T>(id, binder.GetInstance<T>());
         }
     }
 }

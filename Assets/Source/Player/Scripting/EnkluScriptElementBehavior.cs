@@ -33,11 +33,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         private IElementJsCache _jsCache;
 
         /// <summary>
-        /// Creates ElementJs instances.
-        /// </summary>
-        //private IElementJsFactory _factory;
-
-        /// <summary>
         /// True iff has been started.
         /// </summary>
         private bool _isStarted;
@@ -99,7 +94,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void Configure()
         {
             _module = _jsContext.NewModule("module_" + _moduleIds++);
-            _this = _jsCache.Element(_element); //_factory.Instance(_jsCache, _element);
+            _this = _jsCache.Element(_element);
 
             try
             {
@@ -130,7 +125,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             var scriptName = Script.Data.Name;
-            var elementName = _element.Schema.Get<string>("name").Value;
+            var elementName = _element.Schema.GetOwn("name", scriptName).Value;
 
             Log.Info(this, "Entering script {0} on element: {1}.",
                 scriptName, elementName);

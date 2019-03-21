@@ -669,6 +669,13 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
                 }
 #else
+                if (scriptRuntime != PlayAppConfig.ScriptRuntimeType.Jint)
+                {
+                    Log.Warning(this,
+                        "Script runtime '{0}' selected but incompatible with this target.",
+                        scriptRuntime);
+                }
+
                 binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
 #endif
                 binder.Bind<IScriptExecutorFactory>().To<ScriptExecutorFactory>().ToSingleton();
