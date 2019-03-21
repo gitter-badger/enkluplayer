@@ -170,16 +170,6 @@ namespace CreateAR.EnkluPlayer.Assets
 
             while (!request.isDone)
             {
-                if (_http.TimeoutMs > 0 && DateTime.Now.Subtract(start).TotalMilliseconds > _http.TimeoutMs)
-                {
-                    // request timed out
-                    request.Dispose();
-
-                    _bundleLoad.Fail(new Exception("Request timed out."));
-
-                    yield break;
-                }
-
                 Progress.Value = request.downloadProgress;
                 
                 yield return null;
