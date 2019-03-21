@@ -304,5 +304,15 @@ module = null;
 
             return (IJsInterfaceRecord) genericMethod.Invoke(null, new object[] { id, binder });
         }
+
+        /// <summary>	
+        /// Generic factory method we call via reflection to ensure type parameters are carried through.
+        ///
+        /// Note: DO NOT remove this function even though it appears unused. 
+        /// </summary>	
+        private static IJsInterfaceRecord NewInterfaceRecord<T>(string id, IInjectionBinder binder)
+        {
+            return new JsInterfaceRecord<T>(id, binder.GetInstance<T>());
+        }
     }
 }
