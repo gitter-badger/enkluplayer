@@ -164,7 +164,6 @@ namespace CreateAR.EnkluPlayer.Assets
                 yield break;
             }
 
-            var start = DateTime.Now;
             var request = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
             request.SendWebRequest();
 
