@@ -737,6 +737,8 @@ namespace CreateAR.EnkluPlayer
                 var target = Target(binder, targetConfig);
                 if (null != target)
                 {
+                    target.Filter = targetConfig.ParsedLevel;
+
                     Log.AddLogTarget(target);
                 }
             }
