@@ -257,7 +257,7 @@ namespace CreateAR.EnkluPlayer
         {
 #if NETFX_CORE
             Log.Warning(
-                this,
+                Memory,
                 "Memory usage warning: detected increase to '{0}'.",
                 Windows.System.MemoryManager.AppMemoryUsageLevel);
 #endif
