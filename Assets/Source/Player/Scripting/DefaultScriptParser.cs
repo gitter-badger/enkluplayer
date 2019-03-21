@@ -22,25 +22,18 @@ namespace CreateAR.EnkluPlayer
         private readonly IVinePreProcessor _preprocessor;
 
         /// <summary>
-        /// Jint implementation.
-        /// </summary>
-        private readonly JavaScriptParser _parser;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public DefaultScriptParser(
             IMetricsService metrics,
-            IVinePreProcessor preprocessor,
-            JavaScriptParser parser)
+            IVinePreProcessor preprocessor)
         {
             _metrics = metrics;
             _preprocessor = preprocessor;
-            _parser = parser;
         }
-        
+
         /// <inheritdoc cref="IScriptParser"/>
-        public Program Parse(string code, ElementSchema data, ParserOptions options)
+        public string Parse(string code, ElementSchema data)
         {
             var id = _metrics.Timer(MetricsKeys.SCRIPT_PARSING_BEHAVIOR).Start();
 
@@ -50,22 +43,9 @@ namespace CreateAR.EnkluPlayer
 
             Log.Info(this, "Parse : {0}.", processed);
 
-            try
-            {
-                var program = _parser.Parse(processed, options);
+            _metrics.Timer(MetricsKeys.SCRIPT_PARSING_BEHAVIOR).Stop(id);
 
-                _metrics.Timer(MetricsKeys.SCRIPT_PARSING_BEHAVIOR).Stop(id);
-
-                return program;
-            }
-            catch (ParserException exception)
-            {
-                Log.Warning(this, "Could not parse JS program : {0}.", exception);
-
-                _metrics.Timer(MetricsKeys.SCRIPT_PARSING_BEHAVIOR).Abort(id);
-
-                return null;
-            }
+            return processed;
         }
     }
 }

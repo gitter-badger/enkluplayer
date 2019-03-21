@@ -1,6 +1,4 @@
 using CreateAR.EnkluPlayer.IUX;
-using Jint.Parser;
-using Jint.Parser.Ast;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -14,8 +12,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="code">The code.</param>
         /// <param name="data">Data to hand to preprocessor.</param>
-        /// <param name="options">Options.</param>
         /// <returns></returns>
-        Program Parse(string code, ElementSchema data, ParserOptions options);
+        string Parse(string code, ElementSchema data);
     }
 }

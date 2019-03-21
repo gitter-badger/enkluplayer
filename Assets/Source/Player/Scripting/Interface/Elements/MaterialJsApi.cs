@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
-using Jint.Runtime;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -16,7 +16,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Schema to back shader properties.
         /// </summary>
         private readonly ElementSchema _schema;
-        
+
         /// <summary>
         /// Underlying Unity Renderer to modify.
         /// </summary>
@@ -61,9 +61,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 throw new Exception("MaterialJsApi already setup.");
             }
-            
+
             // TODO: Unity 2018.2 upgrade - Look at Material.GetTexturePropertyNames for setting defaults?!
-            
+
             _setup = true;
         }
 
@@ -77,22 +77,22 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 throw new Exception("MaterialJsApi not setup.");
             }
-            
+
             for (int i = 0, len = _propsFloat.Count; i < len; i++)
             {
                 _propsFloat[i].OnChanged -= Prop_OnFloatChanged;
             }
-            
+
             for (int i = 0, len = _propsInt.Count; i < len; i++)
             {
                 _propsInt[i].OnChanged -= Prop_OnIntChanged;
             }
-            
+
             for (int i = 0, len = _propsVec3.Count; i < len; i++)
             {
                 _propsVec3[i].OnChanged -= Prop_OnVectorChanged;
             }
-            
+
             for (int i = 0, len = _propsCol4.Count; i < len; i++)
             {
                 _propsCol4[i].OnChanged -= Prop_OnColorChanged;
@@ -131,7 +131,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsFloat.Add(prop);
-                
+
                 prop.OnChanged += Prop_OnFloatChanged;
                 Prop_OnFloatChanged(prop, value, value);
             }
@@ -163,7 +163,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsInt.Add(prop);
-                
+
                 prop.OnChanged += Prop_OnIntChanged;
                 Prop_OnIntChanged(prop, value, value);
             }
@@ -195,7 +195,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsVec3.Add(prop);
-                
+
                 prop.OnChanged += Prop_OnVectorChanged;
                 Prop_OnVectorChanged(prop, value, value);
             }
@@ -227,7 +227,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsCol4.Add(prop);
-                
+
                 prop.OnChanged += Prop_OnColorChanged;
                 Prop_OnColorChanged(prop, value, value);
             }
@@ -236,7 +236,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop.Value = value;
             }
         }
-        
+
         /// <summary>
         /// Converts a schema name to a parameter name.
         /// </summary>
@@ -267,7 +267,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _renderer.SharedMaterial.SetFloat(FromSchemaName(prop.Name), @new);
         }
-        
+
         /// <summary>
         /// Update the underlying material based on schema changes.
         /// </summary>
@@ -278,7 +278,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _renderer.SharedMaterial.SetInt(FromSchemaName(prop.Name), @new);
         }
-        
+
         /// <summary>
         /// Update the underlying material based on schema changes.
         /// </summary>
@@ -289,7 +289,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _renderer.SharedMaterial.SetVec3(FromSchemaName(prop.Name), @new);
         }
-        
+
         /// <summary>
         /// Update the underlying material based on schema changes.
         /// </summary>
@@ -311,7 +311,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         private ElementSchemaProp<T> GetSchemaProp<T>(List<ElementSchemaProp<T>> props, string param)
         {
             var schemaName = ToSchemaName(param);
-            
+
             for (int i = 0, len = props.Count; i < len; i++)
             {
                 if (props[i].Name == schemaName)

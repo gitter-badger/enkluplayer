@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
+using Enklu.Orchid;
 using CreateAR.Commons.Unity.Messaging;
-using Jint;
-using Jint.Native;
-using Jint.Runtime;
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// JS interface for messages.
-    /// 
+    ///
     /// TODO: Call callbacks with same this as was called with.
     /// </summary>
     [JsInterface("messages")]
@@ -31,7 +28,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Callback to call.
             /// </summary>
-            public readonly JsFunc Callback;
+            public readonly IJsCallback Callback;
 
             /// <summary>
             /// Action to unsubscribe.
@@ -41,7 +38,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Constructor.
             /// </summary>
-            public SubscriptionRecord(string eventType, JsFunc callback, Action unsubscribe)
+            public SubscriptionRecord(string eventType, IJsCallback callback, Action unsubscribe)
             {
                 EventType = eventType;
                 Callback = callback;
@@ -58,7 +55,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// List of subscriptions.
         /// </summary>
         private readonly List<SubscriptionRecord> _records = new List<SubscriptionRecord>();
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -74,16 +71,23 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Subscribes to an event.
         /// </summary>
-        /// <param name="engine">The calling engine.</param>
         /// <param name="eventType">The event type to listen for.</param>
         /// <param name="callback">The callback to call.</param>
-        public void on(Engine engine, string eventType, JsFunc callback)
+        public void on(string eventType, IJsCallback callback)
         {
             var unsubscribe = _messages.Subscribe(
                 ToMessageType(eventType),
-                evt => callback(
-                    JsValue.FromObject(engine, this),
-                    new [] { JsValue.FromObject(engine, evt) }));
+                evt =>
+                {
+                    try
+                    {
+                        callback.Apply(this, evt);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Warning(this, "JavaScript error : {0}.", exception);
+                    }
+                });
 
             var record = new SubscriptionRecord(eventType, callback, unsubscribe);
 
@@ -93,10 +97,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Removes an event listener.
         /// </summary>
-        /// <param name="engine">The calling engine.</param>
         /// <param name="eventType">The event type.</param>
         /// <param name="callback">The callback.</param>
-        public void off(Engine engine, string eventType, JsFunc callback)
+        public void off(string eventType, IJsCallback callback)
         {
             for (var i = _records.Count - 1; i >= 0; i--)
             {
@@ -130,12 +133,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 _messages.Publish(ToMessageType(eventType), value);
             }
-            catch (JavaScriptException ex)
+            catch (Exception ex)
             {
                 Log.Warning(this, "Error dispatching event : {0}.", ex);
             }
         }
-        
+
         /// <summary>
         /// Converts a string to an int with decent hash collision characteristics.
         /// </summary>

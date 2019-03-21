@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Jint;
+using Enklu.Orchid;
 using Jint.Native;
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -20,7 +19,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// The multiplayer controller.
         /// </summary>
         private readonly IMultiplayerController _multiplayer;
-        
+
         public bool isConnected
         {
             get { return _multiplayer.IsConnected; }
@@ -33,7 +32,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _multiplayer = multiplayer;
         }
-        
+
         public MultiplayerContextJs context(ElementJs element)
         {
             MultiplayerContextJs context;
@@ -45,11 +44,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             return context;
         }
 
-        public void onConnectionChange(Engine engine, JsFunc cb)
+        public void onConnectionChange(IJsCallback cb)
         {
-            _multiplayer.OnConnectionChanged += connected => cb.Invoke(
-                JsValue.FromObject(engine, this),
-                new[] {new JsValue(connected)});
+            _multiplayer.OnConnectionChanged += connected => cb.Apply(this, connected);
         }
     }
 }

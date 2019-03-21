@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
-using Jint;
-using Jint.Native;
-using Jint.Runtime;
+using Enklu.Orchid;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -14,9 +13,14 @@ namespace CreateAR.EnkluPlayer.Scripting
     public class EnkluScriptElementBehavior : MonoBehaviour, EnkluScript.IScriptExecutor
     {
         /// <summary>
-        /// An engine to run the scripts with.
+        /// Module id increment
         /// </summary>
-        private Engine _engine;
+        private static int _moduleIds = 1;
+
+        /// <summary>
+        /// The JS execution context
+        /// </summary>
+        private IJsExecutionContext _jsContext;
 
         /// <summary>
         /// The element this is running on.
@@ -29,11 +33,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         private IElementJsCache _jsCache;
 
         /// <summary>
-        /// Creates ElementJs instances.
-        /// </summary>
-        private IElementJsFactory _factory;
-
-        /// <summary>
         /// True iff has been started.
         /// </summary>
         private bool _isStarted;
@@ -41,20 +40,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// References to JS functions.
         /// </summary>
-        private ICallable _msgMissing;
-        private ICallable _enter;
-        private ICallable _update;
-        private ICallable _exit;
+        private IJsModule _module;
+        private IJsCallback _msgMissing;
+        private IJsCallback _enter;
+        private IJsCallback _update;
+        private IJsCallback _exit;
 
         /// <summary>
         /// A JS reference to this, passed to every ICallable.
         /// </summary>
-        private JsValue _this;
-
-        /// <summary>
-        /// Arguments.
-        /// </summary>
-        private readonly JsValue[] _nullArgs = new JsValue[0];
+        private ElementJs _this;
 
         /// <summary>
         /// Retrieves the <c>EnkluScript</c> instance.
@@ -71,14 +66,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Initializes the host.
         /// </summary>
         /// <param name="jsCache">Js cache.</param>
-        /// <param name="factory">Creates elements.</param>
-        /// <param name="engine">JS Engine.</param>
+        /// <param name="jsContext">JS execution context.</param>
         /// <param name="script">The script to execute.</param>
         /// <param name="element">The element.</param>
         public void Initialize(
             IElementJsCache jsCache,
-            IElementJsFactory factory,
-            Engine engine,
+            IJsExecutionContext jsContext,
             EnkluScript script,
             Element element)
         {
@@ -87,10 +80,9 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Script is already running.");
             }
 
-            _engine = engine;
+            _jsContext = jsContext;
             _element = element;
             _jsCache = jsCache;
-            _factory = factory;
 
             Script = script;
             Script.Executor = this;
@@ -101,15 +93,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void Configure()
         {
-            var thisBinding = JsValue.FromObject(
-                _engine,
-                _factory.Instance(_jsCache, _element));
-            _engine.ExecutionContext.ThisBinding = thisBinding;
+            _module = _jsContext.NewModule("module_" + _moduleIds++);
+            _this = _jsCache.Element(_element);
 
             try
             {
                 Log.Info(this, "Execute : {0}", Script.Source);
-                _engine.Execute(Script.Program);
+                _jsContext.RunScript(_this, Script.Program, _module);
             }
             catch (Exception exception)
             {
@@ -118,14 +108,12 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return;
             }
 
-            _this = thisBinding;
-
-            _msgMissing = _engine.GetFunction("msgMissing");
-            _enter = _engine.GetFunction("enter");
-            _update = _engine.GetFunction("update");
-            _exit = _engine.GetFunction("exit");
+            _msgMissing = _module.GetExportedValue<IJsCallback>("msgMissing");
+            _enter = _module.GetExportedValue<IJsCallback>("enter");
+            _update = _module.GetExportedValue<IJsCallback>("update");
+            _exit = _module.GetExportedValue<IJsCallback>("exit");
         }
-        
+
         /// <summary>
         /// Enters the script.
         /// </summary>
@@ -136,7 +124,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Script already started.");
             }
 
-            Log.Info(this, "Entering script {0}.", Script.Data.Name);
+            var scriptName = Script.Data.Name;
+            var elementName = _element.Schema.GetOwn("name", scriptName).Value;
+
+            Log.Info(this, "Entering script {0} on element: {1}.",
+                scriptName, elementName);
 
             _isStarted = true;
 
@@ -144,9 +136,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 try
                 {
-                    _enter.Call(_this, _nullArgs);
+                    _enter.Apply(_this);
                 }
-                catch (JavaScriptException exception)
+                catch (Exception exception)
                 {
                     Log.Warning(this, "JavaScript error : {0}.", exception);
                 }
@@ -162,9 +154,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 try
                 {
-                    _update.Call(_this, _nullArgs);
+                    _update.Apply(_this);
                 }
-                catch (JavaScriptException exception)
+                catch (Exception exception)
                 {
                     Log.Warning(this, "JavaScript error : {0}.", exception);
                 }
@@ -189,9 +181,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 try
                 {
-                    _exit.Call(_this, _nullArgs);
+                    _exit.Apply(_this);
                 }
-                catch (JavaScriptException exception)
+                catch (Exception exception)
                 {
                     Log.Warning(this, "JavaScript error : {0}.", exception);
                 }
@@ -202,26 +194,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void Send(string name, params object[] parameters)
         {
             var len = parameters.Length;
-            var fn = _engine.GetFunction(name);
+            var fn = _module.GetExportedValue<IJsCallback>(name);
             if (null != fn)
             {
                 if (len == 0)
                 {
-                    fn.Call(_this, _nullArgs);
+                    fn.Apply(_this);
                 }
                 else
                 {
-                    var values = new JsValue[len];
-                    for (var i = 0; i < len; i++)
-                    {
-                        values[i] = JsValue.FromObject(_engine, parameters[i]);
-                    }
-
                     try
                     {
-                        fn.Call(_this, values);
+                        fn.Apply(_this, parameters);
                     }
-                    catch (JavaScriptException exception)
+                    catch (Exception exception)
                     {
                         Log.Warning(this, "JavaScript error : {0}.", exception);
                     }
@@ -233,26 +219,22 @@ namespace CreateAR.EnkluPlayer.Scripting
                 {
                     try
                     {
-                        _msgMissing.Call(_this, new[] { new JsValue(name) });
+                        _msgMissing.Apply(_this, name);
                     }
-                    catch (JavaScriptException exception)
+                    catch (Exception exception)
                     {
                         Log.Warning(this, "JavaScript error : {0}.", exception);
                     }
                 }
                 else
                 {
-                    var values = new[]
-                    {
-                        new JsValue(name),
-                        JsValue.FromObject(_engine, parameters)
-                    };
+                    var values = new object[] {name}.Concat(parameters).ToArray();
 
                     try
                     {
-                        _msgMissing.Call(_this, values);
+                        _msgMissing.Apply(_this, values);
                     }
-                    catch (JavaScriptException exception)
+                    catch (Exception exception)
                     {
                         Log.Warning(this, "JavaScript error : {0}.", exception);
                     }

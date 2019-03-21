@@ -281,6 +281,30 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Enumerates all potential script runtime types.
+        /// </summary>
+        public enum ScriptRuntimeType
+        {
+            /// <summary>
+            /// Invalid Script Runtime entry.
+            /// </summary>
+            Invalid,
+
+            /// <summary>
+            /// The Jint JS runtime is available on all platforms. The Jint runtime is
+            /// especially useful for basic scripting backed by .NET logic (heavy interop).
+            /// </summary>
+            Jint,
+
+            /// <summary>
+            /// The Chakra JS runtime is available on UWP only, and leverages ChakraCore, a native
+            /// JS runtime. The Chakra runtime is especially useful with long running scripts that
+            /// are used to drive most of the scene graph logic.
+            /// </summary>
+            Chakra
+        }
+
+        /// <summary>
         /// Id of the app.
         /// </summary>
         public string AppId;
@@ -289,6 +313,11 @@ namespace CreateAR.EnkluPlayer
         /// Type of designer to use. Leave empty for application to decide.
         /// </summary>
         public string Designer;
+
+        /// <summary>
+        /// The script runtime to use. Leave empty for application to decide.
+        /// </summary>
+        public string ScriptRuntime;
 
         /// <summary>
         /// Edit or play.
@@ -340,6 +369,27 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Parses script runtime name.
+        /// </summary>
+        [JsonIgnore]
+        public ScriptRuntimeType ParsedScriptRuntime
+        {
+            get
+            {
+                try
+                {
+                    return (ScriptRuntimeType)Enum.Parse(
+                        typeof(ScriptRuntimeType),
+                        ScriptRuntime);
+                }
+                catch
+                {
+                    return ScriptRuntimeType.Invalid;
+                }
+            }
+        }
+
+        /// <summary>
         /// Overrides configuration values with passed in values.
         /// </summary>
         /// <param name="overrideConfig">Override config.</param>
@@ -353,6 +403,11 @@ namespace CreateAR.EnkluPlayer
             if (!string.IsNullOrEmpty(overrideConfig.Designer))
             {
                 Designer = overrideConfig.Designer;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.ScriptRuntime))
+            {
+                ScriptRuntime = overrideConfig.ScriptRuntime;
             }
 
             if (overrideConfig.PeriodicUpdates)

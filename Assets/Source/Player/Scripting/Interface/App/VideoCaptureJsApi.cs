@@ -2,9 +2,7 @@
 using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
-using Jint.Native;
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using JsFunc = Enklu.Orchid.IJsCallback;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -38,11 +36,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Preps the video capture system.
         /// </summary>
-        /// <param name="engine"></param>
         /// <param name="callback"></param>
-        public void setup(Engine engine, JsFunc callback)
+        public void setup(JsFunc callback)
         {
-            JsCallback(engine, _videoCapture.Setup(VideoAudioSource.Mixed), callback); 
+            JsCallback(_videoCapture.Setup(VideoAudioSource.Mixed), callback); 
         }
         
         /// <summary>
@@ -51,7 +48,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>
-        public void setupSource(Engine engine, JsFunc callback, string audioSourceStr)
+        public void setupSource(JsFunc callback, string audioSourceStr)
         {
             VideoAudioSource audioSource;
             try
@@ -61,33 +58,31 @@ namespace CreateAR.EnkluPlayer.Scripting
             catch (ArgumentException)
             {
                 var exception = new Exception(string.Format("Unknown AudioSource ({0})", audioSourceStr));
-                JsCallback(engine, new AsyncToken<Void>(exception), callback);
+                JsCallback(new AsyncToken<Void>(exception), callback);
                 return;
             }
             
-            JsCallback(engine, _videoCapture.Setup(audioSource), callback);
+            JsCallback(_videoCapture.Setup(audioSource), callback);
         }
 
         /// <summary>
         /// Starts a recording.
         /// </summary>
-        /// <param name="engine"></param>
         /// <param name="callback"></param>
-        public void start(Engine engine, JsFunc callback)
+        public void start(JsFunc callback)
         {
-            startCustomPath(engine, callback, null);
+            startCustomPath(callback, null);
         }
         
         /// <summary>
         /// Starts a recording.
         /// /// TODO: Remove this overload when EK-1124 is resolved.
         /// </summary>
-        /// <param name="engine"></param>
         /// <param name="callback"></param>
         /// <param name="customPath"></param>
-        public void startCustomPath(Engine engine, JsFunc callback, string customPath)
+        public void startCustomPath(JsFunc callback, string customPath)
         {
-            JsCallback(engine, _videoCapture.Start(customPath), callback); 
+            JsCallback(_videoCapture.Start(customPath), callback); 
         }
         
         /// <summary>
@@ -95,16 +90,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>
-        public void stop(Engine engine, JsFunc callback)
+        public void stop(JsFunc callback)
         {
-            JsCallback(engine, _videoCapture.Stop(), callback); 
+            JsCallback(_videoCapture.Stop(), callback); 
         }
         
         /// <summary>
         /// Cancels the capture process.
         /// </summary>
         /// <param name="engine"></param>
-        public void teardown(Engine engine)
+        public void teardown()
         {
             _videoCapture.Teardown();
         }
@@ -112,16 +107,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Helper to invoke a callback after a media capture operation if it exists.
         /// </summary>
-        /// <param name="engine">Jint Engine</param>
         /// <param name="token">MediaCapture return token</param>
         /// <param name="callback">Js callback</param>
-        private void JsCallback<T>(Engine engine, IAsyncToken<T> token, JsFunc callback)
+        private void JsCallback<T>(IAsyncToken<T> token, JsFunc callback)
         {
             if (callback != null)
             {
                 token
-                    .OnSuccess(value => callback(JsValue.FromObject(engine, this), new JsValue[] { true, JsValue.FromObject(engine, value) }))
-                    .OnFailure(e => callback(JsValue.FromObject(engine, this), new JsValue[] { false }));
+                    .OnSuccess(value => callback.Apply(this, true, value))
+                    .OnFailure(e => callback.Apply(this, false));
             }
         }
     }

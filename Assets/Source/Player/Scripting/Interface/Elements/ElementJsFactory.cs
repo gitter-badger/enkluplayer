@@ -1,5 +1,4 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
-using Jint;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {

@@ -169,7 +169,7 @@ namespace CreateAR.EnkluPlayer
             _writer = writer;
             _api = api;
             _config = config;
-            
+
             _sceneHandler = new SceneEventHandler(
                 _elements,
                 new ScenePatcher(scenes, patcherFactory));
@@ -270,7 +270,7 @@ namespace CreateAR.EnkluPlayer
 
                 _tcp = null;
             }
-            
+
             return Connect();
         }
 

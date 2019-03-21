@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Scripting;
-using Jint;
-using Jint.Native;
+using Enklu.Orchid;
 using strange.extensions.injector.api;
 using UnityEngine;
 
@@ -16,52 +15,93 @@ namespace CreateAR.EnkluPlayer
     public class EnkluScriptRequireResolver : IScriptRequireResolver
     {
         /// <summary>
-        /// Tracks require.
+        /// Abstraction of generic implementation of a JsInterface
         /// </summary>
-        private class RequireRecord
+        private interface IJsInterfaceRecord
         {
             /// <summary>
             /// Value passed to require().
             /// </summary>
-            public readonly string Id;
+            string Id { get; }
 
             /// <summary>
-            /// Value to return.
+            /// Creates a new requires record for the interface.
             /// </summary>
-            public readonly JsValue Value;
+            IRequireRecord NewRecord(string id, IJsExecutionContext executionContext);
+        }
+
+        /// <summary>
+        /// Abstraction of generic implementation of a RequireRecord
+        /// </summary>
+        private interface IRequireRecord
+        {
+            /// <summary>
+            /// Value passed to require().
+            /// </summary>
+            string Id { get; }
 
             /// <summary>
-            /// Constructor.
+            /// Gets the record value as generic object.
             /// </summary>
-            public RequireRecord(string id, JsValue value)
-            {
-                Id = id;
-                Value = value;
-            }
+            object Value { get; }
         }
 
         /// <summary>
         /// Tracks JsInterface implementations.
         /// </summary>
-        private class JsInterfaceRecord
+        /// <inheritdoc />
+        private class JsInterfaceRecord<T> : IJsInterfaceRecord
         {
-            /// <summary>
-            /// Value passed to require().
-            /// </summary>
-            public readonly string Id;
+            /// <inheritdoc />
+            public string Id { get; private set; }
 
             /// <summary>
             /// C# value.
             /// </summary>
-            public readonly object Value;
+            private readonly T _value;
 
             /// <summary>
             /// Constructor.
             /// </summary>
-            public JsInterfaceRecord(string id, object value)
+            public JsInterfaceRecord(string id, T value)
             {
                 Id = id;
-                Value = value;
+                _value = value;
+            }
+
+            /// <inheritdoc />
+            public IRequireRecord NewRecord(string varName, IJsExecutionContext executionContext)
+            {
+                executionContext.SetValue(varName, _value);
+
+                return new RequireRecord<T>(Id, _value);
+            }
+        }
+
+        /// <summary>
+        /// Tracks require.
+        /// </summary>
+        /// <inheritdoc />
+        private class RequireRecord<T> : IRequireRecord
+        {
+            /// <summary>
+            /// Value to return.
+            /// </summary>
+            private readonly T _value;
+
+            /// <inheritdoc />
+            public string Id { get; private set; }
+
+            /// <inheritdoc />
+            public object Value { get { return _value; } }
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public RequireRecord(string id, T value)
+            {
+                Id = id;
+                _value = value;
             }
         }
 
@@ -86,6 +126,12 @@ module = null;
 ";
 
         /// <summary>
+        /// Cache Generic Method Info
+        /// </summary>
+        private static readonly MethodInfo _NewInterfaceMethodInfo = typeof(EnkluScriptRequireResolver)
+            .GetMethod("NewInterfaceRecord", BindingFlags.Static | BindingFlags.NonPublic);
+
+        /// <summary>
         /// Sequential ids for requires.
         /// </summary>
         private int _ids = 0;
@@ -99,16 +145,16 @@ module = null;
         /// Binder for JsInterfaces.
         /// </summary>
         private readonly IInjectionBinder _binder;
-        
+
         /// <summary>
         /// List of global C# objects that are shared across hosts.
         /// </summary>
-        private readonly List<JsInterfaceRecord> _global = new List<JsInterfaceRecord>();
+        private readonly List<IJsInterfaceRecord> _global = new List<IJsInterfaceRecord>();
 
         /// <summary>
-        /// Lists of objects by engine.
+        /// Lists of objects by executionContext.
         /// </summary>
-        private readonly Dictionary<Engine, List<RequireRecord>> _records = new Dictionary<Engine, List<RequireRecord>>();
+        private readonly Dictionary<IJsExecutionContext, List<IRequireRecord>> _records = new Dictionary<IJsExecutionContext, List<IRequireRecord>>();
 
         /// <summary>
         /// Constructor.
@@ -142,22 +188,20 @@ module = null;
                     {
                         var attribute = (JsInterfaceAttribute) attributes[0];
                         Log.Info(this, "Adding JS interface for {0}.", attribute.Name);
-                        _global.Add(new JsInterfaceRecord(
-                            attribute.Name,
-                            _binder.GetInstance(type)));
+                        _global.Add(MakeInterfaceRecord(attribute.Name, _binder, type));
                     }
                 }
             }
         }
 
         /// <inheritdoc cref="IScriptRequireResolver"/>
-        public JsValue Resolve(
+        public object Resolve(
             IScriptManager scripts,
-            Engine engine,
+            IJsExecutionContext executionContext,
             string require)
         {
             // retrieve already existing records
-            var records = Records(engine);
+            var records = Records(executionContext);
             for (int i = 0, len = records.Count; i < len; i++)
             {
                 var record = records[i];
@@ -166,7 +210,7 @@ module = null;
                     return record.Value;
                 }
             }
-            
+
             // peek through globals
             for (int i = 0, len = _global.Count; i < len; i++)
             {
@@ -174,15 +218,11 @@ module = null;
                 if (jsInterface.Id == require)
                 {
                     var id = "__global_" + _ids++;
-                    engine.SetValue(id, jsInterface.Value);
 
-                    var value = engine.GetValue(id);
+                    var record = jsInterface.NewRecord(id, executionContext);
+                    records.Add(record);
 
-                    records.Add(new RequireRecord(
-                        require,
-                        value));
-
-                    return value;
+                    return record.Value;
                 }
             }
 
@@ -222,11 +262,11 @@ module = null;
                 .Replace("{{script}}", source)
                 .Replace("{{variableName}}", variableName);
 
-            JsValue module;
+            object module;
             try
             {
-                engine.Execute(moduleCode);
-                module = engine.GetValue(variableName);
+                executionContext.RunScript(moduleCode);
+                module = executionContext.GetValue<object>(variableName);
             }
             catch (Exception exception)
             {
@@ -234,25 +274,35 @@ module = null;
                 return null;
             }
 
-            records.Add(new RequireRecord(require, module));
-
+            records.Add(new RequireRecord<object>(require, module));
             return module;
         }
 
         /// <summary>
         /// Finds or creates a list of records for an <c>Engine</c>.
         /// </summary>
-        /// <param name="engine">The engine.</param>
+        /// <param name="engine">The executionContext.</param>
         /// <returns></returns>
-        private List<RequireRecord> Records(Engine engine)
+        private List<IRequireRecord> Records(IJsExecutionContext engine)
         {
-            List<RequireRecord> records;
+            List<IRequireRecord> records;
             if (!_records.TryGetValue(engine, out records))
             {
-                records = _records[engine] = new List<RequireRecord>();
+                records = _records[engine] = new List<IRequireRecord>();
             }
 
             return records;
+        }
+        
+        /// <summary>
+        /// Creates a new <see cref="IJsInterfaceRecord"/> implementation by passing the <see cref="Type"/>
+        /// as a generic parameter into a factory method.
+        /// </summary>
+        private static IJsInterfaceRecord MakeInterfaceRecord(string id, IInjectionBinder binder, Type type)
+        {
+            var genericMethod = _NewInterfaceMethodInfo.MakeGenericMethod(type);
+
+            return (IJsInterfaceRecord) genericMethod.Invoke(null, new object[] { id, binder });
         }
     }
 }
