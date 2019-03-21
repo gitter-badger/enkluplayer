@@ -19,12 +19,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Configuration for networking.
         /// </summary>
         private readonly NetworkConfig _config;
-
-        /// <summary>
-        /// Http service.
-        /// </summary>
-        private readonly IHttpService _http;
-
+        
         /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
@@ -60,12 +55,10 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         public AssetBundleLoader(
             NetworkConfig config,
-            IHttpService http,
             IBootstrapper bootstrapper,
             string url)
         {
             _config = config;
-            _http = http;
             _bootstrapper = bootstrapper;
             _url = url;
         }
