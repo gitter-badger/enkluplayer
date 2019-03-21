@@ -480,7 +480,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// How long to wait before loading from disk. 0 - Off.
         /// </summary>
-        public float DiskFallbackSecs = 0;
+        public float DiskFallbackSecs = 5f;
 
         /// <summary>
         /// Current environment we should connect to.
