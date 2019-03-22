@@ -382,25 +382,18 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper.BootstrapCoroutine(Wait(
                 milliseconds / 1000f,
                 () => element.Schema.Set(prop, !value)));
-
-            Log.Warning(this, "1");
-
+            
             if (null == _tcp)
             {
-                Log.Warning(this, "1.5");
                 return;
             }
 
             // try to send a request
             if (_tcp.IsConnected)
             {
-                Log.Warning(this, "2");
-
                 // we need the hash to send a request
                 var hash = _sceneHandler.ElementHash(elementId);
-
-                Log.Warning(this, "3");
-
+                
                 // no hash found
                 if (0 == hash)
                 {
@@ -409,7 +402,6 @@ namespace CreateAR.EnkluPlayer
                 // hash found, send request
                 else
                 {
-                    Log.Warning(this, "4");
                     Send(new AutoToggleEvent
                     {
                         ElementHash = hash,
@@ -419,8 +411,6 @@ namespace CreateAR.EnkluPlayer
                     });
                 }
             }
-
-            Log.Warning(this, "5");
         }
 
         /// <inheritdoc />
