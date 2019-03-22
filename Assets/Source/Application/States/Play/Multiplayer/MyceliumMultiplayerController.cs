@@ -270,6 +270,12 @@ namespace CreateAR.EnkluPlayer
                 _tcp = null;
             }
 
+            if (null != _connect)
+            {
+                _connect.Abort();
+                _connect = null;
+            }
+
             return Connect();
         }
 
