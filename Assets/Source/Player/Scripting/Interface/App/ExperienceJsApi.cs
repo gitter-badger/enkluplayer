@@ -3,8 +3,6 @@ using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
-using Jint;
-using Jint.Native;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -54,7 +52,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Refreshes list of experiences.
         /// </summary>
-        public void refresh(Engine engine, Func<JsValue, JsValue[], JsValue> callback)
+        public void refresh(Action<string> callback)
         {
             _api
                 .Apps
@@ -75,20 +73,14 @@ namespace CreateAR.EnkluPlayer.Scripting
                             })
                             .ToArray();
 
-                        callback(
-                            JsValue.FromObject(engine, this),
-                            new JsValue[0]);
+                        callback(null);
                     }
                     else
                     {
-                        callback(
-                            JsValue.FromObject(engine, this),
-                            new[] {new JsValue(response.Payload.Error)});
+                        callback(response.Payload.Error);
                     }
                 })
-                .OnFailure(ex => callback(
-                    JsValue.FromObject(engine, this),
-                    new [] { new JsValue(ex.Message) })); 
+                .OnFailure(ex => callback(ex.Message)); 
         }
 
         /// <summary>

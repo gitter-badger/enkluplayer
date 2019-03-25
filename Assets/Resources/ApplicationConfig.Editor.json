@@ -1,0 +1,20 @@
+{
+    "Log": {
+        "Targets": [
+            {
+                "Target": "unity",
+                "Level": "Debug",
+                "IncludeLevel": false,
+                "IncludeTimestamp": false
+            },
+            {
+                "Target": "file",
+                "Level": "Debug",
+                "IncludeObject": true
+            }
+        ]
+    },
+	"Metrics": {
+		"Enabled": false
+	}
+}

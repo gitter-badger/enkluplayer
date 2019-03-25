@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Orchid;
 using Jint;
 using Jint.Native;
 
@@ -43,21 +44,20 @@ namespace CreateAR.EnkluPlayer.Scripting
             _multiplayer.AutoToggle(_element.Id, property, startingValue, milliseconds);
         }
 
-        public void own(Engine engine, Func<JsValue, JsValue[], JsValue> cb)
+        public void own(IJsCallback cb)
         {
             _multiplayer.Own(_element.Id, success =>
             {
-                var parameters = new JsValue[0];
-                if (!success)
-                {
-                    parameters = new [] { new JsValue("Could not own element.") };
-                }
-
                 try
                 {
-                    cb(
-                        JsValue.FromObject(engine, this),
-                        parameters);
+                    if (!success)
+                    {
+                        cb.Apply(this, "Could not own element");
+                    }
+                    else
+                    {
+                        cb.Apply(this);
+                    }
                 }
                 catch (Exception exception)
                 {

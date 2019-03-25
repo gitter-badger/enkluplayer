@@ -30,7 +30,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             Assert.AreEqual(12, output.AsNumber());
         }
-        
+
         [Test]
         public void GetSetString()
         {
@@ -41,7 +41,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             Assert.AreEqual("bar", output.AsString());
         }
-        
+
         [Test]
         public void GetSetBool()
         {

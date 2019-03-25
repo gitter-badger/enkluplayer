@@ -533,7 +533,7 @@ namespace CreateAR.EnkluPlayer
             ISocketListener listener,
             ISocketMessageWriter writer)
         {
-            ConnectionTimeout = TimeSpan.FromMilliseconds(3000);
+            ConnectionTimeout = TimeSpan.FromMilliseconds(500);
 
             _metrics = metrics;
             _listener = listener;

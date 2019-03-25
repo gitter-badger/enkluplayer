@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
@@ -27,6 +28,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IWorldAnchorProvider _anchors;
         private readonly IAppSceneManager _scenes;
         private readonly IMetricsService _metrics;
+        private readonly IHttpService _http;
         private readonly CommandService _commands;
         private readonly BleServiceConfiguration _bleConfig;
 
@@ -47,6 +49,7 @@ namespace CreateAR.EnkluPlayer
             IWorldAnchorProvider anchors,
             IAppSceneManager scenes,
             IMetricsService metrics,
+            IHttpService http,
             CommandService commands,
             BleServiceConfiguration bleConfig)
         {
@@ -58,6 +61,7 @@ namespace CreateAR.EnkluPlayer
             _anchors = anchors;
             _scenes = scenes;
             _metrics = metrics;
+            _http = http;
             _commands = commands;
             _bleConfig = bleConfig;
         }
@@ -76,6 +80,9 @@ namespace CreateAR.EnkluPlayer
 
             // reset assets
             _assets.Uninitialize();
+
+            // set global timeout
+            _http.TimeoutMs = long.MaxValue;
 
             AddCommands();
             

@@ -19,7 +19,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Configuration for networking.
         /// </summary>
         private readonly NetworkConfig _config;
-
+        
         /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
@@ -156,14 +156,14 @@ namespace CreateAR.EnkluPlayer.Assets
                 _bundleLoad.Fail(new Exception("Could not load asset: Offline Mode enabled."));
                 yield break;
             }
-            
+
             var request = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
             request.SendWebRequest();
 
             while (!request.isDone)
             {
                 Progress.Value = request.downloadProgress;
-
+                
                 yield return null;
             }
             

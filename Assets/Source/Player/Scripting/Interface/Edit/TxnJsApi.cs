@@ -50,16 +50,16 @@ namespace CreateAR.EnkluPlayer.Scripting
                 .OnFailure(ex => Log.Warning(this, "Txn request unsuccessful : {0}", ex));
         }
 
-        public void requestCallback(Engine engine, ElementTxnJs txn, Func<JsValue, JsValue[], JsValue> cb)
+        public void requestCallback(ElementTxnJs txn, Action<string> cb)
         {
             _txns
                 .Request(txn.Txn)
-                .OnSuccess(res => cb(JsValue.FromObject(engine, this), new JsValue[0]))
+                .OnSuccess(res => cb(null))
                 .OnFailure(ex =>
                 {
                     Log.Warning(this, "Txn request unsuccessful : {0}", ex);
 
-                    cb(JsValue.FromObject(engine, this), new[] { new JsValue(ex.Message) });
+                    cb(ex.Message);
                 });
         }
     }

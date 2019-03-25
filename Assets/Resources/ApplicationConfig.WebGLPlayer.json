@@ -1,6 +1,17 @@
 {
 	"Version": "0.18.5",
 	"Log": {
-        "Level": "Debug"
-    }
+        "Targets": [
+            {
+                "Target": "unity",
+                "Level": "Debug",
+                "IncludeLevel": false,
+                "IncludeTimestamp": false
+            },
+            {
+                "Target": "file",
+                "Enabled": false
+            }
+        ]
+    },
 }

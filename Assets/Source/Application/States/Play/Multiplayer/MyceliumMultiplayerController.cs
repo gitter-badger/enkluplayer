@@ -60,9 +60,8 @@ namespace CreateAR.EnkluPlayer
         /// Back off calculation that occurs each reconnect attempt. Provides a nice spacing between
         /// attempts preventing spam when the server isn't available.
         /// </summary>
-        private readonly IBackOff _backOff = new ExponentialBackOff(5.0, 60.0);
-        //private readonly IBackOff _backOff = new LinearBackOff(5.0, 3.0, 60.0);
-
+        private readonly IBackOff _backOff = new ExponentialBackOff(5.0, 30.0);
+        
         /// <summary>
         /// Handles scene events.
         /// </summary>
@@ -169,7 +168,7 @@ namespace CreateAR.EnkluPlayer
             _writer = writer;
             _api = api;
             _config = config;
-            
+
             _sceneHandler = new SceneEventHandler(
                 _elements,
                 new ScenePatcher(scenes, patcherFactory));
@@ -270,7 +269,13 @@ namespace CreateAR.EnkluPlayer
 
                 _tcp = null;
             }
-            
+
+            if (null != _connect)
+            {
+                _connect.Abort();
+                _connect = null;
+            }
+
             return Connect();
         }
 
@@ -383,13 +388,18 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper.BootstrapCoroutine(Wait(
                 milliseconds / 1000f,
                 () => element.Schema.Set(prop, !value)));
+            
+            if (null == _tcp)
+            {
+                return;
+            }
 
             // try to send a request
             if (_tcp.IsConnected)
             {
                 // we need the hash to send a request
                 var hash = _sceneHandler.ElementHash(elementId);
-
+                
                 // no hash found
                 if (0 == hash)
                 {

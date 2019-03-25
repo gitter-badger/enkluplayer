@@ -1,7 +1,5 @@
 using System.Reflection;
-using CreateAR.EnkluPlayer;
-using Jint;
-using Jint.Native;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -18,6 +16,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Retrieves a JsValue for a string.
         /// </summary>
-        JsValue Resolve(IScriptManager scripts, Engine engine, string require);
+        object Resolve(IScriptManager scripts, IJsExecutionContext executionContext, string require);
     }
 }

@@ -66,7 +66,7 @@ namespace CreateAR.EnkluPlayer
                 MessageTypes.ENV_INFO_UPDATE,
                 Messages_OnEnvInfoUpdate);
         }
-
+        
         /// <inheritdoc />
         public override void Stop()
         {

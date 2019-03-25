@@ -99,7 +99,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-        
+
         /// <summary>
         /// URI to loader.
         /// </summary>
@@ -148,7 +148,7 @@ namespace CreateAR.EnkluPlayer.Assets
             _config = config;
             _bootstrapper = bootstrapper;
             _metrics = metrics;
-            
+
             Urls = urls;
             LoadFailures = new List<AssetLoadFailure>();
             
