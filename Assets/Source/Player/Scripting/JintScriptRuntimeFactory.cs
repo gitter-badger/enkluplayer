@@ -1,4 +1,6 @@
 ﻿//#if !NETFX_CORE
+
+using CreateAR.Commons.Unity.Logging;
 using Enklu.Orchid;
 using Enklu.Orchid.Jint;
 using Jint;
@@ -27,6 +29,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             options.AllowClr();
             options.CatchClrExceptions(exception =>
             {
+                Log.Error(this, "CLR exception: {0}: {1}", exception.Message, exception.StackTrace);
                 throw exception;
             });
 
