@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Orchid;
 using Jint;
 using Jint.Native;
 
@@ -50,16 +51,16 @@ namespace CreateAR.EnkluPlayer.Scripting
                 .OnFailure(ex => Log.Warning(this, "Txn request unsuccessful : {0}", ex));
         }
 
-        public void requestCallback(ElementTxnJs txn, Action<string> cb)
+        public void requestCallback(ElementTxnJs txn, IJsCallback cb)
         {
             _txns
                 .Request(txn.Txn)
-                .OnSuccess(res => cb(null))
+                .OnSuccess(res => cb.Invoke(null))
                 .OnFailure(ex =>
                 {
                     Log.Warning(this, "Txn request unsuccessful : {0}", ex);
 
-                    cb(ex.Message);
+                    cb.Invoke(ex.Message);
                 });
         }
     }
