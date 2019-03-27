@@ -44,7 +44,7 @@ namespace CreateAR.EnkluPlayer
             IElementUpdateDelegate @delegate,
             IUIManager ui,
             IElementTxnManager txns,
-            IPrimaryAnchorManager primaryAnchor)
+            IAnchorManager primaryAnchor)
         {
             _delegate = @delegate;
             _ui = ui;

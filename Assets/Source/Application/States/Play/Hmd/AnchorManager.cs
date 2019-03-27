@@ -16,7 +16,7 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// Basic implementation of the primary anchor manager.
     /// </summary>
-    public class PrimaryAnchorManager : IPrimaryAnchorManager, IMeshCaptureObserver
+    public class AnchorManager : IAnchorManager, IMeshCaptureObserver
     {
         /// <summary>
         /// Tracks information about a surface.
@@ -235,17 +235,17 @@ namespace CreateAR.EnkluPlayer
                     return WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated;
                 }
 
-                if (null == Anchor)
+                if (null == Primary)
                 {
                     return WorldAnchorWidget.WorldAnchorStatus.None;
                 }
 
-                return Anchor.Status;
+                return Primary.Status;
             }
         }
 
         /// <inheritdoc />
-        public WorldAnchorWidget Anchor { get; private set; }
+        public WorldAnchorWidget Primary { get; private set; }
 
         /// <inheritdoc />
         public event Action OnAnchorElementUpdate;
@@ -253,7 +253,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public PrimaryAnchorManager(
+        public AnchorManager(
             IAppSceneManager scenes,
             IElementTxnManager txns,
             IIntentionManager intentions,
@@ -357,7 +357,7 @@ namespace CreateAR.EnkluPlayer
                 _anchorsEnabledProp = null;
             }
 
-            Anchor = null;
+            Primary = null;
 
             if (null != _createToken)
             {
@@ -402,7 +402,7 @@ namespace CreateAR.EnkluPlayer
             // Attempt to use the primary... primarily
             if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
             {
-                refAnchor = Anchor;
+                refAnchor = Primary;
             }
             else
             {
@@ -490,7 +490,7 @@ namespace CreateAR.EnkluPlayer
             if (_config.Play.Edit)
             {
                 // in edit mode, create a primary anchor
-                if (null == Anchor)
+                if (null == Primary)
                 {
                     Log.Info(this, "No primary anchor found. Will create one!");
 
@@ -538,22 +538,22 @@ namespace CreateAR.EnkluPlayer
                 var anchor = _anchors[i];
                 if (PROP_TAG_VALUE == anchor.Schema.Get<string>(PROP_TAG_KEY).Value)
                 {
-                    if (null != Anchor)
+                    if (null != Primary)
                     {
                         Log.Error(this, "Found multiple primary anchors! Choosing first by id.");
 
                         // compare id so we at least pick the same primary each time
                         if (string.Compare(
-                                Anchor.Id,
+                                Primary.Id,
                                 anchor.Id,
                                 StringComparison.Ordinal) < 0)
                         {
-                            Anchor = anchor;
+                            Primary = anchor;
                         }
                     }
                     else
                     {
-                        Anchor = anchor;
+                        Primary = anchor;
                     }
                 }
                 else if (anchor.Schema.GetOwn("autoexport", false).Value)
@@ -562,9 +562,9 @@ namespace CreateAR.EnkluPlayer
                 }
             }
 
-            if (null != Anchor)
+            if (null != Primary)
             {
-                _scan = (ScanWidget) Anchor.Children[0];
+                _scan = (ScanWidget) Primary.Children[0];
             }
         }
 
@@ -611,10 +611,10 @@ namespace CreateAR.EnkluPlayer
                     anchor.GameObject.transform.position = position.ToVector();
                     anchor.GameObject.transform.rotation = Quaternion.Euler(rotation.ToVector());
 
-                    Anchor = anchor;
+                    Primary = anchor;
                     _scan = (ScanWidget) anchor.Children[0];
 
-                    SaveAnchor(Anchor);
+                    SaveAnchor(Primary);
                     SetupMeshScan(true);
                 })
                 .OnFailure(exception => Log.Error(this, "Could not create primary anchor : {0}", exception));
@@ -660,7 +660,7 @@ namespace CreateAR.EnkluPlayer
             while (_pollAnchors)
             {
                 // no primary anchor
-                if (null == Anchor)
+                if (null == Primary)
                 {
                     _rootUI.Schema.Set("visible", false);
                 }
@@ -1085,7 +1085,7 @@ Errors: {3} / {0}",
         {
             Log.Info(this, "Reset primary anchor requested.");
 
-            if (null == Anchor)
+            if (null == Primary)
             {
                 Log.Warning(this, "No primary anchor to destroy.");
                 return;
@@ -1095,7 +1095,7 @@ Errors: {3} / {0}",
 
             // destroy primary anchor
             _txns
-                .Request(new ElementTxn(_sceneId).Delete(Anchor.Id))
+                .Request(new ElementTxn(_sceneId).Delete(Primary.Id))
                 .OnSuccess(response =>
                 {
                     Log.Info(this, "Destroyed primary anchor. Recreating.");

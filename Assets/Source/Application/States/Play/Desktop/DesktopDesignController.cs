@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Primary anchor.
         /// </summary>
-        private readonly IPrimaryAnchorManager _primaryAnchor;
+        private readonly IAnchorManager _primaryAnchor;
         
         /// <summary>
         /// Contains editor settings.
@@ -64,7 +64,7 @@ namespace CreateAR.EnkluPlayer
             IElementUpdateDelegate elementUpdater,
             IAppSceneManager scenes,
             IBridge bridge,
-            IPrimaryAnchorManager primaryAnchor,
+            IAnchorManager primaryAnchor,
             EditorSettings editorSettings)
         {
             _elementUpdater = elementUpdater;
@@ -291,7 +291,7 @@ namespace CreateAR.EnkluPlayer
             //Sets the reference object created as child of primary anchor if found
             _primaryAnchor.OnPrimaryLocated(() =>
             {
-                WorldAnchorWidget primaryAnchorWidget = _primaryAnchor.Anchor;
+                WorldAnchorWidget primaryAnchorWidget = _primaryAnchor.Primary;
                 if (primaryAnchorWidget != null)
                 {
                     _referenceCube.transform.SetParent(primaryAnchorWidget.GameObject.transform, false);

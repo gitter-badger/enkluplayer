@@ -274,7 +274,7 @@ namespace CreateAR.EnkluPlayer
 
             if (DeviceHelper.IsHoloLens())
             {
-                return PrimaryAnchorManager.AreAllAnchorsReady;
+                return AnchorManager.AreAllAnchorsReady;
             }
 
             return true;
@@ -288,7 +288,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (DeviceHelper.IsHoloLens())
             {
-                return PrimaryAnchorManager.AreAllAnchorsReady;
+                return AnchorManager.AreAllAnchorsReady;
             }
 
             return true;

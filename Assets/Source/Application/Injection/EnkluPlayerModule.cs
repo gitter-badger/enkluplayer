@@ -435,7 +435,7 @@ namespace CreateAR.EnkluPlayer
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
-                binder.Bind<IPrimaryAnchorManager>().To<PrimaryAnchorManager>().ToSingleton();
+                binder.Bind<IAnchorManager>().To<AnchorManager>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());

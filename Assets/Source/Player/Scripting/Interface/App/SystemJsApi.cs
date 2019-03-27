@@ -88,7 +88,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 
                 var root = _sceneManager.Root(sceneId);
-                var schema = root.Schema.Get<string>(PrimaryAnchorManager.PROP_LOCATING_MESSAGE_KEY);
+                var schema = root.Schema.Get<string>(AnchorManager.PROP_LOCATING_MESSAGE_KEY);
                 return schema.Value;
             }
             set 
@@ -101,7 +101,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 
                 var root = _sceneManager.Root(sceneId);
-                var schema = root.Schema.Get<string>(PrimaryAnchorManager.PROP_LOCATING_MESSAGE_KEY);
+                var schema = root.Schema.Get<string>(AnchorManager.PROP_LOCATING_MESSAGE_KEY);
                 schema.Value = value;
             }
         }
@@ -121,7 +121,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 
                 var root = _sceneManager.Root(sceneId);
-                var schema = root.Schema.Get<bool>(PrimaryAnchorManager.PROP_DISABLE_BYPASS_KEY);
+                var schema = root.Schema.Get<bool>(AnchorManager.PROP_DISABLE_BYPASS_KEY);
                 return schema.Value;
             }
             set 
@@ -134,7 +134,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 
                 var root = _sceneManager.Root(sceneId);
-                var schema = root.Schema.Get<bool>(PrimaryAnchorManager.PROP_DISABLE_BYPASS_KEY);
+                var schema = root.Schema.Get<bool>(AnchorManager.PROP_DISABLE_BYPASS_KEY);
                 schema.Value = value;
             }
         }

@@ -143,7 +143,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null == Renderer)
             {
-                var isPrimary = Anchor.Schema.Get<string>(PrimaryAnchorManager.PROP_TAG_KEY).Value == PrimaryAnchorManager.PROP_TAG_VALUE;
+                var isPrimary = Anchor.Schema.Get<string>(AnchorManager.PROP_TAG_KEY).Value == AnchorManager.PROP_TAG_VALUE;
                 Renderer = Instantiate(
                     isPrimary ? _config.PrimaryAnchorPrefab : _config.AnchorPrefab,
                     transform);

@@ -39,7 +39,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Primary anchor.
         /// </summary>
-        private readonly IPrimaryAnchorManager _primaryAnchor;
+        private readonly IAnchorManager _anchors;
 
         /// <summary>
         /// Manages controllers.
@@ -147,7 +147,7 @@ namespace CreateAR.EnkluPlayer
             IWorldAnchorProvider anchorProvider,
             IUIManager ui,
             UserPreferenceService preferenceService,
-            IPrimaryAnchorManager primaryAnchor,
+            IAnchorManager anchors,
             IVoiceCommandManager voice,
             IAppSceneManager scenes,
             IElementTxnManager txns)
@@ -159,7 +159,7 @@ namespace CreateAR.EnkluPlayer
             _anchorProvider = anchorProvider;
             _ui = ui;
             _preferenceService = preferenceService;
-            _primaryAnchor = primaryAnchor;
+            _anchors = anchors;
             _voice = voice;
             _scenes = scenes;
             _txns = txns;
@@ -250,7 +250,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="command">command</param>
         private void Voice_OnNew(string command)
         {
-            if ((_primaryAnchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated))
+            if (null != _anchors.Primary
+                && WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated == _anchors.Primary.Status)
             {
                 CloseSplashMenu();
                 OpenMainMenu();
@@ -707,7 +708,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="controller"></param>
         private void Anchor_OnAdjust(AnchorDesignController controller)
         {
-            var isPrimary = controller.Anchor.Schema.Get<string>(PrimaryAnchorManager.PROP_TAG_KEY).Value == PrimaryAnchorManager.PROP_TAG_VALUE;
+            var isPrimary = controller.Anchor.Schema.Get<string>(AnchorManager.PROP_TAG_KEY).Value == AnchorManager.PROP_TAG_VALUE;
             if (isPrimary)
             {
                 _design.ChangeState<EditPrimaryAnchorDesignState>(controller);

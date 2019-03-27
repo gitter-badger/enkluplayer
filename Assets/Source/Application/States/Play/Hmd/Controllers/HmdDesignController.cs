@@ -28,7 +28,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IVoiceCommandManager _voice;
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
-        private readonly IPrimaryAnchorManager _primaryAnchor;
+        private readonly IAnchorManager _primaryAnchor;
 
         /// <summary>
         /// All states.
@@ -124,7 +124,7 @@ namespace CreateAR.EnkluPlayer
             IVoiceCommandManager voice,
             IUIManager ui,
             IMessageRouter messages,
-            IPrimaryAnchorManager primaryAnchor,
+            IAnchorManager primaryAnchor,
             ApiController api,
             EditorSettings editorSettings,
 
@@ -358,7 +358,7 @@ namespace CreateAR.EnkluPlayer
 
             // Sets the reference object created as child of primary anchor if found
             _primaryAnchor.OnPrimaryLocated(() => {
-                var primaryAnchorWidget = _primaryAnchor.Anchor;
+                var primaryAnchorWidget = _primaryAnchor.Primary;
                 if (primaryAnchorWidget != null)
                 {
                     _referenceCube.transform.SetParent(
