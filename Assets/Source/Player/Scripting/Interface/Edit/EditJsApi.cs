@@ -94,7 +94,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             _connectToken
-                .OnSuccess(_ => cb.Invoke(null))
+                .OnSuccess(_ => cb.Invoke())
                 .OnFailure(ex => cb.Invoke(ex.Message));
         }
     }

@@ -202,6 +202,11 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IAsyncToken<string[]> GetOrgs()
         {
+            if (DeviceHelper.IsWebGl())
+            {
+                return new AsyncToken<string[]>(new string[0]);
+            }
+
             var token = new AsyncToken<string[]>();
 
             // get list of organizations
