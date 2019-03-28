@@ -59,7 +59,7 @@ namespace CreateAR.EnkluPlayer
 
                         if (null != networkException)
                         {
-                            var aggregate = new Commons.Unity.Async.AggregateException();
+                            var aggregate = new AggregateException();
                             aggregate.Exceptions.Add(networkException);
                             aggregate.Exceptions.Add(exception);
 

@@ -31,7 +31,7 @@ namespace CreateAR.EnkluPlayer.Test
             }
 
             return new AsyncToken<File<byte[]>>(new Exception(
-                "Could not fine file."));
+                "Could not find file."));
         }
 
         /// <inheritdoc cref="IFileSystem"/>
