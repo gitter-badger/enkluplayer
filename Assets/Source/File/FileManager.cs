@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.EnkluPlayer.Test;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -34,14 +35,14 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Null <c>IFileSystem</c> implementation which allows us to avoid null checks.
+        /// Fallback <c>IFileSystem</c> implementation which allows us to avoid null checks.
         /// </summary>
-        private readonly NullFileSystem _nullFileSystem = new NullFileSystem();
+        private readonly IFileSystem _defaultFileSystem = new MemoryFileSystem();
 
         /// <summary>
-        /// Null <c>ISerializer</c> implementation which allows us to avoid null checks.
+        /// Fallback <c>ISerializer</c> implementation which allows us to avoid null checks.
         /// </summary>
-        private readonly NullSerializer _nullSerializer = new NullSerializer();
+        private readonly ISerializer _defaultSerializer = new JsonSerializer();
 
         /// <summary>
         /// List of configured file systems.
@@ -187,9 +188,9 @@ namespace CreateAR.EnkluPlayer
 
             return new FileSystemConfiguration
             {
-                FileSystem = _nullFileSystem,
+                FileSystem = _defaultFileSystem,
                 Protocol = "",
-                Serializer = _nullSerializer
+                Serializer = _defaultSerializer
             };
         }
     }
