@@ -10,9 +10,16 @@ namespace CreateAR.EnkluPlayer
     {
         /// <summary>
         /// Called to get reference to primary anchor.
+        ///
+        /// TODO: get rid of this
         /// </summary>
         WorldAnchorWidget Primary { get; }
         
+        /// <summary>
+        /// True iff anchors are ready.
+        /// </summary>
+        bool IsReady { get; }
+
         /// <summary>
         /// Sets up the manager.
         /// </summary>
@@ -27,6 +34,6 @@ namespace CreateAR.EnkluPlayer
         /// Called when the primary anchor is ready and located.
         /// </summary>
         /// <param name="ready">The callback to call when ready.</param>
-        void OnPrimaryLocated(Action ready);
+        ICancelable OnReady(Action ready);
     }
 }

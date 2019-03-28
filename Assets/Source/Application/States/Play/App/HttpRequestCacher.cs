@@ -3,6 +3,8 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 
+using AggregateException = CreateAR.Commons.Unity.Async.AggregateException;
+
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Manages fils.
+        /// Manages files.
         /// </summary>
         private readonly IFileManager _files;
 

@@ -357,7 +357,7 @@ namespace CreateAR.EnkluPlayer
             outline.Init(bounds);
 
             // Sets the reference object created as child of primary anchor if found
-            _primaryAnchor.OnPrimaryLocated(() => {
+            _primaryAnchor.OnReady(() => {
                 var primaryAnchorWidget = _primaryAnchor.Primary;
                 if (primaryAnchorWidget != null)
                 {

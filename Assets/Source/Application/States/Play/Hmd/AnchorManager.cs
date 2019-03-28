@@ -14,8 +14,10 @@ using UnityEngine;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Basic implementation of the primary anchor manager.
+    /// Basic implementation of the anchor manager.
     /// </summary>
+    /// <inheritdoc cref="IAnchorManager" />
+    /// <inheritdoc cref="IMeshCaptureObserver" />
     public class AnchorManager : IAnchorManager, IMeshCaptureObserver
     {
         /// <summary>
@@ -124,7 +126,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Callbacks for ready.
         /// </summary>
-        private readonly List<Action> _onReady = new List<Action>();
+        private readonly List<CancelableCallback> _onReady = new List<CancelableCallback>();
 
         /// <summary>
         /// Immediate child of anchor.
@@ -142,7 +144,7 @@ namespace CreateAR.EnkluPlayer
         private string _sceneId;
 
         /// <summary>
-        /// True iff autoexport coroutine should be running.
+        /// True iff auto-export coroutine should be running.
         /// </summary>
         private bool _isAutoExportAlive;
 
@@ -246,6 +248,12 @@ namespace CreateAR.EnkluPlayer
 
         /// <inheritdoc />
         public WorldAnchorWidget Primary { get; private set; }
+
+        /// <inheritdoc />
+        public bool IsReady
+        {
+            get { return AreAllAnchorsReady; }
+        }
 
         /// <inheritdoc />
         public event Action OnAnchorElementUpdate;
@@ -366,16 +374,20 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public void OnPrimaryLocated(Action ready)
+        public ICancelable OnReady(Action ready)
         {
+            var cb = new CancelableCallback(ready);
+
             if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
             {
-                ready();
+                cb.Invoke();
             }
             else
             {
-                _onReady.Add(ready);
+                _onReady.Add(cb);
             }
+
+            return cb;
         }
 
         /// <inheritdoc />
@@ -435,7 +447,7 @@ namespace CreateAR.EnkluPlayer
 
             for (int i = 0, len = temp.Length; i < len; i++)
             {
-                temp[i]();
+                temp[i].Invoke();
             }
         }
 
@@ -1050,7 +1062,7 @@ Errors: {3} / {0}",
 
             var anchor = (WorldAnchorWidget) @object;
 
-            OnPrimaryLocated(() =>
+            OnReady(() =>
             {
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
