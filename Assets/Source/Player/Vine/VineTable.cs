@@ -15,12 +15,7 @@ namespace CreateAR.EnkluPlayer.Vine
         /// Queued actions that need to happen on the main thread.
         /// </summary>
         private readonly Queue<Action> _actions = new Queue<Action>();
-
-        /// <summary>
-        /// Path watcher starts in.
-        /// </summary>
-        private string _rootPath;
-
+        
         /// <summary>
         /// References.
         /// </summary>
@@ -64,12 +59,10 @@ namespace CreateAR.EnkluPlayer.Vine
         /// </summary>
         private void Watch()
         {
-            _rootPath = Path.Combine(UnityEngine.Application.dataPath, "");
-            
 #if UNITY_EDITOR
             var watcher = new FileSystemWatcher
             {
-                Path = _rootPath,
+                Path = Path.Combine(UnityEngine.Application.dataPath, ""),
                 NotifyFilter = NotifyFilters.LastWrite,
                 Filter = "*.txt"
             };

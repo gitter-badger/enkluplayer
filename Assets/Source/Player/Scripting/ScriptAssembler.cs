@@ -4,6 +4,7 @@ using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Orchid;
 using Jint.Parser;
 using Newtonsoft.Json.Linq;
 
@@ -25,13 +26,18 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IScriptManager _scriptManager;
         private readonly IScriptFactory _scriptFactory;
         private readonly IElementJsCache _jsCache;
-        private readonly IScriptingHostFactory _scriptingHostFactory;
+        private readonly IScriptExecutorFactory _scriptExecutorFactory;
         private readonly AppJsApi _appJsApi;
 
         /// <summary>
         /// The backing Element.
         /// </summary>
         private Element _element;
+
+        /// <summary>
+        /// Context for behavior scripts to use.
+        /// </summary>
+        private IJsExecutionContext _jsContext;
         
         /// <summary>
         /// The Element's schema prop for scripts.
@@ -47,11 +53,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Map of built Script components.
         /// </summary>
         private readonly Dictionary<EnkluScript, Script> _scriptComponents = new Dictionary<EnkluScript, Script>();
-
-        /// <summary>
-        /// Backing scripting engine.
-        /// </summary>
-        private UnityScriptingHost _engine;
  
         /// <inheritdoc />
         public event Action<Script[], Script[]> OnScriptsUpdated;
@@ -61,29 +62,37 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public ScriptAssembler(
             IScriptManager scriptManager, 
-            IScriptFactory scriptFactory, 
+            IScriptFactory scriptFactory,
+            IScriptExecutorFactory scriptExecutorFactory,
             IElementJsCache jsCache,
-            IScriptingHostFactory scriptingHostFactory,
             AppJsApi appJsApi)
         {
             _scriptManager = scriptManager;
             _scriptFactory = scriptFactory;
+            _scriptExecutorFactory = scriptExecutorFactory;
             _jsCache = jsCache;
-            _scriptingHostFactory = scriptingHostFactory;
             _appJsApi = appJsApi;
         }
 
         /// <inheritdoc />
         public void Setup(Element element)
         {
-            Log.Info(this, "Loading scripts for {0}", element);
-            _element = element;
-            _engine = CreateBehaviorHost();
+            if (_element != null)
+            {
+                throw new Exception("Setup called twice without a Teardown inbetween");
+            }
 
-            _schemaProp = element.Schema.GetOwn(SCHEMA_SOURCE, "[]");
+            _element = element;
+            _jsContext = _scriptExecutorFactory.NewExecutionContext(element);
+            _jsContext.SetValue("system", SystemJsApi.Instance);
+            _jsContext.SetValue("app", _appJsApi);
+            
+            Log.Info(this, "Loading scripts for {0}", _element);
+
+            _schemaProp = _element.Schema.GetOwn(SCHEMA_SOURCE, "[]");
             _schemaProp.OnChanged += Schema_OnUpdated;
 
-            var contentWidget = element as ContentWidget;
+            var contentWidget = _element as ContentWidget;
             if (contentWidget != null)
             {
                 contentWidget.OnLoaded.OnFinally(_ => SetupScripts());
@@ -99,8 +108,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public void Teardown()
         {
-            _engine = null;
-
             _schemaProp.OnChanged -= Schema_OnUpdated;
 
             foreach (var script in _scriptComponents.Keys)
@@ -252,7 +259,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     newScript = _scriptFactory.Vine(_element, script);
                     break;
                 case ScriptType.Behavior:
-                    newScript = _scriptFactory.Behavior(_element, _jsCache, _engine, script);
+                    newScript = _scriptFactory.Behavior(_jsCache, _jsContext, _element, script);
                     break;
                 default:
                     throw new Exception("Is there a new script type?!");
@@ -310,20 +317,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             return ids;
-        }
-
-        /// <summary>
-        /// Creates a UnityScriptingHost with all the works.
-        /// </summary>
-        /// <returns></returns>
-        private UnityScriptingHost CreateBehaviorHost()
-        {
-            var host = _scriptingHostFactory.NewScriptingHost(_element);
-            host.SetValue("system", SystemJsApi.Instance);
-            host.SetValue("app", _appJsApi);
-            host.SetValue("this", _jsCache.Element(_element));
-            
-            return host;
         }
     }
 }

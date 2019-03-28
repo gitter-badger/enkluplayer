@@ -335,6 +335,13 @@ namespace CreateAR.EnkluPlayer
                 UnityEngine.XR.InputTracking.Recenter();
 #endif
             });
+            _voice.Register("bypass", _ =>
+            {
+                if (!AreAllAnchorsReady)
+                {
+                    BypassAnchorRequirement();
+                }
+            });
         }
 
         /// <inheritdoc />

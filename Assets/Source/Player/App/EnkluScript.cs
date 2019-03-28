@@ -8,7 +8,7 @@ using Jint.Parser.Ast;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// A dynamically executable script. 
+    /// A dynamically executable script.
     /// </summary>
     public class EnkluScript
     {
@@ -47,7 +47,7 @@ namespace CreateAR.EnkluPlayer
         /// For loading scripts.
         /// </summary>
         private readonly IScriptLoader _loader;
-        
+
         /// <summary>
         /// Ongoing load.
         /// </summary>
@@ -57,20 +57,20 @@ namespace CreateAR.EnkluPlayer
         /// Executes scripts.
         /// </summary>
         private IScriptExecutor _executor;
-        
+
         /// <summary>
         /// Data about the script.
         /// </summary>
         public ScriptData Data { get; private set; }
-        
+
         /// <summary>
         /// Program that can be executed.
         /// </summary>
-        public Program Program
+        public string Program
         {
             get
             {
-                return _parser.Parse(Source, Executor.Data, new ParserOptions());
+                return _parser.Parse(Source, Executor.Data);
             }
         }
 
@@ -93,7 +93,7 @@ namespace CreateAR.EnkluPlayer
         /// True iff the script is enabled.
         /// </summary>
         public bool Enabled { get; set; }
-        
+
         /// <summary>
         /// Dispatched when a load is successful.
         /// </summary>
@@ -127,7 +127,7 @@ namespace CreateAR.EnkluPlayer
 
             Load(data);
         }
-        
+
         /// <summary>
         /// Should not be called directly. Use <c>IScriptManager</c>::Release().
         /// </summary>
@@ -160,7 +160,7 @@ namespace CreateAR.EnkluPlayer
         {
             Data = data;
             Status = LoadStatus.IsLoading;
-            
+
             _load = _loader
                 .Load(Data)
                 .OnSuccess(text =>

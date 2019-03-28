@@ -1,4 +1,5 @@
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Orchid;
 using Jint;
 using UnityEngine;
 
@@ -20,9 +21,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <returns></returns>
         BehaviorScript Behavior(
+            IElementJsCache jsCache,
+            IJsExecutionContext jsContext,
             Element element,
-            IElementJsCache jsCache,  
-            UnityScriptingHost host,
             EnkluScript script);
     }
 }

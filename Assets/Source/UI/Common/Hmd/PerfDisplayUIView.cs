@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -69,14 +70,23 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..txt-graphics")]
         public TextWidget TxtMemGraphics { get; set; }
 
-        [InjectElements("..btn-playstop")]
-        public ButtonWidget BtnPlayStop { get; set; }
+        [InjectElements("..btn-one")]
+        public ButtonWidget BtnOneMinute { get; set; }
+
+        [InjectElements("..btn-two")]
+        public ButtonWidget BtnTwoMinutes { get; set; }
+
+        [InjectElements("..btn-three")]
+        public ButtonWidget BtnThreeMinutes { get; set; }
+
+        [InjectElements("..txt-progress")]
+        public TextWidget TxtProgress { get; set; }
 
         /// <summary>
         /// Called when the perf hud should be closed.
         /// </summary>
         public event Action OnClose;
-
+        
         /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
@@ -89,39 +99,7 @@ namespace CreateAR.EnkluPlayer
                     OnClose();
                 }
             };
-
-            BtnPlayStop.OnActivated += _ =>
-            {
-                if (_monitor.IsCapturing)
-                {
-                    var dump = _monitor.StopCapture();
-
-                    // send it in
-                    Api
-                        .Utilities
-                        .SendEmail(new Request
-                        {
-                            Body = dump,
-                            EmailAddress = Config.Debug.DumpEmail,
-                            Subject = string.Format("Perf Dump - {0}", DateTime.Now),
-                            FirstName = ""
-                        })
-                        .OnFailure(ex => Log.Error(this, "Could not send debug dump to {0} : {1}.",
-                            Config.Debug.DumpEmail,
-                            ex));
-
-                    BtnPlayStop.Schema.Set("icon", "play");
-                    BtnPlayStop.Schema.Set("label", "Start");
-                }
-                else
-                {
-                    _monitor.StartCapture();
-
-                    BtnPlayStop.Schema.Set("icon", "stop");
-                    BtnPlayStop.Schema.Set("label", "Stop");
-                }
-            };
-
+            
             SltTab.OnValueChanged += _ =>
             {
                 var selection = SltTab.Selection.Value;
@@ -129,6 +107,11 @@ namespace CreateAR.EnkluPlayer
                 TabMemory.Schema.Set("visible", selection == "memory");
                 TabCapture.Schema.Set("visible", selection == "capture");
             };
+
+            TxtProgress.LocalVisible = false;
+            BtnOneMinute.OnActivated += _ => StartCoroutine(StartCapture(60));
+            BtnTwoMinutes.OnActivated += _ => StartCoroutine(StartCapture(120));
+            BtnThreeMinutes.OnActivated += _ => StartCoroutine(StartCapture(180));
         }
 
         /// <inheritdoc />
@@ -201,6 +184,57 @@ namespace CreateAR.EnkluPlayer
             TxtFrameMax.Label = string.Format("Max: {0} ms ({1} FPS)",
                 _monitor.FrameTime.MaxMs,
                 PerfMonitor.FrameTimeData.FrameTimeToFps(_monitor.FrameTime.MaxMs));
+        }
+
+        /// <summary>
+        /// Starts the capture.
+        /// </summary>
+        /// <param name="secs">The number of seconds to capture.</param>
+        /// <returns></returns>
+        private IEnumerator StartCapture(int secs)
+        {
+            _monitor.StartCapture();
+
+            BtnOneMinute.LocalVisible = BtnTwoMinutes.LocalVisible = BtnThreeMinutes.LocalVisible = false;
+            TxtProgress.LocalVisible = true;
+            TxtProgress.Label = "Capture in progress. Do not close window.";
+
+            yield return new WaitForSecondsRealtime(secs);
+
+            TxtProgress.Label = "Capture complete. Uploading...";
+
+            var id = StringExtensions.RandomIdentifier(4);
+            var dump = _monitor.StopCapture();
+
+            // send it in
+            Api
+                .Utilities
+                .SendEmail(new Request
+                {
+                    Body = dump,
+                    EmailAddress = Config.Debug.DumpEmail,
+                    Subject = string.Format("Performance Capture ({0}): {1}", id, DateTime.Now),
+                    FirstName = ""
+                })
+                .OnSuccess(res =>
+                {
+                    if (res.Payload.Success)
+                    {
+                        TxtProgress.Label = string.Format("Capture '{0}' sent to '{1}'.", id, Config.Debug.DumpEmail);
+                    }
+                    else
+                    {
+                        TxtProgress.Label = string.Format("There was an error: {0}", res.Payload.Error);
+                    }
+                })
+                .OnFailure(ex =>
+                {
+                    TxtProgress.Label = string.Format("There was an error: {0}", ex.Message);
+
+                    Log.Error(this, "Could not send performance capture to {0} : {1}.",
+                        Config.Debug.DumpEmail,
+                        ex);
+                });
         }
     }
 }

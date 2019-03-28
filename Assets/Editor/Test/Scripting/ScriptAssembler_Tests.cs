@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
+using CreateAR.Enkluplayer.Test;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
@@ -27,13 +28,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler = new ScriptAssembler(
                 _scriptManager, 
                 _scriptFactory,
-                new ElementJsCache(new ElementJsFactory(_scriptManager)),
-                new ScriptingHostFactory(null, null, new ApplicationConfig()), 
-                null
+                new TestScriptExecutorFactory(), 
+                null,
+                new AppJsApi(null, null, null)
             );
             
             var parser = new DefaultScriptParser(
-                null, new JsVinePreProcessor(), new JavaScriptParser());
+                null, new JsVinePreProcessor());
             
             // For testing, just load the script IDs as the source program.
             for (var i = 0; i < _behaviors.Length; i++)

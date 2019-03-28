@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
+using Enklu.Orchid;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -21,17 +22,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IElementFactory _elementFactory;
 
         /// <summary>
-        /// Creates ElementJs instances
+        /// Constructor.
         /// </summary>
-        private readonly IElementJsFactory _elementJsFactory;
-
         public ScriptFactory(
-            IElementFactory elementFactory, 
-            IElementJsFactory elementJsFactory, 
+            IElementFactory elementFactory,
             VineImporter vineImporter)
         {
             _elementFactory = elementFactory;
-            _elementJsFactory = elementJsFactory;
             _vineImporter = vineImporter;
         }
         
@@ -48,9 +45,9 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
+            IElementJsCache jsCache,
+            IJsExecutionContext jsContext,
             Element element,
-            IElementJsCache jsCache,  
-            UnityScriptingHost host, 
             EnkluScript script)
         {
             if (element == null)
@@ -58,7 +55,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Vine attached to non-widget?!");
             }
 
-            return new BehaviorScript(jsCache, _elementJsFactory, host, script, element);
+            return new BehaviorScript(jsCache, jsContext, script, element);
         }
     }
 }

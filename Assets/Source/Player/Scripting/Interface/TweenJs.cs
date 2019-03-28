@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Util;
-using Jint;
-using Jint.Native;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -26,8 +25,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Track complete and starts separately from <c>TweenData</c>.
         /// </summary>
-        private readonly List<Func<JsValue, JsValue[], JsValue>> _onComplete = new List<Func<JsValue, JsValue[], JsValue>>();
-        private readonly List<Func<JsValue, JsValue[], JsValue>> _onStart = new List<Func<JsValue, JsValue[], JsValue>>();
+        private readonly List<IJsCallback> _onComplete = new List<IJsCallback>();
+        private readonly List<IJsCallback> _onStart = new List<IJsCallback>();
 
         /// <summary>
         /// Manages tweens.
@@ -65,7 +64,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public TweenJs(ITweenManager tweens, Element element, string propName, string type)
         {
             _tweens = tweens;
-            
+
             _element = element;
             _type = type;
 
@@ -136,7 +135,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             return this;
         }
 
-        public TweenJs onComplete(Func<JsValue, JsValue[], JsValue> func)
+        public TweenJs onComplete(IJsCallback func)
         {
             if (PlayState.NotStarted != _state)
             {
@@ -148,7 +147,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             return this;
         }
 
-        public TweenJs onStart(Func<JsValue, JsValue[], JsValue> func)
+        public TweenJs onStart(IJsCallback func)
         {
             if (PlayState.NotStarted != _state)
             {
@@ -160,7 +159,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             return this;
         }
 
-        public void start(Engine engine)
+        public void start()
         {
             // tween might already be created
             if (null != _tween)
@@ -185,7 +184,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 case TweenManagerJsApi.FLOAT:
                 {
                     _tween = _tweens.Float(_element, Data);
-                        
+
                     break;
                 }
                 case TweenManagerJsApi.COL4:
@@ -206,13 +205,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
             }
 
-            var context = JsValue.FromObject(engine, this);
-
             // add starts
             for (int i = 0, len = _onStart.Count; i<len; i++)
             {
                 var callback = _onStart[i];
-                _tween.OnStart += () => callback(context, new JsValue[0]);
+                _tween.OnStart += () => callback.Apply(this);
             }
             _onStart.Clear();
 
@@ -220,7 +217,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             for (int i = 0, len = _onComplete.Count; i<len; i++)
             {
                 var callback = _onComplete[i];
-                _tween.OnComplete += () => callback(context, new JsValue[0]);
+                _tween.OnComplete += () => callback.Apply(this);
             }
             _onComplete.Clear();
 

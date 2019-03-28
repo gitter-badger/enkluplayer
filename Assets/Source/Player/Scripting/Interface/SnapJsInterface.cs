@@ -4,10 +4,8 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.TriggerSnap;
-using Jint;
-using Jint.Native;
 using Source.Player.Scripting.Interop;
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -31,7 +29,7 @@ namespace CreateAR.EnkluPlayer
         /// Cached Org Id.
         /// </summary>
         private string _orgId = string.Empty;
-        
+
         public SnapUploader uploader { get; private set; }
 
         /// <summary>
@@ -51,18 +49,18 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Triggers a snap to be taken.
         /// </summary>
-        public void trigger(Engine engine, string instanceId)
+        public void trigger(string instanceId)
         {
-            triggerCallback(engine, instanceId, string.Empty, null);
+            triggerCallback(instanceId, string.Empty, null);
         }
 
         /// <summary>
         /// Triggers a snap to be taken. Notifies the callback on success/failure.
         /// </summary>
-        public void triggerCallback(Engine engine, string instanceId, string tag, JsFunc callback)
+        public void triggerCallback(string instanceId, string tag, IJsCallback callback)
         {
             Log.Info(this, "Trigger a snap.");
-            
+
             _preferences
                 .ForCurrentUser()
                 .OnSuccess(prefs =>
@@ -106,7 +104,7 @@ namespace CreateAR.EnkluPlayer
                             });
                         }
                     }
-                    
+
                     // After org is known
                     getOrgToken.OnSuccess(orgId =>
                     {
@@ -120,14 +118,14 @@ namespace CreateAR.EnkluPlayer
                                 if (response.Payload.Success)
                                 {
                                     Log.Info(this, "Trigger succeeded.");
-                                    InvokeCallback(engine, callback, true);
+                                    InvokeCallback(callback, true);
                                 }
                                 else
                                 {
                                     Log.Warning(this,
                                         "Trigger could not be sent : {0}",
                                         response.Payload.Error);
-                                    InvokeCallback(engine, callback, false, response.Payload.Error);
+                                    InvokeCallback(callback, false, response.Payload.Error);
                                 }
                             })
                             .OnFailure(exception =>
@@ -135,32 +133,32 @@ namespace CreateAR.EnkluPlayer
                                 Log.Warning(this,
                                     "Trigger could not be fired : {0}",
                                     exception);
-                                InvokeCallback(engine, callback, false, exception.ToString());
+                                InvokeCallback(callback, false, exception.ToString());
                             });
                     }).OnFailure(exception =>
                     {
-                        InvokeCallback(engine, callback, false, exception.ToString());
+                        InvokeCallback(callback, false, exception.ToString());
                     });
-                    
+
                 })
                 .OnFailure(ex =>
                 {
                     Log.Error(this, "Could not get user preferences : {0}", ex);
-                    InvokeCallback(engine, callback, false, ex.ToString());
+                    InvokeCallback(callback, false, ex.ToString());
                 });
         }
 
         /// <summary>
-        /// Invokes a JsFunc with the specified parameters.
+        /// Invokes a IJsCallback with the specified parameters.
         /// </summary>
         /// <param name="callback"></param>
         /// <param name="success"></param>
         /// <param name="msg"></param>
-        private void InvokeCallback(Engine engine, JsFunc callback, bool success, string msg = "")
+        private void InvokeCallback(IJsCallback callback, bool success, string msg = "")
         {
             if (callback != null)
             {
-                callback(JsValue.FromObject(engine, this), new[] { new JsValue(success), new JsValue(msg) });
+                callback.Apply(this, success, msg);
             }
         }
     }

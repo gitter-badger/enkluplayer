@@ -25,13 +25,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptFactory = new TestScriptFactory();
             _scriptRunner = new ScriptRunner(
                 _scriptManager, 
-                _scriptFactory, 
+                _scriptFactory,
+                null,
                 new ElementJsCache(new ElementJsFactory(_scriptManager)),
-                new ScriptingHostFactory(null, null, new ApplicationConfig()), 
                 null);
             
             var parser = new DefaultScriptParser(
-                null, new JsVinePreProcessor(), new JavaScriptParser());
+                null, new JsVinePreProcessor());
             
             // For testing, just load the script IDs as the source program.
             for (var i = 0; i < _behaviors.Length; i++)

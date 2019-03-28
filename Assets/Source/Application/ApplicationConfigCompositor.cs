@@ -18,14 +18,14 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// URI to env prefs.
         /// </summary>
-        private static readonly string ENV_URI = Path.Combine(
+        private static readonly string _EnvUri = Path.Combine(
             UnityEngine.Application.persistentDataPath,
             "Config/env.prefs");
 
         /// <summary>
         /// Backing variable for property.
         /// </summary>
-        private static ApplicationConfig _config;
+        private static ApplicationConfig _Config;
 
         /// <summary>
         /// The composited config.
@@ -39,12 +39,12 @@ namespace CreateAR.EnkluPlayer
                     UnityEngine.Application.isEditor && !UnityEngine.Application.isPlaying
 
                     // or if we haven't loaded it yet
-                    || null == _config)
+                    || null == _Config)
                 {
-                    _config = Load();
+                    _Config = Load();
                 }
 
-                return _config;
+                return _Config;
             }
         }
 
@@ -57,13 +57,13 @@ namespace CreateAR.EnkluPlayer
             // write to disk
             try
             {
-                var dir = Path.GetDirectoryName(ENV_URI);
+                var dir = Path.GetDirectoryName(_EnvUri);
                 if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
                 }
 
-                File.WriteAllText(ENV_URI, JsonConvert.SerializeObject(env));
+                File.WriteAllText(_EnvUri, JsonConvert.SerializeObject(env));
             }
             catch (Exception ex)
             {
@@ -78,9 +78,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public static ApplicationConfig Reload()
         {
-            _config = Load();
+            _Config = Load();
 
-            return _config;
+            return _Config;
         }
 
         /// <summary>
@@ -101,6 +101,16 @@ namespace CreateAR.EnkluPlayer
                 config.Override(platform);
             }
 
+            // editor overrides
+            if (UnityEngine.Application.isEditor)
+            {
+                var editor = LoadConfig("ApplicationConfig.Editor");
+                if (null != editor)
+                {
+                    config.Override(editor);
+                }
+            }
+
             // load override
             var overrideConfig = LoadConfig("ApplicationConfig.Override");
             if (null != overrideConfig)
@@ -111,7 +121,7 @@ namespace CreateAR.EnkluPlayer
             // load custom overwrites
             try
             {
-                var text = File.ReadAllText(ENV_URI);
+                var text = File.ReadAllText(_EnvUri);
                 var env = JsonConvert.DeserializeObject<EnvironmentData>(text);
 
                 Apply(config, env);

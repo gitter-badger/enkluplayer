@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
@@ -37,9 +38,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
+            IElementJsCache jsCache,
+            IJsExecutionContext jsContext,
             Element element,
-            IElementJsCache jsCache,  
-            UnityScriptingHost host,
             EnkluScript script)
         {
             Record record = new Record

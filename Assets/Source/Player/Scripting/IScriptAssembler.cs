@@ -15,9 +15,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         event Action<Script[], Script[]> OnScriptsUpdated;
         
         /// <summary>
-        /// Setups up Scripts for the given Element.
+        /// Setups up Scripts for an Element.
         /// </summary>
-        /// <param name="widget">The Widget.</param>
         void Setup(Element element);
         
         /// <summary>

@@ -25,7 +25,16 @@
 		</Container>
 
 		<Container id='tab-capture' visible=false>
-			<Button label='Start' id='btn-playstop' icon='play' position=(0, -0.1, 0) />
+			<Button label='60 Second Trace' id='btn-one' icon='play' position=(0, -0.1, 0) />
+			<Button label='120 Second Trace' id='btn-two' icon='play' position=(0, -0.2, 0) />
+			<Button label='180 Second Trace' id='btn-three' icon='play' position=(0, -0.3, 0) />
+			<Text
+				id='txt-progress'
+				position=(0, -0.1, 0)
+				label='Performance trace in progress.'
+				width=800.0
+				alignment='TopLeft'
+			/>
 		</Container>
 	</Container>
 </Float>

@@ -5,16 +5,14 @@ using Jint.Runtime.Interop;
 using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
-using Jint.Runtime;
-
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
-    /// Manages detecting and dispatching proximity events for Elements. Elements can subscribe and unsubscribe 
+    /// Manages detecting and dispatching proximity events for Elements. Elements can subscribe and unsubscribe
     ///     for events against specific Elements. Proximity radii (inner/outer) is set through the Element's schema.
-    ///     
+    ///
     /// Elements subscribed for events are considered "listening". Proximity events are sent when "trigger" Elements
     ///     interact with "listening" Elements. ProximityManager will listen to objects for changes to their schema
     ///     to determine if something should be considered a trigger or not.
@@ -70,24 +68,19 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly ProximityChecker _proximityChecker = new ProximityChecker();
 
         /// <summary>
-        /// Used just to satisfy ElementJs' ctor. Should be removed when there's only 1 Engine
-        /// </summary>
-        private readonly Engine _engine = new Engine();
-
-        /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects enter proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, List<JsFunc>> _enterCallbacks = new Dictionary<IEntityJs, List<JsFunc>>();
+        private readonly Dictionary<IEntityJs, List<IJsCallback>> _enterCallbacks = new Dictionary<IEntityJs, List<IJsCallback>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked every Update while objects are within proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, List<JsFunc>> _stayCallbacks = new Dictionary<IEntityJs, List<JsFunc>>();
+        private readonly Dictionary<IEntityJs, List<IJsCallback>> _stayCallbacks = new Dictionary<IEntityJs, List<IJsCallback>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects exit proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, List<JsFunc>> _exitCallbacks = new Dictionary<IEntityJs, List<JsFunc>>();
+        private readonly Dictionary<IEntityJs, List<IJsCallback>> _exitCallbacks = new Dictionary<IEntityJs, List<IJsCallback>>();
 
         /// <summary>
         /// Called by Unity. Sets up against existing Elements and watches for new ones.
@@ -114,7 +107,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             _proximityChecker.SetElementState(Player.hand, false, true);
             _proximityChecker.SetElementRadii(Player.hand, 0.1f, 0.1f);
-            
+
             ElementManager.OnCreated += WatchElement;
 
             for (var i = 0; i < ElementManager.All.Count; i++)
@@ -126,27 +119,26 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Called from JsApi. Subscribes an Element to listen for a specified event caused from any trigger.
         /// </summary>
-        /// <param name="jsValue">Element that will listen for events</param>
+        /// <param name="element">Element that will listen for events</param>
         /// <param name="eventName">Event that will be listened for.</param>
         /// <param name="callback">JS callback to invoke on proximity changes</param>
-        public void subscribe(JsValue jsValue, string eventName, JsFunc callback)
+        public void subscribe(ElementJs element, string eventName, IJsCallback callback)
         {
-            var element = ConvertJsValue(jsValue);
             var map = GetMap(eventName);
 
             Log.Info(this, "Subscribing {0} to {1} events.", element.id, eventName);
 
-            List<JsFunc> list;
+            List<IJsCallback> list;
             if (!map.TryGetValue(element, out list))
             {
-                list = map[element] = new List<JsFunc>();
+                list = map[element] = new List<IJsCallback>();
 
                 // this is the first time subscribe has been called for this element, so listen for cleanup
                 element.OnCleanup += el =>
                 {
                     Log.Info(this, "Cleaning up subscriptions for {0}.", element.id);
 
-                    List<JsFunc> cleanupList;
+                    List<IJsCallback> cleanupList;
                     if (_enterCallbacks.TryGetValue(element, out cleanupList))
                     {
                         cleanupList.Remove(callback);
@@ -163,24 +155,23 @@ namespace CreateAR.EnkluPlayer.Scripting
                     }
                 };
             }
-            
+
             list.Add(callback);
-            
+
             UpdateElement(element);
         }
 
         /// <summary>
         /// Called from JsApi. Unsubscribes an Element from listening for a specified event caused from any trigger.
         /// </summary>
-        /// <param name="jsValue">Element that will be unsubscribed</param>
+        /// <param name="element">Element that will be unsubscribed</param>
         /// <param name="eventName">Event to unsubscribe from.</param>
         /// <param name="callback">JS callback to unsubscribe</param>
-        public void unsubscribe(JsValue jsValue, string eventName, JsFunc callback)
+        public void unsubscribe(ElementJs element, string eventName, IJsCallback callback)
         {
-            var element = ConvertJsValue(jsValue);
             var map = GetMap(eventName);
 
-            List<JsFunc> list;
+            List<IJsCallback> list;
             if (map.TryGetValue(element, out list))
             {
                 list.Remove(callback);
@@ -214,7 +205,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="eventName">Name of the event.</param>
         /// <returns></returns>
-        private Dictionary<IEntityJs, List<JsFunc>> GetMap(string eventName)
+        private Dictionary<IEntityJs, List<IJsCallback>> GetMap(string eventName)
         {
             switch (eventName)
             {
@@ -287,7 +278,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             if (isListening || isTrigger)
             {
                 _proximityChecker.SetElementRadii(
-                    element, 
+                    element,
                     element.schema.getOwnNumber(PROP_PROXIMITY_INNER),
                     element.schema.getOwnNumber(PROP_PROXIMITY_OUTER));
             }
@@ -300,33 +291,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         private void RemoveElement(ElementJs element)
         {
             _proximityChecker.SetElementState(element, false, false);
-        }
-
-        /// <summary>
-        /// Ensures an incoming JsValue represents an ElementJs. Throws if the argument is invalid.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        private static ElementJs ConvertJsValue(JsValue value)
-        {
-            if (null == value)
-            {
-                throw new JavaScriptException("Proximity requires an element.");
-            }
-
-            var wrapper = value.As<ObjectWrapper>();
-            if (null == wrapper)
-            {
-                throw new JavaScriptException("Proximity requires an element.");
-            }
-                
-            var element = wrapper.Target as ElementJs;
-            if (element == null)
-            {
-                throw new JavaScriptException("Proximity requires an element.");
-            }
-
-            return element;
         }
 
         /// <summary>
@@ -361,26 +325,23 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             var map = GetMap(@event);
 
-            List<JsFunc> callbacks;
+            List<IJsCallback> callbacks;
             if (map.TryGetValue(listener, out callbacks))
             {
-                var @this = JsValue.FromObject(_engine, listener);
-                var parameters = new [] { JsValue.FromObject(_engine, listener), JsValue.FromObject(_engine, trigger) };
-
                 // copy for now, in case an unsubscribe is in the callback
                 var copy = callbacks.ToArray();
                 for (int i = 0, len = copy.Length; i < len; i++)
                 {
                     try
                     {
-                        copy[i](@this, parameters);
+                        copy[i].Apply(listener, listener, trigger);
                     }
-                    catch (JavaScriptException ex)
+                    catch (Exception ex)
                     {
                         Log.Warning(this, "Could not invoke JS callback : {0}.", ex);
                     }
                 }
-                
+
             }
         }
     }

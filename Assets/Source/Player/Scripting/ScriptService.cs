@@ -1,4 +1,3 @@
-using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
@@ -29,17 +28,16 @@ namespace CreateAR.EnkluPlayer.Scripting
             IMessageRouter messages,
             IScriptManager scriptManager,
             IScriptFactory scriptFactory,
-            IScriptingHostFactory scriptingHostFactory,
+            IScriptExecutorFactory scriptExecutorFactory,
             IAppSceneManager sceneManager,
             IElementManager elementManager,
-            IElementJsCache elementJsCache,
+            IElementJsCache jsCache,
             AppJsApi appJsApi) : base(binder, messages)
         {
             _sceneManager = sceneManager;
             _elementManager = elementManager;
             
-            _scriptRunner = new ScriptRunner(
-                scriptManager, scriptFactory, elementJsCache, scriptingHostFactory, appJsApi);
+            _scriptRunner = new ScriptRunner(scriptManager, scriptFactory, scriptExecutorFactory, jsCache, appJsApi);
         }
 
         /// <inheritdoc />

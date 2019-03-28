@@ -161,16 +161,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public ScriptRunner(
             IScriptManager scriptManager, 
-            IScriptFactory scriptFactory, 
+            IScriptFactory scriptFactory,
+            IScriptExecutorFactory scriptExecutorFactory,
             IElementJsCache jsCache,
-            IScriptingHostFactory scriptingHostFactory,
             AppJsApi appJsApi)
         {
             _createScriptAssembler = () => new ScriptAssembler(
-                scriptManager,
-                scriptFactory,
+                scriptManager, 
+                scriptFactory, 
+                scriptExecutorFactory,
                 jsCache,
-                scriptingHostFactory,
                 appJsApi);
         }
 
