@@ -208,21 +208,7 @@ namespace CreateAR.EnkluPlayer
                 temp[i].Invoke();
             }
         }
-
-        /// <summary>
-        /// Tears down anchors.
-        /// </summary>
-        private void TeardownAnchors()
-        {
-            AreAllAnchorsReady = false;
-
-            _pollAnchors = false;
-
-            CloseStatusUI();
-
-            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
-        }
-
+        
         /// <summary>
         /// Sets up anchors for a scene.
         /// </summary>
@@ -245,34 +231,17 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Locates the primary anchor.
+        /// Tears down anchors.
         /// </summary>
-        private void FindPrimaryAnchor()
+        private void TeardownAnchors()
         {
-            for (int i = 0, len = _anchors.Count; i < len; i++)
-            {
-                var anchor = _anchors[i];
-                if (PROP_TAG_VALUE == anchor.Schema.Get<string>(PROP_TAG_KEY).Value)
-                {
-                    if (null != Primary)
-                    {
-                        Log.Error(this, "Found multiple primary anchors! Choosing first by id.");
+            AreAllAnchorsReady = false;
 
-                        // compare id so we at least pick the same primary each time
-                        if (string.Compare(
-                                Primary.Id,
-                                anchor.Id,
-                                StringComparison.Ordinal) < 0)
-                        {
-                            Primary = anchor;
-                        }
-                    }
-                    else
-                    {
-                        Primary = anchor;
-                    }
-                }
-            }
+            _pollAnchors = false;
+
+            CloseStatusUI();
+
+            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
         }
         
         /// <summary>
@@ -294,7 +263,20 @@ namespace CreateAR.EnkluPlayer
                     "Could not open anchor status UI: {0}",
                     ex));
         }
-        
+
+        /// <summary>
+        /// Closes the status UI.
+        /// </summary>
+        private void CloseStatusUI()
+        {
+            if (0 != _viewId)
+            {
+                _ui.Close(_viewId);
+                _view = null;
+                _viewId = 0;
+            }
+        }
+
         /// <summary>
         /// Updates the status UI every frame.
         /// </summary>
@@ -318,6 +300,7 @@ namespace CreateAR.EnkluPlayer
 
                     int errors, downloading, importing, notLocated, numLocated;
                     CountAnchors(
+                        _anchors,
                         out errors,
                         out downloading,
                         out importing,
@@ -332,7 +315,7 @@ namespace CreateAR.EnkluPlayer
                         Ready();
                     }
 
-                    // metrics
+                    // report metrics
                     if (0 == importing && 0 == errors
                         && (_pollUnlocated != notLocated || _pollLocated != numLocated))
                     {
@@ -353,7 +336,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void UpdateRelativePositioning()
         {
-            var located = FirstLocatedAnchor();
+            var located = FindFirstLocatedAnchor();
             var T = Matrix4x4.identity;
 
             // calculate inverse transformation
@@ -380,7 +363,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     if (null != located)
                     {
-                        PositionAnchorRelative(anchor, T);
+                        PositionAnchorRelatively(anchor, T);
                     }
                     else
                     {
@@ -391,41 +374,7 @@ namespace CreateAR.EnkluPlayer
                 }
             }
         }
-
-        /// <summary>
-        /// Determines if an anchor should be manually repositioned or not.
-        /// </summary>
-        /// <param name="anchor">The anchor to check.</param>
-        /// <returns></returns>
-        private bool ShouldPositionRelatively(WorldAnchorWidget anchor)
-        {
-            return anchor.Status == WorldAnchorWidget.WorldAnchorStatus.None
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated;
-        }
-
-        /// <summary>
-        /// Positions an anchor relative to a located anchor.
-        /// </summary>
-        /// <param name="anchor">The anchor.</param>
-        /// <param name="transformation">The transformation.</param>
-        private void PositionAnchorRelative(
-            WorldAnchorWidget anchor,
-            Matrix4x4 transformation)
-        {
-            var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
-            var anchorSchemaRot = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector());
-
-            // T * aAnchor = aLocated
-            var aAnchor = Matrix4x4.TRS(anchorSchemaPos, anchorSchemaRot, Vector3.one);
-            var aLocated = transformation * aAnchor;
-
-            anchor.GameObject.transform.position = aLocated.GetColumn(3);
-            anchor.GameObject.transform.rotation = aLocated.rotation;
-        }
-
+        
         /// <summary>
         /// Updates the status UI.
         /// </summary>
@@ -477,49 +426,31 @@ Errors: {3} / {0}",
         }
         
         /// <summary>
-        /// Counts up anchor types.
+        /// Locates the primary anchor.
         /// </summary>
-        /// <param name="errors">Number of anchors in an error state.</param>
-        /// <param name="downloading">Number of anchors currently downloading.</param>
-        /// <param name="importing">Number of anchors currently importing.</param>
-        /// <param name="notLocated">Number of anchors currently not located.</param>
-        /// <param name="located">Number of located anchors.</param>
-        private void CountAnchors(out int errors, out int downloading, out int importing, out int notLocated, out int located)
+        private void FindPrimaryAnchor()
         {
-            errors = 0;
-            downloading = 0;
-            importing = 0;
-            notLocated = 0;
-            located = 0;
-
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
-                switch (_anchors[i].Status)
+                var anchor = _anchors[i];
+                if (PROP_TAG_VALUE == anchor.Schema.Get<string>(PROP_TAG_KEY).Value)
                 {
-                    case WorldAnchorWidget.WorldAnchorStatus.IsError:
+                    if (null != Primary)
                     {
-                        errors += 1;
-                        break;
+                        Log.Error(this, "Found multiple primary anchors! Choosing first by id.");
+
+                        // compare id so we at least pick the same primary each time
+                        if (string.Compare(
+                                Primary.Id,
+                                anchor.Id,
+                                StringComparison.Ordinal) < 0)
+                        {
+                            Primary = anchor;
+                        }
                     }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
+                    else
                     {
-                        downloading += 1;
-                        break;
-                    }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
-                    {
-                        importing += 1;
-                        break;
-                    }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
-                    {
-                        notLocated += 1;
-                        break;
-                    }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
-                    {
-                        located += 1;
-                        break;
+                        Primary = anchor;
                     }
                 }
             }
@@ -528,7 +459,7 @@ Errors: {3} / {0}",
         /// <summary>
         /// Retrieves the first located anchor or null if no anchors are located.
         /// </summary>
-        private WorldAnchorWidget FirstLocatedAnchor()
+        private WorldAnchorWidget FindFirstLocatedAnchor()
         {
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
@@ -541,20 +472,7 @@ Errors: {3} / {0}",
 
             return null;
         }
-
-        /// <summary>
-        /// Closes the status UI.
-        /// </summary>
-        private void CloseStatusUI()
-        {
-            if (0 != _viewId)
-            {
-                _ui.Close(_viewId);
-                _view = null;
-                _viewId = 0;
-            }
-        }
-
+        
         /// <summary>
         /// Called when a scene has been created.
         /// </summary>
@@ -610,6 +528,92 @@ Errors: {3} / {0}",
                 TeardownAnchors();
                 Ready();
             }
+        }
+
+        /// <summary>
+        /// Counts up anchor types.
+        /// </summary>
+        /// <param name="anchors">Collection of world anchors to count.</param>
+        /// <param name="errors">Number of anchors in an error state.</param>
+        /// <param name="downloading">Number of anchors currently downloading.</param>
+        /// <param name="importing">Number of anchors currently importing.</param>
+        /// <param name="notLocated">Number of anchors currently not located.</param>
+        /// <param name="located">Number of located anchors.</param>
+        private static void CountAnchors(
+            IList<WorldAnchorWidget> anchors,
+            out int errors, out int downloading, out int importing, out int notLocated, out int located)
+        {
+            errors = 0;
+            downloading = 0;
+            importing = 0;
+            notLocated = 0;
+            located = 0;
+
+            for (int i = 0, len = anchors.Count; i < len; i++)
+            {
+                switch (anchors[i].Status)
+                {
+                    case WorldAnchorWidget.WorldAnchorStatus.IsError:
+                    {
+                        errors += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
+                    {
+                        downloading += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
+                    {
+                        importing += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
+                    {
+                        notLocated += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
+                    {
+                        located += 1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines if an anchor should be manually repositioned or not.
+        /// </summary>
+        /// <param name="anchor">The anchor to check.</param>
+        /// <returns></returns>
+        private static bool ShouldPositionRelatively(WorldAnchorWidget anchor)
+        {
+            return anchor.Status == WorldAnchorWidget.WorldAnchorStatus.None
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated;
+        }
+
+        /// <summary>
+        /// Positions an anchor relative to a located anchor.
+        /// </summary>
+        /// <param name="anchor">The anchor.</param>
+        /// <param name="transformation">The transformation.</param>
+        private static void PositionAnchorRelatively(
+            WorldAnchorWidget anchor,
+            Matrix4x4 transformation)
+        {
+            var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var anchorSchemaRot = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector());
+
+            // T * aAnchor = aLocated
+            var aAnchor = Matrix4x4.TRS(anchorSchemaPos, anchorSchemaRot, Vector3.one);
+            var aLocated = transformation * aAnchor;
+
+            anchor.GameObject.transform.position = aLocated.GetColumn(3);
+            anchor.GameObject.transform.rotation = aLocated.rotation;
         }
     }
 }
