@@ -26,7 +26,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IScriptManager _scriptManager;
         private readonly IScriptFactory _scriptFactory;
         private readonly IScriptExecutorFactory _scriptExecutorFactory;
-        private readonly AppJsApi _appJsApi;
 
         /// <summary>
         /// The backing Element.
@@ -62,13 +61,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ScriptAssembler(
             IScriptManager scriptManager, 
             IScriptFactory scriptFactory,
-            IScriptExecutorFactory scriptExecutorFactory,
-            AppJsApi appJsApi)
+            IScriptExecutorFactory scriptExecutorFactory)
         {
             _scriptManager = scriptManager;
             _scriptFactory = scriptFactory;
             _scriptExecutorFactory = scriptExecutorFactory;
-            _appJsApi = appJsApi;
         }
 
         /// <inheritdoc />
@@ -80,9 +77,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             _element = element;
-            _jsContext = _scriptExecutorFactory.NewExecutionContext(element);
-            _jsContext.SetValue("system", SystemJsApi.Instance);
-            _jsContext.SetValue("app", _appJsApi);
+            _jsContext = _scriptExecutorFactory.NewExecutionContext(_element);
             
             Log.Info(this, "Loading scripts for {0}", _element);
 

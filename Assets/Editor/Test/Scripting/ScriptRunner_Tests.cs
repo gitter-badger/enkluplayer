@@ -27,8 +27,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner = new ScriptRunner(
                 _scriptManager, 
                 _scriptFactory,
-                new TestScriptExecutorFactory(),
-                new AppJsApi(null, null, null));
+                new TestScriptExecutorFactory());
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor());

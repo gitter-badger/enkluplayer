@@ -17,12 +17,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// The JS execution context
         /// </summary>
-        private IJsExecutionContext _jsContext;
+        private readonly IJsExecutionContext _jsContext;
 
         /// <summary>
         /// The element this is running on.
         /// </summary>
-        private Element _element;
+        private readonly Element _element;
 
         /// <summary>
         /// True iff has been started.
@@ -41,7 +41,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// A JS reference to this, passed to every ICallable.
         /// </summary>
-        private ElementJs _this;
+        private readonly ElementJs _this;
 
         /// <inheritdoc />
         public ElementSchema Data

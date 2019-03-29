@@ -30,13 +30,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptFactory scriptFactory,
             IScriptExecutorFactory scriptExecutorFactory,
             IAppSceneManager sceneManager,
-            IElementManager elementManager,
-            AppJsApi appJsApi) : base(binder, messages)
+            IElementManager elementManager) : base(binder, messages)
         {
             _sceneManager = sceneManager;
             _elementManager = elementManager;
             
-            _scriptRunner = new ScriptRunner(scriptManager, scriptFactory, scriptExecutorFactory, appJsApi);
+            _scriptRunner = new ScriptRunner(scriptManager, scriptFactory, scriptExecutorFactory);
         }
 
         /// <inheritdoc />

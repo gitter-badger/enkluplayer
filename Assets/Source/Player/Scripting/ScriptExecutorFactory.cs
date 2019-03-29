@@ -9,9 +9,13 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// </summary>
     public class ScriptExecutorFactory : IScriptExecutorFactory
     {
+        /// <summary>
+        /// Dependencies
+        /// </summary>
         private readonly IScriptRuntimeFactory _scriptRuntimeFactory;
         private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
+        private readonly AppJsApi _appJsApi;
 
         /// <summary>
         /// JS Runtime implementation. Use single runtime.
@@ -24,11 +28,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ScriptExecutorFactory(
             IScriptRequireResolver resolver,
             IScriptManager scripts,
-            IScriptRuntimeFactory scriptRuntimeFactory)
+            IScriptRuntimeFactory scriptRuntimeFactory,
+            AppJsApi appJsApi)
         {
             _resolver = resolver;
             _scripts = scripts;
             _scriptRuntimeFactory = scriptRuntimeFactory;
+            _appJsApi = appJsApi;
         }
 
         /// <inheritdoc />
@@ -60,6 +66,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             executionContext.SetValue("c", Col4Methods.Instance);
             executionContext.SetValue("col", new Func<float, float, float, float, Col4>(Col4Methods.create));
             executionContext.SetValue("time", TimeJsApi.Instance);
+            
+            executionContext.SetValue("system", SystemJsApi.Instance);
+            executionContext.SetValue("app", _appJsApi);
 
             return executionContext;
         }
