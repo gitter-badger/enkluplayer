@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -397,29 +398,34 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
+                var services = new List<ApplicationService>();
+                services.Add(binder.GetInstance<EnvironmentUpdateService>());
+
+                // Some services we can leave out of webgl builds
+                if (!DeviceHelper.IsWebGl())
+                {
+                    services.Add(binder.GetInstance<VersioningService>());
+                    services.Add(binder.GetInstance<DeviceResourceUpdateService>());
+                    services.Add(binder.GetInstance<CommandService>());
+                    services.Add(binder.GetInstance<MetricsUpdateService>());
+                    services.Add(binder.GetInstance<DebugService>());
+                }
+
+                services.Add(binder.GetInstance<AssetUpdateService>());
+                services.Add(binder.GetInstance<ScriptUpdateService>());
+                services.Add(binder.GetInstance<ScriptService>());
+                services.Add(binder.GetInstance<ShaderUpdateService>());
+                services.Add(binder.GetInstance<SceneUpdateService>());
+                services.Add(binder.GetInstance<ElementActionHelperService>());
+                services.Add(binder.GetInstance<UserPreferenceService>());
+                services.Add(binder.GetInstance<ApplicationStateService>());
+
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<IElementTxnManager>(),
                     binder.GetInstance<MessageFilter>(),
-                    new ApplicationService[]
-                    {
-                        // Order is important.
-                        binder.GetInstance<EnvironmentUpdateService>(),
-                        binder.GetInstance<VersioningService>(),
-                        binder.GetInstance<AssetUpdateService>(),
-                        binder.GetInstance<ScriptService>(),
-                        binder.GetInstance<ScriptUpdateService>(),
-                        binder.GetInstance<ShaderUpdateService>(),
-                        binder.GetInstance<SceneUpdateService>(),
-                        binder.GetInstance<ElementActionHelperService>(),
-                        binder.GetInstance<UserPreferenceService>(),
-                        binder.GetInstance<DeviceResourceUpdateService>(),
-                        binder.GetInstance<ApplicationStateService>(),
-                        binder.GetInstance<CommandService>(),
-                        binder.GetInstance<MetricsUpdateService>(),
-                        binder.GetInstance<DebugService>(),
-                    }));
+                    services.ToArray()));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
         }

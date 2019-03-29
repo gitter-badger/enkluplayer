@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -33,7 +34,7 @@ namespace CreateAR.EnkluPlayer
                 /// <summary>
                 /// The callback.
                 /// </summary>
-                public Delegate Callback;
+                public IJsCallback Callback;
 
                 /// <summary>
                 /// Handler to call.
@@ -51,12 +52,15 @@ namespace CreateAR.EnkluPlayer
             /// </summary>
             private readonly ElementSchema _schema;
 
+            private readonly ElementSchemaJsApi _schemaJs;
+
             /// <summary>
             /// Constructor.
             /// </summary>
-            public CallbackHelper(ElementSchema schema)
+            public CallbackHelper(ElementSchema schema, ElementSchemaJsApi schemaJs)
             {
                 _schema = schema;
+                _schemaJs = schemaJs;
             }
 
             /// <summary>
@@ -65,7 +69,7 @@ namespace CreateAR.EnkluPlayer
             /// <param name="engine">The associated engine.</param>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The JS callback to call.</param>
-            public void Watch<T>(string key, Action<T, T> callback)
+            public void Watch<T>(string key, IJsCallback callback)
             {
                 _schema
                     .Get<T>(key)
@@ -78,7 +82,7 @@ namespace CreateAR.EnkluPlayer
             /// <param name="engine">The associated engine.</param>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The JS callback to call.</param>
-            public void WatchOnce<T>(string key, Action<T, T> callback)
+            public void WatchOnce<T>(string key, IJsCallback callback)
             {
                 _schema
                     .Get<T>(key)
@@ -91,7 +95,7 @@ namespace CreateAR.EnkluPlayer
             /// <param name="engine">The associated engine.</param>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The JS callback.</param>
-            public void Unwatch<T>(string key, Action<T, T> callback)
+            public void Unwatch<T>(string key, IJsCallback callback)
             {
                 _schema
                     .Get<T>(key)
@@ -105,7 +109,7 @@ namespace CreateAR.EnkluPlayer
             /// <param name="callback">The JS callback.</param>
             private Action<ElementSchemaProp<T>, T, T> OnChanged<T>(
                 string key,
-                Action<T, T> callback)
+                IJsCallback callback)
             {
                 var record = Record<T>(key, callback);
                 if (null != record)
@@ -116,7 +120,7 @@ namespace CreateAR.EnkluPlayer
                 Action<ElementSchemaProp<T>, T, T> handler = null;
                 handler = (prop, prev, next) =>
                 {
-                    callback(prev, next);
+                    callback.Apply(_schemaJs, prev, next);
                 };
 
                 _callbacks.Add(new CallbackRecord
@@ -136,13 +140,13 @@ namespace CreateAR.EnkluPlayer
             /// <param name="engine">The associated engine.</param>
             /// <param name="callback">The callback.</param>
             private Action<ElementSchemaProp<T>, T, T> OnChangedOnce<T>(
-                Action<T, T> callback)
+                IJsCallback callback)
             {
                 Action<ElementSchemaProp<T>, T, T> handler = null;
                 handler = (prop, prev, next) =>
                 {
                     prop.OnChanged -= handler;
-                    callback(prev, next);
+                    callback.Apply(_schemaJs, prev, next);
                 };
 
                 return handler;
@@ -153,7 +157,7 @@ namespace CreateAR.EnkluPlayer
             /// </summary>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The callback.</param>
-            private CallbackRecord Record<T>(string key, Action<T, T> callback)
+            private CallbackRecord Record<T>(string key, IJsCallback callback)
             {
                 for (int i = 0, len = _callbacks.Count; i < len; i++)
                 {
@@ -187,7 +191,7 @@ namespace CreateAR.EnkluPlayer
         public ElementSchemaJsApi(ElementSchema schema)
         {
             _schema = schema;
-            _callbackHelper = new CallbackHelper(schema);
+            _callbackHelper = new CallbackHelper(schema, this);
         }
 
         /// <summary>
@@ -349,7 +353,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
-        public void watchString(string key, Action<string, string> callback)
+        public void watchString(string key, IJsCallback callback)
         {
             _callbackHelper.Watch<string>(key, callback);
         }
@@ -357,7 +361,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a one time watcher to a prop.
         /// </summary>
-        public void watchStringOnce(string key, Action<string, string> callback)
+        public void watchStringOnce(string key, IJsCallback callback)
         {
             _callbackHelper.WatchOnce<string>(key, callback);
         }
@@ -365,7 +369,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Removes a watcher from a prop.
         /// </summary>
-        public void unwatchString(string key, Action<string, string> callback)
+        public void unwatchString(string key, IJsCallback callback)
         {
             _callbackHelper.Unwatch<string>(key, callback);
         }
@@ -373,7 +377,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
-        public void watchBool(string key, Action<bool, bool> callback)
+        public void watchBool(string key, IJsCallback callback)
         {
             _callbackHelper.Watch<bool>(key, callback);
         }
@@ -381,7 +385,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a one time watcher to a prop.
         /// </summary>
-        public void watchBoolOnce(string key, Action<bool, bool> callback)
+        public void watchBoolOnce(string key, IJsCallback callback)
         {
             _callbackHelper.WatchOnce<bool>(key, callback);
         }
@@ -389,7 +393,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Removes a watcher from a prop.
         /// </summary>
-        public void unwatchBool(string key, Action<bool, bool> callback)
+        public void unwatchBool(string key, IJsCallback callback)
         {
             _callbackHelper.Unwatch<bool>(key, callback);
         }
@@ -397,7 +401,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
-        public void watchNumber(string key, Action<float, float> callback)
+        public void watchNumber(string key, IJsCallback callback)
         {
             _callbackHelper.Watch<float>(key, callback);
         }
@@ -405,7 +409,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
-        public void watchNumberOnce(string key, Action<float, float> callback)
+        public void watchNumberOnce(string key, IJsCallback callback)
         {
             _callbackHelper.WatchOnce<float>(key, callback);
         }
@@ -413,7 +417,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Removes a watcher from a prop.
         /// </summary>
-        public void unwatchNumber(string key, Action<float, float> callback)
+        public void unwatchNumber(string key, IJsCallback callback)
         {
             _callbackHelper.Unwatch<float>(key, callback);
         }
@@ -421,7 +425,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
-        public void watchVec(string key, Action<Vec3, Vec3> callback)
+        public void watchVec(string key, IJsCallback callback)
         {
             _callbackHelper.Watch<Vec3>(key, callback);
         }
@@ -429,7 +433,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a one time watcher to a prop.
         /// </summary>
-        public void watchVecOnce(string key, Action<Vec3, Vec3> callback)
+        public void watchVecOnce(string key, IJsCallback callback)
         {
             _callbackHelper.WatchOnce<Vec3>(key, callback);
         }
@@ -437,7 +441,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Removes a watcher from a prop.
         /// </summary>
-        public void unwatchVec(string key, Action<Vec3, Vec3> callback)
+        public void unwatchVec(string key, IJsCallback callback)
         {
             _callbackHelper.Unwatch<Vec3>(key, callback);
         }
@@ -445,7 +449,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
-        public void watchCol(string key, Action<Col4, Col4> callback)
+        public void watchCol(string key, IJsCallback callback)
         {
             _callbackHelper.Watch<Col4>(key, callback);
         }
@@ -453,7 +457,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Adds a one time watcher to a prop.
         /// </summary>un
-        public void watchColOnce(string key, Action<Col4, Col4> callback)
+        public void watchColOnce(string key, IJsCallback callback)
         {
             _callbackHelper.WatchOnce<Col4>(key, callback);
         }
@@ -461,7 +465,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Removes a watcher from a prop.
         /// </summary>
-        public void unwatchCol(string key, Action<Col4, Col4> callback)
+        public void unwatchCol(string key, IJsCallback callback)
         {
             _callbackHelper.Unwatch<Col4>(key, callback);
         }

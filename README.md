@@ -1,5 +1,7 @@
 # Overview
 
+[![CodeFactor](https://www.codefactor.io/repository/github/enklu/enkluplayer/badge)](https://www.codefactor.io/repository/github/enklu/enkluplayer)
+
 **Enklu Player** is an Augmented Reality (AR) runtime for UWP, WebGL, Android, and iOS.
 
 * **Highly Iterative**: Enklu Player gives users instant feedback. Change layout, assets, UI, or scripts on the fly. There's no need to rebuild-- Enklu Player will automatically download the newest data.
