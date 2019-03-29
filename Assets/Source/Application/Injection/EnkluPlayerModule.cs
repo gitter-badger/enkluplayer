@@ -452,9 +452,9 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
-                binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<HoloLensAnchorStore>().ToSingleton();
 #else
-                binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
+                binder.Bind<IAnchorStore>().To<PassthroughAnchorStore>().ToSingleton();
                 binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();
 #endif
 

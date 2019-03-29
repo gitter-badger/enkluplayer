@@ -12,7 +12,7 @@ namespace CreateAR.EnkluPlayer.IUX
     /// Passthrough implementation for non-AR platforms. Generates random data
     /// with a real delay.
     /// </summary>
-    public class PassthroughWorldAnchorProvider : IWorldAnchorProvider
+    public class PassthroughAnchorStore : IAnchorStore
     {
         /// <summary>
         /// PRNG.
@@ -20,7 +20,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly Random _rand = new Random();
 
         /// <summary>
-        /// Consts.
+        /// For debugging.
         /// </summary>
         private const int IMPORT_DELAY_SEC = 3;
         private const int EXPORT_DELAY_SEC = 5;
@@ -33,7 +33,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public PassthroughWorldAnchorProvider(IBootstrapper bootstrapper)
+        public PassthroughAnchorStore(IBootstrapper bootstrapper)
         {
             _bootstrapper = bootstrapper;
         }
@@ -69,10 +69,7 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <inheritdoc />
-        public bool IsImporting { get; private set; }
-
-        /// <inheritdoc />
-        public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
+        public IAsyncToken<Void> Setup()
         {
             var token = new AsyncToken<Void>();
 
@@ -81,6 +78,12 @@ namespace CreateAR.EnkluPlayer.IUX
                 () => token.Succeed(Void.Instance)));
 
             return token;
+        }
+
+        /// <inheritdoc />
+        public void Teardown()
+        {
+            // 
         }
 
         /// <inheritdoc />

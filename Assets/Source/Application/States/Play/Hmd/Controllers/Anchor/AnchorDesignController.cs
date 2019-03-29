@@ -33,7 +33,7 @@ namespace CreateAR.EnkluPlayer
             /// <summary>
             /// Provides world anchor import/export.
             /// </summary>
-            public IWorldAnchorProvider Provider;
+            public IAnchorStore Store;
 
             /// <summary>
             /// Http service.

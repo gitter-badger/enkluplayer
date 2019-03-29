@@ -22,7 +22,7 @@ namespace CreateAR.EnkluPlayer.IUX
     /// <summary>
     /// Implementation for HoloLens.
     /// </summary>
-    public class HoloLensWorldAnchorProvider : IWorldAnchorProvider
+    public class HoloLensWorldAnchorProvider : IAnchorStore
     {
         /// <summary>
         /// PRNG.
@@ -104,7 +104,7 @@ namespace CreateAR.EnkluPlayer.IUX
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
+        public IAsyncToken<Void> Setup(IAppSceneManager scenes)
         {
             _scenes = scenes;
             

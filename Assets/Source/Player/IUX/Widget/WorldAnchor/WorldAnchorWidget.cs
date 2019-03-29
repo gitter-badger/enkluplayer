@@ -31,7 +31,7 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
-        /// Maxiumum amount of time we should wait for an export in the case that an export is already in progress by another user.
+        /// Maximum amount of time we should wait for an export in the case that an export is already in progress by another user.
         /// </summary>
         private const double MAX_EXPORT_TIMEOUT = 120.0;
 
@@ -48,7 +48,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Abstracts anchoring method.
         /// </summary>
-        private readonly IWorldAnchorProvider _provider;
+        private readonly IAnchorStore _store;
 
         /// <summary>
         /// Metrics.
@@ -166,7 +166,7 @@ namespace CreateAR.EnkluPlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             IHttpService http,
-            IWorldAnchorProvider provider,
+            IAnchorStore store,
             IMetricsService metrics,
             IMessageRouter messages,
             IBootstrapper bootstrapper,
@@ -174,7 +174,7 @@ namespace CreateAR.EnkluPlayer.IUX
             : base(gameObject, layers, tweens, colors)
         {
             _http = http;
-            _provider = provider;
+            _store = store;
             _metrics = metrics;
             _messages = messages;
             _bootstrapper = bootstrapper;
@@ -221,7 +221,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 .OnSuccess(_ =>
                 {
                     var providerId = GetAnchorProviderId(Id, _versionProp.Value + 1);
-                    _provider
+                    _store
                         .Export(providerId, GameObject)
                         .OnSuccess(bytes =>
                         {
@@ -378,7 +378,7 @@ namespace CreateAR.EnkluPlayer.IUX
             
             // see if the provider can anchor this version
             var providerId = GetAnchorProviderId(Id, version);
-            _anchorToken = _provider
+            _anchorToken = _store
                 .Anchor(providerId, GameObject)
                 .OnSuccess(_ =>
                 {
@@ -473,7 +473,7 @@ namespace CreateAR.EnkluPlayer.IUX
 
             Log.Info(this, "Bytes downloaded. Importing {0}.", providerId);
 
-            _provider
+            _store
                 .Import(providerId, bytes, GameObject)
                 .OnSuccess(_ =>
                 {
@@ -630,7 +630,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
 
                 // disable anchor
-                _provider.UnAnchor(GameObject);
+                _store.UnAnchor(GameObject);
             }
         }
 

@@ -7,7 +7,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.BLE;
-using CreateAR.EnkluPlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -25,8 +24,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IAssetLoader _assetLoader;
         private readonly IBleService _ble;
         private readonly IGestureManager _gestures;
-        private readonly IWorldAnchorProvider _anchors;
-        private readonly IAppSceneManager _scenes;
+        private readonly IAnchorManager _anchors;
         private readonly IMetricsService _metrics;
         private readonly IHttpService _http;
         private readonly CommandService _commands;
@@ -46,8 +44,7 @@ namespace CreateAR.EnkluPlayer
             IAssetLoader assetLoader,
             IBleService ble,
             IGestureManager gestures,
-            IWorldAnchorProvider anchors,
-            IAppSceneManager scenes,
+            IAnchorManager anchors,
             IMetricsService metrics,
             IHttpService http,
             CommandService commands,
@@ -59,7 +56,6 @@ namespace CreateAR.EnkluPlayer
             _ble = ble;
             _gestures = gestures;
             _anchors = anchors;
-            _scenes = scenes;
             _metrics = metrics;
             _http = http;
             _commands = commands;
@@ -95,7 +91,7 @@ namespace CreateAR.EnkluPlayer
                     Loader = _assetLoader,
                     Queries = new StandardQueryResolver()
                 }),
-                _anchors.Initialize(_scenes)
+                _anchors.Setup()
             };
             
             Async

@@ -28,7 +28,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IVoiceCommandManager _voice;
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
-        private readonly IAnchorManager _primaryAnchor;
+        private readonly IAnchorManager _anchors;
 
         /// <summary>
         /// All states.
@@ -124,7 +124,7 @@ namespace CreateAR.EnkluPlayer
             IVoiceCommandManager voice,
             IUIManager ui,
             IMessageRouter messages,
-            IAnchorManager primaryAnchor,
+            IAnchorManager anchorManager,
             ApiController api,
             EditorSettings editorSettings,
 
@@ -149,7 +149,7 @@ namespace CreateAR.EnkluPlayer
             _voice = voice;
             _ui = ui;
             _messages = messages;
-            _primaryAnchor = primaryAnchor;
+            _anchors = anchorManager;
             _api = api;
             _editorSettings = editorSettings;
 
@@ -296,9 +296,7 @@ namespace CreateAR.EnkluPlayer
         private void SetupEdit()
         {
             _setupEdit = true;
-
-            _primaryAnchor.Setup();
-
+            
             _voice.Register("play", Voice_OnPlay);
 
             // hierarchy rendering
@@ -357,8 +355,8 @@ namespace CreateAR.EnkluPlayer
             outline.Init(bounds);
 
             // Sets the reference object created as child of primary anchor if found
-            _primaryAnchor.OnReady(() => {
-                var primaryAnchorWidget = _primaryAnchor.Primary;
+            _anchors.OnReady(() => {
+                var primaryAnchorWidget = _anchors.Primary;
                 if (primaryAnchorWidget != null)
                 {
                     _referenceCube.transform.SetParent(
@@ -374,9 +372,7 @@ namespace CreateAR.EnkluPlayer
         private void TeardownEdit()
         {
             _voice.Unregister("play");
-
-            _primaryAnchor.Teardown();
-
+            
             // uninitialize states
             for (var i = 0; i < _states.Length; i++)
             {
@@ -402,9 +398,7 @@ namespace CreateAR.EnkluPlayer
         private void SetupPlay()
         {
             _setupEdit = false;
-
-            _primaryAnchor.Setup();
-
+            
             _voice.RegisterAdmin("menu", Voice_OnPlayMenu);
             _voice.RegisterAdmin("edit", Voice_OnEdit);
 
@@ -420,8 +414,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void TeardownPlay()
         {
-            _primaryAnchor.Teardown();
-
             _voice.Unregister("menu");
             _voice.Unregister("edit");
 

@@ -10,6 +10,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
 using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -97,12 +98,7 @@ namespace CreateAR.EnkluPlayer
         /// Creates elements.
         /// </summary>
         private readonly IElementFactory _elements;
-
-        /// <summary>
-        /// Voices....
-        /// </summary>
-        private readonly IVoiceCommandManager _voice;
-
+        
         /// <summary>
         /// Metrics.
         /// </summary>
@@ -250,6 +246,9 @@ namespace CreateAR.EnkluPlayer
         public WorldAnchorWidget Primary { get; private set; }
 
         /// <inheritdoc />
+        public IAnchorStore Store { get; private set; }
+
+        /// <inheritdoc />
         public bool IsReady
         {
             get { return AreAllAnchorsReady; }
@@ -270,7 +269,6 @@ namespace CreateAR.EnkluPlayer
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IElementFactory elements,
-            IVoiceCommandManager voice,
             IMetricsService metrics,
             ApplicationConfig config)
         {
@@ -282,81 +280,68 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper = bootstrapper;
             _messages = messages;
             _elements = elements;
-            _voice = voice;
             _metrics = metrics;
             _config = config;
         }
 
         /// <inheritdoc />
-        public void Setup()
+        public IAsyncToken<Void> Setup()
         {
             _sceneId = _scenes.All.FirstOrDefault();
             if (string.IsNullOrEmpty(_sceneId))
             {
-                Log.Warning(this, "Cannot setup PrimaryAnchorManager: no tracked scenes.");
-                return;
+                return new AsyncToken<Void>(new Exception("Cannot setup AnchorManager: no tracked scenes."));
             }
 
             var root = _scenes.Root(_sceneId);
             if (null == root)
             {
-                Log.Warning(this, "Cannot setup PrimaryAnchorManager: could not find scene root.");
-                return;
+                return new AsyncToken<Void>(new Exception("Cannot setup AnchorManager: could not find scene root."));
             }
-
+            
             // reset anchor bypass
             _isBypass = false;
 
             // reset flag
             AreAllAnchorsReady = false;
 
-            // reset anchors
-            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
-            if (OnAnchorElementUpdate != null)
-            {
-                OnAnchorElementUpdate();
-            }
-
-            // see if we need to use anchors
-            _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
-            _anchorsEnabledProp.OnChanged += Anchors_OnEnabledChanged;
-
-            if (_anchorsEnabledProp.Value)
-            {
-                _locatingMessageProp = root.Schema.GetOwn(PROP_LOCATING_MESSAGE_KEY, "Attempting to locate content.\nPlease walk around space.");
-                _disableBypassProp = root.Schema.GetOwn(PROP_DISABLE_BYPASS_KEY, false);
-
-                _locatingMessageProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
-                _disableBypassProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
-
-                SetupAnchors();
-            }
-            else
-            {
-                Ready();
-            }
-
-            // origin command
-            _voice.Register("origin", str =>
-            {
-#if NETFX_CORE
-                UnityEngine.XR.InputTracking.Recenter();
-#endif
-            });
-            _voice.Register("bypass", _ =>
-            {
-                if (!AreAllAnchorsReady)
+            // setup store first
+            return Store
+                .Setup()
+                .OnSuccess(_ =>
                 {
-                    BypassAnchorRequirement();
-                }
-            });
+                    // reset anchors
+                    _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
+                    if (OnAnchorElementUpdate != null)
+                    {
+                        OnAnchorElementUpdate();
+                    }
+
+                    // see if we need to use anchors
+                    _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
+                    _anchorsEnabledProp.OnChanged += Anchors_OnEnabledChanged;
+
+                    if (_anchorsEnabledProp.Value)
+                    {
+                        _locatingMessageProp = root.Schema.GetOwn(PROP_LOCATING_MESSAGE_KEY, "Attempting to locate content.\nPlease walk around space.");
+                        _disableBypassProp = root.Schema.GetOwn(PROP_DISABLE_BYPASS_KEY, false);
+
+                        _locatingMessageProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
+                        _disableBypassProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
+
+                        SetupAnchors();
+                    }
+                    else
+                    {
+                        Ready();
+                    }
+                })
+                .Token();
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
-            _voice.Unregister("origin");
-
             TeardownAnchors();
 
             if (null != _anchorsEnabledProp)
@@ -433,6 +418,19 @@ namespace CreateAR.EnkluPlayer
             }
 
             return refAnchor;
+        }
+
+        /// <summary>
+        /// Forcibly bypasses the requirement for anchors to be placed properly.
+        /// </summary>
+        public void BypassAnchorRequirement()
+        {
+            Log.Info(this, "Bypassing anchoring requirements.");
+
+            CloseStatusUI();
+            _isBypass = true;
+
+            Ready();
         }
 
         /// <summary>
@@ -649,20 +647,7 @@ namespace CreateAR.EnkluPlayer
             _bypassBtn = _rootUI.FindOne<ButtonWidget>("..btn");
             _bypassBtn.OnActivated += _ => BypassAnchorRequirement();
         }
-
-        /// <summary>
-        /// Forcibly bypasses the requirement for anchors to be placed properly.
-        /// </summary>
-        private void BypassAnchorRequirement()
-        {
-            Log.Info(this, "Bypassing anchoring requirements.");
-
-            CloseStatusUI();
-            _isBypass = true;
-
-            Ready();
-        }
-
+        
         /// <summary>
         /// Updates the status UI every frame.
         /// </summary>

@@ -1,5 +1,7 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -14,7 +16,12 @@ namespace CreateAR.EnkluPlayer
         /// TODO: get rid of this
         /// </summary>
         WorldAnchorWidget Primary { get; }
-        
+
+        /// <summary>
+        /// Manages anchor data.
+        /// </summary>
+        IAnchorStore Store { get; }
+
         /// <summary>
         /// True iff anchors are ready.
         /// </summary>
@@ -23,7 +30,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Sets up the manager.
         /// </summary>
-        void Setup();
+        IAsyncToken<Void> Setup();
 
         /// <summary>
         /// Tears down the manager. Should be called before leaving edit mode.

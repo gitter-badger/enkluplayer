@@ -150,8 +150,16 @@ namespace CreateAR.EnkluPlayer
             _voice.Register("logging", Voice_OnLogging);
             _voice.Register("optimization", Voice_Optimization);
             _voice.RegisterAdmin("crash", _ => Log.Fatal(this, "Test crash."));
+
+#if NETFX_CORE
+            _voice.Register("origin", str =>
+            {
+                UnityEngine.XR.InputTracking.Recenter();
+            });
+#endif
+            _voice.Register("bypass", Voice_OnAnchorBypass);
         }
-        
+
         /// <inheritdoc />
         public override void Stop()
         {
@@ -176,6 +184,8 @@ namespace CreateAR.EnkluPlayer
             _voice.Unregister("performance");
             _voice.Unregister("logging");
             _voice.Unregister("crash");
+            _voice.Unregister("origin");
+            _voice.Unregister("bypass");
         }
 
         /// <inheritdoc />
@@ -505,6 +515,18 @@ namespace CreateAR.EnkluPlayer
                     UIDataId = UIDataIds.OPTIMIZATION_HUD
                 }, out hudId)
                 .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+        }
+
+        /// <summary>
+        /// Called when bypass voice command is used.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnAnchorBypass(string command)
+        {
+            if (!AnchorManager.AreAllAnchorsReady)
+            {
+                _anchorManager.BypassAnchorRequirement();
+            }
         }
 
         /// <summary>

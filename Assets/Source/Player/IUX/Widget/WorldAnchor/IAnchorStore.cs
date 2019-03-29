@@ -7,13 +7,18 @@ namespace CreateAR.EnkluPlayer.IUX
     /// <summary>
     /// Interface for manipulating world anchors.
     /// </summary>
-    public interface IWorldAnchorProvider
+    public interface IAnchorStore
     {
         /// <summary>
         /// Initializes provider.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<Void> Initialize(IAppSceneManager scenes);
+        IAsyncToken<Void> Setup();
+
+        /// <summary>
+        /// Tears down the store.
+        /// </summary>
+        void Teardown();
 
         /// <summary>
         /// Attempts to anchor an object.
@@ -24,7 +29,7 @@ namespace CreateAR.EnkluPlayer.IUX
         IAsyncToken<Void> Anchor(string id, GameObject gameObject);
 
         /// <summary>
-        /// Unanchors an object. Only affects gameObject if Anchor has already
+        /// Un-anchors an object. Only affects gameObject if Anchor has already
         /// been called on anchor.
         /// </summary>
         /// <param name="gameObject">The gameObject.</param>

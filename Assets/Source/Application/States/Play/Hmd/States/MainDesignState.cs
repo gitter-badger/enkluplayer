@@ -54,7 +54,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Provides anchor import/export.
         /// </summary>
-        private readonly IWorldAnchorProvider _anchorProvider;
+        private readonly IAnchorStore _anchorStore;
 
         /// <summary>
         /// Manages UI.
@@ -144,7 +144,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IElementControllerManager controllers,
             IHttpService http,
-            IWorldAnchorProvider anchorProvider,
+            IAnchorStore anchorStore,
             IUIManager ui,
             UserPreferenceService preferenceService,
             IAnchorManager anchors,
@@ -156,7 +156,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _controllers = controllers;
             _http = http;
-            _anchorProvider = anchorProvider;
+            _anchorStore = anchorStore;
             _ui = ui;
             _preferenceService = preferenceService;
             _anchors = anchors;
@@ -228,7 +228,7 @@ namespace CreateAR.EnkluPlayer
                             SceneId = SceneIdForElement,
                             Config = _design.Config,
                             Http = _http,
-                            Provider = _anchorProvider,
+                            Store = _anchorStore,
                             OnAdjust = Anchor_OnAdjust
                         });
                     
@@ -478,7 +478,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void MainMenu_OnClearAnchors()
         {
-            _anchorProvider.ClearAllAnchors();
+            _anchorStore.ClearAllAnchors();
         }
 
         /// <summary>

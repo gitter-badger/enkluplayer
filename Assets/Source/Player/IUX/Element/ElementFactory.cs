@@ -29,7 +29,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IVoiceCommandManager _voice;
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
-        private readonly IWorldAnchorProvider _provider;
+        private readonly IAnchorStore _store;
         private readonly IScriptManager _scripts;
         private readonly IScriptExecutorFactory _scriptHostFactory;
         private readonly IAssetManager _assets;
@@ -61,7 +61,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IVoiceCommandManager voice,
             IImageLoader imageLoader,
             IHttpService http,
-            IWorldAnchorProvider provider,
+            IAnchorStore store,
             IScriptManager scripts,
             IScriptExecutorFactory scriptHostFactory,
             IAssetManager assets,
@@ -91,7 +91,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _config = config;
             _imageLoader = imageLoader;
             _http = http;
-            _provider = provider;
+            _store = store;
             _scripts = scripts;
             _scriptHostFactory = scriptHostFactory;
             _assets = assets;
@@ -268,7 +268,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         _tweens,
                         _colors,
                         _http,
-                        _provider,
+                        _store,
                         _metrics,
                         _messages,
                         _bootstrapper,
