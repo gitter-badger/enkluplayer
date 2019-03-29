@@ -124,3 +124,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 0eb9ceb1d2d644a5bb8ac75fc91da5b9, type: 3}
   - Identifier: Debug.Optimization
     Source: {fileID: 4900000, guid: 271e79a7e5599ac42b5ce5abc52285c8, type: 3}
+  - Identifier: Anchor.Status
+    Source: {fileID: 4900000, guid: b4b341ea3df286944887ece3cb2f1b4c, type: 3}

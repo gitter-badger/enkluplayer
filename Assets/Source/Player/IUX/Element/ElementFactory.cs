@@ -1,6 +1,5 @@
 using System;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
@@ -37,7 +36,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
-        private readonly IMessageRouter _messages;
         private readonly IElementJsCache _jsCache;
         private readonly IBootstrapper _bootstrapper;
         private readonly ColorConfig _colors;
@@ -69,7 +67,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IScanLoader scanLoader,
             IScanImporter scanImporter,
             IMetricsService metrics,
-            IMessageRouter messages,
             IElementJsCache jsCache,
             IBootstrapper bootstrapper,
             ColorConfig colors,
@@ -99,7 +96,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
             _metrics = metrics;
-            _messages = messages;
             _jsCache = jsCache;
             _bootstrapper = bootstrapper;
             _appConfig = appConfig;
@@ -270,7 +266,6 @@ namespace CreateAR.EnkluPlayer.IUX
                         _http,
                         _store,
                         _metrics,
-                        _messages,
                         _bootstrapper,
                         _appConfig);
                 }

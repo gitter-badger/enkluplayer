@@ -5,7 +5,6 @@ using System.Globalization;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages.UploadAnchor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -54,11 +53,6 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-
-        /// <summary>
-        /// Application-wide messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// Bootstrapping coroutines.
@@ -168,7 +162,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IHttpService http,
             IAnchorStore store,
             IMetricsService metrics,
-            IMessageRouter messages,
             IBootstrapper bootstrapper,
             ApplicationConfig config)
             : base(gameObject, layers, tweens, colors)
@@ -176,7 +169,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _http = http;
             _store = store;
             _metrics = metrics;
-            _messages = messages;
             _bootstrapper = bootstrapper;
             _config = config;
         }
@@ -265,10 +257,10 @@ namespace CreateAR.EnkluPlayer.IUX
             _lockedProp = Schema.GetOwn("locked", false);
             _lockedProp.OnChanged += Locked_OnChanged;
             
-            var autoexport = Schema.GetOwn("autoexport", true).Value;
-            if (autoexport)
+            var autoExport = Schema.GetOwn("autoexport", true).Value;
+            if (autoExport)
             {
-                _messages.Publish(MessageTypes.ANCHOR_AUTOEXPORT, this);
+                //_messages.Publish(MessageTypes.ANCHOR_AUTOEXPORT, this);
             }
             else
             {

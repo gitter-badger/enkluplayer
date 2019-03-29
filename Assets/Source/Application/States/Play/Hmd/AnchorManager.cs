@@ -2,11 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
 using UnityEngine;
@@ -17,29 +15,9 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// Basic implementation of the anchor manager.
     /// </summary>
-    /// <inheritdoc cref="IAnchorManager" />
-    /// <inheritdoc cref="IMeshCaptureObserver" />
-    public class AnchorManager : IAnchorManager, IMeshCaptureObserver
+    /// <inheritdoc />
+    public class AnchorManager : IAnchorManager
     {
-        /// <summary>
-        /// Tracks information about a surface.
-        /// </summary>
-        private class SurfaceRecord
-        {
-            /// <summary>
-            /// The associated GameObject.
-            /// </summary>
-            public readonly GameObject GameObject;
-
-            /// <summary>
-            /// Constructor.
-            /// </summary>
-            public SurfaceRecord(GameObject gameObject)
-            {
-                GameObject = gameObject;
-            }
-        }
-
         /// <summary>
         /// K/V for the tag prop.
         /// </summary>
@@ -53,67 +31,20 @@ namespace CreateAR.EnkluPlayer
         /// True iff all anchors are ready to go.
         /// </summary>
         public static bool AreAllAnchorsReady { get; private set; }
-
-        /// <summary>
-        /// Time between exports.
-        /// </summary>
-        private const float EXPORT_POLL_SEC = 1f;
-
-        /// <summary>
-        /// Manages the scenes.
-        /// </summary>
-        private readonly IAppSceneManager _scenes;
-
-        /// <summary>
-        /// Makes changes to the scene.
-        /// </summary>
-        private readonly IElementTxnManager _txns;
-
-        /// <summary>
-        /// Manages intentions.
-        /// </summary>
-        private readonly IIntentionManager _intention;
-
-        /// <summary>
-        /// Captures surfaces.
-        /// </summary>
-        private readonly IMeshCaptureService _capture;
-
-        /// <summary>
-        /// Exports captured surfaces to Trellis.
-        /// </summary>
-        private readonly IMeshCaptureExportService _exportService;
-
-        /// <summary>
-        /// Bootstraps coroutines.
-        /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-
-        /// <summary>
-        /// Pub/sub.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
-        /// <summary>
-        /// Creates elements.
-        /// </summary>
-        private readonly IElementFactory _elements;
         
         /// <summary>
-        /// Metrics.
+        /// Dependencies.
         /// </summary>
+        private readonly IAppSceneManager _scenes;
+        private readonly IBootstrapper _bootstrapper;
         private readonly IMetricsService _metrics;
+        private readonly IUIManager _ui;
 
         /// <summary>
         /// Configuration for entire application.
         /// </summary>
         private readonly ApplicationConfig _config;
-
-        /// <summary>
-        /// Lookup from surface id to GameObject.
-        /// </summary>
-        private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
-
+        
         /// <summary>
         /// List of anchors in scene, including the primary anchor.
         /// </summary>
@@ -123,77 +54,12 @@ namespace CreateAR.EnkluPlayer
         /// Callbacks for ready.
         /// </summary>
         private readonly List<CancelableCallback> _onReady = new List<CancelableCallback>();
-
-        /// <summary>
-        /// Token returned from store setup.
-        /// </summary>
-        private IAsyncToken<Void> _storeSetup;
-
-        /// <summary>
-        /// Immediate child of anchor.
-        /// </summary>
-        private ScanWidget _scan;
-
-        /// <summary>
-        /// Token used to create the primary anchor.
-        /// </summary>
-        private IAsyncToken<ElementResponse> _createToken;
-
-        /// <summary>
-        /// Id of the scene.
-        /// </summary>
-        private string _sceneId;
-
-        /// <summary>
-        /// True iff auto-export coroutine should be running.
-        /// </summary>
-        private bool _isAutoExportAlive;
-
-        /// <summary>
-        /// Unsubscribe delegate for auto-export event.
-        /// </summary>
-        private Action _autoExportUnsub;
-
-        /// <summary>
-        /// Unsubscribe delegate for reset.
-        /// </summary>
-        private Action _resetUnsub;
-
-        /// <summary>
-        /// UI root.
-        /// </summary>
-        private Element _rootUI;
-
-        /// <summary>
-        /// Caption on UI.
-        /// </summary>
-        private TextWidget _cpnProgress;
-
-        /// <summary>
-        /// Caption on UI.
-        /// </summary>
-        private TextWidget _cpnLocating;
-
-        /// <summary>
-        /// True iff world anchors are enabled.
-        /// </summary>
-        private bool _isAnchoringEnabled;
-
+        
         /// <summary>
         /// True iff anchors are enabled.
         /// </summary>
         private ElementSchemaProp<bool> _anchorsEnabledProp;
-
-        /// <summary>
-        /// True iff we're bypassing anchor requirements.
-        /// </summary>
-        private bool _isBypass;
-
-        /// <summary>
-        /// The bypass button.
-        /// </summary>
-        private ButtonWidget _bypassBtn;
-
+        
         /// <summary>
         /// True iff anchors are enabled.
         /// </summary>
@@ -216,37 +82,23 @@ namespace CreateAR.EnkluPlayer
         private ElementSchemaProp<bool> _disableBypassProp;
 
         /// <summary>
+        /// Displays information to the user about anchor status.
+        /// </summary>
+        private AnchorStatusUIView _view;
+
+        /// <summary>
+        /// UI id for the view.
+        /// </summary>
+        private int _viewId;
+
+        /// <summary>
         /// Read only collection of currently tracked anchors.
         /// </summary>
         public ReadOnlyCollection<WorldAnchorWidget> Anchors
         {
             get { return _anchors; }
         }
-
-        /// <inheritdoc />
-        public WorldAnchorWidget.WorldAnchorStatus Status
-        {
-            get
-            {
-                if (_isBypass)
-                {
-                    return WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated;
-                }
-
-                if (null != _anchorsEnabledProp && !_anchorsEnabledProp.Value)
-                {
-                    return WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated;
-                }
-
-                if (null == Primary)
-                {
-                    return WorldAnchorWidget.WorldAnchorStatus.None;
-                }
-
-                return Primary.Status;
-            }
-        }
-
+        
         /// <inheritdoc />
         public WorldAnchorWidget Primary { get; private set; }
 
@@ -258,122 +110,60 @@ namespace CreateAR.EnkluPlayer
         {
             get { return AreAllAnchorsReady; }
         }
-
-        /// <inheritdoc />
-        public event Action OnAnchorElementUpdate;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         public AnchorManager(
             IAppSceneManager scenes,
-            IElementTxnManager txns,
-            IIntentionManager intentions,
-            IMeshCaptureService capture,
-            IMeshCaptureExportService exportService,
             IBootstrapper bootstrapper,
-            IMessageRouter messages,
-            IElementFactory elements,
             IMetricsService metrics,
+            IUIManager ui,
             ApplicationConfig config)
         {
             _scenes = scenes;
-            _txns = txns;
-            _intention = intentions;
-            _capture = capture;
-            _exportService = exportService;
             _bootstrapper = bootstrapper;
-            _messages = messages;
-            _elements = elements;
             _metrics = metrics;
+            _ui = ui;
             _config = config;
         }
         
         /// <inheritdoc />
         public IAsyncToken<Void> Setup()
         {
-            _sceneId = _scenes.All.FirstOrDefault();
-            if (string.IsNullOrEmpty(_sceneId))
+            // shortcut
+            if (!DeviceHelper.IsHoloLens())
             {
-                return new AsyncToken<Void>(new Exception("Cannot setup AnchorManager: no tracked scenes."));
+                Ready();
+                return new AsyncToken<Void>(Void.Instance);
             }
 
-            var root = _scenes.Root(_sceneId);
-            if (null == root)
-            {
-                return new AsyncToken<Void>(new Exception("Cannot setup AnchorManager: could not find scene root."));
-            }
-            
-            // reset anchor bypass
-            _isBypass = false;
+            // listen for scene creation
+            _scenes.OnSceneCreated += Scenes_OnCreated;
 
-            // reset flag
-            AreAllAnchorsReady = false;
-            
             // setup store
-            _storeSetup = Store
-                .Setup()
-                .OnSuccess(_ =>
-                {
-                    // reset anchors
-                    _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
-                    if (OnAnchorElementUpdate != null)
-                    {
-                        OnAnchorElementUpdate();
-                    }
-
-                    // see if we need to use anchors
-                    _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
-                    _anchorsEnabledProp.OnChanged += Anchors_OnEnabledChanged;
-
-                    if (_anchorsEnabledProp.Value)
-                    {
-                        _locatingMessageProp = root.Schema.GetOwn(PROP_LOCATING_MESSAGE_KEY,
-                            "Attempting to locate content.\nPlease walk around space.");
-                        _disableBypassProp = root.Schema.GetOwn(PROP_DISABLE_BYPASS_KEY, false);
-
-                        _locatingMessageProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
-                        _disableBypassProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
-
-                        SetupAnchors();
-                    }
-                    else
-                    {
-                        Ready();
-                    }
-                })
-                .OnFailure(ex => Log.Error(this, "Could not setup anchor store: {0}.", ex));
-
-            // return a new token so an outside system can't abort our token
-            return _storeSetup.Token();
+            return Store.Setup();
         }
-
+        
         /// <inheritdoc />
         public void Teardown()
         {
             TeardownAnchors();
 
+            // clear props
             if (null != _anchorsEnabledProp)
             {
                 _anchorsEnabledProp.OnChanged -= Anchors_OnEnabledChanged;
+                
                 _anchorsEnabledProp = null;
+                _locatingMessageProp = null;
+                _disableBypassProp = null;
             }
-
+            
             Primary = null;
-
-            // teardown may be called before store setup is complete
-            if (null != _storeSetup)
-            {
-                _storeSetup.Abort();
-                _storeSetup = null;
-            }
-
             Store.Teardown();
 
-            if (null != _createToken)
-            {
-                _createToken.Abort();
-            }
+            _scenes.OnSceneCreated -= Scenes_OnCreated;
         }
 
         /// <inheritdoc />
@@ -381,7 +171,7 @@ namespace CreateAR.EnkluPlayer
         {
             var cb = new CancelableCallback(ready);
 
-            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+            if (AreAllAnchorsReady)
             {
                 cb.Invoke();
             }
@@ -393,64 +183,16 @@ namespace CreateAR.EnkluPlayer
             return cb;
         }
 
-        /// <inheritdoc />
-        public void OnData(int id, MeshFilter filter)
-        {
-            if (!_surfaces.ContainsKey(id) && filter && filter.gameObject)
-            {
-                _surfaces[id] = new SurfaceRecord(filter.gameObject);
-            }
-        }
-
         /// <summary>
-        /// Modifies a position/rotation relative to a located anchor. The primary anchor is prioritized.
-        /// The anchor used for relative positioning is returned. If all anchors aren't located, null is returned.
-        /// TODO: Remove UnityEngine dependencies
-        /// </summary>
-        /// <param name="position"></param>
-        /// <param name="rotation"></param>
-        /// <returns></returns>
-        public WorldAnchorWidget RelativeTransform(ref Vector3 position, ref Quaternion rotation)
-        {
-            WorldAnchorWidget refAnchor = null;
-
-            // Attempt to use the primary... primarily
-            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
-            {
-                refAnchor = Primary;
-            }
-            else
-            {
-                // Fallback to any located anchor
-                var located = FirstLocatedAnchor();
-                if (null != located)
-                {
-                    refAnchor = located;
-                }
-            }
-
-            if (null != refAnchor)
-            {
-                position = refAnchor.GameObject.transform.InverseTransformPoint(position);
-                rotation = Quaternion.Inverse(rotation) * refAnchor.GameObject.transform.rotation;
-            }
-
-            return refAnchor;
-        }
-
-        /// <summary>
-        /// Forcibly bypasses the requirement for anchors to be placed properly.
+        /// Disabled anchors.
+        ///
+        /// Used by DebugService, not visible on interface.
         /// </summary>
         public void BypassAnchorRequirement()
         {
-            Log.Info(this, "Bypassing anchoring requirements.");
-
-            CloseStatusUI();
-            _isBypass = true;
-
-            Ready();
+            _anchorsEnabledProp.Value = false;
         }
-
+        
         /// <summary>
         /// Called when ready methods should be called.
         /// </summary>
@@ -472,95 +214,41 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void TeardownAnchors()
         {
+            AreAllAnchorsReady = false;
+
             _pollAnchors = false;
+
             CloseStatusUI();
 
-            if (null != _createToken)
-            {
-                _createToken.Abort();
-                _createToken = null;
-            }
-
-            if (null != _autoExportUnsub)
-            {
-                _autoExportUnsub();
-                _autoExportUnsub = null;
-            }
-
-            if (null != _resetUnsub)
-            {
-                _resetUnsub();
-                _resetUnsub = null;
-            }
-
-            TeardownMeshScan();
+            _anchors = new ReadOnlyCollection<WorldAnchorWidget>(new List<WorldAnchorWidget>());
         }
 
         /// <summary>
-        /// Sets up anchors.
+        /// Sets up anchors for a scene.
         /// </summary>
-        private void SetupAnchors()
+        private void SetupAnchors(Element root)
         {
-            if (!DeviceHelper.IsHoloLens())
-            {
-                Ready();
-
-                return;
-            }
-
-            var root = _scenes.Root(_sceneId);
-            FindPrimaryAnchor(root);
-
-            // poll for anchors
-            _pollAnchors = true;
-            _bootstrapper.BootstrapCoroutine(PollAnchors());
-
-            if (_config.Play.Edit)
-            {
-                // in edit mode, create a primary anchor
-                if (null == Primary)
-                {
-                    Log.Info(this, "No primary anchor found. Will create one!");
-
-                    CreatePrimaryAnchor(_sceneId, root);
-                }
-                // or don't!
-                else
-                {
-                    Log.Info(this, "Primary anchor found.");
-
-                    SetupMeshScan(false);
-                }
-
-                // subscribe for export and reset
-                _autoExportUnsub = _messages.Subscribe(
-                    MessageTypes.ANCHOR_AUTOEXPORT,
-                    Messages_OnAutoExport);
-                _resetUnsub = _messages.Subscribe(
-                    MessageTypes.ANCHOR_RESETPRIMARY,
-                    Messages_OnResetPrimary);
-            }
-            else
-            {
-                OpenStatusUI();
-            }
-        }
-
-        /// <summary>
-        /// Locates the primary anchor in a hierarchy.
-        /// </summary>
-        /// <param name="root">The root element.</param>
-        private void FindPrimaryAnchor(Element root)
-        {
+            // update anchors
             var anchors = new List<WorldAnchorWidget>();
             root.Find("..(@type=WorldAnchorWidget)", anchors);
             _anchors = new ReadOnlyCollection<WorldAnchorWidget>(anchors);
+            
+            // find primary
+            FindPrimaryAnchor();
 
-            if (OnAnchorElementUpdate != null)
+            // poll for anchors if we are not already
+            if (!_pollAnchors)
             {
-                OnAnchorElementUpdate();
+                _pollAnchors = true;
+                _bootstrapper.BootstrapCoroutine(PollAnchors());
             }
+        }
 
+        /// <summary>
+        /// Locates the primary anchor.
+        /// </summary>
+        private void FindPrimaryAnchor()
+        {
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
                 var anchor = _anchors[i];
@@ -584,86 +272,27 @@ namespace CreateAR.EnkluPlayer
                         Primary = anchor;
                     }
                 }
-                else if (anchor.Schema.GetOwn("autoexport", false).Value)
-                {
-                    Messages_OnAutoExport(anchor);
-                }
-            }
-
-            if (null != Primary)
-            {
-                _scan = (ScanWidget) Primary.Children[0];
             }
         }
-
-        /// <summary>
-        /// Creates primary anchor.
-        /// </summary>
-        /// <param name="sceneId">The scene in which to create the anchor.</param>
-        /// <param name="root">The root of the scene.</param>
-        private void CreatePrimaryAnchor(string sceneId, Element root)
-        {
-            var position = _intention.Origin + 2 * _intention.Forward;
-            var rotation = new Vector3(
-                _intention.Forward.x,
-                0,
-                _intention.Forward.z).normalized.ToVec();
-
-            _createToken = _txns
-                .Request(new ElementTxn(sceneId).Create(root.Id, new ElementData
-                {
-                    Type = ElementTypes.WORLD_ANCHOR,
-                    Schema = new ElementSchemaData
-                    {
-                        Strings = { { PROP_TAG_KEY, PROP_TAG_VALUE }, { "name", "Primary Anchor" } },
-                        Vectors = { { "position", position }, { "rotation", rotation } },
-                        Bools = { { "locked", true } }
-                    },
-                    Children = new[]
-                    {
-                        new ElementData
-                        {
-                            Type = ElementTypes.SCAN,
-                            Schema = new ElementSchemaData
-                            {
-                                Strings = { { "name", "Scan" } }
-                            }
-                        }
-                    }
-                }))
-                .OnSuccess(response =>
-                {
-                    var anchor = (WorldAnchorWidget) response.Elements[0];
-
-                    // on hololens, position + rotation don't do anything-- so set the transform by hand
-                    anchor.GameObject.transform.position = position.ToVector();
-                    anchor.GameObject.transform.rotation = Quaternion.Euler(rotation.ToVector());
-
-                    Primary = anchor;
-                    _scan = (ScanWidget) anchor.Children[0];
-
-                    SaveAnchor(Primary);
-                    SetupMeshScan(true);
-                })
-                .OnFailure(exception => Log.Error(this, "Could not create primary anchor : {0}", exception));
-        }
-
+        
         /// <summary>
         /// Opens the status UI.
         /// </summary>
         private void OpenStatusUI()
         {
-            _rootUI = _elements.Element(@"
-<?Vine>
-<Float focus.visible=false>
-    <Caption id='cpn-progress' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
-    <Caption visible=false id='cpn-locating' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
-    <Button id='btn' position=(0, -0.1, 0) label='Bypass' visible=false />
-</Float>");
-            _cpnProgress = _rootUI.FindOne<TextWidget>("..cpn-progress");
-            _cpnLocating = _rootUI.FindOne<TextWidget>("..cpn-locating");
-            _bypassBtn = _rootUI.FindOne<ButtonWidget>("..btn");
-            _bypassBtn.OnActivated += _ => BypassAnchorRequirement();
+            _ui
+                .OpenOverlay<AnchorStatusUIView>(new UIReference
+                {
+                    UIDataId = "Anchors.Status"
+                }, out _viewId)
+                .OnSuccess(el =>
+                {
+                    _view = el;
+                    _view.OnBypass += () => _anchorsEnabledProp.Value = false;
+                })
+                .OnFailure(ex => Log.Error(this,
+                    "Could not open anchor status UI: {0}",
+                    ex));
         }
         
         /// <summary>
@@ -677,7 +306,10 @@ namespace CreateAR.EnkluPlayer
                 // no primary anchor
                 if (null == Primary)
                 {
-                    _rootUI.Schema.Set("visible", false);
+                    if (null != _view)
+                    {
+                        _view.Root.Schema.Set("visible", false);
+                    }
                 }
                 // anchors
                 else
@@ -693,7 +325,8 @@ namespace CreateAR.EnkluPlayer
                         out numLocated);
 
                     UpdateStatusUI(errors, downloading, importing, notLocated, numLocated);
-
+                    
+                    // ready
                     if (!AreAllAnchorsReady && numLocated > 0 && downloading == 0 && importing == 0)
                     {
                         Ready();
@@ -732,11 +365,11 @@ namespace CreateAR.EnkluPlayer
                 var locatedPos = located.GameObject.transform.position;
                 var locatedRot = located.GameObject.transform.rotation;
 
-                var A = Matrix4x4.TRS(locatedSchemaPos, locatedSchemaRot, Vector3.one);
-                var B = Matrix4x4.TRS(locatedPos, locatedRot, Vector3.one);
+                var a = Matrix4x4.TRS(locatedSchemaPos, locatedSchemaRot, Vector3.one);
+                var b = Matrix4x4.TRS(locatedPos, locatedRot, Vector3.one);
 
-                // T * A = B
-                T = B * Matrix4x4.Inverse(A);
+                // T * a = b
+                T = b * Matrix4x4.Inverse(a);
             }
 
             // place non-located anchors relative to the located anchor
@@ -774,10 +407,10 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Postions an anchor relative to a located anchor.
+        /// Positions an anchor relative to a located anchor.
         /// </summary>
         /// <param name="anchor">The anchor.</param>
-        /// <param name="transformation">The tranformation.</param>
+        /// <param name="transformation">The transformation.</param>
         private void PositionAnchorRelative(
             WorldAnchorWidget anchor,
             Matrix4x4 transformation)
@@ -785,12 +418,12 @@ namespace CreateAR.EnkluPlayer
             var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
             var anchorSchemaRot = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector());
 
-            // T * A_anchor = A_located
-            var A_anchor = Matrix4x4.TRS(anchorSchemaPos, anchorSchemaRot, Vector3.one);
-            var A_located = transformation * A_anchor;
+            // T * aAnchor = aLocated
+            var aAnchor = Matrix4x4.TRS(anchorSchemaPos, anchorSchemaRot, Vector3.one);
+            var aLocated = transformation * aAnchor;
 
-            anchor.GameObject.transform.position = A_located.GetColumn(3);
-            anchor.GameObject.transform.rotation = A_located.rotation;
+            anchor.GameObject.transform.position = aLocated.GetColumn(3);
+            anchor.GameObject.transform.rotation = aLocated.rotation;
         }
 
         /// <summary>
@@ -798,72 +431,51 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void UpdateStatusUI(int errors, int downloading, int importing, int unlocated, int located)
         {
-            if (null == _cpnProgress || null == _rootUI)
+            if (null == _view)
             {
                 return;
             }
 
+            // show import progress
             if (downloading + importing + errors > 0)
             {
-                _cpnProgress.LocalVisible = true;
-                _cpnLocating.LocalVisible = false;
+                _view.Root.Schema.Set("visible", true);
+                _view.TxtProgress.LocalVisible = true;
+                _view.TxtLocating.LocalVisible = false;
 
-                UpdateProgressUI(errors, downloading, importing, unlocated, located);
-            }
-            else if (0 == located)
-            {
-                _cpnLocating.LocalVisible = true;
-                _cpnProgress.LocalVisible = false;
-
-                UpdateLocatingUI();
-            }
-            else
-            {
-                _rootUI.Schema.Set("visible", false);
-            }
-        }
-
-        /// <summary>
-        /// Updates the progress UI.
-        /// </summary>
-        private void UpdateProgressUI(int errors, int downloading, int importing, int unlocated, int located)
-        {
-            _cpnProgress.Label = string.Format(
-                @"Please wait...
+                _view.TxtProgress.Label = string.Format(
+                    @"Please wait...
 
 Downloading: {1} / {0}
 Importing: {2} / {0}
 Errors: {3} / {0}",
-                _anchors.Count,
-                downloading,
-                importing,
-                errors);
+                    _anchors.Count,
+                    downloading,
+                    importing,
+                    errors);
 
-            _rootUI.Schema.Set("visible", true);
-
-            if (unlocated + errors == _anchors.Count)
+                if (unlocated + errors == _anchors.Count)
+                {
+                    _view.BtnBypass.Schema.Set("visible", !_disableBypassProp.Value);
+                }
+            }
+            // show custom message
+            else if (0 == located)
             {
-                _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
+                _view.Root.Schema.Set("visible", true);
+                _view.TxtProgress.LocalVisible = false;
+                _view.TxtLocating.LocalVisible = true;
+
+                _view.TxtLocating.Label = _locatingMessageProp.Value;
+                _view.BtnBypass.Schema.Set("visible", !_disableBypassProp.Value);
+            }
+            // hide status ui completely
+            else
+            {
+                _view.Root.Schema.Set("visible", false);
             }
         }
-
-        /// <summary>
-        /// Updates the locating UI.
-        /// </summary>
-        private void UpdateLocatingUI()
-        {
-            if (_cpnLocating == null)
-            {
-                // Safety in case custom messages are set before the vine has been built.
-                return;
-            }
-
-            _cpnLocating.Label = _locatingMessageProp.Value;
-
-            _rootUI.Schema.Set("visible", true);
-            _bypassBtn.Schema.Set("visible", !_disableBypassProp.Value);
-        }
-
+        
         /// <summary>
         /// Counts up anchor types.
         /// </summary>
@@ -935,100 +547,49 @@ Errors: {3} / {0}",
         /// </summary>
         private void CloseStatusUI()
         {
-            if (null != _rootUI)
+            if (0 != _viewId)
             {
-                _rootUI.Destroy();
-                _rootUI = null;
-                _cpnProgress = null;
+                _ui.Close(_viewId);
+                _view = null;
+                _viewId = 0;
             }
         }
 
         /// <summary>
-        /// Starts scanning the room and uploading through pipeline.
+        /// Called when a scene has been created.
         /// </summary>
-        private void SetupMeshScan(bool start)
+        /// <param name="root">The scene.</param>
+        private void Scenes_OnCreated(Element root)
         {
-            Log.Info(this, "Setting up mesh scan.");
-
-            _capture.Observer = this;
-
-            if (start)
+            // the first scene loaded gets to dictate global props
+            if (null == _anchorsEnabledProp)
             {
-                Log.Info(this, "Starting capture.");
+                // watch enabled prop
+                _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
+                _anchorsEnabledProp.OnChanged += Anchors_OnEnabledChanged;
 
-                _capture.IsVisible = true;
-                _capture.Start();
-            }
-            else
-            {
-                Log.Info(this, "Capture not started.");
+                // props for UI
+                _locatingMessageProp = root.Schema.GetOwn(
+                    PROP_LOCATING_MESSAGE_KEY,
+                    "Attempting to locate content.\nPlease walk around space.");
+                _disableBypassProp = root.Schema.GetOwn(PROP_DISABLE_BYPASS_KEY, false);
             }
 
-            var srcUrl = _scan.Schema.Get<string>("srcId").Value;
-            _exportService.OnFileUrlChanged += ExportService_OnFileUrlChanged;
-            _exportService.OnFileCreated += ExportService_OnFileCreated;
-            _exportService.Start(_config.Play.AppId, srcUrl);
-
-            // start long-running poll for export
-            _bootstrapper.BootstrapCoroutine(ExportMeshScan());
-        }
-
-        /// <summary>
-        /// Stops scanning the room.
-        /// </summary>
-        private void TeardownMeshScan()
-        {
-            Log.Info(this, "Tearing down mesh scan.");
-
-            _isAutoExportAlive = false;
-
-            if (null != _capture)
+            if (!_config.Play.Edit && 0 == _viewId)
             {
-                _capture.Stop();
+                OpenStatusUI();
             }
 
-            if (null != _exportService)
+            // if anchors are enabled, setup anchors for this scene
+            if (_anchorsEnabledProp.Value)
             {
-                _exportService.OnFileUrlChanged -= ExportService_OnFileUrlChanged;
-                _exportService.OnFileCreated -= ExportService_OnFileCreated;
-                _exportService.Stop();
-                _surfaces.Clear();
+                SetupAnchors(root);
             }
-        }
-
-        /// <summary>
-        /// Passes mesh surfaces to exporter.
-        /// </summary>
-        private IEnumerator ExportMeshScan()
-        {
-            _isAutoExportAlive = true;
-
-            while (_isAutoExportAlive)
+            // otherwise, if there are no anchors already, proceed
+            else if (0 == _anchors.Count)
             {
-                if (_capture.IsRunning)
-                {
-                    int tris;
-                    if (!_exportService.Export(
-                        out tris,
-                        _surfaces.Values.Select(record => record.GameObject).ToArray()))
-                    {
-                        Log.Error(this, "Could not export!");
-                    }
-                }
-
-                yield return new WaitForSecondsRealtime(EXPORT_POLL_SEC);
+                Ready();
             }
-        }
-
-        /// <summary>
-        /// Saves the primary anchor.
-        /// </summary>
-        private void SaveAnchor(WorldAnchorWidget anchor)
-        {
-            // export
-            Log.Info(this, "Beginning export of primary anchor.");
-
-            anchor.Export(_config.Play.AppId, _sceneId, _txns);
         }
 
         /// <summary>
@@ -1044,101 +605,11 @@ Errors: {3} / {0}",
                 return;
             }
 
-            if (next)
-            {
-                SetupAnchors();
-            }
-            else
+            if (!next)
             {
                 TeardownAnchors();
                 Ready();
             }
-        }
-
-        /// <summary>
-        /// Called when a widget wants to auto-export.
-        /// </summary>
-        /// <param name="object">Message.</param>
-        private void Messages_OnAutoExport(object @object)
-        {
-            Log.Info(this, "AutoExport requested. Waiting for primary to be located.");
-
-            var anchor = (WorldAnchorWidget) @object;
-
-            OnReady(() =>
-            {
-                Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
-
-                // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added.
-                // This occurs when anchors are created after the initial scene graph is searched for anchors.
-                if (!_anchors.Contains(anchor))
-                {
-                    // Super ugly. I'm the worst.
-                    var tmp = new List<WorldAnchorWidget>(_anchors);
-                    tmp.Add(anchor);
-                    _anchors = new ReadOnlyCollection<WorldAnchorWidget>(tmp);
-
-                    if (OnAnchorElementUpdate != null)
-                    {
-                        OnAnchorElementUpdate();
-                    }
-                }
-
-                // Trigger relative positioning update so the anchor pending export
-                //    has the right position before it is saved.
-                UpdateRelativePositioning();
-
-                // export from this new position
-                anchor.Export(_config.Play.AppId, _sceneId, _txns);
-            });
-        }
-
-        /// <summary>
-        /// Called when the primary anchor should be destroyed and reset.
-        /// </summary>
-        private void Messages_OnResetPrimary(object _)
-        {
-            Log.Info(this, "Reset primary anchor requested.");
-
-            if (null == Primary)
-            {
-                Log.Warning(this, "No primary anchor to destroy.");
-                return;
-            }
-
-            TeardownMeshScan();
-
-            // destroy primary anchor
-            _txns
-                .Request(new ElementTxn(_sceneId).Delete(Primary.Id))
-                .OnSuccess(response =>
-                {
-                    Log.Info(this, "Destroyed primary anchor. Recreating.");
-
-                    CreatePrimaryAnchor(_sceneId, _scenes.Root(_sceneId));
-                });
-        }
-
-        /// <summary>
-        /// Called when a file is initially created.
-        /// </summary>
-        /// <param name="id">The id of the file.</param>
-        private void ExportService_OnFileCreated(string id)
-        {
-            _txns
-                .Request(new ElementTxn(_sceneId).Update(_scan.Id, "srcId", id))
-                .OnFailure(ex => Log.Error(this, "Could not set file id of scan element : {0}", ex));
-        }
-
-        /// <summary>
-        /// Called when a file URL is updated.
-        /// </summary>
-        /// <param name="url">The url of the file.</param>
-        private void ExportService_OnFileUrlChanged(string url)
-        {
-            _txns
-                .Request(new ElementTxn(_sceneId).Update(_scan.Id, "srcUrl", url))
-                .OnFailure(ex => Log.Error(this, "Could not set url of scan element : {0}", ex));
         }
     }
 }

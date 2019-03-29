@@ -132,9 +132,7 @@ namespace CreateAR.EnkluPlayer
             _loadAppUnsub = _messages.Subscribe(MessageTypes.LOAD_APP, App_OnLoad);
             
             _bootstrapper.BootstrapCoroutine(UpdateMetaStats());
-
-            _anchorManager.OnAnchorElementUpdate += Anchor_SceneChange;
-
+            
             RestartTrace();
 
             // http logging
@@ -168,8 +166,6 @@ namespace CreateAR.EnkluPlayer
             _started = false;
             _loadAppUnsub();
             
-            _anchorManager.OnAnchorElementUpdate -= Anchor_SceneChange;
-
             ReleaseTraceResources();
 
             _http.OnRequest -= Http_OnRequest;
@@ -195,48 +191,15 @@ namespace CreateAR.EnkluPlayer
 
             _runtimeStats.Uptime = Time.realtimeSinceStartup;
             
-            // ----- Memory -----
-            _runtimeStats.Device.AllocatedMemory = _perfMonitor.Memory.Allocated;
-            _runtimeStats.Device.ReservedMemory = _perfMonitor.Memory.Total;
-            _runtimeStats.Device.MonoMemory = _perfMonitor.Memory.Mono;
-            _runtimeStats.Device.GpuMemory = _perfMonitor.Memory.Gpu;
-            _runtimeStats.Device.GraphicsDriverMemory = _perfMonitor.Memory.GraphicsDriver;
+            UpdateMemory();
+            UpdateCamera();
+            UpdateAssets();
+            UpdateScripts();
+            UpdateAnchors();
+        }
 
-            // ----- Camera -----
-            var position = _camera.position;
-            var rotation = _camera.rotation;
-            var anchor = _anchorManager.RelativeTransform(ref position, ref rotation);
-            
-            // Only update the camera position if we have a relative relationship.
-            if (anchor != null)
-            {
-                _runtimeStats.Camera.Position = _camera.position;
-                _runtimeStats.Camera.Rotation = _camera.rotation;
-                _runtimeStats.Camera.AnchorRelativeTo = anchor.Id;
-            }
-            else
-            {
-                _runtimeStats.Camera.AnchorRelativeTo = "None.";
-            }
-            
-            // ----- Assets ------
-            _runtimeStats.Experience.AssetState.QueueLength = _assetLoader.Queue.Count;
-            _runtimeStats.Experience.AssetState.NextLoad = _assetLoader.Queue.Count > 0 ? _assetLoader.Queue[0].ToString() : "None";
-            if (_assetFailures != _assetLoader.LoadFailures.Count)
-            {
-                _assetFailures = _assetLoader.LoadFailures.Count;
-                var str = string.Empty;
-
-                for (var i = 0; i < _assetFailures; i++)
-                {
-                    var failure = _assetLoader.LoadFailures[i];
-                    str += string.Format("{0} - {1}\n", failure.AssetData.Guid, failure.Exception);
-                }
-
-                _runtimeStats.Experience.AssetState.Errors = str;
-            }
-
-            // ----- Scripts ------
+        private void UpdateScripts()
+        {
             _runtimeStats.Experience.ScriptState.QueueLength = _scriptLoader.QueueLength;
             if (_scriptFailures != _scriptLoader.LoadFailures.Count)
             {
@@ -253,10 +216,117 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        private void UpdateAssets()
+        {
+            _runtimeStats.Experience.AssetState.QueueLength = _assetLoader.Queue.Count;
+            _runtimeStats.Experience.AssetState.NextLoad =
+                _assetLoader.Queue.Count > 0 ? _assetLoader.Queue[0].ToString() : "None";
+            if (_assetFailures != _assetLoader.LoadFailures.Count)
+            {
+                _assetFailures = _assetLoader.LoadFailures.Count;
+                var str = string.Empty;
+
+                for (var i = 0; i < _assetFailures; i++)
+                {
+                    var failure = _assetLoader.LoadFailures[i];
+                    str += string.Format("{0} - {1}\n", failure.AssetData.Guid, failure.Exception);
+                }
+
+                _runtimeStats.Experience.AssetState.Errors = str;
+            }
+        }
+
+        private void UpdateCamera()
+        {
+            var position = _camera.position;
+            var rotation = _camera.rotation;
+            var anchor = RelativeTransform(ref position, ref rotation);
+
+            // Only update the camera position if we have a relative relationship.
+            if (anchor != null)
+            {
+                _runtimeStats.Camera.Position = _camera.position;
+                _runtimeStats.Camera.Rotation = _camera.rotation;
+                _runtimeStats.Camera.AnchorRelativeTo = anchor.Id;
+            }
+            else
+            {
+                _runtimeStats.Camera.AnchorRelativeTo = "None.";
+            }
+        }
+
+        private void UpdateMemory()
+        {
+            _runtimeStats.Device.AllocatedMemory = _perfMonitor.Memory.Allocated;
+            _runtimeStats.Device.ReservedMemory = _perfMonitor.Memory.Total;
+            _runtimeStats.Device.MonoMemory = _perfMonitor.Memory.Mono;
+            _runtimeStats.Device.GpuMemory = _perfMonitor.Memory.Gpu;
+            _runtimeStats.Device.GraphicsDriverMemory = _perfMonitor.Memory.GraphicsDriver;
+        }
+
         /// <inheritdoc />
         public void OnLog(LogLevel level, object caller, string message)
         {
             _builder.AppendLine(_formatter.Format(level, caller, message));
+        }
+
+        /// <summary>
+        /// Modifies a position/rotation relative to a located anchor. The primary anchor is prioritized.
+        /// The anchor used for relative positioning is returned. If all anchors aren't located, null is returned.
+        /// </summary>
+        private WorldAnchorWidget RelativeTransform(ref Vector3 position, ref Quaternion rotation)
+        {
+            WorldAnchorWidget anchor = null;
+
+            // use the primary anchor if possible
+            if (null != _anchorManager.Primary
+                && _anchorManager.Primary.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+            {
+                anchor = _anchorManager.Primary;
+            }
+            // otherwise use the first located one we can find
+            else
+            {
+                for (int i = 0, len = _anchorManager.Anchors.Count; i < len; i++)
+                {
+                    if (_anchorManager.Anchors[i].Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                    {
+                        anchor = _anchorManager.Anchors[i];
+                        break;
+                    }
+                }
+            }
+
+            if (null != anchor)
+            {
+                position = anchor.GameObject.transform.InverseTransformPoint(position);
+                rotation = Quaternion.Inverse(rotation) * anchor.GameObject.transform.rotation;
+            }
+
+            return anchor;
+        }
+        
+        /// <summary>
+        /// Called when an anchor is added to the scene.
+        /// </summary>
+        private void UpdateAnchors()
+        {
+            var len = _anchorManager.Anchors.Count;
+            if (len != _runtimeStats.Anchors.States.Length)
+            {
+                _runtimeStats.Anchors.States = new RuntimeStats.AnchorsInfo.State[len];
+            }
+
+            for (var i = 0; i < len; i++)
+            {
+                var anchor = _anchorManager.Anchors[i];
+
+                _runtimeStats.Anchors.States[i].Id = anchor.Id;
+                _runtimeStats.Anchors.States[i].Status = anchor.Status;
+                _runtimeStats.Anchors.States[i].TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon
+                    ? 0
+                    : Time.realtimeSinceStartup - anchor.UnlocatedStartTime;
+            }
         }
 
         /// <summary>
@@ -528,59 +598,7 @@ namespace CreateAR.EnkluPlayer
                 _anchorManager.BypassAnchorRequirement();
             }
         }
-
-        /// <summary>
-        /// Called when an anchor is added to the scene.
-        /// TODO: Handle anchors being removed. Currently not even handled by PrimaryAnchorManager :(
-        /// </summary>
-        private void Anchor_SceneChange()
-        {
-            var len = _anchorManager.Anchors.Count;
-            _runtimeStats.Anchors.States = new RuntimeStats.AnchorsInfo.State[len];
-            
-            for (var i = 0; i < len; i++)
-            {
-                var anchor = _anchorManager.Anchors[i];
-                
-                // Ensure we don't double subscribe when a new anchor is added late.
-                anchor.OnLocated -= Anchor_StateChange;
-                anchor.OnUnlocated -= Anchor_StateChange;
-                
-                anchor.OnLocated += Anchor_StateChange;
-                anchor.OnUnlocated += Anchor_StateChange;
-                
-                // Build initial state.
-                _runtimeStats.Anchors.States[i] = new RuntimeStats.AnchorsInfo.State
-                {
-                    Id = anchor.Id,
-                    Status = anchor.Status,
-                    TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon 
-                        ? 0 : Time.realtimeSinceStartup - anchor.UnlocatedStartTime
-                };
-            }
-        }
         
-        /// <summary>
-        /// Called when an anchor's state changes.
-        /// </summary>
-        private void Anchor_StateChange(WorldAnchorWidget anchor)
-        {
-            for (int i = 0, len = _runtimeStats.Anchors.States.Length; i < len; i++)
-            {
-                if (_runtimeStats.Anchors.States[i].Id == anchor.Id)
-                {
-                    // Rebuild with new data.
-                    _runtimeStats.Anchors.States[i] = new RuntimeStats.AnchorsInfo.State
-                    {
-                        Id = anchor.Id,
-                        Status = anchor.Status,
-                        TimeUnlocated = anchor.UnlocatedStartTime < float.Epsilon 
-                            ? 0 : Time.realtimeSinceStartup - anchor.UnlocatedStartTime
-                    };
-                }
-            }
-        }
-
         /// <summary>
         /// Called when an experience loads.
         /// </summary>

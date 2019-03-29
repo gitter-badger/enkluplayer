@@ -1,0 +1,7 @@
+<?Vine>
+
+<Float focus.visible=false>
+    <Caption id='cpn-progress' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
+    <Caption visible=false id='cpn-locating' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
+    <Button id='btn' position=(0, -0.1, 0) label='Bypass' visible=false />
+</Float>

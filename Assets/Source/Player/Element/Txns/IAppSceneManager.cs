@@ -1,5 +1,7 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -14,6 +16,12 @@ namespace CreateAR.EnkluPlayer
         string[] All { get; }
 
         /// <summary>
+        /// Called when a scene has been created, passing along the root node
+        /// of the scene.
+        /// </summary>
+        event Action<Element> OnSceneCreated;
+
+        /// <summary>
         /// Initializes the manager for an app.
         /// </summary>
         /// <param name="appId">The id of the app.</param>
@@ -24,7 +32,7 @@ namespace CreateAR.EnkluPlayer
             IAppDataLoader appData);
 
         /// <summary>
-        /// Unintializes the manager.
+        /// Un-initializes the manager.
         /// </summary>
         /// <returns></returns>
         IAsyncToken<Void> Uninitialize();

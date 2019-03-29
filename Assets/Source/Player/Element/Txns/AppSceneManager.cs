@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -29,6 +31,9 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <inheritdoc />
+        public event Action<Element> OnSceneCreated;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -43,8 +48,12 @@ namespace CreateAR.EnkluPlayer
             foreach (var sceneId in appData.Scenes)
             {
                 var description = appData.Scene(sceneId);
+                var scene = _scenes[sceneId] = _elements.Element(description);
 
-                _scenes[sceneId] = _elements.Element(description);
+                if (null != OnSceneCreated)
+                {
+                    OnSceneCreated(scene);
+                }
             }
 
             return new AsyncToken<Void>(Void.Instance);
