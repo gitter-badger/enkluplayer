@@ -67,7 +67,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void SingleWidget_NoScripts()
         {
-            var widget = new Element();
+            var widget = ElementUtil.CreateElement();
             
             _scriptRunner.AddSceneRoot(widget);
             _scriptRunner.StartRunner()
@@ -226,12 +226,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void MultipleWidgets()
         {
-            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
-            var widgetB = ElementUtil.CreateElement(_scriptManager, _vines[0]);
+            var elementA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var elementB = ElementUtil.CreateElement(_scriptManager, _vines[0]);
             
-            widgetA.AddChild(widgetB);
+            elementA.AddChild(elementB);
             
-            _scriptRunner.AddSceneRoot(widgetA);
+            _scriptRunner.AddSceneRoot(elementA);
 
             TestVineScript vine = null;
             TestBehaviorScript behavior = null;
@@ -252,10 +252,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(0, cbCalled);
 
             // Ensure script hasn't been run until vine finishes.
-            behavior = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+            behavior = _scriptFactory.GetBehavior(elementA, _behaviors[0]);
             Assert.AreEqual(0, behavior.EnterInvoked);
             
-            vine = _scriptFactory.GetVine(widgetB, _vines[0]);
+            vine = _scriptFactory.GetVine(elementB, _vines[0]);
             vine.FinishConfigure();
             
             Assert.AreEqual(1, cbCalled);
@@ -273,9 +273,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Update_Vine()
         {
-            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
+            var element = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
             
-            _scriptRunner.AddSceneRoot(widget);
+            _scriptRunner.AddSceneRoot(element);
             var token = _scriptRunner.StartRunner();
 
             TestVineScript initialVine = null;
@@ -298,8 +298,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 });
             Assert.AreEqual(0, cbCalled);
             
-            initialVine = _scriptFactory.GetVine(widget, _vines[0]);
-            behavior = _scriptFactory.GetBehavior(widget, _behaviors[0]);
+            initialVine = _scriptFactory.GetVine(element, _vines[0]);
+            behavior = _scriptFactory.GetBehavior(element, _behaviors[0]);
             
             initialVine.FinishConfigure();
             Assert.AreEqual(1, cbCalled);
@@ -307,7 +307,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             // Update, check to make sure nothing exits before the new one is ready.
             // Ensure the behavior also exits/enters with the same instance.
             initialVine.EnkluScript.Updated();
-            var updatedVine = _scriptFactory.GetVine(widget, _vines[0]);
+            var updatedVine = _scriptFactory.GetVine(element, _vines[0]);
             Assert.AreNotSame(initialVine, updatedVine);
             Assert.AreEqual(0, updatedVine.EnterInvoked);
             Assert.AreEqual(0, initialVine.ExitInvoked);
@@ -328,9 +328,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Update_Behavior()
         {
-            var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
+            var element = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
             
-            _scriptRunner.AddSceneRoot(widget);
+            _scriptRunner.AddSceneRoot(element);
             var token = _scriptRunner.StartRunner();
 
             TestVineScript vine = null;
@@ -353,8 +353,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 });
             Assert.AreEqual(0, cbCalled);
             
-            vine = _scriptFactory.GetVine(widget, _vines[0]);
-            initialBehavior = _scriptFactory.GetBehavior(widget, _behaviors[0]);
+            vine = _scriptFactory.GetVine(element, _vines[0]);
+            initialBehavior = _scriptFactory.GetBehavior(element, _behaviors[0]);
             
             vine.FinishConfigure();
             Assert.AreEqual(1, cbCalled);
@@ -362,7 +362,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             // Update, ensure the old component exits and the new component is entered.
             // Ensure the behavior also exits/enters with the same instance.
             vine.EnkluScript.Updated();
-            var updatedVine = _scriptFactory.GetVine(widget, _vines[0]);
+            var updatedVine = _scriptFactory.GetVine(element, _vines[0]);
             Assert.AreEqual(0, updatedVine.EnterInvoked);
             Assert.AreEqual(0, vine.ExitInvoked);
             Assert.AreEqual(0, initialBehavior.ExitInvoked);
@@ -384,100 +384,49 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         #region Hierarchy
 
         [Test]
-        public void PlainElements()
-        {
-            // Ensure all widgets are found, even with a boring Element in between.
-            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
-            var elementB = new Element();
-            var widgetC = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
-            var widgetD = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
-            
-            widgetC.AddChild(widgetD);
-            elementB.AddChild(widgetC);
-            widgetA.AddChild(elementB);
-            
-            _scriptRunner.AddSceneRoot(widgetA);
-
-            TestBehaviorScript behavior0 = null;
-            TestBehaviorScript behavior1 = null;
-            TestBehaviorScript behavior2 = null;
-            var cbCalled = 0;
-            _scriptRunner.StartRunner()
-                .OnSuccess(_ =>
-                {
-                    behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
-                    behavior1 = _scriptFactory.GetBehavior(widgetC, _behaviors[1]);
-                    behavior2 = _scriptFactory.GetBehavior(widgetD, _behaviors[2]);
-                    
-                    Assert.NotNull(behavior0);
-                    Assert.NotNull(behavior1);
-                    Assert.NotNull(behavior2);
-                    
-                    Assert.AreEqual(1, behavior0.EnterInvoked);
-                    Assert.AreEqual(1, behavior1.EnterInvoked);
-                    Assert.AreEqual(1, behavior2.EnterInvoked);
-                    Assert.AreEqual(0, behavior0.LastEnterInvokeId);
-                    Assert.AreEqual(1, behavior1.LastEnterInvokeId);
-                    Assert.AreEqual(2, behavior2.LastEnterInvokeId);
-                    cbCalled++;
-                })
-                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
-            Assert.AreEqual(1, cbCalled);
-            
-            _scriptRunner.StopRunner();
-            
-            Assert.AreEqual(1, behavior0.ExitInvoked);
-            Assert.AreEqual(1, behavior1.ExitInvoked);
-            Assert.AreEqual(1, behavior2.ExitInvoked);
-            Assert.AreEqual(0, behavior0.LastExitInvokeId);
-            Assert.AreEqual(1, behavior1.LastExitInvokeId);
-            Assert.AreEqual(2, behavior2.LastExitInvokeId);
-        }
-
-        [Test]
         public void AddChild()
         {
-            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
-            var widgetB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            var elementA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var elementB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
             
-            _scriptRunner.AddSceneRoot(widgetA);
+            _scriptRunner.AddSceneRoot(elementA);
             var cbCalled = 0;
             _scriptRunner.StartRunner()
                 .OnSuccess(_ => cbCalled++)
                 .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             Assert.AreEqual(1, cbCalled, "Expected Start to be synchronous.");
 
-            var behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
+            var behavior0 = _scriptFactory.GetBehavior(elementA, _behaviors[0]);
             Assert.AreEqual(1, behavior0.EnterInvoked);
             
-            widgetA.AddChild(widgetB);
+            elementA.AddChild(elementB);
             
-            var behavior1 = _scriptFactory.GetBehavior(widgetB, _behaviors[1]);
+            var behavior1 = _scriptFactory.GetBehavior(elementB, _behaviors[1]);
             Assert.AreEqual(1, behavior1.EnterInvoked);
         }
 
         [Test]
         public void RemoveChild()
         {
-            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
-            var widgetB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
-            widgetA.AddChild(widgetB);
+            var elementA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var elementB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            elementA.AddChild(elementB);
             
-            _scriptRunner.AddSceneRoot(widgetA);
+            _scriptRunner.AddSceneRoot(elementA);
             var cbCalled = 0;
             _scriptRunner.StartRunner()
                 .OnSuccess(_ => cbCalled++)
                 .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
             Assert.AreEqual(1, cbCalled, "Expected Start to be synchronous.");
 
-            var behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
-            var behavior1 = _scriptFactory.GetBehavior(widgetB, _behaviors[1]);
+            var behavior0 = _scriptFactory.GetBehavior(elementA, _behaviors[0]);
+            var behavior1 = _scriptFactory.GetBehavior(elementB, _behaviors[1]);
             
             _scriptRunner.Update();
             Assert.AreEqual(1, behavior0.UpdateInvoked);
             Assert.AreEqual(1, behavior1.UpdateInvoked);
 
-            widgetA.RemoveChild(widgetB);
+            elementA.RemoveChild(elementB);
             _scriptRunner.Update();
             Assert.AreEqual(2, behavior0.UpdateInvoked);
             Assert.AreEqual(1, behavior1.UpdateInvoked);
@@ -490,16 +439,16 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Reparenting()
         {
             // Ensure all widgets are found, even with a boring Element in between.
-            var widgetA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
-            var widgetB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
-            var widgetC = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
-            var widgetD = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
+            var elementA = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var elementB = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            var elementC = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
+            var elementD = ElementUtil.CreateElement(_scriptManager, _behaviors[2]);
             
-            widgetB.AddChild(widgetC);
-            widgetB.AddChild(widgetD);
-            widgetA.AddChild(widgetB);
+            elementB.AddChild(elementC);
+            elementB.AddChild(elementD);
+            elementA.AddChild(elementB);
             
-            _scriptRunner.AddSceneRoot(widgetA);
+            _scriptRunner.AddSceneRoot(elementA);
 
             TestBehaviorScript behavior0;
             TestBehaviorScript behavior1;
@@ -511,10 +460,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 {
                     cbCalled++;
                     
-                    behavior0 = _scriptFactory.GetBehavior(widgetA, _behaviors[0]);
-                    behavior1 = _scriptFactory.GetBehavior(widgetB, _behaviors[1]);
-                    behavior2_c = _scriptFactory.GetBehavior(widgetC, _behaviors[2]);
-                    behavior2_d = _scriptFactory.GetBehavior(widgetD, _behaviors[2]);
+                    behavior0 = _scriptFactory.GetBehavior(elementA, _behaviors[0]);
+                    behavior1 = _scriptFactory.GetBehavior(elementB, _behaviors[1]);
+                    behavior2_c = _scriptFactory.GetBehavior(elementC, _behaviors[2]);
+                    behavior2_d = _scriptFactory.GetBehavior(elementD, _behaviors[2]);
                     
                     _scriptRunner.Update();
                     Assert.AreEqual(0, behavior0.LastUpdateInvokeId);
@@ -522,8 +471,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                     Assert.AreEqual(2, behavior2_c.LastUpdateInvokeId);
                     Assert.AreEqual(3, behavior2_d.LastUpdateInvokeId);
                     
-                    widgetA.AddChild(widgetC);
-                    behavior2_c = _scriptFactory.GetBehavior(widgetC, _behaviors[2]);
+                    elementA.AddChild(elementC);
+                    behavior2_c = _scriptFactory.GetBehavior(elementC, _behaviors[2]);
                     
                     // Ensure invoke order changes after reparenting
                     _scriptRunner.Update();
@@ -539,8 +488,111 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         #endregion
         
         #region Visibility
-        
-        
+
+        [Test]
+        public void InvisibleElement()
+        {
+            var element = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            element.LocalVisibleProp.Value = false;
+
+            _scriptRunner.AddSceneRoot(element);
+
+            TestBehaviorScript behavior0;
+            var cbCalled = 0;
+            _scriptRunner.StartRunner()
+                .OnSuccess(_ =>
+                {
+                    cbCalled++;
+                    behavior0 = _scriptFactory.GetBehavior(element, _behaviors[0]);
+                    
+                    // Should not be invoked if it is invisible
+                    Assert.AreEqual(0, behavior0.EnterInvoked);
+                    
+                    _scriptRunner.Update();
+                    Assert.AreEqual(0, behavior0.UpdateInvoked);
+
+                    // Make visible, ensure the script enters/updates properly
+                    element.LocalVisibleProp.Value = true;
+                    Assert.AreEqual(1, behavior0.EnterInvoked);
+                    Assert.AreEqual(0, behavior0.UpdateInvoked);
+                    
+                    _scriptRunner.Update();
+                    Assert.AreEqual(1, behavior0.UpdateInvoked);
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled);
+        }
+
+        [Test]
+        public void InvisibleParent()
+        {
+            var parent = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            var child = ElementUtil.CreateElement(_scriptManager, _behaviors[1]);
+            parent.LocalVisibleProp.Value = false;
+            
+            parent.AddChild(child);
+            _scriptRunner.AddSceneRoot(parent);
+
+            TestBehaviorScript behavior0;
+            TestBehaviorScript behavior1;
+            var cbCalled = 0;
+            _scriptRunner.StartRunner()
+                .OnSuccess(_ =>
+                {
+                    cbCalled++;
+                    behavior0 = _scriptFactory.GetBehavior(parent, _behaviors[0]);
+                    behavior1 = _scriptFactory.GetBehavior(child, _behaviors[1]);
+                    
+                    // Ensure the child doesn't run
+                    Assert.AreEqual(0, behavior0.EnterInvoked);
+                    Assert.AreEqual(0, behavior1.EnterInvoked);
+                    
+                    _scriptRunner.Update();
+                    Assert.AreEqual(0, behavior0.UpdateInvoked);
+                    Assert.AreEqual(0, behavior1.UpdateInvoked);
+
+                    parent.LocalVisibleProp.Value = true;
+                    
+                    // Ensure the child runs
+                    Assert.AreEqual(1, behavior0.EnterInvoked);
+                    Assert.AreEqual(1, behavior1.EnterInvoked);
+                    
+                    _scriptRunner.Update();
+                    Assert.AreEqual(1, behavior0.UpdateInvoked);
+                    Assert.AreEqual(1, behavior1.UpdateInvoked);
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled);
+        }
+
+        [Test]
+        public void NeverVisible()
+        {
+            // Ensure Elements that never become visible have their callbacks cleaned up.
+
+            var element = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
+            element.LocalVisibleProp.Value = false;
+            
+            _scriptRunner.AddSceneRoot(element);
+
+            TestBehaviorScript behavior0;
+            var cbCalled = 0;
+            _scriptRunner.StartRunner()
+                .OnSuccess(_ =>
+                {
+                    cbCalled++;
+                    behavior0 = _scriptFactory.GetBehavior(element, _behaviors[0]);
+                    
+                    Assert.AreEqual(0, behavior0.EnterInvoked);
+                    
+                    _scriptRunner.StopRunner();
+
+                    element.LocalVisibleProp.Value = true;
+                    Assert.AreEqual(0, behavior0.EnterInvoked);
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled);
+        }
         
         #endregion
 

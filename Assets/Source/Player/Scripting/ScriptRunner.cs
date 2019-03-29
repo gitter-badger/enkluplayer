@@ -82,11 +82,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// Current Behavior instances.
             /// </summary>
             public BehaviorScript[] Behaviors;
-
-            /// <summary>
-            /// The record above this record.
-            /// </summary>
-            public ElementRecord ParentRecord;
             
             /// <summary>
             /// The records below this record in the hierarchy.
@@ -140,6 +135,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return _loadToken;
             }
         }
+        
+        /// <summary>
+        /// Used to track Schema->Element when Elements with scripts are invisible.
+        /// </summary>
+        private readonly Dictionary<ElementSchemaProp<bool>, ElementRecord> _visibilityMap = new Dictionary<ElementSchemaProp<bool>, ElementRecord>();
 
         /// <summary>
         /// A mini factory for creating ScriptAssemblers.
@@ -246,6 +246,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _runnerState = RunnerState.Stopping;
             
             StopRecord(_rootRecord);
+            _visibilityMap.Clear();
         }
         
         /// <summary>
@@ -284,7 +285,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 var child = element.Children[i];
                 var childRecord = CreateRecord(child);
-                childRecord.ParentRecord = record;
                 
                 childrenRecords.Add(childRecord);
             }
@@ -297,7 +297,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Configures a ElementRecord's scripts.
+        /// Configures an ElementRecord's scripts.
         /// </summary>
         /// <param name="record">The record to configure.</param>
         /// <param name="type">The Type of script to configure.</param>
@@ -348,6 +348,17 @@ namespace CreateAR.EnkluPlayer.Scripting
         private void StartRecord(ElementRecord record, ScriptType type, bool recursive = true)
         {
             // TODO: Make the ScriptType parameter a bitmask so both can be run together?
+
+            // Invisible Elements shouldn't start by default - since their dependencies might not have loaded yet (ContentWidgets)
+            if (!record.Element.LocalVisibleProp.Value)
+            {
+                _visibilityMap[record.Element.LocalVisibleProp] = record;
+                
+                // No need to recurse, the handler will call StartRecord. Ensure only one subscription.
+                record.Element.LocalVisibleProp.OnChanged -= Element_OnVisibilityChanged;
+                record.Element.LocalVisibleProp.OnChanged += Element_OnVisibilityChanged;
+                return;
+            }
             
             if (type == ScriptType.Vine)
             {
@@ -372,7 +383,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 {
                     for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
                     {
-                        StartRecord(record.ChildRecords[i], ScriptType.Vine);
+                        StartRecord(record.ChildRecords[i], type);
                     }
                 }
             }
@@ -400,7 +411,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 {
                     for (int i = 0, len = record.ChildRecords.Count; i < len; i++)
                     {
-                        StartRecord(record.ChildRecords[i], ScriptType.Behavior);
+                        StartRecord(record.ChildRecords[i], type);
                     }
                 }
             }
@@ -413,6 +424,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="recursive">Whether descendent records should be affected or not.</param>
         private void StopRecord(ElementRecord record, bool recursive = true)
         {
+            // Elements that were made invisible at runtime won't have an entry in the visibility map.
+            if (!record.Element.LocalVisibleProp.Value && _visibilityMap.ContainsKey(record.Element.LocalVisibleProp))
+            {
+                record.Element.LocalVisibleProp.OnChanged -= Element_OnVisibilityChanged;
+            }
+            
             if (record.Vines != null)
             {
                 for (int i = 0, len = record.Vines.Length; i < len; i++)
@@ -458,6 +475,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="record"></param>
         private void UpdateRecord(ElementRecord record)
         {
+            // Early out if the Element isn't visible.
+            if (!record.Element.LocalVisibleProp.Value) return;
+            
             // Vines don't have an update step. No need to worry for now!
             for (int i = 0, len = record.Behaviors.Length; i < len; i++)
             {
@@ -617,6 +637,21 @@ namespace CreateAR.EnkluPlayer.Scripting
                     });
                 });
             }
+        }
+
+        private void Element_OnVisibilityChanged(ElementSchemaProp<bool> prop, bool prev, bool next)
+        {
+            if (!next)
+            {
+                throw new Exception("ScriptRunner should only track invisible -> visible.");
+            }
+
+            prop.OnChanged -= Element_OnVisibilityChanged;
+
+            StartRecord(_visibilityMap[prop], ScriptType.Vine);
+            StartRecord(_visibilityMap[prop], ScriptType.Behavior);
+            
+            _visibilityMap.Remove(prop);
         }
     }
 }
