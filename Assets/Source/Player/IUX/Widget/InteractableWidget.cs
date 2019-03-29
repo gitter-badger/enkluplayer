@@ -184,7 +184,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
             }
 
-            ShowIfHighlightedWidget.LocalVisible = isHighlighted && !HideHighlightWidget;
+            ShowIfHighlightedWidget.LocalVisibleProp.Value = isHighlighted && !HideHighlightWidget;
         }
 
         /// <inheritdoc />

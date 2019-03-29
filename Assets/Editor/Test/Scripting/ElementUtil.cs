@@ -11,10 +11,18 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     public static class ElementUtil
     {
+        public static Element CreateElement()
+        {
+            var element = new Element();
+            element.Load(new ElementData(), element.Schema, new Element[0]);
+            return element;
+        }
+        
         public static Element CreateElement(TestScriptManager scriptManager, params EnkluScript[] scripts)
         {
             var element = new Element();
             AddScriptToElement(element, scriptManager, scripts);
+            element.Load(new ElementData(), element.Schema, new Element[0]);
             return element;
         }
 
@@ -33,8 +41,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 assetAssembler);
             AddScriptToElement(widget, scriptManager, scripts);
             
-            // Will all tests require this, or need it deferred?
-            widget.Load(new ElementData(), widget.Schema, new Element[] {});
+            widget.Load(new ElementData(), widget.Schema, new Element[0]);
             widget.FrameUpdate();
             return widget;
         }

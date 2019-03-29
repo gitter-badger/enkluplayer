@@ -59,7 +59,12 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Name prop.
         /// </summary>
-        private ElementSchemaProp<string> _nameProp;
+        protected ElementSchemaProp<string> _nameProp;
+        
+        /// <summary>
+        /// Visibility prop.
+        /// </summary>
+        public ElementSchemaProp<bool> LocalVisibleProp { get; private set; }
 
         /// <summary>
         /// Unique internal id for this element.
@@ -179,6 +184,7 @@ namespace CreateAR.EnkluPlayer.IUX
             Id = Schema.Identifier = _idProp.Value;
 
             _nameProp = schema.GetOwn("name", string.Empty);
+            LocalVisibleProp = schema.GetOwn("visible", true);
 
             LoadInternalBeforeChildren();
 

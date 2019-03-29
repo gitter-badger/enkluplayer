@@ -64,9 +64,9 @@ namespace CreateAR.EnkluPlayer
         /// <param name="assetId">The asset.</param>
         public void Initialize(string assetId)
         {
-            Content.LocalVisible = true;
+            Content.LocalVisibleProp.Value = true;
             Content.Schema.Set("assetSrc", assetId);
-            BtnCancel.Schema.Set("visible", true);
+            BtnCancel.LocalVisibleProp.Value = true;
         }
 
         /// <summary>

@@ -790,15 +790,15 @@ namespace CreateAR.EnkluPlayer
 
             if (downloading + importing + errors > 0)
             {
-                _cpnProgress.LocalVisible = true;
-                _cpnLocating.LocalVisible = false;
+                _cpnProgress.LocalVisibleProp.Value = true;
+                _cpnLocating.LocalVisibleProp.Value = false;
 
                 UpdateProgressUI(errors, downloading, importing, unlocated, located);
             }
             else if (0 == located)
             {
-                _cpnLocating.LocalVisible = true;
-                _cpnProgress.LocalVisible = false;
+                _cpnLocating.LocalVisibleProp.Value = true;
+                _cpnProgress.LocalVisibleProp.Value = false;
 
                 UpdateLocatingUI();
             }

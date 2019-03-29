@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
-    /// Applies an alpha transition to elements added + removed and set to visible.
+    /// Applies an alpha transition to elements added + removed and set to LocalVisibleProp.Value.
     /// </summary>
     public class Transition : Element, IUnityElement
     {
@@ -18,11 +18,6 @@ namespace CreateAR.EnkluPlayer.IUX
             /// The element in question.
             /// </summary>
             public readonly Element Element;
-
-            /// <summary>
-            /// The cached visible property.
-            /// </summary>
-            public readonly ElementSchemaProp<bool> Visible;
 
             /// <summary>
             /// True iff the element should be tweening.
@@ -66,10 +61,9 @@ namespace CreateAR.EnkluPlayer.IUX
             public TweenRecord(Element element)
             {
                 Element = element;
-                Visible = Element.Schema.Get<bool>("visible");
-                Visible.OnChanged += Visible_OnChanged;
+                Element.LocalVisibleProp.OnChanged += Visible_OnChanged;
 
-                IsDirty = Visible.Value;
+                IsDirty = Element.LocalVisibleProp.Value;
             }
 
             /// <summary>
@@ -160,7 +154,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _startValueProp = Schema.GetOwn("start", 0f);
             _endValueProp = Schema.GetOwn("end", 1f);
             _tweenProp = Schema.GetOwn("tween", TweenType.Pronounced.ToString());
-            _visibleProp = Schema.GetOwn("visible", true);
+            _visibleProp = Schema.GetOwn("LocalVisibleProp.Value", true);
             _visibleProp.OnChanged += Visible_OnChanged;
 
             GameObject.name = ToString();
@@ -249,8 +243,8 @@ namespace CreateAR.EnkluPlayer.IUX
                 {
                     record.Read();
 
-                    // this element has turned visible
-                    if (record.Visible.Value)
+                    // this element has turned LocalVisibleProp.Value
+                    if (record.Element.LocalVisibleProp.Value)
                     {
                         StartTween(record);
                     }

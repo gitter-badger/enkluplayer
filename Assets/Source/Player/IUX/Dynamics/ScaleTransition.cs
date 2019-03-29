@@ -20,11 +20,6 @@ namespace CreateAR.EnkluPlayer.IUX
             /// The element in question.
             /// </summary>
             public readonly Element Element;
-
-            /// <summary>
-            /// The cached visible property.
-            /// </summary>
-            public readonly ElementSchemaProp<bool> Visible;
             
             /// <summary>
             /// True iff the element should be tweening.
@@ -63,10 +58,9 @@ namespace CreateAR.EnkluPlayer.IUX
             public TweenRecord(Element element)
             {
                 Element = element;
-                Visible = Element.Schema.Get<bool>("visible");
-                Visible.OnChanged += Visible_OnChanged;
 
-                IsDirty = Visible.Value;
+                Element.LocalVisibleProp.OnChanged += Visible_OnChanged;
+                IsDirty = Element.LocalVisibleProp.Value;
             }
 
             /// <summary>
@@ -159,7 +153,7 @@ namespace CreateAR.EnkluPlayer.IUX
                     record.Read();
 
                     // turned visible
-                    if (record.Visible.Value)
+                    if (record.Element.LocalVisibleProp.Value)
                     {
                         StartTween(record);
                     }

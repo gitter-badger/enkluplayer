@@ -48,7 +48,7 @@ namespace CreateAR.EnkluPlayer
 
             if (DeviceHelper.IsHoloLens())
             {
-                //BtnRefresh.LocalVisible = true;
+                //BtnRefresh.LocalVisibleProp.Value = true;
             }
         }
 
@@ -59,7 +59,7 @@ namespace CreateAR.EnkluPlayer
         {
             _isError = false;
 
-            BtnRefresh.LocalVisible = false;
+            BtnRefresh.LocalVisibleProp.Value = false;
         }
 
         /// <summary>

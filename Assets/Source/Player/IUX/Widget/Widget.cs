@@ -35,12 +35,10 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<string> _nameProp;
         private ElementSchemaProp<Col4> _localColorProp;
         private ElementSchemaProp<Vec3> _localPositionProp;
         private ElementSchemaProp<Vec3> _localRotationProp;
         private ElementSchemaProp<Vec3> _localScaleProp;
-        private ElementSchemaProp<bool> _localVisibleProp;
         private ElementSchemaProp<TweenType> _tweenInProp;
         private ElementSchemaProp<TweenType> _tweenOutProp;
         private ElementSchemaProp<string> _virtualColorProp;
@@ -134,21 +132,6 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             get { return _autoDestroyProp.Value; }
             set { _autoDestroyProp.Value = value; }
-        }
-        
-        /// <summary>
-        /// Controls local GameObject visibility, not parent.
-        /// </summary>
-        public bool LocalVisible
-        {
-            get
-            {
-                return _localVisibleProp.Value;
-            }
-            set
-            {
-                _localVisibleProp.Value = value;
-            }
         }
 
         /// <summary>
@@ -337,10 +320,11 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             base.LoadInternalBeforeChildren();
 
-            _nameProp = Schema.GetOwn("name", GetType().Name);
+            // Inherited Schema
             _nameProp.OnChanged += Name_OnChanged;
-            _localVisibleProp = Schema.GetOwn("visible", true);
-            _localVisibleProp.OnChanged += LocalVisible_OnChanged;
+            LocalVisibleProp.OnChanged += LocalVisible_OnChanged;
+            
+            // Local Schema
             _localColorProp = Schema.GetOwn("color", Col4.White);
             _localPositionProp = Schema.GetOwn("position", Vec3.Zero);
             _localPositionProp.OnChanged += LocalPosition_OnChanged;
@@ -360,7 +344,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _alphaProp = Schema.GetOwn("alpha", 1f);
             _alphaProp.OnChanged += Alpha_OnChanged;
 
-            GameObject.SetActive(_localVisibleProp.Value);
+            GameObject.SetActive(LocalVisibleProp.Value);
             GameObject.name = ToString();
         }
 
@@ -399,7 +383,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IsLoaded = false;
 
             _nameProp.OnChanged -= Name_OnChanged;
-            _localVisibleProp.OnChanged -= LocalVisible_OnChanged;
+            LocalVisibleProp.OnChanged -= LocalVisible_OnChanged;
             _localPositionProp.OnChanged -= LocalPosition_OnChanged;
             _localRotationProp.OnChanged -= LocalRotation_OnChanged;
             _localScaleProp.OnChanged -= LocalScale_OnChanged;
@@ -477,12 +461,12 @@ namespace CreateAR.EnkluPlayer.IUX
         private void UpdateGlobalVisibility()
         {
             // no change
-            if (_localVisibleProp.Value == Visible)
+            if (LocalVisibleProp.Value == Visible)
             {
                 return;
             }
 
-            Visible = _localVisibleProp.Value;
+            Visible = LocalVisibleProp.Value;
 
             // guaranteed that visibility changed here
             GameObject.SetActive(Visible);
@@ -567,7 +551,7 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             if (AutoDestroy)
             {
-                if (!LocalVisible
+                if (!LocalVisibleProp.Value
                     && Mathf.Approximately(0, Tween))
                 {
                     Destroy();

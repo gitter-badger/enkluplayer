@@ -124,7 +124,7 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             if (_cursorConfig.ForceShow)
             {
-                LocalVisible = true;
+                LocalVisibleProp.Value = true;
             }
             else
             {
@@ -137,7 +137,7 @@ namespace CreateAR.EnkluPlayer.IUX
                     visible = visible && _intention.Focus != null;
                 }
 
-                LocalVisible = visible;
+                LocalVisibleProp.Value = visible;
             }
         }
 

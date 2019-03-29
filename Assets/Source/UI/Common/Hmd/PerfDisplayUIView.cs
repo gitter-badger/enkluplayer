@@ -108,7 +108,7 @@ namespace CreateAR.EnkluPlayer
                 TabCapture.Schema.Set("visible", selection == "capture");
             };
 
-            TxtProgress.LocalVisible = false;
+            TxtProgress.LocalVisibleProp.Value = false;
             BtnOneMinute.OnActivated += _ => StartCoroutine(StartCapture(60));
             BtnTwoMinutes.OnActivated += _ => StartCoroutine(StartCapture(120));
             BtnThreeMinutes.OnActivated += _ => StartCoroutine(StartCapture(180));
@@ -195,8 +195,8 @@ namespace CreateAR.EnkluPlayer
         {
             _monitor.StartCapture();
 
-            BtnOneMinute.LocalVisible = BtnTwoMinutes.LocalVisible = BtnThreeMinutes.LocalVisible = false;
-            TxtProgress.LocalVisible = true;
+            BtnOneMinute.LocalVisibleProp.Value = BtnTwoMinutes.LocalVisibleProp.Value = BtnThreeMinutes.LocalVisibleProp.Value = false;
+            TxtProgress.LocalVisibleProp.Value = true;
             TxtProgress.Label = "Capture in progress. Do not close window.";
 
             yield return new WaitForSecondsRealtime(secs);

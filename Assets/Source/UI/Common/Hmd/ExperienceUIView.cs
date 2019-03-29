@@ -202,12 +202,12 @@ namespace CreateAR.EnkluPlayer
             
             if (sum > 0)
             {
-                ErrorSelect.LocalVisible = true;
+                ErrorSelect.LocalVisibleProp.Value = true;
                 PopulateErrors();
             }
             else
             {
-                ErrorSelect.LocalVisible = false;
+                ErrorSelect.LocalVisibleProp.Value = false;
                 TxtErrors.Label = "No load errors.";
             }
         }

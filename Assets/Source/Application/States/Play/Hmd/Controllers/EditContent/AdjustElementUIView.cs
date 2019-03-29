@@ -216,8 +216,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void SliderX_OnUnfocused()
         {
-            SliderX.LocalVisible = false;
-            Container.LocalVisible = true;
+            SliderX.LocalVisibleProp.Value = false;
+            Container.LocalVisibleProp.Value = true;
 
             ResetAssetTransform();
             ResetMenuPosition();
@@ -230,8 +230,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void SliderY_OnUnfocused()
         {
-            SliderY.LocalVisible = false;
-            Container.LocalVisible = true;
+            SliderY.LocalVisibleProp.Value = false;
+            Container.LocalVisibleProp.Value = true;
 
             ResetAssetTransform();
             ResetMenuPosition();
@@ -244,8 +244,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void SliderZ_OnUnfocused()
         {
-            SliderZ.LocalVisible = false;
-            Container.LocalVisible = true;
+            SliderZ.LocalVisibleProp.Value = false;
+            Container.LocalVisibleProp.Value = true;
 
             ResetAssetTransform();
             ResetMenuPosition();
@@ -258,8 +258,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void SliderScale_OnUnfocused()
         {
-            SliderScale.LocalVisible = false;
-            Container.LocalVisible = true;
+            SliderScale.LocalVisibleProp.Value = false;
+            Container.LocalVisibleProp.Value = true;
 
             ResetAssetTransform();
             ResetMenuPosition();
@@ -272,8 +272,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void SliderRotate_OnUnfocused()
         {
-            SliderRotate.LocalVisible = false;
-            Container.LocalVisible = true;
+            SliderRotate.LocalVisibleProp.Value = false;
+            Container.LocalVisibleProp.Value = true;
 
             ResetAssetTransform();
             ResetMenuPosition();
@@ -301,13 +301,13 @@ namespace CreateAR.EnkluPlayer
             CopyCurrentAssetTransform();
             _transformChangeConfirmed = false;
 
-            Container.LocalVisible = false;
+            Container.LocalVisibleProp.Value = false;
             
             // center slider on element's position
             SliderRotate.GameObject.transform.position = activatorPrimitive.GameObject.transform.position;
             SliderRotate.Value = _controller.ElementTransform.localEulerAngles.y;
             SliderRotate.Focus = activatorPrimitive.GameObject.transform.position.ToVec();
-            SliderRotate.LocalVisible = true;
+            SliderRotate.LocalVisibleProp.Value = true;
         }
 
         /// <summary>
@@ -318,7 +318,7 @@ namespace CreateAR.EnkluPlayer
             CopyCurrentAssetTransform();
             _transformChangeConfirmed = false;
 
-            Container.LocalVisible = false;
+            Container.LocalVisibleProp.Value = false;
             
             // center slider on element's position
             var elementPosition = _controller.ElementTransform.position;
@@ -326,7 +326,7 @@ namespace CreateAR.EnkluPlayer
             SliderScale.GameObject.transform.position = elementPosition;
             SliderScale.Value = _controller.ElementTransform.localScale.x;
             SliderScale.Focus = (_controller.ElementTransform.position - _sliderOffset).ToVec();
-            SliderScale.LocalVisible = true;
+            SliderScale.LocalVisibleProp.Value = true;
         }
         
         /// <summary>
@@ -337,7 +337,7 @@ namespace CreateAR.EnkluPlayer
             CopyCurrentAssetTransform();
             _transformChangeConfirmed = false;
 
-            Container.LocalVisible = false;
+            Container.LocalVisibleProp.Value = false;
 
             // center slider on element's position
             var elementPosition = _controller.ElementTransform.position;
@@ -345,7 +345,7 @@ namespace CreateAR.EnkluPlayer
             SliderX.GameObject.transform.position = elementPosition;
             SliderX.Value = 0f;
             SliderX.Focus = (_controller.ElementTransform.position - _sliderOffset).ToVec();
-            SliderX.LocalVisible = true;
+            SliderX.LocalVisibleProp.Value = true;
         }
 
         /// <summary>
@@ -356,7 +356,7 @@ namespace CreateAR.EnkluPlayer
             CopyCurrentAssetTransform();
             _transformChangeConfirmed = false;
 
-            Container.LocalVisible = false;
+            Container.LocalVisibleProp.Value = false;
 
             // center slider on element's position
             var elementPosition = _controller.ElementTransform.position;
@@ -364,7 +364,7 @@ namespace CreateAR.EnkluPlayer
             SliderY.GameObject.transform.position = elementPosition;
             SliderY.Value = 0f;
             SliderY.Focus = (_controller.ElementTransform.position - _sliderOffset).ToVec();
-            SliderY.LocalVisible = true;
+            SliderY.LocalVisibleProp.Value = true;
         }
         
         /// <summary>
@@ -381,14 +381,14 @@ namespace CreateAR.EnkluPlayer
             CopyCurrentAssetTransform();
             _transformChangeConfirmed = false;
             
-            Container.LocalVisible = false;
+            Container.LocalVisibleProp.Value = false;
 
             var elementPosition = _controller.ElementTransform.position;
             _sliderOffset = elementPosition - activatorPrimitive.GameObject.transform.position;
             SliderZ.GameObject.transform.position = elementPosition;
             SliderZ.Value = 0f;
             SliderZ.Focus = (_controller.ElementTransform.position - _sliderOffset).ToVec();
-            SliderZ.LocalVisible = true;
+            SliderZ.LocalVisibleProp.Value = true;
         }
 
         /// <summary>
