@@ -21,7 +21,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <returns></returns>
         BehaviorScript Behavior(
-            IElementJsCache jsCache,
             IJsExecutionContext jsContext,
             Element element,
             EnkluScript script);

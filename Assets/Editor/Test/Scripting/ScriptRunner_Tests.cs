@@ -1,3 +1,4 @@
+using CreateAR.Enkluplayer.Test;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
@@ -26,9 +27,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner = new ScriptRunner(
                 _scriptManager, 
                 _scriptFactory,
-                null,
-                new ElementJsCache(new ElementJsFactory(_scriptManager)),
-                null);
+                new TestScriptExecutorFactory(),
+                new AppJsApi(null, null, null));
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor());

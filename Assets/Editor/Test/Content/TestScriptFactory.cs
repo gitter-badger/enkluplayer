@@ -38,7 +38,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
-            IElementJsCache jsCache,
             IJsExecutionContext jsContext,
             Element element,
             EnkluScript script)

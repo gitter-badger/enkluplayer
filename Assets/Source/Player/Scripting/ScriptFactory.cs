@@ -22,13 +22,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IElementFactory _elementFactory;
 
         /// <summary>
+        /// Caches ElementJs instances.
+        /// </summary>
+        private readonly IElementJsCache _jsCache;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ScriptFactory(
             IElementFactory elementFactory,
+            IElementJsCache jsCache,
             VineImporter vineImporter)
         {
             _elementFactory = elementFactory;
+            _jsCache = jsCache;
             _vineImporter = vineImporter;
         }
         
@@ -45,7 +52,6 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
-            IElementJsCache jsCache,
             IJsExecutionContext jsContext,
             Element element,
             EnkluScript script)
@@ -55,7 +61,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Vine attached to non-widget?!");
             }
 
-            return new BehaviorScript(jsCache, jsContext, script, element);
+            return new BehaviorScript(jsContext, script, element, _jsCache.Element(element));
         }
     }
 }

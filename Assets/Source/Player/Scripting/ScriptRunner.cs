@@ -163,14 +163,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptManager scriptManager, 
             IScriptFactory scriptFactory,
             IScriptExecutorFactory scriptExecutorFactory,
-            IElementJsCache jsCache,
             AppJsApi appJsApi)
         {
             _createScriptAssembler = () => new ScriptAssembler(
                 scriptManager, 
                 scriptFactory, 
                 scriptExecutorFactory,
-                jsCache,
                 appJsApi);
         }
 

@@ -53,19 +53,19 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Constructor.
         /// </summary>
         public BehaviorScript(
-            IElementJsCache jsCache,
             IJsExecutionContext jsContext,
             EnkluScript script,
-            Element element)
+            Element element,
+            ElementJs elementJs)
         {
             if (_isStarted)
             {
                 throw new Exception("Script is already running.");
             }
 
-            _this = jsCache.Element(_element);
-            _jsContext = jsContext;
             _element = element;
+            _this = elementJs;
+            _jsContext = jsContext;
 
             EnkluScript = script;
             EnkluScript.Executor = this;

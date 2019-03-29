@@ -25,7 +25,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private readonly IScriptManager _scriptManager;
         private readonly IScriptFactory _scriptFactory;
-        private readonly IElementJsCache _jsCache;
         private readonly IScriptExecutorFactory _scriptExecutorFactory;
         private readonly AppJsApi _appJsApi;
 
@@ -64,13 +63,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptManager scriptManager, 
             IScriptFactory scriptFactory,
             IScriptExecutorFactory scriptExecutorFactory,
-            IElementJsCache jsCache,
             AppJsApi appJsApi)
         {
             _scriptManager = scriptManager;
             _scriptFactory = scriptFactory;
             _scriptExecutorFactory = scriptExecutorFactory;
-            _jsCache = jsCache;
             _appJsApi = appJsApi;
         }
 
@@ -259,7 +256,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     newScript = _scriptFactory.Vine(_element, script);
                     break;
                 case ScriptType.Behavior:
-                    newScript = _scriptFactory.Behavior(_jsCache, _jsContext, _element, script);
+                    newScript = _scriptFactory.Behavior(_jsContext, _element, script);
                     break;
                 default:
                     throw new Exception("Is there a new script type?!");

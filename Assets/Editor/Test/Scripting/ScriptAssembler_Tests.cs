@@ -16,8 +16,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         private TestScriptManager _scriptManager;
         private TestScriptFactory _scriptFactory;
-        private EnkluScript[] _behaviors = new EnkluScript[3];
-        private EnkluScript[] _vines = new EnkluScript[3];
+        private readonly EnkluScript[] _behaviors = new EnkluScript[3];
+        private readonly EnkluScript[] _vines = new EnkluScript[3];
         
         [SetUp]
         public void Setup()
@@ -28,8 +28,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptAssembler = new ScriptAssembler(
                 _scriptManager, 
                 _scriptFactory,
-                new TestScriptExecutorFactory(), 
-                null,
+                new TestScriptExecutorFactory(),
                 new AppJsApi(null, null, null)
             );
             
