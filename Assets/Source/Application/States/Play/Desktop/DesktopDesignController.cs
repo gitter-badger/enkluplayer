@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Primary anchor.
         /// </summary>
-        private readonly IAnchorManager _primaryAnchor;
+        private readonly IAnchorManager _anchors;
         
         /// <summary>
         /// Contains editor settings.
@@ -45,7 +45,7 @@ namespace CreateAR.EnkluPlayer
         private GameObject _runtimeGizmos;
 
         /// <summary>
-        /// Origin Reference Gameobject.
+        /// Origin Reference GameObject.
         /// </summary>
         private GameObject _referenceCube;
 
@@ -64,13 +64,13 @@ namespace CreateAR.EnkluPlayer
             IElementUpdateDelegate elementUpdater,
             IAppSceneManager scenes,
             IBridge bridge,
-            IAnchorManager primaryAnchor,
+            IAnchorManager anchors,
             EditorSettings editorSettings)
         {
             _elementUpdater = elementUpdater;
             _scenes = scenes;
             _bridge = bridge;
-            _primaryAnchor = primaryAnchor;
+            _anchors = anchors;
             _editorSettings = editorSettings;
         }
 
@@ -112,10 +112,7 @@ namespace CreateAR.EnkluPlayer
                     RecursivelyAddUpdater(root);
                 }
             }
-
-            // primary anchor setup
-            _primaryAnchor.Setup();
-
+            
             // setup property watching
             {
                 var sceneId = app.Scenes.All[0];
@@ -289,9 +286,9 @@ namespace CreateAR.EnkluPlayer
             outline.Init(bounds);
 
             //Sets the reference object created as child of primary anchor if found
-            _primaryAnchor.OnReady(() =>
+            _anchors.OnReady(() =>
             {
-                WorldAnchorWidget primaryAnchorWidget = _primaryAnchor.Primary;
+                WorldAnchorWidget primaryAnchorWidget = _anchors.Primary;
                 if (primaryAnchorWidget != null)
                 {
                     _referenceCube.transform.SetParent(primaryAnchorWidget.GameObject.transform, false);
