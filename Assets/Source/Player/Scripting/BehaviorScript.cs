@@ -15,6 +15,11 @@ namespace CreateAR.EnkluPlayer.Scripting
     public class BehaviorScript : Script, EnkluScript.IScriptExecutor
     {
         /// <summary>
+        /// Module id increment
+        /// </summary>
+        private static int _moduleIds = 1;
+        
+        /// <summary>
         /// The JS execution context
         /// </summary>
         private readonly IJsExecutionContext _jsContext;
@@ -66,6 +71,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _element = element;
             _this = elementJs;
             _jsContext = jsContext;
+            _module = _jsContext.NewModule("module_" + _moduleIds++);
 
             EnkluScript = script;
             EnkluScript.Executor = this;
