@@ -125,6 +125,11 @@ namespace CreateAR.EnkluPlayer
         private readonly List<CancelableCallback> _onReady = new List<CancelableCallback>();
 
         /// <summary>
+        /// Token returned from store setup.
+        /// </summary>
+        private IAsyncToken<Void> _storeSetup;
+
+        /// <summary>
         /// Immediate child of anchor.
         /// </summary>
         private ScanWidget _scan;
@@ -283,7 +288,7 @@ namespace CreateAR.EnkluPlayer
             _metrics = metrics;
             _config = config;
         }
-
+        
         /// <inheritdoc />
         public IAsyncToken<Void> Setup()
         {
@@ -304,9 +309,9 @@ namespace CreateAR.EnkluPlayer
 
             // reset flag
             AreAllAnchorsReady = false;
-
-            // setup store first
-            return Store
+            
+            // setup store
+            _storeSetup = Store
                 .Setup()
                 .OnSuccess(_ =>
                 {
@@ -323,7 +328,8 @@ namespace CreateAR.EnkluPlayer
 
                     if (_anchorsEnabledProp.Value)
                     {
-                        _locatingMessageProp = root.Schema.GetOwn(PROP_LOCATING_MESSAGE_KEY, "Attempting to locate content.\nPlease walk around space.");
+                        _locatingMessageProp = root.Schema.GetOwn(PROP_LOCATING_MESSAGE_KEY,
+                            "Attempting to locate content.\nPlease walk around space.");
                         _disableBypassProp = root.Schema.GetOwn(PROP_DISABLE_BYPASS_KEY, false);
 
                         _locatingMessageProp.OnChanged += (prop, prev, next) => UpdateLocatingUI();
@@ -336,7 +342,10 @@ namespace CreateAR.EnkluPlayer
                         Ready();
                     }
                 })
-                .Token();
+                .OnFailure(ex => Log.Error(this, "Could not setup anchor store: {0}.", ex));
+
+            // return a new token so an outside system can't abort our token
+            return _storeSetup.Token();
         }
 
         /// <inheritdoc />
@@ -351,6 +360,15 @@ namespace CreateAR.EnkluPlayer
             }
 
             Primary = null;
+
+            // teardown may be called before store setup is complete
+            if (null != _storeSetup)
+            {
+                _storeSetup.Abort();
+                _storeSetup = null;
+            }
+
+            Store.Teardown();
 
             if (null != _createToken)
             {
