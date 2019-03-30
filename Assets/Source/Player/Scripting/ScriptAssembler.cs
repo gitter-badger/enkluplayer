@@ -257,7 +257,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     throw new Exception("Is there a new script type?!");
             }
 
-            return Async.Map(newScript.Configure(), _ => newScript);
+            return new AsyncToken<Script>(newScript);
         }
 
         /// <summary>

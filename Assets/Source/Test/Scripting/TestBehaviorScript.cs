@@ -20,7 +20,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public int LastUpdateInvokeId { get; private set; }
         
         public TestBehaviorScript(EnkluScript script) 
-            : base(null, script, null, null)
+            : base(new DummyIJsExecutionContext(), script, null, null)
         {
             EnkluScript = script;
         }

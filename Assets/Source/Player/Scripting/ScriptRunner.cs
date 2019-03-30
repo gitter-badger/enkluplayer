@@ -35,12 +35,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// All known scripts are loaded, configured, and can be safely run.
             /// </summary>
-            Running,
-            
-            /// <summary>
-            /// Stopping all scripts.
-            /// </summary>
-            Stopping
+            Running
         }
         
         /// <summary>
@@ -96,7 +91,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Cached load token.
             /// </summary>
-            private AsyncToken<Void> _loadToken = new AsyncToken<Void>();
+            private readonly AsyncToken<Void> _loadToken = new AsyncToken<Void>();
             
             /// <summary>
             /// Starts loading scripts if they haven't already been loaded for this record and all descendent records.
@@ -175,8 +170,36 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void AddSceneRoot(Element root)
         {
+            if (_runnerState != RunnerState.None)
+            {
+                // Throw on this case for now - Multiple scenes probably require more thought, like siloing and
+                //    ensuring proper Vine->Behavior order while the existing scene is still running.
+                throw new Exception("ScriptRunner doesn't support dynamically adding scenes.");
+            }
+
+            if (_rootRecord != null)
+            {
+                throw new Exception("ScriptRunner only supports one scene currently.");
+            }
+            
             _rootRecord = CreateRecord(root);
             _rootRecord.LoadScripts();
+        }
+
+        /// <summary>
+        /// Removes an Element as the root element.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <exception cref="Exception"></exception>
+        public void RemoveSceneRoot(Element root)
+        {
+            if (_runnerState != RunnerState.None)
+            {
+                // Throw for parity.
+                throw new Exception("ScriptRunner doesn't support dynamically removing scenes.");
+            }
+
+            _rootRecord = null;
         }
         
         /// <summary>
@@ -241,10 +264,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 throw new Exception(string.Format("Scripts weren't running. ({0})", _runnerState));
             }
-            _runnerState = RunnerState.Stopping;
             
             StopRecord(_rootRecord);
             _visibilityMap.Clear();
+
+            _runnerState = RunnerState.None;
         }
         
         /// <summary>
@@ -303,6 +327,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="recursive">Whether or not this configuration should affect descendent records or not.</param>
         private static void ConfigureRecord(ElementRecord record, ScriptType type, List<IAsyncToken<Void>> tokenContainer, bool recursive = true)
         {
+            Log.Warning(record.Element, "ConfigureRecord");
             switch (type)
             {
                 case ScriptType.Vine:
@@ -345,6 +370,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="recursive">Whether to affect descendent records or not.</param>
         private void StartRecord(ElementRecord record, ScriptType type, bool recursive = true)
         {
+            Log.Warning(this, "Starting record");
             // TODO: Make the ScriptType parameter a bitmask so both can be run together?
 
             // Invisible Elements shouldn't start by default - since their dependencies might not have loaded yet (ContentWidgets)

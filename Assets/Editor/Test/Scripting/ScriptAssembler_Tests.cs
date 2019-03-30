@@ -95,14 +95,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             };
             _scriptAssembler.Setup(widget);
 
-            // Ensure invoke hasn't happened until Vine has loaded.
-            Assert.AreEqual(0, cbCalled);
-            
-            var vineComponent0 = _scriptFactory.GetVine(widget, _vines[0]);
-            var vineComponent1 = _scriptFactory.GetVine(widget, _vines[1]);
-            vineComponent0.FinishConfigure();
-            vineComponent1.FinishConfigure();
-            
             Assert.AreEqual(1, cbCalled);
         }
         
@@ -146,9 +138,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 cbCalled++;
             };
             _scriptAssembler.Setup(widget);
-            
-            var vineComponent0 = _scriptFactory.GetVine(widget, _vines[0]);
-            vineComponent0.FinishConfigure();
             
             Assert.AreEqual(1, cbCalled);
         }
@@ -314,8 +303,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 Assert.NotNull(@new[1]);
                 Assert.NotNull(@new[2]);
                 Assert.AreEqual(_behaviors[0], @new[0].EnkluScript);
-                Assert.AreEqual(_behaviors[1], @new[1].EnkluScript);
-                Assert.AreEqual(_vines[0], @new[2].EnkluScript);
+                Assert.AreEqual(_vines[0], @new[1].EnkluScript);
+                Assert.AreEqual(_behaviors[1], @new[2].EnkluScript);
                 cbCalled++;
             };
             _scriptAssembler.OnScriptsUpdated -= initialInvoke;

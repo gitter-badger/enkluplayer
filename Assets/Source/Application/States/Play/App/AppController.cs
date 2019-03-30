@@ -54,6 +54,9 @@ namespace CreateAR.EnkluPlayer
         
         /// <inheritdoc />
         public event Action OnReady;
+        
+        /// <inheritdoc />
+        public event Action OnUnloaded;
 
         /// <inheritdoc />
         public IAppSceneManager Scenes { get; private set; }
@@ -115,6 +118,8 @@ namespace CreateAR.EnkluPlayer
             _loader.Unload();
             Scenes.Uninitialize();
             _txns.Uninitialize();
+            
+            OnUnloaded.Execute();
         }
 
         /// <inheritdoc />

@@ -1,3 +1,4 @@
+using System;
 using CreateAR.Enkluplayer.Test;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
@@ -60,6 +61,35 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             TestBehaviorScript.ResetInvokeIds();
         }
+        
+        #region State Machine
+
+        [Test]
+        public void MultipleSceneRoots()
+        {
+            var element = ElementUtil.CreateElement();
+            _scriptRunner.AddSceneRoot(element);
+            Assert.Throws<Exception>(() => _scriptRunner.AddSceneRoot(element));
+        }
+        
+        [Test]
+        public void MultipleStart()
+        {
+            var cbCalled = 0;
+            var element = ElementUtil.CreateElement();
+            _scriptRunner.AddSceneRoot(element);
+            _scriptRunner.StartRunner()
+                .OnSuccess(_ =>
+                {
+                    cbCalled++;
+                    Assert.Throws<Exception>(() => _scriptRunner.StartRunner());
+                })
+                .OnFailure(exception => Assert.Fail("Failed to start runner: " + exception));
+            Assert.AreEqual(1, cbCalled);
+        }
+        
+        
+        #endregion
         
         #region Existing Scripts
 

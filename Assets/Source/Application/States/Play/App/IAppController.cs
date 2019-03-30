@@ -25,6 +25,11 @@ namespace CreateAR.EnkluPlayer
         event Action OnReady;
 
         /// <summary>
+        /// Called when app has been unloaded.
+        /// </summary>
+        event Action OnUnloaded;
+
+        /// <summary>
         /// Retrieves the object that manages the app's scenes.
         /// </summary>
         IAppSceneManager Scenes { get; }
