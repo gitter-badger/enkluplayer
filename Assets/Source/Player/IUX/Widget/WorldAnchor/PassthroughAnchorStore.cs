@@ -87,21 +87,15 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Anchor(string id, GameObject gameObject)
+        public void Anchor(string id, int version, GameObject gameObject)
         {
-            var token = new AsyncToken<Void>();
-
-            _bootstrapper.BootstrapCoroutine(Delay(
-                IMPORT_DELAY_SEC,
-                () => token.Succeed(Void.Instance)));
-
-            return token;
+            // do nothing
         }
 
         /// <inheritdoc />
         public void UnAnchor(GameObject gameObject)
         {
-            //
+            // do nothing
         }
         
         /// <summary>

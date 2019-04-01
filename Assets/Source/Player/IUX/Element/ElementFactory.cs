@@ -1,5 +1,4 @@
 using System;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
@@ -27,7 +26,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly ILayerManager _layers;
         private readonly IVoiceCommandManager _voice;
         private readonly IImageLoader _imageLoader;
-        private readonly IHttpService _http;
         private readonly IAnchorStore _store;
         private readonly IScriptManager _scripts;
         private readonly IScriptExecutorFactory _scriptHostFactory;
@@ -37,7 +35,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
         private readonly IElementJsCache _jsCache;
-        private readonly IBootstrapper _bootstrapper;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -58,7 +55,6 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             IVoiceCommandManager voice,
             IImageLoader imageLoader,
-            IHttpService http,
             IAnchorStore store,
             IScriptManager scripts,
             IScriptExecutorFactory scriptHostFactory,
@@ -68,7 +64,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IScanImporter scanImporter,
             IMetricsService metrics,
             IElementJsCache jsCache,
-            IBootstrapper bootstrapper,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -87,7 +82,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _voice = voice;
             _config = config;
             _imageLoader = imageLoader;
-            _http = http;
             _store = store;
             _scripts = scripts;
             _scriptHostFactory = scriptHostFactory;
@@ -97,7 +91,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _scanImporter = scanImporter;
             _metrics = metrics;
             _jsCache = jsCache;
-            _bootstrapper = bootstrapper;
             _appConfig = appConfig;
             _elementSchemaDefaults = elementSchemaDefaults;
         }
@@ -263,11 +256,8 @@ namespace CreateAR.EnkluPlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
-                        _http,
                         _store,
-                        _metrics,
-                        _bootstrapper,
-                        _appConfig);
+                        _metrics);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
-using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Trellis.Messages.UploadAnchor;
 using UnityEngine;
-using UnityEngine.Networking;
-using Random = System.Random;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -37,12 +30,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// PRNG.
         /// </summary>
-        private static readonly Random _Prng = new Random();
-
-        /// <summary>
-        /// For downloading anchors.
-        /// </summary>
-        private readonly IHttpService _http;
+        //private static readonly Random _Prng = new Random();
         
         /// <summary>
         /// Abstracts anchoring method.
@@ -53,27 +41,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-
-        /// <summary>
-        /// Bootstrapping coroutines.
-        /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-
-        /// <summary>
-        /// Application config.
-        /// </summary>
-        private readonly ApplicationConfig _config;
-
-        /// <summary>
-        /// Action for aborting the download process.
-        /// </summary>
-        private Action _downloadAbort;
-
-        /// <summary>
-        /// Token returned from IWorldAnchorProvider::Anchor.
-        /// </summary>
-        private IAsyncToken<Void> _anchorToken;
-
+        
         /// <summary>
         /// Props.
         /// </summary>
@@ -159,18 +127,12 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IHttpService http,
             IAnchorStore store,
-            IMetricsService metrics,
-            IBootstrapper bootstrapper,
-            ApplicationConfig config)
+            IMetricsService metrics)
             : base(gameObject, layers, tweens, colors)
         {
-            _http = http;
             _store = store;
             _metrics = metrics;
-            _bootstrapper = bootstrapper;
-            _config = config;
         }
 
         /// <summary>
@@ -219,7 +181,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         {
                             Log.Info(this, "Successfully exported from provider with id {0}. Uploading.", providerId);
 
-                            ExportAnchorData(txns, appId, sceneId, bytes, 3);
+                            //ExportAnchorData(txns, appId, sceneId, bytes, 3);
                         })
                         .OnFailure(exception =>
                         {
@@ -257,17 +219,16 @@ namespace CreateAR.EnkluPlayer.IUX
             _lockedProp = Schema.GetOwn("locked", false);
             _lockedProp.OnChanged += Locked_OnChanged;
             
-            var autoExport = Schema.GetOwn("autoexport", true).Value;
-            if (autoExport)
-            {
-                //_messages.Publish(MessageTypes.ANCHOR_AUTOEXPORT, this);
-            }
-            else
-            {
-                UpdateWorldAnchor();
-            }
+            UpdateWorldAnchor();
+        }
+
+        /// <inheritdoc />
+        protected override void LoadInternalAfterChildren()
+        {
+            base.LoadInternalAfterChildren();
 
             // selection collider
+            if (DeviceHelper.IsWebGl())
             {
                 var collider = EditCollider;
                 if (null != collider)
@@ -307,18 +268,16 @@ namespace CreateAR.EnkluPlayer.IUX
         protected override void UnloadInternalAfterChildren()
         {
             base.UnloadInternalAfterChildren();
-
-            if (null != _downloadAbort)
-            {
-                _downloadAbort();
-            }
-
+            
             _versionProp.OnChanged -= Version_OnChanged;
+
+            _store.UnAnchor(GameObject);
         }
 
         /// <inheritdoc />
         protected override void UpdateTransform()
         {
+            // on hololens, we let the MS api set the position
             if (!DeviceHelper.IsHoloLens())
             {
                 base.UpdateTransform();
@@ -328,67 +287,28 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Reloads the world anchor.
         /// </summary>
-        [Conditional("NETFX_CORE"), Conditional("UNITY_EDITOR")]
+        [
+            Conditional("NETFX_CORE"),
+            Conditional("UNITY_EDITOR")
+        ]
         private void UpdateWorldAnchor()
         {
             Status = WorldAnchorStatus.IsLoading;
             _pollStatus = false;
-
-            // abort previous tokens
-            if (null != _anchorToken)
-            {
-                _anchorToken.Abort();
-                _anchorToken = null;
-            }
-
-            if (null != _downloadAbort)
-            {
-                _downloadAbort();
-            }
-
-            // version check (there may be no data for this anchor)
-            var version = _versionProp.Value;
-            if (version < 0)
-            {
-                Log.Warning(this, "Anchor [{0}] has an invalid version.", Id);
-
-                Status = WorldAnchorStatus.IsError;
-                
-                return;
-            }
-
-            // url check (there may be bad data for this anchor)
-            var uri = Schema.Get<string>("src").Value;
-            if (string.IsNullOrEmpty(uri))
-            {
-                Log.Warning(this, "Anchor [{0}] has invalid src prop.", Id);
-
-                Status = WorldAnchorStatus.IsError;
-                
-                return;
-            }
             
-            // see if the provider can anchor this version
-            var providerId = GetAnchorProviderId(Id, version);
-            _anchorToken = _store
-                .Anchor(providerId, GameObject)
-                .OnSuccess(_ =>
-                {
-                    Log.Warning(this, "Provider was able to anchor without download.");
+            // check version
+            var version = _versionProp.Value;
+            if (0 == version)
+            {
+                Log.Info(this, "Anchor has not yet been exported, so there is nothing to load.");
+                return;
+            }
 
-                    // done
-                    _pollStatus = true;
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Warning(this, "Could not anchor {0} : {1}. Proceed to download and import.", providerId, exception);
-                    
-                    // anchor has not been imported before, apparently
-                    DownloadAndImport(uri);
-                });
+            _store.UnAnchor(GameObject);
+            _store.Anchor(Id, version, GameObject);
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Downloads world anchor data and imports it.
         /// </summary>
         /// <param name="uri">Partial URI at which to download.</param>
@@ -482,7 +402,7 @@ namespace CreateAR.EnkluPlayer.IUX
                     Status = WorldAnchorStatus.IsError;
                 });
         }
-
+        
         /// <summary>
         /// Exports anchor data.
         /// </summary>
@@ -588,7 +508,7 @@ namespace CreateAR.EnkluPlayer.IUX
                     }
                 });
         }
-
+        */
         /// <summary>
         /// Called when the file id changes.
         /// </summary>
@@ -615,13 +535,6 @@ namespace CreateAR.EnkluPlayer.IUX
             }
             else
             {
-                // kill any imports in progress
-                if (null != _downloadAbort)
-                {
-                    _downloadAbort();
-                }
-
-                // disable anchor
                 _store.UnAnchor(GameObject);
             }
         }

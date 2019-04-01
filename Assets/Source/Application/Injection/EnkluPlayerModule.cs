@@ -446,13 +446,13 @@ namespace CreateAR.EnkluPlayer
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-                binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
+                binder.Bind<IAnchorStore>().To<PassthroughAnchorStore>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_ANDROID
                 binder.Bind<IArService>().To<AndroidArService>().ToSingleton();
-                binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
+                binder.Bind<IAnchorStore>().To<PassthroughAnchorStore>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
-                binder.Bind<IWorldAnchorProvider>().To<HoloLensAnchorStore>().ToSingleton();
+                binder.Bind<IAnchorStore>().To<HoloLensAnchorStore>().ToSingleton();
 #else
                 binder.Bind<IAnchorStore>().To<PassthroughAnchorStore>().ToSingleton();
                 binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();

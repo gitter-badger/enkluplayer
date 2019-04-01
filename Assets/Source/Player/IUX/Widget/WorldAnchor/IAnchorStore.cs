@@ -23,10 +23,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Attempts to anchor an object.
         /// </summary>
-        /// <param name="id">Unique id that was previously used for importing an anchor.</param>
+        /// <param name="id">Unique id of an anchor.</param>
+        /// <param name="versiong">Anchor version.</param>
         /// <param name="gameObject">The GameObject to anchor.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Anchor(string id, GameObject gameObject);
+        void Anchor(string id, int version, GameObject gameObject);
 
         /// <summary>
         /// Un-anchors an object. Only affects gameObject if Anchor has already

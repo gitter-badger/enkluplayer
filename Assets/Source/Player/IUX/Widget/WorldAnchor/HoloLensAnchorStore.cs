@@ -20,9 +20,446 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
+    /// Keeps a resolution for an <c>AsyncToken</c> separate from the token.
+    /// This is particularly useful for passing resolution between threads.
+    /// </summary>
+    /// <typeparam name="T">The type of resolution supported.</typeparam>
+    public class AsyncResolution<T>
+    {
+        /// <summary>
+        /// The success value.
+        /// </summary>
+        public T Value { get; private set; }
+
+        /// <summary>
+        /// The error value.
+        /// </summary>
+        public Exception Exception { get; private set; }
+
+        /// <summary>
+        /// True iff resolved.
+        /// </summary>
+        private bool _isResolved;
+
+        /// <summary>
+        /// Resolves successfully.
+        /// </summary>
+        /// <param name="value"></param>
+        public void Resolve(T value)
+        {
+            if (_isResolved)
+            {
+                throw new Exception("Resolution is already resolved!");
+            }
+
+            Value = value;
+            _isResolved = true;
+        }
+
+        /// <summary>
+        /// Resolves with an exception.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        public void Resolve(Exception exception)
+        {
+            if (_isResolved)
+            {
+                throw new Exception("Resolution is already resolved!");
+            }
+
+            Exception = exception;
+            _isResolved = true;
+        }
+
+        /// <summary>
+        /// Attempts to apply the resolution to a token. Returns true iff the
+        /// resolution was already resolved.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns></returns>
+        public bool Apply(AsyncToken<T> token)
+        {
+            if (!_isResolved)
+            {
+                return false;
+            }
+
+            if (null == Exception)
+            {
+                token.Fail(Exception);
+            }
+            else
+            {
+                token.Succeed(Value);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// This object contains complete state and behavior for importing a single
+    /// anchor. It can be used once and only once.
+    /// </summary>
+    public class ImportPipelineSaga
+    {
+        [Flags]
+        public enum ImportOptions
+        {
+            None = 0,
+            Compressed = 1
+        }
+
+        /// <summary>
+        /// Random number generator.
+        /// </summary>
+        private static readonly Random _Prng = new Random();
+
+        private readonly IBootstrapper _bootstrapper;
+        private readonly ApplicationConfig _config;
+        private readonly WorldAnchorStore _store;
+        private readonly string _id;
+        private readonly GameObject _gameObject;
+        
+        private readonly AsyncResolution<Void> _resolution = new AsyncResolution<Void>();
+
+        private byte[] _bytes;
+
+        /// <summary>
+        /// Token returned from Start().
+        /// </summary>
+        private AsyncToken<Void> _token;
+
+        public ImportPipelineSaga(
+            IBootstrapper bootstrapper,
+            ApplicationConfig config,
+            WorldAnchorStore store,
+            string id,
+            byte[] bytes,
+            GameObject gameObject)
+        {
+            _bootstrapper = bootstrapper;
+            _config = config;
+            _store = store;
+            _id = id;
+            _bytes = bytes;
+            _gameObject = gameObject;
+        }
+        
+        public IAsyncToken<Void> Start(ImportOptions options)
+        {
+            Trace("Started import.");
+
+            // random failure?
+            if (_config.Network.AnchorImportFailChance > Mathf.Epsilon)
+            {
+                if (_Prng.NextDouble() < _config.Network.AnchorImportFailChance)
+                {
+                    return new AsyncToken<Void>(new Exception("Random failure configured by ApplicationConfig."));
+                }
+            }
+            
+            _token = new AsyncToken<Void>();
+
+            // we poll for completion
+            _bootstrapper.BootstrapCoroutine(Poll());
+
+            if (0 == (ImportOptions.Compressed & options))
+            {
+                // start the import!
+                WorldAnchorTransferBatch.ImportAsync(_bytes, OnComplete);
+            }
+            else
+            {
+                // decompress first
+                Decompress(() => WorldAnchorTransferBatch.ImportAsync(_bytes, OnComplete));
+            }
+
+            return _token;
+        }
+
+        /// <summary>
+        /// Poll function that runs on the main thread.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator Poll()
+        {
+            // attempt to resolve the token
+            while (!_resolution.Apply(_token))
+            {
+                yield return null;
+            }
+        }
+
+        /// <summary>
+        /// Decompresses bytes on a separate thread, then calls the callback.
+        /// </summary>
+        /// <param name="callback">Callback to call-- will be called on a separate thread.</param>
+        private void Decompress(Action callback)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Windows.System.Threading.ThreadPool.RunAsync(context =>
+            {
+                // decompress bytes
+                try
+                {
+                    using (var output = new MemoryStream())
+                    {
+                        using (var input = new MemoryStream(_bytes))
+                        {
+                            using (var deflate = new DeflateStream(input, CompressionMode.Decompress))
+                            {
+                                deflate.CopyTo(output);
+                            }
+                        }
+
+                        // allocate like crazy
+                        _bytes = output.ToArray();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _resolution.Resolve(new Exception($"Could not decompress anchor: {exception}."));
+
+                    return;
+                }
+
+                callback();
+            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
+
+        /// <summary>
+        /// Called when import is complete.
+        /// </summary>
+        /// <param name="reason">The reason-- could be an error.</param>
+        /// <param name="batch">The associated batch.</param>
+        private void OnComplete(SerializationCompletionReason reason, WorldAnchorTransferBatch batch)
+        {
+            if (reason != SerializationCompletionReason.Succeeded)
+            {
+                Trace("Import into transfer batch failed.");
+
+                _resolution.Resolve(new Exception("Import into transfer batch failed."));
+            }
+            // make sure GameObject is still alive
+            else if (_gameObject)
+            {
+                Trace("Import into transfer batch succeeded. Attempting to lock object.");
+
+                var anchor = batch.LockObject(_id, _gameObject);
+                if (null != anchor)
+                {
+                    Trace("Object locked successfully. Attempting to save in store.");
+
+                    if (_store.Save(_id, anchor))
+                    {
+                        Trace("Anchor successfully saved!");
+
+                        _resolution.Resolve(Void.Instance);
+                    }
+                    else
+                    {
+                        _resolution.Resolve(new Exception("Locked object but could not save in anchor store."));
+                    }
+                }
+                else
+                {
+                    _resolution.Resolve(new Exception("Import succeeded but could not lock object."));
+                }
+            }
+            else
+            {
+                _resolution.Resolve(new Exception("GameObject was destroyed while importing anchor."));
+            }
+        }
+
+        /// <summary>
+        /// Logging wrapper.
+        /// </summary>
+        private void Trace(string message, params object[] replacements)
+        {
+            Log.Info(this, "[Anchor Id={0}] " + message, replacements);
+        }
+    }
+
+    public class ExportPipelineSaga
+    {
+        [Flags]
+        public enum ExportOptions
+        {
+            None = 0,
+            Compressed = 1
+        }
+
+        private readonly IBootstrapper _bootstrapper;
+        private readonly string _id;
+        private readonly GameObject _gameObject;
+        private readonly WorldAnchorStore _store;
+
+        private readonly AsyncResolution<Void> _resolution = new AsyncResolution<Void>();
+
+        private ExportOptions _options;
+
+        private AsyncToken<Void> _token;
+        private WorldAnchor _anchor;
+        private WorldAnchorTransferBatch _batch;
+        private List<byte> _buffer;
+
+        public ExportPipelineSaga(string id)
+        {
+            _id = id;
+        }
+        
+        public IAsyncToken<Void> Start(ExportOptions options)
+        {
+            _options = options;
+
+            Trace("{0}::Export({1})", _id, _gameObject.name);
+            
+            _token = new AsyncToken<Void>();
+            
+            // grab anchor
+            _anchor = _store.Load(_id, _gameObject);
+            if (null != _anchor)
+            {
+                Log.Warning(this, "Tried to export anchor that was already part of lo0cal anchor store.");
+                _token.Fail(new Exception("Tried to export anchor that was already part of local anchor store."));
+
+                return _token;
+            }
+
+            // create anchor
+            _anchor = _gameObject.AddComponent<WorldAnchor>();
+            
+            _bootstrapper.BootstrapCoroutine(PollForIsLocated());
+            
+            return _token;
+        }
+
+        private IEnumerator PollForIsLocated()
+        {
+            while (!_anchor.isLocated)
+            {
+                yield return null;
+            }
+
+            SaveLocally();
+        }
+
+        private IEnumerator PollForCompletion()
+        {
+            while (!_resolution.Apply(_token))
+            {
+                yield return null;
+            }
+        }
+
+        private void SaveLocally()
+        {
+            Trace("Saving anchor to local store.");
+
+            if (!_store.Save(_id, _anchor))
+            {
+                _token.Fail(new Exception("Could not save anchor to local anchor store."));
+            }
+            else
+            {
+                // start polling for completion
+                _bootstrapper.BootstrapCoroutine(PollForCompletion());
+
+                Export();
+            }
+        }
+
+        private void Export()
+        {
+            Trace("Exporting anchor into transfer batch.");
+
+            // prep buffer for receiving data
+            _buffer = new List<byte>();
+
+            // begin export
+            _batch = new WorldAnchorTransferBatch();
+            _batch.AddWorldAnchor(_id, _anchor);
+            
+            WorldAnchorTransferBatch.ExportAsync(
+                _batch,
+                OnExportDataAvailable,
+                OnExportComplete);
+        }
+
+        private void OnExportDataAvailable(byte[] bytes) => _buffer.AddRange(bytes);
+
+        private void OnExportComplete(SerializationCompletionReason reason)
+        {
+            // dispose of batch
+            _batch.Dispose();
+
+            if (reason == SerializationCompletionReason.Succeeded)
+            {
+                Trace("WorldAnchor export complete.");
+                
+                if (0 == (ExportOptions.Compressed & _options))
+                {
+                    _resolution.Resolve(Void.Instance);
+                }
+                else
+                {
+                    Compress(() => _resolution.Resolve(Void.Instance));
+                }
+            }
+            else
+            {
+                Trace("WorldAnchor export failed.");
+                
+                _resolution.Resolve(new Exception("Could not export anchor data."));
+            }
+        }
+
+        private void Compress(Action callback)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Windows.System.Threading.ThreadPool.RunAsync(context =>
+            {
+                byte[] compressed = null;
+
+                try
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        using (var deflate = new DeflateStream(memoryStream, CompressionMode.Compress))
+                        {
+                            deflate.Write(_buffer.ToArray(), 0, _buffer.Count);
+                        }
+
+                        compressed = memoryStream.ToArray();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _resolution.Resolve(exception);
+                    return;
+                }
+
+                callback();
+            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
+
+        /// <summary>
+        /// Logging wrapper.
+        /// </summary>
+        private void Trace(string message, params object[] replacements)
+        {
+            Log.Info(this, "[Anchor Id={0}] " + message, replacements);
+        }
+    }
+
+    /// <summary>
     /// Implementation for HoloLens.
     /// </summary>
-    public class HoloLensWorldAnchorProvider : IAnchorStore
+    public class HoloLensAnchorStore : IAnchorStore
     {
         /// <summary>
         /// PRNG.
@@ -38,6 +475,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Handles metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
+
+        /// <summary>
+        /// Manages all scenes.
+        /// </summary>
+        private readonly IAppSceneManager _scenes;
 
         /// <summary>
         /// Configuration for the application.
@@ -84,38 +526,41 @@ namespace CreateAR.EnkluPlayer.IUX
         /// HoloLens API.
         /// </summary>
         private WorldAnchorStore _store;
-
-        /// <summary>
-        /// Manages all scenes.
-        /// </summary>
-        private IAppSceneManager _scenes;
         
         /// <summary>
         /// Constructor.
         /// </summary>
-        public HoloLensWorldAnchorProvider(
+        public HoloLensAnchorStore(
             IBootstrapper bootstrapper,
             IMetricsService metrics,
+            IAppSceneManager scenes,
             ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _metrics = metrics;
+            _scenes = scenes;
             _config = config;
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Setup(IAppSceneManager scenes)
+        public IAsyncToken<Void> Setup()
         {
-            _scenes = scenes;
+            //_scenes = scenes;
             
             // listen for tracking loss event
             WorldManager.OnPositionalLocatorStateChanged += WorldManager_OnPositionalLocatorStateChanged;
             
             return LoadStore().Token();
         }
-        
+
         /// <inheritdoc />
-        public IAsyncToken<Void> Anchor(string id, GameObject gameObject)
+        public void Teardown()
+        {
+            // ??
+        }
+
+        /// <inheritdoc />
+        public void Anchor(string id, int version, GameObject gameObject)
         {
             var ids = _store.GetAllIds();
             for (int i = 0, len = ids.Length; i < len; i++)
@@ -125,16 +570,16 @@ namespace CreateAR.EnkluPlayer.IUX
                     var anchor = _store.Load(id, gameObject);
                     if (null == anchor)
                     {
-                        return new AsyncToken<Void>(new Exception("WorldAnchorStore::Load completed but did not return an anchor."));
+                        //return new AsyncToken<Void>(new Exception("WorldAnchorStore::Load completed but did not return an anchor."));
                     }
                     
                     TrackUnlocatedAnchor(anchor);
 
-                    return new AsyncToken<Void>(Void.Instance);
+                    //return new AsyncToken<Void>(Void.Instance);
                 }
             }
 
-            return new AsyncToken<Void>(new Exception("No anchor by that id."));
+            //return new AsyncToken<Void>(new Exception("No anchor by that id."));
         }
 
         /// <inheritdoc />
@@ -169,377 +614,13 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc />
         public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
-            Log.Info(this, "{0}::Export({1})", id, gameObject.name);
-            
-            // do not export the same anchor more than once at the same time
-            AsyncToken<byte[]> token;
-            if (_exports.TryGetValue(gameObject, out token))
-            {
-                Log.Info(this, "{0}::Anchor is already being exported currently.", id);
-                return token.Token();
-            }
-
-            // instrument
-            var exportId = _metrics.Timer(MetricsKeys.ANCHOR_EXPORT).Start();
-
-            RetainWatcher();
-            token = _exports[gameObject] = new AsyncToken<byte[]>();
-            token.OnFinally(_ => ReleaseWatcher());
-
-            // keep track of # of retries left (used below)
-            var retries = 3;
-
-            // grab anchor
-            var anchor = _store.Load(id, gameObject);
-            if (null != anchor)
-            {
-                Log.Warning(this, "Tried to export anchor that was already part of lo0cal anchor store.");
-                token.Fail(new Exception("Tried to export anchor that was already part of local anchor store."));
-
-                return token;
-            }
-
-            // create anchor
-            anchor = gameObject.AddComponent<WorldAnchor>();
-            
-            // create buffer for export data
-            var buffer = new List<byte>();
-            WorldAnchorTransferBatch batch = null;
-
-            Action<SerializationCompletionReason> onExportComplete = null;
-
-            void OnExportDataAvailable(byte[] bytes) => buffer.AddRange(bytes);
-            
-            void Save()
-            {
-                _isProcessingQueues = true;
-
-                Log.Info(this, "{0}::Saving anchor to local store.");
-
-                // save locally
-                if (!_store.Save(id, anchor))
-                {
-                    if (--retries > 0)
-                    {
-                        Log.Warning(this, "{0}::Could not save anchor in local store, retrying.", id);
-                        Save();
-                    }
-                    else
-                    {
-                        Log.Error(this, "{0}::Could not save anchor in local store!", id);
-                        token.Fail(new Exception("Could not save in local store."));
-
-                        _isProcessingQueues = false;
-                    }
-                }
-                else
-                {
-                    Export();
-                }
-            }
-
-            void Export()
-            {
-                Log.Info(this, "{0}::Exporting anchor into transfer batch.", id);
-                
-                // reset buffer
-                buffer.Clear();
-
-                // begin export
-                batch = new WorldAnchorTransferBatch();
-                batch.AddWorldAnchor(id, anchor);
-                WorldAnchorTransferBatch.ExportAsync(
-                    batch,
-                    OnExportDataAvailable,
-                    new WorldAnchorTransferBatch.SerializationCompleteDelegate(onExportComplete));
-            }
-            
-            onExportComplete = reason =>
-            {
-                // export
-                _metrics.Timer(MetricsKeys.ANCHOR_EXPORT).Stop(exportId);
-
-                if (reason == SerializationCompletionReason.Succeeded)
-                {
-                    Log.Info(this, "{0}::WorldAnchor export complete. Compressing data.", id);
-
-                    // dispose of batch
-                    batch.Dispose();
-
-                    // metrics
-                    var compressId = _metrics.Timer(MetricsKeys.ANCHOR_COMPRESSION).Start();
-
-                    // compress data
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    Windows.System.Threading.ThreadPool.RunAsync(context =>
-                    {
-                        byte[] compressed = null;
-
-                        try
-                        {
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                using (var deflate = new DeflateStream(memoryStream, CompressionMode.Compress))
-                                {
-                                    deflate.Write(buffer.ToArray(), 0, buffer.Count);
-                                }
-
-                                compressed = memoryStream.ToArray();
-                            }
-                        }
-                        catch
-                        {
-                            // ignore
-                        }
-                        
-                        Synchronize(() =>
-                        {
-                            _exports.Remove(gameObject);
-
-                            if (null == compressed)
-                            {
-                                Log.Warning(this, "{0}::Anchor export failed: out of memory.", id);
-
-                                token.Fail(new Exception("Could not compress anchor: out of memory."));
-
-                                _isProcessingQueues = false;
-                                return;
-                            }
-
-                            // metrics
-                            _metrics.Value(MetricsKeys.ANCHOR_SIZE_RAW).Value(buffer.Count);
-                            _metrics.Value(MetricsKeys.ANCHOR_SIZE_COMPRESSED).Value(compressed.Length);
-                            _metrics.Value(MetricsKeys.ANCHOR_SIZE_RATIO).Value(compressed.Length / (float)buffer.Count);
-
-                            Log.Info(this,
-                                "{0}::Compression complete. Saved {1} bytes.",
-                                id,
-                                buffer.Count - compressed.Length);
-
-                            // metrics
-                            _metrics.Timer(MetricsKeys.ANCHOR_COMPRESSION).Stop(compressId);
-
-                            // stop tracking token so we can export again later
-                            _exports.Remove(gameObject);
-
-                            token.Succeed(compressed);
-
-                            _isProcessingQueues = false;
-                        });
-                    });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                }
-                else
-                {
-                    Log.Warning(this, "{0}::WorldAnchor export failed.", id);
-
-                    // dispose of batch
-                    batch.Dispose();
-
-                    if (--retries > 0)
-                    {
-                        Log.Info(this, "{0}::Retrying export.", id);
-
-                        Export();
-                    }
-                    else
-                    {
-                        // stop tracking token so we can export again later
-                        _exports.Remove(gameObject);
-
-                        token.Fail(new Exception(string.Format(
-                            "Could not export : {0}.",
-                            reason)));
-
-                        _isProcessingQueues = false;
-                    }
-                }
-            };
-            
-            if (anchor.isLocated)
-            {
-                Log.Info(this, "Enqueue export.");
-
-                _exportQueue.Enqueue(Save);
-
-                ProcessQueues();
-            }
-            else
-            {
-                void OnTrackingChanged(WorldAnchor _, bool located)
-                {
-                    if (located)
-                    {
-                        anchor.OnTrackingChanged -= OnTrackingChanged;
-
-                        Log.Info(this, "Enqueue export.");
-
-                        _exportQueue.Enqueue(Save);
-
-                        ProcessQueues();
-                    }
-                }
-
-                anchor.OnTrackingChanged += OnTrackingChanged;
-            }
-            
-            return token;
+            return null;
         }
 
         /// <inheritdoc />
         public IAsyncToken<Void> Import(string id, byte[] bytes, GameObject gameObject)
         {
-            Log.Info(this, "{0}::Import()", id);
-
-            // random failure?
-            if (_config.Network.AnchorImportFailChance > Mathf.Epsilon)
-            {
-                if (_Prng.NextDouble() < _config.Network.AnchorImportFailChance)
-                {
-                    return new AsyncToken<Void>(new Exception("Random failure configured by ApplicationConfig."));
-                }
-            }
-            
-            // metrics
-            var queuedMetricId = _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Start();
-            var importMetricId = 0;
-
-            // create a new token for it immediately
-            RetainWatcher();
-            var token = new AsyncToken<Void>();
-            token.OnFinally(_ => ReleaseWatcher());
-            
-            // local function for queued import
-            void QueuedImport()
-            {
-                // metrics
-                _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Stop(queuedMetricId);
-
-                Log.Info(this, "{0}::Begin queued import.", id);
-                
-                byte[] decompressed = null;
-
-                // number of retries
-                var retries = 3;
-
-                // called to import from batch
-                void Import()
-                {
-                    WorldAnchorTransferBatch.ImportAsync(decompressed, OnComplete);
-                }
-
-                // called when import into transfew batch is complete
-                void OnComplete(SerializationCompletionReason reason, WorldAnchorTransferBatch batch)
-                {
-                    // metrics
-                    _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Stop(importMetricId);
-
-                    if (reason != SerializationCompletionReason.Succeeded)
-                    {
-                        Log.Warning(this, "{0}::Import into transfer batch failed.", id);
-
-                        // retry
-                        if (--retries > 0)
-                        {
-                            Log.Info(this, "{0}::Retrying import.", id);
-
-                            Import();
-                        }
-                        else
-                        {
-                            token.Fail(new Exception("Import into transfer batch failed."));
-                        }
-                    }
-                    // make sure gameobject is still alive
-                    else if (gameObject)
-                    {
-                        var anchor = batch.LockObject(id, gameObject);
-                        if (null != anchor)
-                        {
-                            if (_store.Save(id, anchor))
-                            {
-                                token.Succeed(Void.Instance);
-                            }
-                            else
-                            {
-                                token.Fail(new Exception("Locked object but could not save in anchor store."));
-                            }
-                        }
-                        else
-                        {
-                            token.Fail(new Exception("Import succeded byt could not lock object."));
-                        }
-                    }
-
-                    // done processing
-                    _isProcessingQueues = false;
-                }
-
-                // metrics
-                var compressId = _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Start();
-
-                // start inflate in a threadpool
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Windows.System.Threading.ThreadPool.RunAsync(context =>
-                {
-                    // decompress bytes
-                    try
-                    {
-                        using (var output = new MemoryStream())
-                        {
-                            using (var input = new MemoryStream(bytes))
-                            {
-                                using (var deflate = new DeflateStream(input, CompressionMode.Decompress))
-                                {
-                                    deflate.CopyTo(output);
-                                }
-                            }
-
-                            decompressed = output.ToArray();
-                        }
-                    }
-                    catch
-                    {
-                        // ignore
-                    }
-                    
-                    // import must be started from main thread
-                    Synchronize(() =>
-                    {
-                        if (null == decompressed)
-                        {
-                            Log.Warning(this, "{0}::Decompression failed: out of memory.", id);
-
-                            // metrics
-                            _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Abort(compressId);
-
-                            // done processing
-                            _isProcessingQueues = false;
-
-                            token.Fail(new Exception("Ran out of memory when decompressing."));
-                            return;
-                        }
-
-                        Log.Info(this, "{0}::Decompression complete.", id);
-
-                        // metrics
-                        _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Stop(compressId);
-
-                        // metrics
-                        importMetricId = _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Start();
-
-                        Import();
-                    });
-                });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-
-            Log.Info(this, "{0}::Enqueued import.", id);
-            _importQueue.Enqueue(QueuedImport);
-
-            ProcessQueues();
-
-            return token;
+            return null;
         }
         
         /// <inheritdoc />
@@ -586,9 +667,7 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             _isProcessingQueues = true;
-
-            Log.Info(this, "Processing next in queue.");
-
+            
             // process imports first
             if (_importQueue.Count > 0)
             {
@@ -599,75 +678,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 _exportQueue.Dequeue()();
             }
         }
-
-        /// <summary>
-        /// Adds to action list.
-        /// </summary>
-        /// <param name="action">Action to perform on main thread.</param>
-        private void Synchronize(Action action)
-        {
-            lock (_actions)
-            {
-                _actions.Add(action);
-            }
-        }
-
-        /// <summary>
-        /// Ref counting, essentially.
-        /// </summary>
-        private void RetainWatcher()
-        {
-            _watcherRefCount++;
-
-            if (!_isWatching)
-            {
-                _bootstrapper.BootstrapCoroutine(Watch());
-            }
-        }
-
-        /// <summary>
-        /// Ref counting, essentially.
-        /// </summary>
-        private void ReleaseWatcher()
-        {
-            _watcherRefCount--;
-        }
-
-        /// <summary>
-        /// Long running poll.
-        /// </summary>
-        private IEnumerator Watch()
-        {
-            _isWatching = true;
-
-            while (_watcherRefCount > 0)
-            {
-                lock (_actions)
-                {
-                    if (_actions.Count > 0)
-                    {
-                        _actionsReadBuffer.AddRange(_actions);
-                        _actions.Clear();
-                    }
-                }
-
-                if (_actionsReadBuffer.Count > 0)
-                {
-                    for (var i = 0; i < _actionsReadBuffer.Count; i++)
-                    {
-                        _actionsReadBuffer[i]();
-                    }
-                    _actionsReadBuffer.Clear();
-                }
-
-                ProcessQueues();
-                
-                yield return null;
-            }
-
-            _isWatching = false;
-        }
-
+        
         /// <summary>
         /// Times how long an anchor is unlocated.
         /// </summary>
