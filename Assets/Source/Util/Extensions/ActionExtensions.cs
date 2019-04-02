@@ -19,7 +19,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Invokes an Action if it is not null;
+        /// Invokes an Action if it is not null.
         /// </summary>
         public static void Execute<T>(this Action<T> @this, T arg)
         {
@@ -30,13 +30,24 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Invokes an Action if it is not null;
+        /// Invokes an Action if it is not null.
         /// </summary>
         public static void Execute<T, K>(this Action<T, K> @this, T arg1, K arg2)
         {
             if (@this != null)
             {
                 @this(arg1, arg2);
+            }
+        }
+
+        /// <summary>
+        /// Invokes an Action if it is not null.
+        /// </summary>
+        public static void Execute<T, K, U>(this Action<T, K, U> @this, T arg1, K arg2, U arg3)
+        {
+            if (@this != null)
+            {
+                @this(arg1, arg2, arg3);
             }
         }
     }

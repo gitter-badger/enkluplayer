@@ -54,6 +54,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public override IAsyncToken<Void> Configure()
         {
             Log.Info(this, "Importing Vine {0}.", EnkluScript.Data.Id);
+            if (IsConfigured) throw new Exception("Vine already configured.");
 
             var token = new AsyncToken<Void>();
             

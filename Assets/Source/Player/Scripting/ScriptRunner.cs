@@ -86,10 +86,10 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Invoked when scripts have updated, with the old then new as payloads.
             /// </summary>
-            public event Action<Script[], Script[]> OnScriptsUpdated;
+            public event Action<ElementRecord, Script[], Script[]> OnScriptsUpdated;
 
             /// <summary>
-            /// Cached load token.
+            /// Cached load token. Fires once at initial script load
             /// </summary>
             private readonly AsyncToken<Void> _loadToken = new AsyncToken<Void>();
             
@@ -107,6 +107,8 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                 Assembler.OnScriptsUpdated += (old, @new) =>
                 {
+                    OnScriptsUpdated.Execute(this, old, @new);
+                    
                     if (RecordState == RecordState.Loading)
                     {
                         // First time this Element's scripts are ready.
@@ -122,8 +124,6 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                         RecordState = RecordState.Ready;
                     }
-                    
-                    OnScriptsUpdated.Execute(old, @new);
                 };
                 Assembler.Setup(Element);
 
@@ -216,7 +216,9 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             _runnerState = RunnerState.Starting;
 
-            return _rootRecord.LoadScripts()
+            var rtnToken = new AsyncToken<Void>();
+            
+            _rootRecord.LoadScripts()
                 .OnSuccess(_ =>
                 {
                     Log.Warning(this, "All scripts loaded. Configuring Vines.");
@@ -247,10 +249,17 @@ namespace CreateAR.EnkluPlayer.Scripting
                                     StartRecord(_rootRecord, ScriptType.Behavior);
         
                                     _runnerState = RunnerState.Running;
+                                    rtnToken.Succeed(Void.Instance);
                                 });
                         });
                 })
-                .OnFailure(exception => { Log.Error(this, "Error starting scripts: " + exception); });
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Error starting scripts: " + exception);
+                    rtnToken.Fail(exception);
+                });
+
+            return rtnToken;
         }
         
         /// <summary>
@@ -298,7 +307,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 Assembler = _createScriptAssembler()
             };
 
-            record.Assembler.OnScriptsUpdated += (old, @new) => Element_OnScriptsUpdated(record, old, @new);
+            record.OnScriptsUpdated += Element_OnScriptsUpdated;
 
             var childCount = element.Children.Count;
             var childrenRecords = new List<ElementRecord>(element.Children.Count); 
@@ -317,17 +326,15 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             return record;
         }
-
+        
         /// <summary>
         /// Configures an ElementRecord's scripts.
         /// </summary>
-        /// <param name="record">The record to configure.</param>
         /// <param name="type">The Type of script to configure.</param>
         /// <param name="tokenContainer">The container configuration tokens will be put in.</param>
         /// <param name="recursive">Whether or not this configuration should affect descendent records or not.</param>
-        private static void ConfigureRecord(ElementRecord record, ScriptType type, List<IAsyncToken<Void>> tokenContainer, bool recursive = true)
+        private void ConfigureRecord(ElementRecord record, ScriptType type, List<IAsyncToken<Void>> tokenContainer, bool recursive = true)
         {
-            Log.Warning(record.Element, "ConfigureRecord");
             switch (type)
             {
                 case ScriptType.Vine:
@@ -591,8 +598,19 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             if (record.RecordState == RecordState.Ready && _runnerState == RunnerState.Running)
             {
-                StartRecord(record, ScriptType.Vine, false);
-                StartRecord(record, ScriptType.Behavior, false);
+                var vineTokens = new List<IAsyncToken<Void>>();
+                var behaviorTokens = new List<IAsyncToken<Void>>();
+                        
+                ConfigureRecord(record, ScriptType.Vine, vineTokens, false);
+                Async.All(vineTokens.ToArray()).OnFinally(_ =>
+                {
+                    ConfigureRecord(record, ScriptType.Vine, behaviorTokens, false);
+                    Async.All(behaviorTokens.ToArray()).OnFinally(__ =>
+                    {
+                        StartRecord(record, ScriptType.Vine, false);
+                        StartRecord(record, ScriptType.Behavior, false);
+                    });
+                });
             }
         }
 

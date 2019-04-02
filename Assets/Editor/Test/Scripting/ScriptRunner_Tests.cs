@@ -114,12 +114,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = ElementUtil.CreateElement(_scriptManager, _vines[0], _vines[1]);
             
             _scriptRunner.AddSceneRoot(widget);
-            var token = _scriptRunner.StartRunner();
 
             TestVineScript vine0 = null;
             TestVineScript vine1 = null;
             var cbCalled = 0;
-            token
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ =>
                 {
                     Assert.NotNull(vine0);
@@ -305,12 +304,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var element = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
             
             _scriptRunner.AddSceneRoot(element);
-            var token = _scriptRunner.StartRunner();
 
             TestVineScript initialVine = null;
             TestBehaviorScript behavior = null;
             var cbCalled = 0;
-            token
+            _scriptRunner.StartRunner()
                 .OnSuccess(_ =>
                 {
                     Assert.NotNull(initialVine);
@@ -333,14 +331,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             initialVine.FinishConfigure();
             Assert.AreEqual(1, cbCalled);
             
-            // Update, check to make sure nothing exits before the new one is ready.
+            // Update, check to make sure nothing enters before the new one is ready.
             // Ensure the behavior also exits/enters with the same instance.
             initialVine.EnkluScript.Updated();
             var updatedVine = _scriptFactory.GetVine(element, _vines[0]);
             Assert.AreNotSame(initialVine, updatedVine);
+            Assert.AreEqual(1, initialVine.ExitInvoked);
+            Assert.AreEqual(1, behavior.ExitInvoked);
             Assert.AreEqual(0, updatedVine.EnterInvoked);
-            Assert.AreEqual(0, initialVine.ExitInvoked);
-            Assert.AreEqual(0, behavior.ExitInvoked);
             
             updatedVine.FinishConfigure();
             Assert.AreEqual(1, initialVine.ExitInvoked);
@@ -357,22 +355,19 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Update_Behavior()
         {
-            var element = ElementUtil.CreateElement(_scriptManager, _vines[0], _behaviors[0]);
+            var element = ElementUtil.CreateElement(_scriptManager, _behaviors[0]);
             
             _scriptRunner.AddSceneRoot(element);
             var token = _scriptRunner.StartRunner();
 
-            TestVineScript vine = null;
             TestBehaviorScript initialBehavior = null;
             var cbCalled = 0;
             token
                 .OnSuccess(_ =>
                 {
-                    Assert.NotNull(vine);
+                    initialBehavior = _scriptFactory.GetBehavior(element, _behaviors[0]);
                     Assert.NotNull(initialBehavior);
-                    Assert.AreEqual(1, vine.EnterInvoked);
                     Assert.AreEqual(1, initialBehavior.EnterInvoked);
-                    Assert.AreEqual(0, vine.ExitInvoked);
                     Assert.AreEqual(0, initialBehavior.ExitInvoked);
                     cbCalled++;
                 })
@@ -380,32 +375,19 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 {
                     Assert.Fail("Failed to start runner: " + exception);
                 });
-            Assert.AreEqual(0, cbCalled);
-            
-            vine = _scriptFactory.GetVine(element, _vines[0]);
-            initialBehavior = _scriptFactory.GetBehavior(element, _behaviors[0]);
-            
-            vine.FinishConfigure();
             Assert.AreEqual(1, cbCalled);
             
             // Update, ensure the old component exits and the new component is entered.
-            // Ensure the behavior also exits/enters with the same instance.
-            vine.EnkluScript.Updated();
-            var updatedVine = _scriptFactory.GetVine(element, _vines[0]);
-            Assert.AreEqual(0, updatedVine.EnterInvoked);
-            Assert.AreEqual(0, vine.ExitInvoked);
-            Assert.AreEqual(0, initialBehavior.ExitInvoked);
-            
-            updatedVine.FinishConfigure();
-            Assert.AreEqual(1, vine.ExitInvoked);
+            initialBehavior.EnkluScript.Updated();
+            var updatedBehavior = _scriptFactory.GetBehavior(element, _behaviors[0]);
+            Assert.AreEqual(1, updatedBehavior.EnterInvoked);
+            Assert.AreEqual(1, initialBehavior.EnterInvoked);
             Assert.AreEqual(1, initialBehavior.ExitInvoked);
-            Assert.AreEqual(1, updatedVine.EnterInvoked);
-            Assert.AreEqual(2, initialBehavior.EnterInvoked);
             
+            // Make sure original still only has exited once.
             _scriptRunner.StopRunner();
-            Assert.AreEqual(1, vine.ExitInvoked);
-            Assert.AreEqual(1, updatedVine.ExitInvoked);
-            Assert.AreEqual(2, initialBehavior.ExitInvoked);
+            Assert.AreEqual(1, updatedBehavior.ExitInvoked);
+            Assert.AreEqual(1, initialBehavior.ExitInvoked);
         }
         
         #endregion
@@ -431,7 +413,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             elementA.AddChild(elementB);
             
             var behavior1 = _scriptFactory.GetBehavior(elementB, _behaviors[1]);
+            Assert.AreEqual(1, behavior0.EnterInvoked);
+            Assert.AreEqual(0, behavior0.ExitInvoked);
             Assert.AreEqual(1, behavior1.EnterInvoked);
+            
+            _scriptRunner.Update();
+            Assert.AreEqual(1, behavior0.UpdateInvoked);
+            Assert.AreEqual(1, behavior1.UpdateInvoked);
         }
 
         [Test]
