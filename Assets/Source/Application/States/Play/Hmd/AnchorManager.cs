@@ -39,6 +39,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IBootstrapper _bootstrapper;
         private readonly IMetricsService _metrics;
         private readonly IUIManager _ui;
+        private readonly IElementTxnManager _txns;
 
         /// <summary>
         /// Configuration for entire application.
@@ -119,6 +120,8 @@ namespace CreateAR.EnkluPlayer
             IBootstrapper bootstrapper,
             IMetricsService metrics,
             IUIManager ui,
+            IAnchorStore store,
+            IElementTxnManager txns,
             ApplicationConfig config)
         {
             _scenes = scenes;
@@ -126,6 +129,9 @@ namespace CreateAR.EnkluPlayer
             _metrics = metrics;
             _ui = ui;
             _config = config;
+            _txns = txns;
+
+            Store = store;
         }
         
         /// <inheritdoc />
@@ -142,7 +148,7 @@ namespace CreateAR.EnkluPlayer
             _scenes.OnSceneCreated += Scenes_OnCreated;
 
             // setup store
-            return Store.Setup();
+            return Store.Setup(_txns, _scenes);
         }
         
         /// <inheritdoc />

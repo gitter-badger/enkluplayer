@@ -21,12 +21,7 @@ namespace CreateAR.EnkluPlayer
         /// Updater.
         /// </summary>
         private readonly IElementUpdateDelegate _delegate;
-
-        /// <summary>
-        /// Manages txns.
-        /// </summary>
-        private readonly IElementTxnManager _txns;
-
+        
         /// <summary>
         /// Design controller.
         /// </summary>
@@ -42,13 +37,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public NewAnchorDesignState(
             IElementUpdateDelegate @delegate,
-            IUIManager ui,
-            IElementTxnManager txns,
-            IAnchorManager primaryAnchor)
+            IUIManager ui)
         {
             _delegate = @delegate;
             _ui = ui;
-            _txns = txns;
         }
 
         /// <inheritdoc />
@@ -121,7 +113,7 @@ namespace CreateAR.EnkluPlayer
                     anchor.GameObject.transform.rotation = Quaternion.Euler(eulerAngles.ToVector());
 
                     // export
-                    anchor.Export(_design.App.Id, _delegate.Active, _txns);
+                    anchor.Export(_design.App.Id, _delegate.Active);
 
                     token.Succeed(Void.Instance);
                 })

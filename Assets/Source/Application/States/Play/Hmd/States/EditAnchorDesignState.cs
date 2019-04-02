@@ -181,8 +181,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     _moveController.Anchor.Export(
                         _design.App.Id,
-                        _elementUpdater.Active,
-                        _txns);
+                        _elementUpdater.Active);
 
                     _design.ChangeState<MainDesignState>();
                 })
@@ -270,8 +269,7 @@ namespace CreateAR.EnkluPlayer
         {
             anchorDesignController.Anchor.Export(
                 _design.App.Id,
-                _elementUpdater.Active,
-                _txns);
+                _elementUpdater.Active);
 
             _design.ChangeState<MainDesignState>();
         }

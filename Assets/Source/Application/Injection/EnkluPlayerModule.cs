@@ -772,6 +772,11 @@ namespace CreateAR.EnkluPlayer
                 {
                     target.Filter = targetConfig.ParsedLevel;
 
+                    if (target is UnityLogTarget)
+                    {
+                        target.Filter = LogLevel.Info;
+                    }
+
                     Log.AddLogTarget(target);
                 }
             }

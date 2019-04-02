@@ -3,7 +3,6 @@ using System.Collections;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using UnityEngine;
-using Random = System.Random;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -14,11 +13,6 @@ namespace CreateAR.EnkluPlayer.IUX
     /// </summary>
     public class PassthroughAnchorStore : IAnchorStore
     {
-        /// <summary>
-        /// PRNG.
-        /// </summary>
-        private readonly Random _rand = new Random();
-
         /// <summary>
         /// For debugging.
         /// </summary>
@@ -45,31 +39,21 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
-        {
-            var token = new AsyncToken<byte[]>();
-
-            _bootstrapper.BootstrapCoroutine(Delay(
-                EXPORT_DELAY_SEC,
-                () => token.Succeed(RandomPayload())));
-
-            return token;
-        }
-
-        /// <inheritdoc />
-        public IAsyncToken<Void> Import(string id, byte[] bytes, GameObject gameObject)
+        public IAsyncToken<Void> Export(string id, int version, GameObject gameObject)
         {
             var token = new AsyncToken<Void>();
 
             _bootstrapper.BootstrapCoroutine(Delay(
-                IMPORT_DELAY_SEC,
+                EXPORT_DELAY_SEC,
                 () => token.Succeed(Void.Instance)));
 
             return token;
         }
-
+        
         /// <inheritdoc />
-        public IAsyncToken<Void> Setup()
+        public IAsyncToken<Void> Setup(
+            IElementTxnManager txns,
+            IAppSceneManager scenes)
         {
             var token = new AsyncToken<Void>();
 
@@ -104,23 +88,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <param name="secs">Seconds to delay.</param>
         /// <param name="callback">The callback to execute.</param>
         /// <returns></returns>
-        private IEnumerator Delay(int secs, Action callback)
+        private static IEnumerator Delay(int secs, Action callback)
         {
             yield return new WaitForSecondsRealtime(secs);
 
             callback();
-        }
-
-        /// <summary>
-        /// Retrieves a random payload.
-        /// </summary>
-        private byte[] RandomPayload()
-        {
-            // random 4 MB payload
-            var bytes = new byte[4 * 1000];
-            _rand.NextBytes(bytes);
-
-            return bytes;
         }
     }
 }
