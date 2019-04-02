@@ -16,20 +16,14 @@ namespace CreateAR.EnkluPlayer
         /// Creates elements.
         /// </summary>
         private readonly IElementFactory _elements;
-
+        
         /// <summary>
         /// Lookup from sceneId -> root element.
         /// </summary>
         private readonly Dictionary<string, Element> _scenes = new Dictionary<string, Element>();
-
+        
         /// <inheritdoc />
-        public string[] All
-        {
-            get
-            {
-                return _scenes.Keys.ToArray();
-            }
-        }
+        public string[] All { get; private set; }
 
         /// <inheritdoc />
         public event Action<Element> OnSceneCreated;
@@ -45,6 +39,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize(string appId, IAppDataLoader appData)
         {
+            All = appData.Scenes.ToArray();
+
             foreach (var sceneId in appData.Scenes)
             {
                 var description = appData.Scene(sceneId);

@@ -68,7 +68,7 @@ namespace CreateAR.EnkluPlayer
                 return false;
             }
 
-            if (null == Exception)
+            if (null != Exception)
             {
                 token.Fail(Exception);
             }

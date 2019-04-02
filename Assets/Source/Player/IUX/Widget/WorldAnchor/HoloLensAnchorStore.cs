@@ -130,9 +130,10 @@ namespace CreateAR.EnkluPlayer
         public void Anchor(string id, int version, GameObject gameObject)
         {
             // load from store
-            if (_store.GetAllIds().Contains(id))
+            var anchorId = $"{id}.{version}";
+            if (_store.GetAllIds().Contains(anchorId))
             {
-                var anchor = _store.Load(id, gameObject);
+                var anchor = _store.Load(anchorId, gameObject);
                 if (null == anchor)
                 {
                     Log.Error(this,
@@ -244,8 +245,15 @@ namespace CreateAR.EnkluPlayer
                 _pipelineToken = record.Saga.Start();
 
                 // chain
-                _pipelineToken.OnSuccess(record.Token.Succeed);
-                _pipelineToken.OnFailure(record.Token.Fail);
+                if (null != record.Token)
+                {
+                    _pipelineToken.OnSuccess(record.Token.Succeed);
+                    _pipelineToken.OnFailure(record.Token.Fail);
+                }
+
+                _pipelineToken
+                    .OnFailure(ex => Log.Error(this, "Anchor import failed: {0}", ex))
+                    .OnFinally(_ => ProcessPipeline());
             }
         }
 

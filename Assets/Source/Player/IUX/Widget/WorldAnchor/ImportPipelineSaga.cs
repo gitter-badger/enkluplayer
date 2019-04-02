@@ -54,11 +54,16 @@ namespace CreateAR.EnkluPlayer
         /// The GameObject to anchor.
         /// </summary>
         private readonly GameObject _gameObject;
-        
+
         /// <summary>
         /// Resolution object, set in another thread.
         /// </summary>
-        private readonly AsyncResolution<Void> _resolution = new AsyncResolution<Void>();
+        private readonly AsyncResolution<byte[]> _decompressResolution = new AsyncResolution<byte[]>();
+
+        /// <summary>
+        /// Resolution object, set in another thread.
+        /// </summary>
+        private readonly AsyncResolution<Void> _importResolution = new AsyncResolution<Void>();
 
         /// <summary>
         /// The raw anchor bytes.
@@ -141,16 +146,16 @@ namespace CreateAR.EnkluPlayer
                 yield break;
             }
 
-            Trace("Anchor downloaded. Importing.");
+            Trace("Anchor downloaded.");
 
             _bytes = request.downloadHandler.data;
-
-            // we poll for completion
-            _bootstrapper.BootstrapCoroutine(PollForCompletion());
-
+            
             if (0 == (ImportOptions.Compressed & _options))
             {
                 Trace("Starting anchor import.");
+
+                // we poll for completion
+                _bootstrapper.BootstrapCoroutine(PollForImportCompletion());
 
                 // start the import!
                 WorldAnchorTransferBatch.ImportAsync(_bytes, OnComplete);
@@ -158,46 +163,25 @@ namespace CreateAR.EnkluPlayer
             else
             {
                 // decompress first
-                Decompress(
-                    _bytes,
-                    decompressed =>
-                    {
-                        Trace("Anchor data decompressed.");
-
-                        _bytes = decompressed;
-
-                        Trace("Starting anchor import.");
-
-                        WorldAnchorTransferBatch.ImportAsync(_bytes, OnComplete);
-                    });
+                Decompress(_bytes);
             }
         }
 
         /// <summary>
-        /// Poll function that runs on the main thread.
+        /// Decompresses bytes on a separate thread, then resolves resolution
         /// </summary>
-        /// <returns></returns>
-        private IEnumerator PollForCompletion()
+        private void Decompress(byte[] bytes)
         {
-            // attempt to resolve the token
-            while (!_resolution.Apply(_token))
-            {
-                yield return null;
-            }
-        }
+            Trace("Decompressing anchor data of {0} bytes.", bytes.Length);
 
-        /// <summary>
-        /// Decompresses bytes on a separate thread, then calls the callback.
-        /// </summary>
-        /// <param name="callback">Callback to call-- will be called on a separate thread.</param>
-        private void Decompress(byte[] bytes, Action<byte[]> callback)
-        {
-            Trace("Decompressing anchor data.");
+            // start polling on main thread
+            _bootstrapper.BootstrapCoroutine(PollForDecompressionCompletion());
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             Windows.System.Threading.ThreadPool.RunAsync(context =>
             {
-                // decompress bytes
+                Trace("Decompression thread online.");
+
                 byte[] decompressed;
                 try
                 {
@@ -210,21 +194,65 @@ namespace CreateAR.EnkluPlayer
                                 deflate.CopyTo(output);
                             }
                         }
-
+                        
                         // allocate like crazy
                         decompressed = output.ToArray();
                     }
                 }
                 catch (Exception exception)
                 {
-                    _resolution.Resolve(new Exception($"Could not decompress anchor: {exception}."));
+                    Trace("Decompression error.");
 
+                    _decompressResolution.Resolve(new Exception($"Could not decompress anchor: {exception}."));
                     return;
                 }
 
-                callback(decompressed);
+                Trace("Decompressed into {0} bytes.", decompressed.Length);
+
+                _decompressResolution.Resolve(decompressed);
             });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
+
+        /// <summary>
+        /// Poll function that runs on the main thread and watches for decompression to complete.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator PollForDecompressionCompletion()
+        {
+            var token = new AsyncToken<byte[]>();
+            token
+                .OnSuccess(decompressed =>
+                {
+                    Trace("Anchor data decompressed.");
+
+                    _bytes = decompressed;
+
+                    Trace("Starting anchor import.");
+
+                    _bootstrapper.BootstrapCoroutine(PollForImportCompletion());
+
+                    WorldAnchorTransferBatch.ImportAsync(_bytes, OnComplete);
+                })
+                .OnFailure(_token.Fail);
+
+            while (!_decompressResolution.Apply(token))
+            {
+                yield return null;
+            }
+        }
+
+        /// <summary>
+        /// Poll function that runs on the main thread.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator PollForImportCompletion()
+        {
+            // attempt to resolve the token
+            while (!_importResolution.Apply(_token))
+            {
+                yield return null;
+            }
         }
 
         /// <summary>
@@ -238,37 +266,38 @@ namespace CreateAR.EnkluPlayer
             {
                 Trace("Import into transfer batch failed.");
 
-                _resolution.Resolve(new Exception("Import into transfer batch failed."));
+                _importResolution.Resolve(new Exception("Import into transfer batch failed."));
             }
             // make sure GameObject is still alive
             else if (_gameObject)
             {
                 Trace("Import into transfer batch succeeded. Attempting to lock object.");
 
-                var anchor = batch.LockObject(_id, _gameObject);
+                var anchorId = $"{_id}.{_version}";
+                var anchor = batch.LockObject(anchorId, _gameObject);
                 if (null != anchor)
                 {
                     Trace("Object locked successfully. Attempting to save in store.");
 
-                    if (_store.Save(_id, anchor))
+                    if (_store.Save(anchorId, anchor))
                     {
                         Trace("Anchor successfully saved in local anchor store.");
 
-                        _resolution.Resolve(Void.Instance);
+                        _importResolution.Resolve(Void.Instance);
                     }
                     else
                     {
-                        _resolution.Resolve(new Exception("Locked object but could not save in anchor store."));
+                        _importResolution.Resolve(new Exception("Locked object but could not save in anchor store."));
                     }
                 }
                 else
                 {
-                    _resolution.Resolve(new Exception("Import succeeded but could not lock object."));
+                    _importResolution.Resolve(new Exception("Import succeeded but could not lock object."));
                 }
             }
             else
             {
-                _resolution.Resolve(new Exception("GameObject was destroyed while importing anchor."));
+                _importResolution.Resolve(new Exception("GameObject was destroyed while importing anchor."));
             }
         }
 
@@ -277,7 +306,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Trace(string message, params object[] replacements)
         {
-            Log.Info(this, "[Anchor Id={0}] " + message, replacements);
+            Log.Info(this, "[Anchor Id=" + _id + "] " + message, replacements);
         }
     }
 }

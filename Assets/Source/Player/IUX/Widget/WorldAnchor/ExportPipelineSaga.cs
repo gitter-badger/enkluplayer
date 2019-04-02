@@ -135,7 +135,7 @@ namespace CreateAR.EnkluPlayer
             _token = new AsyncToken<Void>();
             
             // load existing anchor
-            _anchor = _store.Load(_id, _gameObject);
+            _anchor = _store.Load($"{_id}.{_version}", _gameObject);
             if (null != _anchor)
             {
                 Trace("Exporting anchor that is already part of the anchor store.");
@@ -178,11 +178,12 @@ namespace CreateAR.EnkluPlayer
             }
 
             // save locally if anchor doesn't already exist
-            if (!_store.GetAllIds().Contains(_id))
+            var anchorId = $"{_id}.{_version}";
+            if (!_store.GetAllIds().Contains(anchorId))
             {
                 Trace("Saving anchor to local store.");
 
-                if (!_store.Save(_id, _anchor))
+                if (!_store.Save(anchorId, _anchor))
                 {
                     _token.Fail(new Exception("Could not save anchor to local anchor store."));
 
