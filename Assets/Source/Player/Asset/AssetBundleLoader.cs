@@ -248,7 +248,7 @@ namespace CreateAR.EnkluPlayer.Assets
                         var sources = gameObject.GetComponentsInChildren<AudioSource>();
                         foreach (var source in sources)
                         {
-                            Object.DestroyImmediate(source, true);
+                            source.enabled = false;
                         }
                     }
                 }
