@@ -60,4 +60,4 @@ MonoBehaviour:
     - Type: 2
       DurationSeconds: 0.5
     - Type: 3
-      DurationSeconds: 2
+      DurationSeconds: 2 
