@@ -377,7 +377,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="recursive">Whether to affect descendent records or not.</param>
         private void StartRecord(ElementRecord record, ScriptType type, bool recursive = true)
         {
-            Log.Warning(this, "Starting record");
             // TODO: Make the ScriptType parameter a bitmask so both can be run together?
 
             // Invisible Elements shouldn't start by default - since their dependencies might not have loaded yet (ContentWidgets)
@@ -622,7 +621,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <exception cref="Exception"></exception>
         private void Element_OnChildRemoved(Element parent, Element prevChild)
         {
-            Log.Warning(this, "OnChildRemoved");
             var parentRecord = FindRecord(parent);
             ElementRecord prevChildRecord = null;
 
@@ -664,13 +662,11 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                     Async.All(vineTokens.ToArray()).OnSuccess(__ =>
                     {
-                        Log.Warning(this, "Vines");
                         var behaviorTokens = new List<IAsyncToken<Void>>();
                         ConfigureRecord(childRecord, ScriptType.Behavior, behaviorTokens);
 
                         Async.All(behaviorTokens.ToArray()).OnSuccess(___ =>
                         {
-                            Log.Warning(this, "Behaviours");
                             parentRecord.ChildRecords.Add(childRecord);
                         
                             StartRecord(childRecord, ScriptType.Vine);

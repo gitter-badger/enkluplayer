@@ -14,7 +14,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Dependencies.
         /// </summary>
         private readonly IAppSceneManager _sceneManager;
-        private readonly IElementManager _elementManager;
         private readonly IAppController _app;
 
         /// <summary>
@@ -34,11 +33,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptFactory scriptFactory,
             IScriptExecutorFactory scriptExecutorFactory,
             IAppSceneManager sceneManager,
-            IAppController appController,
-            IElementManager elementManager) : base(binder, messages)
+            IAppController appController) : base(binder, messages)
         {
             _sceneManager = sceneManager;
-            _elementManager = elementManager;
             _app = appController;
             
             _scriptRunner = new ScriptRunner(scriptManager, scriptFactory, scriptExecutorFactory);
@@ -69,8 +66,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             _app.OnReady -= App_OnLoad;
             _app.OnUnloaded -= App_OnUnload;
             
-            _elementManager.OnCreated -= Element_OnCreated;
-            
             _scriptRunner.StopRunner();
         }
 
@@ -97,21 +92,6 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _scriptRunner.RemoveSceneRoot(_loadedSceneRoots[i]);
             }
             _loadedSceneRoots.Clear();
-        }
-
-        /// <summary>
-        /// Invoked when a new Element has been created.
-        /// </summary>
-        /// <param name="element"></param>
-        private void Element_OnCreated(Element element)
-        {
-            Widget widget = element as Widget;
-            if (widget == null)
-            {
-                return;
-            }
-            
-            Log.Error(this, "Still working on it!");
         }
     }
 }

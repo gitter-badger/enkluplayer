@@ -7,7 +7,13 @@ namespace CreateAR.EnkluPlayer.Test
 {
     public class TestSceneManager : IAppSceneManager
     {
-        public string[] All { get; private set; }
+        private Element _root;
+        
+        public string[] All
+        {
+            get { return new[] { "test" }; }
+        }
+
         public IAsyncToken<Void> Initialize(string appId, IAppDataLoader appData)
         {
             return new AsyncToken<Void>(Void.Instance).OnFinally(_ =>
@@ -23,9 +29,15 @@ namespace CreateAR.EnkluPlayer.Test
 
         public Element Root(string sceneId)
         {
-            throw new NotImplementedException();
+            return _root;
         }
 
         public Action OnInitialized { get; set; }
+
+        // For tests - Set what will be returned from Root()
+        public void SetRoot(Element element)
+        {
+            _root = element;
+        }
     }
 }
