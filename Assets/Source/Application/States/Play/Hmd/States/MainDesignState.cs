@@ -251,7 +251,7 @@ namespace CreateAR.EnkluPlayer
         private void Voice_OnNew(string command)
         {
             if (null != _anchors.Primary
-                && WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated == _anchors.Primary.Status)
+                && WorldAnchorStatus.IsReadyLocated == _anchors.Primary.Status)
             {
                 CloseSplashMenu();
                 OpenMainMenu();

@@ -280,7 +280,7 @@ namespace CreateAR.EnkluPlayer
 
             // use the primary anchor if possible
             if (null != _anchorManager.Primary
-                && _anchorManager.Primary.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                && _anchorManager.Primary.Status == WorldAnchorStatus.IsReadyLocated)
             {
                 anchor = _anchorManager.Primary;
             }
@@ -289,7 +289,7 @@ namespace CreateAR.EnkluPlayer
             {
                 for (int i = 0, len = _anchorManager.Anchors.Count; i < len; i++)
                 {
-                    if (_anchorManager.Anchors[i].Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                    if (_anchorManager.Anchors[i].Status == WorldAnchorStatus.IsReadyLocated)
                     {
                         anchor = _anchorManager.Anchors[i];
                         break;

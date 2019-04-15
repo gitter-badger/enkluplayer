@@ -255,10 +255,12 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void OpenStatusUI()
         {
+            Log.Info(this, "Opening status UI.");
+
             _ui
                 .OpenOverlay<AnchorStatusUIView>(new UIReference
                 {
-                    UIDataId = "Anchors.Status"
+                    UIDataId = "Anchor.Status"
                 }, out _viewId)
                 .OnSuccess(el =>
                 {
@@ -275,6 +277,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void CloseStatusUI()
         {
+            Log.Info(this, "Closing status UI.");
+
             if (0 != _viewId)
             {
                 _ui.Close(_viewId);
@@ -470,7 +474,7 @@ Errors: {3} / {0}",
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
                 var anchor = _anchors[i];
-                if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                if (anchor.Status == WorldAnchorStatus.IsReadyLocated)
                 {
                     return anchor;
                 }
@@ -485,6 +489,8 @@ Errors: {3} / {0}",
         /// <param name="root">The scene.</param>
         private void Scenes_OnCreated(Element root)
         {
+            Log.Info(this, "Scene was created. Tracking anchors.");
+
             // the first scene loaded gets to dictate global props
             if (null == _anchorsEnabledProp)
             {
@@ -545,7 +551,7 @@ Errors: {3} / {0}",
         /// <param name="importing">Number of anchors currently importing.</param>
         /// <param name="notLocated">Number of anchors currently not located.</param>
         /// <param name="located">Number of located anchors.</param>
-        private static void CountAnchors(
+        private void CountAnchors(
             IList<WorldAnchorWidget> anchors,
             out int errors, out int downloading, out int importing, out int notLocated, out int located)
         {
@@ -554,32 +560,32 @@ Errors: {3} / {0}",
             importing = 0;
             notLocated = 0;
             located = 0;
-
+            
             for (int i = 0, len = anchors.Count; i < len; i++)
             {
                 switch (anchors[i].Status)
                 {
-                    case WorldAnchorWidget.WorldAnchorStatus.IsError:
+                    case WorldAnchorStatus.IsError:
                     {
                         errors += 1;
                         break;
                     }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
+                    case WorldAnchorStatus.IsLoading:
                     {
                         downloading += 1;
                         break;
                     }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
+                    case WorldAnchorStatus.IsImporting:
                     {
                         importing += 1;
                         break;
                     }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
+                    case WorldAnchorStatus.IsReadyNotLocated:
                     {
                         notLocated += 1;
                         break;
                     }
-                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
+                    case WorldAnchorStatus.IsReadyLocated:
                     {
                         located += 1;
                         break;
@@ -595,11 +601,11 @@ Errors: {3} / {0}",
         /// <returns></returns>
         private static bool ShouldPositionRelatively(WorldAnchorWidget anchor)
         {
-            return anchor.Status == WorldAnchorWidget.WorldAnchorStatus.None
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
-                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated;
+            return anchor.Status == WorldAnchorStatus.None
+                   || anchor.Status == WorldAnchorStatus.IsError
+                   || anchor.Status == WorldAnchorStatus.IsImporting
+                   || anchor.Status == WorldAnchorStatus.IsLoading
+                   || anchor.Status == WorldAnchorStatus.IsReadyNotLocated;
         }
 
         /// <summary>

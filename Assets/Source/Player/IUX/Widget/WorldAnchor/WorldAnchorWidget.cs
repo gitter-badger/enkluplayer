@@ -1,97 +1,43 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
+    public enum WorldAnchorStatus
+    {
+        None,
+        IsLoading,
+        IsImporting,
+        IsExporting,
+        IsReadyLocated,
+        IsReadyNotLocated,
+        IsError
+    }
+
     /// <summary>
     /// Widget that anchors in world space.
     /// </summary>
     public class WorldAnchorWidget : Widget
     {
-        public enum WorldAnchorStatus
-        {
-            None,
-            IsLoading,
-            IsImporting,
-            IsExporting,
-            IsReadyLocated,
-            IsReadyNotLocated,
-            IsError
-        }
-        
         /// <summary>
         /// Abstracts anchoring method.
         /// </summary>
         private readonly IAnchorStore _store;
-
-        /// <summary>
-        /// Metrics.
-        /// </summary>
-        private readonly IMetricsService _metrics;
         
         /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<int> _versionProp;
         private ElementSchemaProp<bool> _lockedProp;
-
-        /// <summary>
-        /// True iff the anchor is already imported.
-        /// </summary>
-        private bool _pollStatus;
-
-        /// <summary>
-        /// Timer whilst unlocated.
-        /// </summary>
-        private int _unlocatedTimerId = -1;
-
-        /// <summary>
-        /// Backing variable for Status.
-        /// </summary>
-        private WorldAnchorStatus _status;
-
+        
         /// <summary>
         /// Status.
         /// </summary>
         public WorldAnchorStatus Status
         {
-            get { return _status; }
-            set
-            {
-                if (value == _status)
-                {
-                    return;
-                }
-
-                var prev = _status;
-                _status = value;
-
-                if (_status == WorldAnchorStatus.IsReadyLocated)
-                {
-                    _metrics.Timer(MetricsKeys.ANCHOR_UNLOCATED).Stop(_unlocatedTimerId);
-
-                    if (null != OnLocated)
-                    {
-                        OnLocated(this);
-                    }
-
-                    UnlocatedStartTime = 0;
-                }
-                else if (prev == WorldAnchorStatus.IsReadyLocated)
-                {
-                    _unlocatedTimerId = _metrics.Timer(MetricsKeys.ANCHOR_UNLOCATED).Start();
-
-                    if (null != OnUnlocated)
-                    {
-                        OnUnlocated(this);
-                    }
-
-                    UnlocatedStartTime = Time.realtimeSinceStartup;
-                }
-            }
+            get { return _store.Status(GameObject); }
         }
         
         /// <summary>
@@ -117,12 +63,10 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IAnchorStore store,
-            IMetricsService metrics)
+            IAnchorStore store)
             : base(gameObject, layers, tweens, colors)
         {
             _store = store;
-            _metrics = metrics;
         }
 
         /// <summary>
@@ -140,9 +84,6 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <param name="sceneId">Scene anchor is in.</param>
         public void Export(string appId, string sceneId)
         {
-            _pollStatus = false;
-            Status = WorldAnchorStatus.IsExporting;
-
             _versionProp.OnChanged -= Version_OnChanged;
 
             _store
@@ -157,9 +98,7 @@ namespace CreateAR.EnkluPlayer.IUX
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-
-            Status = WorldAnchorStatus.None;
-
+            
             _versionProp = Schema.GetOwn("version", -1);
             _versionProp.OnChanged += Version_OnChanged;
 
@@ -185,32 +124,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
             }
         }
-
-        /// <inheritdoc />
-        protected override void LateUpdateInternal()
-        {
-            base.LateUpdateInternal();
-
-            if (_pollStatus)
-            {
-#if NETFX_CORE
-                var anchor = GameObject.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
-                if (null != anchor)
-                {
-                    Status = anchor.isLocated
-                        ? WorldAnchorStatus.IsReadyLocated
-                        : WorldAnchorStatus.IsReadyNotLocated;
-                }
-                else
-                {
-                    Status = WorldAnchorStatus.None;
-                }
-#else
-                Status = WorldAnchorStatus.IsReadyLocated;
-#endif
-            }
-        }
-
+        
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
@@ -241,9 +155,6 @@ namespace CreateAR.EnkluPlayer.IUX
         ]
         private void UpdateWorldAnchor()
         {
-            Status = WorldAnchorStatus.IsLoading;
-            _pollStatus = false;
-            
             var version = _versionProp.Value;
             if (0 == version)
             {

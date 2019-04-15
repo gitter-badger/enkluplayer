@@ -89,7 +89,7 @@ namespace CreateAR.EnkluPlayer
                 /// <summary>
                 /// The anchor's status.
                 /// </summary>
-                public WorldAnchorWidget.WorldAnchorStatus Status;
+                public WorldAnchorStatus Status;
                 
                 /// <summary>
                 /// The time this anchor has been unlocated.

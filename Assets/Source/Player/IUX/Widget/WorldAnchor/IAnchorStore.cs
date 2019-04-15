@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -48,5 +49,12 @@ namespace CreateAR.EnkluPlayer
         /// Clears all anchors and reloads them.
         /// </summary>
         void ClearAllAnchors();
+
+        /// <summary>
+        /// Retrieves the anchor status for a <c>GameObject</c>.
+        /// </summary>
+        /// <param name="gameObject">The object to retrieve status for.</param>
+        /// <returns></returns>
+        WorldAnchorStatus Status(GameObject gameObject);
     }
 }

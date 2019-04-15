@@ -54,32 +54,32 @@ namespace CreateAR.EnkluPlayer
 
             switch (Anchor.Status)
             {
-                case WorldAnchorWidget.WorldAnchorStatus.None:
+                case WorldAnchorStatus.None:
                 {
                     ChangeColor(Color.white);
                     return;
                 }
-                case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
+                case WorldAnchorStatus.IsLoading:
                 {
                     ChangeColor(Color.blue);
                     return;
                 }
-                case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
+                case WorldAnchorStatus.IsImporting:
                 {
                     ChangeColor(Color.magenta);
                     return;
                 }
-                case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
+                case WorldAnchorStatus.IsReadyLocated:
                 {
                     ChangeColor(Color.green);
                     return;
                 }
-                case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
+                case WorldAnchorStatus.IsReadyNotLocated:
                 {
                     ChangeColor(Color.yellow);
                     return;
                 }
-                case WorldAnchorWidget.WorldAnchorStatus.IsError:
+                case WorldAnchorStatus.IsError:
                 {
                     ChangeColor(Color.red);
                     return;

@@ -33,7 +33,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IQrReaderService _qr;
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
-        private readonly IMetricsService _metrics;
         private readonly IElementJsCache _jsCache;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
@@ -62,7 +61,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IQrReaderService qr,
             IScanLoader scanLoader,
             IScanImporter scanImporter,
-            IMetricsService metrics,
             IElementJsCache jsCache,
             ColorConfig colors,
             TweenConfig tweens,
@@ -89,7 +87,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _qr = qr;
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
-            _metrics = metrics;
             _jsCache = jsCache;
             _appConfig = appConfig;
             _elementSchemaDefaults = elementSchemaDefaults;
@@ -256,8 +253,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
-                        _store,
-                        _metrics);
+                        _store);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

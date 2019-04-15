@@ -38,9 +38,14 @@ namespace CreateAR.EnkluPlayer
         private class QueueRecord
         {
             /// <summary>
-            /// The saga to execute.
+            /// Retries.
             /// </summary>
-            public IAsyncAction Saga;
+            public int RetriesRemaining = 3;
+
+            /// <summary>
+            /// Instances.
+            /// </summary>
+            public Func<IAsyncAction> Instance;
 
             /// <summary>
             /// The token.
@@ -149,7 +154,7 @@ namespace CreateAR.EnkluPlayer
             // could not load anchor, so add a saga to import it
             _queue.Enqueue(new QueueRecord
             {
-                Saga = new ImportPipelineSaga(
+                Instance = () => new ImportPipelineSaga(
                     _bootstrapper,
                     _http,
                     _scenes,
@@ -176,6 +181,8 @@ namespace CreateAR.EnkluPlayer
             {
                 Object.Destroy(anchor);
             }
+
+            // TODO: kill anything in the queue
         }
 
         /// <inheritdoc />
@@ -185,7 +192,7 @@ namespace CreateAR.EnkluPlayer
 
             _queue.Enqueue(new QueueRecord
             {
-                Saga = new ExportPipelineSaga(
+                Instance = () => new ExportPipelineSaga(
                     _bootstrapper,
                     _http,
                     _txns,
@@ -228,6 +235,12 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <inheritdoc />
+        public WorldAnchorStatus Status(GameObject gameObject)
+        {
+            
+        }
+
         /// <summary>
         /// Starts on next thing in the pipeline if necessary.
         /// </summary>
@@ -235,6 +248,8 @@ namespace CreateAR.EnkluPlayer
         {
             if (0 == _queue.Count)
             {
+                Log.Info(this, "All anchors have been successfully imported.");
+
                 return;
             }
 
@@ -242,7 +257,7 @@ namespace CreateAR.EnkluPlayer
             {
                 var record = _queue.Dequeue();
 
-                _pipelineToken = record.Saga.Start();
+                _pipelineToken = record.Instance().Start();
 
                 // chain
                 if (null != record.Token)
@@ -252,8 +267,28 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 _pipelineToken
-                    .OnFailure(ex => Log.Error(this, "Anchor import failed: {0}", ex))
-                    .OnFinally(_ => ProcessPipeline());
+                    .OnSuccess(_ => Log.Info(this, "Anchor import success!"))
+                    .OnFailure(ex =>
+                    {
+                        if (record.RetriesRemaining-- > 0)
+                        {
+                            Log.Warning(this, "Anchor import failed: {0} -- queueing for retry.", ex);
+                            
+                            // enqueue
+                            _queue.Enqueue(record);
+
+                            return;
+                        }
+
+                        Log.Error(this, "Anchor import failed: {0}", ex);
+                    })
+                    .OnFinally(_ =>
+                    {
+                        // clear so we can import the next thing
+                        _pipelineToken = null;
+
+                        ProcessPipeline();
+                    });
             }
         }
 
