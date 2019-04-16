@@ -10,6 +10,7 @@ using CreateAR.EnkluPlayer.DataStructures;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateMultiplayerToken;
+using Enklu.Data;
 using Enklu.Mycelium.Messages;
 using Enklu.Mycelium.Messages.Experience;
 using Enklu.Mycerializer;
@@ -47,6 +48,11 @@ namespace CreateAR.EnkluPlayer
         /// Writes to streams.
         /// </summary>
         private readonly IMessageWriter _writer;
+
+        /// <summary>
+        /// Keeps track of requests that are out.
+        /// </summary>
+        private readonly Dictionary<int, Action<object>> _requestMap = new Dictionary<int, Action<object>>();
 
         /// <summary>
         /// Byte buffers.
@@ -207,13 +213,235 @@ namespace CreateAR.EnkluPlayer
                 Subscribe<UpdateElementFloatEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementStringEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementBoolEvent>(_sceneHandler.OnUpdated);
-                Subscribe<CreateElementEvent>(_sceneHandler.OnCreated);
+                Subscribe<CreateElementEvent>(evt => _sceneHandler.OnCreated(evt));
                 Subscribe<DeleteElementEvent>(_sceneHandler.OnDeleted);
                 Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
                 Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
+                Subscribe<CreateElementResponse>(OnResponse);
+                Subscribe<DeleteElementResponse>(OnResponse);
 
                 // process buffered events
                 StopQueueingMessages();
+            }
+        }
+        
+        /// <inheritdoc />
+        public void Disconnect()
+        {
+            if (null == _connect)
+            {
+                return;
+            }
+
+            StopPoll();
+
+            if (null != Tcp)
+            {
+                Tcp.OnConnectionClosed -= OnConnectionClosed;
+                try
+                {
+                    Tcp.Close();
+
+                    if (null != OnConnectionChanged)
+                    {
+                        OnConnectionChanged(false);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Debug("Socket Close thew harmless exception on disconnect: {0}", e);
+                }
+                Tcp = null;
+            }
+
+            _connect.Fail(new Exception("Disconnected."));
+            _connect = null;
+
+            // unsubscribe everything
+            _subscriptions.Clear();
+
+            // kill scene handler
+            _sceneHandler.Uninitialize();
+        }
+        
+        public IAsyncToken<Element> Create(
+            string parentId,
+            ElementData element,
+            string owner = null,
+            ElementExpirationType expiration = ElementExpirationType.Session)
+        {
+            var token = new AsyncToken<Element>();
+
+            var parentHash = _sceneHandler.ElementHash(parentId);
+            var req = new CreateElementRequest
+            {
+                ParentHash = parentHash,
+                Element = element,
+                Owner = owner,
+                Expiration = expiration
+            };
+
+            _requestMap[req.RequestId] = obj =>
+            {
+                var res = (CreateElementResponse) obj;
+                if (res.Success)
+                {
+                    // send to scene handler
+                    var newElement = _sceneHandler.OnCreated(new CreateElementEvent
+                    {
+                        Element = element,
+                        ParentHash = parentHash
+                    });
+
+                    // resolve token
+                    token.Succeed(newElement);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not create element."));
+                }
+            };
+
+            Send(req);
+            
+            return token;
+        }
+
+        public IAsyncToken<Void> Destroy(string id)
+        {
+            var token = new AsyncToken<Void>();
+
+            var req = new DeleteElementRequest
+            {
+                ElementHash = _sceneHandler.ElementHash(id)
+            };
+
+            _requestMap[req.RequestId] = obj =>
+            {
+                var res = (DeleteElementResponse) obj;
+                if (res.Success)
+                {
+                    token.Succeed(Void.Instance);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not delete element."));
+                }
+            };
+
+            Send(req);
+
+            return token;
+        }
+
+        /// <inheritdoc />
+        public void Sync(ElementSchemaProp prop)
+        {
+            Log.Warning(this, "Sync not implemented.");
+        }
+
+        /// <inheritdoc />
+        public void UnSync(ElementSchemaProp prop)
+        {
+            Log.Warning(this, "UnSync not implemented.");
+        }
+
+        /// <inheritdoc />
+        public void Own(string elementId, Action<bool> callback)
+        {
+            Log.Warning(this, "Own not implemented.");
+
+            callback(false);
+        }
+
+        /// <inheritdoc />
+        public void Forfeit(string elementId)
+        {
+            Log.Warning(this, "Forfeit not implemented.");
+        }
+
+        /// <inheritdoc />
+        public void AutoToggle(string elementId, string prop, bool value, int milliseconds)
+        {
+            // find element to apply to
+            var element = _elements.ById(elementId);
+            if (null == element)
+            {
+                Log.Warning(this, "Could not find element by id {0} to autotoggle.", elementId);
+                return;
+            }
+
+            // set prop locally
+            element.Schema.Set(prop, value);
+
+            // set a timer to flip back
+            _bootstrapper.BootstrapCoroutine(Wait(
+                milliseconds / 1000f,
+                () => element.Schema.Set(prop, !value)));
+
+            if (null == Tcp)
+            {
+                return;
+            }
+
+            // try to send a request
+            if (Tcp.IsConnected)
+            {
+                // we need the hash to send a request
+                var hash = _sceneHandler.ElementHash(elementId);
+
+                // no hash found
+                if (0 == hash)
+                {
+                    Log.Warning(this, "Cound not find hash for element '{0}'.", elementId);
+                }
+                // hash found, send request
+                else
+                {
+                    Send(new AutoToggleEvent
+                    {
+                        ElementHash = hash,
+                        PropName = prop,
+                        Milliseconds = milliseconds,
+                        StartingValue = value
+                    });
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public void HandleSocketMessage(ArraySegment<byte> bytes)
+        {
+            var stream = new ByteStream(bytes.Array, bytes.Offset);
+
+            // read type
+            var id = stream.ReadUnsignedShort();
+            Type type;
+            try
+            {
+                type = MyceliumMessagesMap.Get(id);
+            }
+            catch
+            {
+                Log.Error(this, "Unknown message type {0}.", id);
+                return;
+            }
+
+            object message;
+            try
+            {
+                message = _reader.Read(type, stream);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not read from stream: {0}.", exception);
+                return;
+            }
+
+            // push to main thread
+            lock (_synchronizationBuffer)
+            {
+                _synchronizationBuffer.Add(message);
             }
         }
 
@@ -290,45 +518,6 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
-        /// <inheritdoc />
-        public void Disconnect()
-        {
-            if (null == _connect)
-            {
-                return;
-            }
-
-            StopPoll();
-
-            if (null != Tcp)
-            {
-                Tcp.OnConnectionClosed -= OnConnectionClosed;
-                try
-                {
-                    Tcp.Close();
-
-                    if (null != OnConnectionChanged)
-                    {
-                        OnConnectionChanged(false);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.Debug("Socket Close thew harmless exception on disconnect: {0}", e);
-                }
-                Tcp = null;
-            }
-
-            _connect.Fail(new Exception("Disconnected."));
-            _connect = null;
-
-            // unsubscribe everything
-            _subscriptions.Clear();
-
-            // kill scene handler
-            _sceneHandler.Uninitialize();
-        }
-
         /// <summary>
         /// When the application resumes, we always assume a disconnected state and reconnect.
         /// </summary>
@@ -338,118 +527,27 @@ namespace CreateAR.EnkluPlayer
 
             _needsReconnect = true;
         }
-
-        /// <inheritdoc />
-        public void Sync(ElementSchemaProp prop)
+        
+        /// <summary>
+        /// Called when a delete response is received.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        private void OnResponse(RoomResponse response)
         {
-            Log.Warning(this, "Sync not implemented.");
-        }
-
-        /// <inheritdoc />
-        public void UnSync(ElementSchemaProp prop)
-        {
-            Log.Warning(this, "UnSync not implemented.");
-        }
-
-        /// <inheritdoc />
-        public void Own(string elementId, Action<bool> callback)
-        {
-            Log.Warning(this, "Own not implemented.");
-
-            callback(false);
-        }
-
-        /// <inheritdoc />
-        public void Forfeit(string elementId)
-        {
-            Log.Warning(this, "Forfeit not implemented.");
-        }
-
-        /// <inheritdoc />
-        public void AutoToggle(string elementId, string prop, bool value, int milliseconds)
-        {
-            // find element to apply to
-            var element = _elements.ById(elementId);
-            if (null == element)
+            Action<object> callback;
+            if (!_requestMap.TryGetValue(response.RequestId, out callback))
             {
-                Log.Warning(this, "Could not find element by id {0} to autotoggle.", elementId);
+                Log.Warning(this, "Received a {0} for an unknown request id: {1}.",
+                    response.GetType().Name,
+                    response.RequestId);
                 return;
             }
 
-            // set prop locally
-            element.Schema.Set(prop, value);
+            _requestMap.Remove(response.RequestId);
 
-            // set a timer to flip back
-            _bootstrapper.BootstrapCoroutine(Wait(
-                milliseconds / 1000f,
-                () => element.Schema.Set(prop, !value)));
-            
-            if (null == Tcp)
-            {
-                return;
-            }
-
-            // try to send a request
-            if (Tcp.IsConnected)
-            {
-                // we need the hash to send a request
-                var hash = _sceneHandler.ElementHash(elementId);
-                
-                // no hash found
-                if (0 == hash)
-                {
-                    Log.Warning(this, "Cound not find hash for element '{0}'.", elementId);
-                }
-                // hash found, send request
-                else
-                {
-                    Send(new AutoToggleEvent
-                    {
-                        ElementHash = hash,
-                        PropName = prop,
-                        Milliseconds = milliseconds,
-                        StartingValue = value
-                    });
-                }
-            }
+            callback(response);
         }
-
-        /// <inheritdoc />
-        public void HandleSocketMessage(ArraySegment<byte> bytes)
-        {
-            var stream = new ByteStream(bytes.Array, bytes.Offset);
-
-            // read type
-            var id = stream.ReadUnsignedShort();
-            Type type;
-            try
-            {
-                type = MyceliumMessagesMap.Get(id);
-            }
-            catch
-            {
-                Log.Error(this, "Unknown message type {0}.", id);
-                return;
-            }
-
-            object message;
-            try
-            {
-                message = _reader.Read(type, stream);
-            }
-            catch (Exception exception)
-            {
-                Log.Error(this, "Could not read from stream: {0}.", exception);
-                return;
-            }
-
-            // push to main thread
-            lock (_synchronizationBuffer)
-            {
-                _synchronizationBuffer.Add(message);
-            }
-        }
-
+        
         /// <summary>
         /// Subscribes to a message.
         /// </summary>

@@ -1,6 +1,8 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using Enklu.Mycelium.Messages.Experience;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -43,6 +45,26 @@ namespace CreateAR.EnkluPlayer
         /// Disconnects from the multiplayer server.
         /// </summary>
         void Disconnect();
+
+        /// <summary>
+        /// Creates an element.
+        /// </summary>
+        /// <param name="parentId"></param>
+        /// <param name="element"></param>
+        /// <param name="expiration"></param>
+        /// <param name="owner"></param>
+        IAsyncToken<Element> Create(
+            string parentId,
+            ElementData element,
+            string owner = null,
+            ElementExpirationType expiration = ElementExpirationType.Session);
+
+        /// <summary>
+        /// Deletes an element.
+        /// </summary>
+        /// <param name="id">The id of the element.</param>
+        /// <returns></returns>
+        IAsyncToken<Void> Destroy(string id);
 
         /// <summary>
         /// Toggles a prop on an element and sets a timer for flipping back.

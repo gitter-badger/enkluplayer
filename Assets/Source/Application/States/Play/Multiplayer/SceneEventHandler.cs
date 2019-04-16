@@ -160,7 +160,7 @@ namespace CreateAR.EnkluPlayer
         /// Processes a <c>CreateElementEvent</c>.
         /// </summary>
         /// <param name="evt">The event.</param>
-        public void OnCreated(CreateElementEvent evt)
+        public Element OnCreated(CreateElementEvent evt)
         {
             Verbose("OnCreated({0})", JsonConvert.SerializeObject(evt));
 
@@ -170,12 +170,13 @@ namespace CreateAR.EnkluPlayer
             if (null == parent)
             {
                 Log.Warning(this, "Could not find parent to create element under: {0}.", evt.ParentHash);
-                return;
+                return null;
             }
 
+            Element element;
             try
             {
-                _elementFactory.Element(new ElementDescription
+                element = _elementFactory.Element(new ElementDescription
                 {
                     Elements = new[] {evt.Element},
                     Root = new ElementRef
@@ -187,7 +188,12 @@ namespace CreateAR.EnkluPlayer
             catch (Exception exception)
             {
                 Log.Error(this, "Could not create element: {0}", exception);
+
+                return null;
             }
+
+            parent.AddChild(element);
+            return element;
         }
 
         /// <summary>
