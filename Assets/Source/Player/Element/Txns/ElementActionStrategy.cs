@@ -2,9 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
-using Newtonsoft.Json;
-using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
-using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -380,7 +377,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging method.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

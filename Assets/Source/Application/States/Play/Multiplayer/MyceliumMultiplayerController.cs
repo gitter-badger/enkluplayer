@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -99,11 +98,6 @@ namespace CreateAR.EnkluPlayer
         private int _eventExecutionBufferLen;
 
         /// <summary>
-        /// The underlying TCP connection.
-        /// </summary>
-        private ITcpConnection _tcp;
-
-        /// <summary>
         /// Internal connection token.
         /// </summary>
         private AsyncToken<Void> _connect;
@@ -131,7 +125,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public bool IsConnected
         {
-            get { return null != _tcp && _tcp.IsConnected; }
+            get { return null != Tcp && Tcp.IsConnected; }
         }
 
         /// <inheritdoc />
@@ -140,10 +134,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Retrieves the underlying tcp connection.
         /// </summary>
-        public ITcpConnection Tcp
-        {
-            get { return _tcp; }
-        }
+        public ITcpConnection Tcp { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -151,6 +142,7 @@ namespace CreateAR.EnkluPlayer
         public MyceliumMultiplayerController(
             IBootstrapper bootstrapper,
             IElementManager elements,
+            IElementFactory elementFactory,
             IAppSceneManager scenes,
             IElementActionStrategyFactory patcherFactory,
             ITcpConnectionFactory connections,
@@ -171,6 +163,7 @@ namespace CreateAR.EnkluPlayer
 
             _sceneHandler = new SceneEventHandler(
                 _elements,
+                elementFactory,
                 new ScenePatcher(scenes, patcherFactory));
         }
 
@@ -214,6 +207,8 @@ namespace CreateAR.EnkluPlayer
                 Subscribe<UpdateElementFloatEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementStringEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementBoolEvent>(_sceneHandler.OnUpdated);
+                Subscribe<CreateElementEvent>(_sceneHandler.OnCreated);
+                Subscribe<DeleteElementEvent>(_sceneHandler.OnDeleted);
                 Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
                 Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
 
@@ -252,13 +247,13 @@ namespace CreateAR.EnkluPlayer
             }
 
             // Cleanup Tcp Connection
-            if (null != _tcp)
+            if (null != Tcp)
             {
                 // Remove listener and explicit
-                _tcp.OnConnectionClosed -= OnConnectionClosed;
+                Tcp.OnConnectionClosed -= OnConnectionClosed;
                 try
                 {
-                    _tcp.Close();
+                    Tcp.Close();
                 }
                 catch (Exception e)
                 {
@@ -267,7 +262,7 @@ namespace CreateAR.EnkluPlayer
                     Verbose("Caught exception during force close on TcpConnection: {0}", e);
                 }
 
-                _tcp = null;
+                Tcp = null;
             }
 
             if (null != _connect)
@@ -305,12 +300,12 @@ namespace CreateAR.EnkluPlayer
 
             StopPoll();
 
-            if (null != _tcp)
+            if (null != Tcp)
             {
-                _tcp.OnConnectionClosed -= OnConnectionClosed;
+                Tcp.OnConnectionClosed -= OnConnectionClosed;
                 try
                 {
-                    _tcp.Close();
+                    Tcp.Close();
 
                     if (null != OnConnectionChanged)
                     {
@@ -321,7 +316,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     Log.Debug("Socket Close thew harmless exception on disconnect: {0}", e);
                 }
-                _tcp = null;
+                Tcp = null;
             }
 
             _connect.Fail(new Exception("Disconnected."));
@@ -389,13 +384,13 @@ namespace CreateAR.EnkluPlayer
                 milliseconds / 1000f,
                 () => element.Schema.Set(prop, !value)));
             
-            if (null == _tcp)
+            if (null == Tcp)
             {
                 return;
             }
 
             // try to send a request
-            if (_tcp.IsConnected)
+            if (Tcp.IsConnected)
             {
                 // we need the hash to send a request
                 var hash = _sceneHandler.ElementHash(elementId);
@@ -532,8 +527,8 @@ namespace CreateAR.EnkluPlayer
                 _config.Network.Environment.MyceliumIp,
                 _config.Network.Environment.MyceliumPort);
 
-            _tcp = _connections.Connection(this);
-            if (_tcp.Connect(
+            Tcp = _connections.Connection(this);
+            if (Tcp.Connect(
                 _config.Network.Environment.MyceliumIp,
                 _config.Network.Environment.MyceliumPort))
             {
@@ -544,7 +539,7 @@ namespace CreateAR.EnkluPlayer
                     OnConnectionChanged(true);
                 }
 
-                _tcp.OnConnectionClosed += OnConnectionClosed;
+                Tcp.OnConnectionClosed += OnConnectionClosed;
 
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
@@ -782,7 +777,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="message">The message to send.</param>
         private void Send(object message)
         {
-            if (null == _tcp || !_tcp.IsConnected)
+            if (null == Tcp || !Tcp.IsConnected)
             {
                 return;
             }
@@ -813,7 +808,7 @@ namespace CreateAR.EnkluPlayer
 
                 Verbose("Wrote {0} bytes.", stream.WriterIndex);
 
-                _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
+                Tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
             }
             finally
             {

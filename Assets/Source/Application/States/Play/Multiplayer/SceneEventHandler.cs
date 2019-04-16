@@ -19,6 +19,7 @@ namespace CreateAR.EnkluPlayer
         /// Dependencies.
         /// </summary>
         private readonly IElementManager _elements;
+        private readonly IElementFactory _elementFactory;
         private readonly ScenePatcher _scenePatcher;
 
         /// <summary>
@@ -63,9 +64,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SceneEventHandler(IElementManager elements, ScenePatcher scenePatcher)
+        public SceneEventHandler(
+            IElementManager elements,
+            IElementFactory elementFactory,
+            ScenePatcher scenePatcher)
         {
             _elements = elements;
+            _elementFactory = elementFactory;
             _scenePatcher = scenePatcher;
         }
 
@@ -150,20 +155,58 @@ namespace CreateAR.EnkluPlayer
             Map = evt.Map;
             _scenePatcher.Apply(Expand(evt.ToActions()));
         }
-
+        
         /// <summary>
-        /// Applies the hashing to the elementId and key.
+        /// Processes a <c>CreateElementEvent</c>.
         /// </summary>
-        private List<ElementActionData> Expand(List<ElementActionData> actions)
+        /// <param name="evt">The event.</param>
+        public void OnCreated(CreateElementEvent evt)
         {
-            for (int i = 0; i < actions.Count; ++i)
+            Verbose("OnCreated({0})", JsonConvert.SerializeObject(evt));
+
+            // find parent
+            var parentId = ElementId(evt.ParentHash);
+            var parent = ById(parentId);
+            if (null == parent)
             {
-                var action = actions[i];
-                action.ElementId = ElementId(action.ElementHash);
-                action.Key = PropName(action.KeyHash);
+                Log.Warning(this, "Could not find parent to create element under: {0}.", evt.ParentHash);
+                return;
             }
 
-            return actions;
+            try
+            {
+                _elementFactory.Element(new ElementDescription
+                {
+                    Elements = new[] {evt.Element},
+                    Root = new ElementRef
+                    {
+                        Id = evt.Element.Id
+                    }
+                });
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not create element: {0}", exception);
+            }
+        }
+
+        /// <summary>
+        /// Processes a <c>DeleteElementEvent</c>.
+        /// </summary>
+        /// <param name="evt">The event.</param>
+        public void OnDeleted(DeleteElementEvent evt)
+        {
+            Verbose("OnDeleted({0})", JsonConvert.SerializeObject(evt));
+
+            var elementId = ElementId(evt.ElementHash);
+            var element = ById(elementId);
+            if (null == element)
+            {
+                Log.Warning(this, "Could not find element to delete: {0}.", evt.ElementHash);
+                return;
+            }
+
+            element.Destroy();
         }
 
         /// <summary>
@@ -251,6 +294,21 @@ namespace CreateAR.EnkluPlayer
             Log.Debug(this, "Map updated: Next map : {0}", Map);
 
             BuildMapUpdate();
+        }
+
+        /// <summary>
+        /// Applies the hashing to the elementId and key.
+        /// </summary>
+        private List<ElementActionData> Expand(List<ElementActionData> actions)
+        {
+            for (int i = 0; i < actions.Count; ++i)
+            {
+                var action = actions[i];
+                action.ElementId = ElementId(action.ElementHash);
+                action.Key = PropName(action.KeyHash);
+            }
+
+            return actions;
         }
 
         /// <summary>

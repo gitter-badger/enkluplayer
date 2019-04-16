@@ -1,7 +1,6 @@
 ﻿using System;
 using CreateAR.EnkluPlayer.IUX;
 using Enklu.Data;
-using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
 
 namespace CreateAR.EnkluPlayer.Test.UI
 {
