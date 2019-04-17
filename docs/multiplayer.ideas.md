@@ -72,11 +72,11 @@ function onFoo() {
 		.name('This is my name.')
 
 		// set prop values
-		.vec('position', vec3(0, 1, 0))
-		.bool('visible', false);
-		.string('menu-name', 'I am in my element.')
-		.col4('menu-color', col4(1, 0, 0, 1))
-		.float('foo', 1.2);
+		.setVec('position', vec3(0, 1, 0))
+		.setBool('visible', false);
+		.setString('menu-name', 'I am in my element.')
+		.setCol('menu-color', col4(1, 0, 0, 1))
+		.setFloat('foo', 1.2);
 	
 	// use the builder to atomically build the element
 	builder.build(function(error, el) {
