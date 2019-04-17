@@ -348,9 +348,18 @@ namespace CreateAR.EnkluPlayer
 
             //  populate prop lookup
             var props = _map.Props;
-            len = props.Length;
+            var max = 0;
+            for (var i = 0; i < props.Length; i++)
+            {
+                var value = props[i].Hash;
+                if (value > max)
+                {
+                    max = value;
+                }
+            }
 
-            _propLookup = new string[len + 1];
+            len = props.Length;
+            _propLookup = new string[max + 1];
             for (var i = 0; i < len; i++)
             {
                 var record = props[i];
