@@ -30,12 +30,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// The associated element.
         /// </summary>
         private readonly Element _element;
-
-        /// <summary>
-        /// List of props that we are synchronizing.
-        /// </summary>
-        private readonly List<ElementSchemaProp> _synchronizedProps = new List<ElementSchemaProp>();
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -86,16 +81,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 var prop = props[i];
                 if (prop.Name == name)
                 {
-                    if (_synchronizedProps.Contains(prop))
-                    {
-                        // we may already be synchronizing this prop
-                        return;
-                    }
-
-                    // keep track of what we are synchronizing
-                    _synchronizedProps.Add(prop);
-
-                    _multiplayer.Sync(prop);
+                    _multiplayer.Sync(_element.Id, prop);
 
                     return;
                 }
@@ -106,21 +92,19 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public void unsync(string name)
         {
-            for (int i = 0, len = _synchronizedProps.Count; i < len; i++)
+            var props = _element.Schema.GetOwnProps();
+            for (int i = 0, len = props.Count; i < len; i++)
             {
-                var prop = _synchronizedProps[i];
+                var prop = props[i];
                 if (prop.Name == name)
                 {
-                    // remove fromm the list
-                    _synchronizedProps.RemoveAt(i);
-
-                    _multiplayer.UnSync(prop);
+                    _multiplayer.UnSync(_element.Id, prop);
 
                     return;
                 }
             }
 
-            Log.Warning(this, "Could not unsynchronize prop '{0}' because we were not synchronizing it.", name);
+            Log.Warning(this, "Could not unsynchronize prop '{0}' because the prop doesn't exist on the element.", name);
         }
         
         public ElementBuilderJs builder(ElementJs parent)

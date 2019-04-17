@@ -50,6 +50,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IMessageWriter _writer;
 
         /// <summary>
+        /// Synchronizes props.
+        /// </summary>
+        private readonly PropSynchronizer _synchronizer;
+
+        /// <summary>
         /// Keeps track of requests that are out.
         /// </summary>
         private readonly Dictionary<int, Action<object>> _requestMap = new Dictionary<int, Action<object>>();
@@ -91,7 +96,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// True iff we are queueing rather than dispatching to subscriptions.
         /// </summary>
-        private bool _isQueueingMessages = false;
+        private bool _isQueueingMessages;
 
         /// <summary>
         /// The main thread copies events into this buffer from _eventWaitBuffer.
@@ -121,12 +126,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Flag whether or not the connection has been closed.
         /// </summary>
-        private bool _needsReconnect = false;
+        private bool _needsReconnect;
 
         /// <summary>
         /// Flag to denote we're either reconnecting or waiting to reconnect.
         /// </summary>
-        private bool _isReconnecting = false;
+        private bool _isReconnecting;
 
         /// <summary>
         /// True iff we are logged in successfully.
@@ -176,6 +181,12 @@ namespace CreateAR.EnkluPlayer
                 _elements,
                 elementFactory,
                 new ScenePatcher(scenes, patcherFactory));
+            _synchronizer = new PropSynchronizer(msg =>
+            {
+                Log.Info(this, "Sending {0}.", msg);
+
+                Send(msg);
+            });
         }
 
         /// <inheritdoc />
@@ -268,7 +279,8 @@ namespace CreateAR.EnkluPlayer
             // kill scene handler
             _sceneHandler.Uninitialize();
         }
-        
+
+        /// <inheritdoc />
         public IAsyncToken<Element> Create(
             string parentId,
             ElementData element,
@@ -277,7 +289,7 @@ namespace CreateAR.EnkluPlayer
         {
             var token = new AsyncToken<Element>();
 
-            var parentHash = _sceneHandler.ElementHash(parentId);
+            var parentHash = _sceneHandler.Map.ElementHash(parentId);
             var req = new CreateElementRequest
             {
                 ParentHash = parentHash,
@@ -312,13 +324,14 @@ namespace CreateAR.EnkluPlayer
             return token;
         }
 
+        /// <inheritdoc />
         public IAsyncToken<Void> Destroy(string id)
         {
             var token = new AsyncToken<Void>();
 
             var req = new DeleteElementRequest
             {
-                ElementHash = _sceneHandler.ElementHash(id)
+                ElementHash = _sceneHandler.Map.ElementHash(id)
             };
 
             _requestMap[req.RequestId] = obj =>
@@ -340,15 +353,18 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public void Sync(ElementSchemaProp prop)
+        public void Sync(string elementId, ElementSchemaProp prop)
         {
-            Log.Warning(this, "Sync not implemented.");
+            _synchronizer.Track(
+                _sceneHandler.Map.ElementHash(elementId),
+                _sceneHandler.Map.PropHash(prop.Name),
+                prop);
         }
 
         /// <inheritdoc />
-        public void UnSync(ElementSchemaProp prop)
+        public void UnSync(string elementId, ElementSchemaProp prop)
         {
-            Log.Warning(this, "UnSync not implemented.");
+            _synchronizer.Untrack(prop);
         }
 
         /// <inheritdoc />
@@ -393,7 +409,7 @@ namespace CreateAR.EnkluPlayer
             if (Tcp.IsConnected)
             {
                 // we need the hash to send a request
-                var hash = _sceneHandler.ElementHash(elementId);
+                var hash = _sceneHandler.Map.ElementHash(elementId);
 
                 // no hash found
                 if (0 == hash)

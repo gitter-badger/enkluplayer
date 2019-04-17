@@ -83,6 +83,9 @@ namespace CreateAR.EnkluPlayer
 
             _scenePatcher.Initialize();
             _elementHeap.Clear();
+
+            // create a default value
+            _map = new ElementMap();
         }
 
         /// <summary>
@@ -111,25 +114,6 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Retrieves the element hash from the id.
-        /// </summary>
-        /// <param name="elementId">The element id.</param>
-        /// <returns></returns>
-        public ushort ElementHash(string elementId)
-        {
-            for (int i = 0, len = _elementLookup.Length; i < len; i++)
-            {
-                var id = _elementLookup[i];
-                if (id == elementId)
-                {
-                    return (ushort) i;
-                }
-            }
-
-            return 0;
-        }
-
-        /// <summary>
         /// Retrieves a prop name from hash.
         /// </summary>
         /// <param name="hash">The hash.</param>
@@ -143,7 +127,7 @@ namespace CreateAR.EnkluPlayer
 
             return string.Empty;
         }
-
+        
         /// <summary>
         /// Applies a diff to the scene.
         /// </summary>

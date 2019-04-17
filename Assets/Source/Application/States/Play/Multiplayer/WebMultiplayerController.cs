@@ -138,13 +138,13 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public void Sync(ElementSchemaProp prop)
+        public void Sync(string elementId, ElementSchemaProp prop)
         {
             // 
         }
 
         /// <inheritdoc />
-        public void UnSync(ElementSchemaProp prop)
+        public void UnSync(string elementId, ElementSchemaProp prop)
         {
             // 
         }

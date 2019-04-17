@@ -75,9 +75,9 @@ namespace CreateAR.EnkluPlayer
         /// <param name="milliseconds">The number of milliseconds to wait before revert.</param>
         void AutoToggle(string elementId, string prop, bool value, int milliseconds);
 
-        void Sync(ElementSchemaProp prop);
+        void Sync(string elementId, ElementSchemaProp prop);
 
-        void UnSync(ElementSchemaProp prop);
+        void UnSync(string elementId, ElementSchemaProp prop);
 
         void Own(string elementId, Action<bool> callback);
 
