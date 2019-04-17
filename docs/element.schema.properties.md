@@ -111,7 +111,7 @@ Inherits all `Button` properties.
 | header.padding  | int    | 0       | The distance between the header and the menu options.        | Yes     |
 | showBackButton  | bool   | false   | If true, shows a back button to the left of the menu header. | Yes     |
 | divider.offset  | float  | 0       | Offsets the divider between header and menu options.         | Yes     |
-| divider.visible | bool   | true    | If true, shows a divider between header and menu options.    | Yes     |
+| divider.visible | bool   | false   | If true, shows a divider between header and menu options.    | Yes     |
 | page.size       | int    | 4       | How many options are visible on a single page.               |         |
 
 #### SubMenu
