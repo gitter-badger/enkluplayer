@@ -12,19 +12,9 @@ namespace CreateAR.EnkluPlayer.Scripting
     public class MultiplayerContextJs
     {
         /// <summary>
-        /// Caches js wrappers.
-        /// </summary>
-        private readonly IElementJsCache _elements;
-
-        /// <summary>
         /// Controls multiplayer.
         /// </summary>
         private readonly IMultiplayerController _multiplayer;
-
-        /// <summary>
-        /// Application wide configuration.
-        /// </summary>
-        private readonly ApplicationConfig _config;
 
         /// <summary>
         /// The associated element.
@@ -36,13 +26,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public MultiplayerContextJs(
             IMultiplayerController multiplayer,
-            IElementJsCache elements,
-            ApplicationConfig config,
             Element element)
         {
-            _elements = elements;
             _multiplayer = multiplayer;
-            _config = config;
             _element = element;
         }
 
@@ -105,15 +91,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             Log.Warning(this, "Could not unsynchronize prop '{0}' because the prop doesn't exist on the element.", name);
-        }
-        
-        public ElementBuilderJs builder(ElementJs parent)
-        {
-            return new ElementBuilderJs(
-                _multiplayer,
-                _elements,
-                _config.Network.Credentials.UserId,
-                parent.id);
         }
     }
 }

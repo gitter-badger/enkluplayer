@@ -76,8 +76,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 context = _contexts[element.id] = new MultiplayerContextJs(
                     _multiplayer,
-                    _elements,
-                    _config,
                     element.Element);
             }
 
@@ -87,6 +85,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void onConnectionChange(IJsCallback cb)
         {
             _multiplayer.OnConnectionChanged += connected => cb.Apply(this, connected);
+        }
+        
+        public ElementBuilderJs builder(ElementJs parent)
+        {
+            return new ElementBuilderJs(
+                _multiplayer,
+                _elements,
+                _config.Network.Credentials.UserId,
+                parent.id);
         }
     }
 }
