@@ -355,10 +355,26 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Sync(string elementId, ElementSchemaProp prop)
         {
-            _synchronizer.Track(
-                _sceneHandler.Map.ElementHash(elementId),
-                _sceneHandler.Map.PropHash(prop.Name),
-                prop);
+            var elementHash = _sceneHandler.Map.ElementHash(elementId);
+            var propHash = _sceneHandler.Map.PropHash(prop.Name);
+
+            if (elementHash <= 0)
+            {
+                Log.Warning(this,
+                    "Cannot sync prop: element hash could not be found for element {0}.",
+                    elementId);
+                return;
+            }
+
+            if (propHash <= 0)
+            {
+                Log.Warning(this,
+                    "Cannot sync prop: prop hash could not be found for prop {0}.",
+                    prop.Name);
+                return;
+            }
+
+            _synchronizer.Track(elementHash, propHash, prop);
         }
 
         /// <inheritdoc />
