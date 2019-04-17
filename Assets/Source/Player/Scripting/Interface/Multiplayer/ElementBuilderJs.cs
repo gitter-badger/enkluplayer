@@ -29,7 +29,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private readonly ElementData _element = new ElementData
         {
-            Id = Guid.NewGuid().ToString()
+            Id = Guid.NewGuid().ToString(),
+            Type = ElementTypes.CONTENT
         };
 
         /// <summary>
@@ -41,6 +42,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Type of expiration.
         /// </summary>
         private ElementExpirationType _expiration = ElementExpirationType.Session;
+
+        public readonly ElementTypes elementTypes = new ElementTypes();
 
         /// <summary>
         /// Constructor.
@@ -75,6 +78,13 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                     callback.Apply(this, ex.Message);
                 });
+        }
+
+        public ElementBuilderJs type(int type)
+        {
+            _element.Type = type;
+
+            return this;
         }
 
         public ElementBuilderJs asset(ElementJs element)
