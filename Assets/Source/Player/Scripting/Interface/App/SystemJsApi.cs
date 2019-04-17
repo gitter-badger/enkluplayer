@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
@@ -19,7 +20,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Guard to make sure this isn't configured twice.
         /// </summary>
-        private static bool _initialized;
+        private static bool _Initialized;
 
         /// <summary>
         /// Initializes the object with everything is needs.
@@ -30,22 +31,23 @@ namespace CreateAR.EnkluPlayer.Scripting
             IVideoCapture videoCapture,
             IMessageRouter msgRouter,
             IAppSceneManager sceneManager,
+            IBootstrapper bootstrapper,
             AwsPingController awsPingController,
             ApiController apiController,
             ApplicationConfig config)
         {
-            if (_initialized)
+            if (_Initialized)
             {
                 throw new Exception("Dependencies already set!");
             }
             
             Instance.device = new DeviceJsApi(deviceMetaProvider, imageCapture, videoCapture);
-            Instance.experiences = new ExperienceJsApi(msgRouter, apiController, config);
+            Instance.experiences = new ExperienceJsApi(msgRouter, bootstrapper, apiController, config);
             Instance.network = new NetworkJsApi(awsPingController);
             Instance.debugRendering = new DebugRenderingJsApi();
             Instance._sceneManager = sceneManager;
 
-            _initialized = true;
+            _Initialized = true;
         }
 
         /// <summary>

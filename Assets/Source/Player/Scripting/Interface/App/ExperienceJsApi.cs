@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
+using Enklu.Orchid;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -28,6 +32,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
+        private readonly IBootstrapper _bootstrapper;
         private readonly ApiController _api;
         private readonly ApplicationConfig _config;
 
@@ -41,10 +46,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public ExperienceJsApi(
             IMessageRouter messages,
+            IBootstrapper bootstrapper,
             ApiController api,
             ApplicationConfig config)
         {
             _messages = messages;
+            _bootstrapper = bootstrapper;
             _api = api;
             _config = config;
         }
@@ -52,7 +59,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Refreshes list of experiences.
         /// </summary>
-        public void refresh(Action<string> callback)
+        public void refresh(IJsCallback callback)
         {
             _api
                 .Apps
@@ -73,14 +80,14 @@ namespace CreateAR.EnkluPlayer.Scripting
                             })
                             .ToArray();
 
-                        callback(null);
+                        callback.Invoke();
                     }
                     else
                     {
-                        callback(response.Payload.Error);
+                        callback.Invoke(response.Payload.Error);
                     }
                 })
-                .OnFailure(ex => callback(ex.Message)); 
+                .OnFailure(ex => callback.Invoke(ex.Message)); 
         }
 
         /// <summary>
@@ -149,6 +156,40 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
+        /// Plays an experience for a specified number of seconds, at which
+        /// point, the current experience is reloaded.
+        /// </summary>
+        /// <param name="id">The id of the experience.</param>
+        /// <param name="seconds">The number of seconds to wait before returning.</param>
+        public void playTimed(string id, float seconds)
+        {
+            if (null == byId(id))
+            {
+                Log.Warning(this, "Unknown experience id '{0}'.", id);
+                return;
+            }
+
+            var currentId = _config.Play.AppId;
+            var currentEdit = _config.Play.Edit;
+            
+            // play first
+            play(id);
+
+            // then add a timer for reloading
+            _bootstrapper.BootstrapCoroutine(Wait(seconds, () =>
+            {
+                if (currentEdit)
+                {
+                    edit(currentId);
+                }
+                else
+                {
+                    play(currentId);
+                }
+            }));
+        }
+        
+        /// <summary>
         /// Plays the experience in edit mode.
         /// </summary>
         /// <param name="id">The id of the experience.</param>
@@ -164,6 +205,19 @@ namespace CreateAR.EnkluPlayer.Scripting
             _config.Play.AppId = id;
 
             _messages.Publish(MessageTypes.PLAY);
+        }
+
+        /// <summary>
+        /// Waits for a timeout before calling a function.
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        private IEnumerator Wait(float seconds, Action callback)
+        {
+            yield return new WaitForSecondsRealtime(seconds);
+
+            callback();
         }
     }
 }
