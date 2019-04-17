@@ -128,6 +128,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private bool _isReconnecting = false;
 
+        /// <summary>
+        /// True iff we are logged in successfully.
+        /// </summary>
+        private bool _loggedIn;
+
         /// <inheritdoc />
         public bool IsConnected
         {
@@ -749,6 +754,8 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IEnumerator Login()
         {
+            _loggedIn = false;
+
             // TODO: this is here due to a mycelium bug
             yield return new WaitForSeconds(0.5f);
 
@@ -759,6 +766,21 @@ namespace CreateAR.EnkluPlayer
             {
                 Jwt = _multiplayerJwt
             });
+
+            // timeout
+            yield return new WaitForSeconds(3f);
+
+            if (!_loggedIn)
+            {
+                Log.Info(this, "Login timed out. Proceeding anyway.");
+
+                if (!_isReconnecting)
+                {
+                    _needsReconnect = true;
+                }
+
+                _connect.Succeed(Void.Instance);
+            }
         }
 
         /// <summary>
@@ -791,6 +813,7 @@ namespace CreateAR.EnkluPlayer
             // w00t
             Log.Info(this, "Logged into Mycelium successfully!");
 
+            _loggedIn = true;
             _connect.Succeed(Void.Instance);
         }
 
