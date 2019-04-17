@@ -37,6 +37,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// True iff there is a timer to load another experience.
+        /// </summary>
+        private bool _isPlayingTimed = false;
+
+        /// <summary>
         /// All experiences.
         /// </summary>
         private ExperienceJs[] _all = new ExperienceJs[0];
@@ -149,10 +154,12 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return;
             }
 
+            Log.Info(this, "Playing '{0}'.", id);
+
             _config.Play.Edit = false;
             _config.Play.AppId = id;
 
-            _messages.Publish(MessageTypes.PLAY);
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
 
         /// <summary>
@@ -163,11 +170,19 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="seconds">The number of seconds to wait before returning.</param>
         public void playTimed(string id, float seconds)
         {
+            if (_isPlayingTimed)
+            {
+                Log.Warning(this, "Could not play timed, as there is another experience already queued.");
+                return;
+            }
+
             if (null == byId(id))
             {
                 Log.Warning(this, "Unknown experience id '{0}'.", id);
                 return;
             }
+
+            _isPlayingTimed = true;
 
             var currentId = _config.Play.AppId;
             var currentEdit = _config.Play.Edit;
@@ -178,6 +193,10 @@ namespace CreateAR.EnkluPlayer.Scripting
             // then add a timer for reloading
             _bootstrapper.BootstrapCoroutine(Wait(seconds, () =>
             {
+                Log.Info(this, "Time is up! Playing '{0}'.", currentId);
+
+                _isPlayingTimed = false;
+
                 if (currentEdit)
                 {
                     edit(currentId);
@@ -204,7 +223,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _config.Play.Edit = true;
             _config.Play.AppId = id;
 
-            _messages.Publish(MessageTypes.PLAY);
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
 
         /// <summary>
