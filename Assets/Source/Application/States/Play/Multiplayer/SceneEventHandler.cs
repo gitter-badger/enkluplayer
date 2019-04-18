@@ -52,7 +52,15 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public ElementMap Map
         {
-            get { return _map; }
+            get
+            {
+                if (null == _map)
+                {
+                    _map = new ElementMap();
+                }
+
+                return _map;
+            }
             set
             {
                 _map = value;
