@@ -82,6 +82,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
+        public Vec3 forward
+        {
+            get { return UnityTransform.forward.ToVec(); }
+        }
+
+        /// <inheritdoc />
         public Vec3 worldPosition
         {
             get { return UnityTransform.position.ToVec(); }
