@@ -52,7 +52,7 @@ function onFoo() {
 		.setVec('position', vec3(0, 1, 0))
 		.setBool('visible', false);
 		.setString('menu-name', 'I am in my element.')
-		.setCol4('menu-color', col4(1, 0, 0, 1))
+		.setCol('menu-color', col4(1, 0, 0, 1))
 		.setFloat('foo', 1.2);
 	
 	// use the builder to atomically build the element
