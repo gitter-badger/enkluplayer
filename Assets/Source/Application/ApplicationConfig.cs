@@ -277,6 +277,7 @@ namespace CreateAR.EnkluPlayer
             Ar,
             Desktop,
             Mobile,
+            Standalone,
             None
         }
 

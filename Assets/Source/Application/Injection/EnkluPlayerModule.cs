@@ -194,30 +194,36 @@ namespace CreateAR.EnkluPlayer
                     }
 
 #if UNITY_IOS || UNITY_ANDROID
-                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
-                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-                    binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
-                    binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
-                    binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
+                        binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                        binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
 #elif UNITY_WEBGL
-                    binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-#if UNITY_EDITOR
-                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-#else
-                    binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
-#endif
+                        binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
+    #if UNITY_EDITOR
+                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+    #else
+                        binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
+    #endif
 #elif UNITY_EDITOR
-                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
-                    binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
-                    binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
-                    binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
+                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                        binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                        binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
+#elif UNITY_STANDALONE
+                        binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                        binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                        binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
 #elif NETFX_CORE
-                    binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
-                    binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
-                    binder.Bind<ITcpConnectionFactory>().To<UwpTcpConnectionFactory>().ToSingleton();
-                    binder.Bind<IMessageReader>().To<UwpReflectionMessageReader>();
-                    binder.Bind<IMessageWriter>().To<UwpReflectionMessageWriter>();
+                        binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
+                        binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                        binder.Bind<ITcpConnectionFactory>().To<UwpTcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<UwpReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<UwpReflectionMessageWriter>();
 #endif
                 }
 
@@ -275,7 +281,7 @@ namespace CreateAR.EnkluPlayer
                             case RuntimePlatform.LinuxEditor:
                             case RuntimePlatform.LinuxPlayer:
                             {
-                                binder.Bind<ILoginStrategy>().To<KeyboardLoginStrategy>();
+                                binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
                                 break;
                             }
                             default:
@@ -635,6 +641,14 @@ namespace CreateAR.EnkluPlayer
                             designer = PlayAppConfig.DesignerType.Desktop;
                             break;
                         }
+                        case RuntimePlatform.WindowsPlayer:
+                        case RuntimePlatform.WindowsEditor:
+                        case RuntimePlatform.LinuxEditor:
+                        case RuntimePlatform.LinuxPlayer:
+                        {
+                            designer = PlayAppConfig.DesignerType.Standalone;
+                            break;
+                        }
                         case RuntimePlatform.WSAPlayerX86:
                         {
                             designer = PlayAppConfig.DesignerType.Ar;
@@ -664,6 +678,11 @@ namespace CreateAR.EnkluPlayer
                     case PlayAppConfig.DesignerType.Mobile:
                     {
                         binder.Bind<IDesignController>().To<MobileDesignController>().ToSingleton();
+                        break;
+                    }
+                    case PlayAppConfig.DesignerType.Standalone:
+                    {
+                        binder.Bind<IDesignController>().To<StandaloneDesignController>().ToSingleton();
                         break;
                     }
                     case PlayAppConfig.DesignerType.None:
