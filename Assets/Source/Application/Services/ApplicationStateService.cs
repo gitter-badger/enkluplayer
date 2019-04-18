@@ -158,7 +158,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="_">Void.</param>
         private void Messages_OnApplicationInitialized(Void _)
         {
-            Log.Info(this, "Application initialized.");
+            Log.Info(this, "Application initialized. Platform [{0}].", _config.ParsedPlatform);
 
             switch (_config.ParsedPlatform)
             {
@@ -178,6 +178,14 @@ namespace CreateAR.EnkluPlayer
                 case RuntimePlatform.WSAPlayerX64:
                 {
                     ChangeFlow<HmdStateFlow>();
+                    break;
+                }
+                case RuntimePlatform.WindowsPlayer:
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.LinuxPlayer:
+                case RuntimePlatform.LinuxEditor:
+                {
+                    ChangeFlow<StandaloneStateFlow>();
                     break;
                 }
                 default:

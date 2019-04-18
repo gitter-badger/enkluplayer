@@ -255,19 +255,35 @@ namespace CreateAR.EnkluPlayer
 
                 // login
                 {
-                    if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86 && UnityEngine.Application.isEditor)
+                    if (UnityEngine.Application.isEditor)
                     {
-                        binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
-                    }
-                    else if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86
-                       || config.ParsedPlatform == RuntimePlatform.WSAPlayerARM
-                       || config.ParsedPlatform == RuntimePlatform.WSAPlayerX64)
-                    {
-                        binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
+                        binder.Bind<ILoginStrategy>().To<KeyboardLoginStrategy>();
                     }
                     else
                     {
-                        binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
+                        switch (config.ParsedPlatform)
+                        {
+                            case RuntimePlatform.WSAPlayerX86:
+                            case RuntimePlatform.WSAPlayerX64:
+                            case RuntimePlatform.WSAPlayerARM:
+                            {
+                                binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
+                                break;
+                            }
+                            case RuntimePlatform.WindowsEditor:
+                            case RuntimePlatform.WindowsPlayer:
+                            case RuntimePlatform.LinuxEditor:
+                            case RuntimePlatform.LinuxPlayer:
+                            {
+                                binder.Bind<ILoginStrategy>().To<KeyboardLoginStrategy>();
+                                break;
+                            }
+                            default:
+                            {
+                                binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -279,6 +295,7 @@ namespace CreateAR.EnkluPlayer
                         binder.Bind<MobileLoginStateFlow>().To<MobileLoginStateFlow>();
                         binder.Bind<MobileGuestStateFlow>().To<MobileGuestStateFlow>();
                         binder.Bind<WebStateFlow>().To<WebStateFlow>();
+                        binder.Bind<StandaloneStateFlow>().To<StandaloneStateFlow>();
                     }
 
                     // all states
@@ -296,7 +313,7 @@ namespace CreateAR.EnkluPlayer
                         binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
                         binder.Bind<HmdArSetupApplicationState>().To<HmdArSetupApplicationState>();
                         binder.Bind<MobileLoginStrategy>().To<MobileLoginStrategy>();
-                        binder.Bind<EditorLoginStrategy>().To<EditorLoginStrategy>();
+                        binder.Bind<KeyboardLoginStrategy>().To<KeyboardLoginStrategy>();
                         binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                         binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
                         binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
@@ -376,6 +393,29 @@ namespace CreateAR.EnkluPlayer
                                     }));
 
                                     break;
+                            }
+                            case RuntimePlatform.WindowsEditor:
+                            case RuntimePlatform.WindowsPlayer:
+                            case RuntimePlatform.LinuxEditor:
+                            case RuntimePlatform.LinuxPlayer:
+                            {
+                                binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
+                                    new IState[]
+                                    {
+                                        binder.GetInstance<VersionErrorApplicationState>(),
+                                        binder.GetInstance<InitializeApplicationState>(),
+                                        binder.GetInstance<LoginApplicationState>(),
+                                        binder.GetInstance<SignOutApplicationState>(),
+                                        binder.GetInstance<LoadAppApplicationState>(),
+                                        binder.GetInstance<LoadDefaultAppApplicationState>(),
+                                        binder.GetInstance<PlayApplicationState>()
+                                    },
+                                    new IStateFlow[]
+                                    {
+                                        binder.GetInstance<StandaloneStateFlow>()
+                                    }));
+
+                                break;
                             }
                             default:
                             {

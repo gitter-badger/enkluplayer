@@ -6,9 +6,9 @@ using CreateAR.Trellis.Messages.EmailSignIn;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Application state that just prompts for editor login.
+    /// Application state that prompts for login with keyboard.
     /// </summary>
-    public class EditorLoginStrategy : ILoginStrategy
+    public class KeyboardLoginStrategy : ILoginStrategy
     {
         /// <summary>
         /// Manages UI.
@@ -38,7 +38,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public EditorLoginStrategy(
+        public KeyboardLoginStrategy(
             IUIManager ui,
             ApiController api)
         {

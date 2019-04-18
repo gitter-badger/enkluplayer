@@ -32,6 +32,15 @@ namespace CreateAR.EnkluPlayer.Util
                 {
                     return RuntimePlatform.WSAPlayerX86.ToString();
                 }
+                case UnityEditor.BuildTarget.StandaloneLinux:
+                case UnityEditor.BuildTarget.StandaloneLinux64:
+                case UnityEditor.BuildTarget.StandaloneLinuxUniversal:
+                case UnityEditor.BuildTarget.StandaloneOSX:
+                case UnityEditor.BuildTarget.StandaloneWindows:
+                case UnityEditor.BuildTarget.StandaloneWindows64:
+                {
+                    return "Standalone";
+                }
                 default:
                 {
                     return UnityEngine.Application.platform.ToString();
@@ -45,6 +54,13 @@ namespace CreateAR.EnkluPlayer.Util
                 case RuntimePlatform.WSAPlayerX86:
                 {
                     return "WSAPlayerX86";
+                }
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                {
+                    return "Standalone";
                 }
                 default:
                 {

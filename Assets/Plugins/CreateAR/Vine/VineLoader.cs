@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Antlr4.Runtime;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.Commons.Vine
@@ -12,12 +13,31 @@ namespace CreateAR.Commons.Vine
 
         public VineLoader()
         {
-            _stdOut = File.CreateText(Path.Combine(
-                Application.persistentDataPath,
-                "Vine.stdout"));
-            _stdErr = File.CreateText(Path.Combine(
-                Application.persistentDataPath,
-                "Vine.stderr"));
+            try
+            {
+                _stdOut = File.CreateText(Path.Combine(
+                    Application.persistentDataPath,
+                    "Vine.stdout"));
+            }
+            catch
+            {
+                Log.Warning(this, "Could not get handle to Vine.stdout. Using /dev/null.");
+
+                _stdOut = TextWriter.Null;
+            }
+
+            try
+            {
+                _stdErr = File.CreateText(Path.Combine(
+                    Application.persistentDataPath,
+                    "Vine.stderr"));
+            }
+            catch
+            {
+                Log.Warning(this, "Could not get handle to Vine.stderr. Using /dev/null.");
+
+                _stdErr = TextWriter.Null;
+            }
         }
 
         public VineParser.DocumentContext Load(string data)
