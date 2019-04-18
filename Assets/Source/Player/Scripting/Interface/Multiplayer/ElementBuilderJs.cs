@@ -6,6 +6,10 @@ using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
+    /// <summary>
+    /// Object used to configure how an element is built before building it
+    /// atomically.
+    /// </summary>
     public class ElementBuilderJs
     {
         /// <summary>

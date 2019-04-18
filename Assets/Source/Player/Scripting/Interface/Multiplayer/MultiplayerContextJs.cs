@@ -39,24 +39,30 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public void own(IJsCallback cb)
         {
-            _multiplayer.Own(_element.Id, success =>
-            {
-                try
+            _multiplayer
+                .Own(_element.Id)
+                .OnSuccess(_ =>
                 {
-                    if (!success)
-                    {
-                        cb.Apply(this, "Could not own element");
-                    }
-                    else
+                    try
                     {
                         cb.Apply(this);
                     }
-                }
-                catch (Exception exception)
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, "Exception thrown when calling own js callback: {0}.", exception);
+                    }
+                })
+                .OnFailure(ex =>
                 {
-                    Log.Error(this, "Exception thrown when calling own js callback: {0}.", exception);
-                }
-            });
+                    try
+                    {
+                        cb.Apply(this, ex.Message);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, "Exception thrown when calling own js callback: {0}.", exception);
+                    }
+                });
         }
 
         public void sync(string name)

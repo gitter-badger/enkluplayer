@@ -69,6 +69,7 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <inheritdoc />
         public IAsyncToken<Element> Create(
             string parentId,
             ElementData element,
@@ -103,6 +104,7 @@ namespace CreateAR.EnkluPlayer
             return new AsyncToken<Element>(newElement);
         }
 
+        /// <inheritdoc />
         public IAsyncToken<Void> Destroy(string id)
         {
             // find and destroy
@@ -150,9 +152,9 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public void Own(string elementId, Action<bool> callback)
+        public IAsyncToken<Void> Own(string elementId)
         {
-            callback(true);
+            return new AsyncToken<Void>(Void.Instance);
         }
 
         /// <inheritdoc />

@@ -384,11 +384,9 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public void Own(string elementId, Action<bool> callback)
+        public IAsyncToken<Void> Own(string elementId)
         {
-            Log.Warning(this, "Own not implemented.");
-
-            callback(false);
+            return new AsyncToken<Void>(new NotImplementedException());
         }
 
         /// <inheritdoc />

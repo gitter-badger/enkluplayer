@@ -75,12 +75,30 @@ namespace CreateAR.EnkluPlayer
         /// <param name="milliseconds">The number of milliseconds to wait before revert.</param>
         void AutoToggle(string elementId, string prop, bool value, int milliseconds);
 
+        /// <summary>
+        /// Synchronizes all changes to this prop.
+        /// </summary>
+        /// <param name="elementId">The id of the element.</param>
+        /// <param name="prop">The prop to synchronize.</param>
         void Sync(string elementId, ElementSchemaProp prop);
 
+        /// <summary>
+        /// Stops synchronizing prop changes.
+        /// </summary>
+        /// <param name="elementId">The id of the element.</param>
+        /// <param name="prop">The prop to stop synchronizing.</param>
         void UnSync(string elementId, ElementSchemaProp prop);
 
-        void Own(string elementId, Action<bool> callback);
+        /// <summary>
+        /// Attempts to own an element, preventing other players from changing it.
+        /// </summary>
+        /// <param name="elementId">The element id.</param>
+        IAsyncToken<Void> Own(string elementId);
 
+        /// <summary>
+        /// Forfeits ownership.
+        /// </summary>
+        /// <param name="elementId">The element id.</param>
         void Forfeit(string elementId);
     }
 }
