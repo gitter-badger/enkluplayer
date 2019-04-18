@@ -303,6 +303,22 @@ namespace CreateAR.EnkluPlayer.IUX
                         _scanImporter,
                         _scanLoader);
                 }
+                case ElementTypes.KINECT:
+                {
+                    return new KinectWidget(
+                        new GameObject("Kinect"),
+                        _layers,
+                        _tweens,
+                        _colors);
+                }
+                case ElementTypes.CAMERA:
+                {
+                    return new CameraWidget(
+                        new GameObject("Camera"),
+                        _layers,
+                        _tweens,
+                        _colors);
+                }
                 default:
                 {
                     throw new Exception(string.Format(

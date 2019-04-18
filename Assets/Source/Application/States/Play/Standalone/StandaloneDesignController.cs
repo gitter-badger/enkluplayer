@@ -13,8 +13,11 @@ namespace CreateAR.EnkluPlayer
         {
             _root = new GameObject("Design");
             _root.AddComponent<HmdEditorKeyboardControls>();
-        }
 
+            var controls = _root.AddComponent<StandaloneMenuControls>();
+            controls.OnMenu += Controls_OnMenu;
+        }
+        
         public void Teardown()
         {
             Object.Destroy(_root);
@@ -27,12 +30,22 @@ namespace CreateAR.EnkluPlayer
 
         public void Select(string sceneId, string elementId)
         {
-            
+            // do nothing
         }
 
         public void Focus(string sceneId, string elementId)
         {
-            
+            // do nothing
+        }
+
+        private void Controls_OnMenu()
+        {
+            if (null != _root.GetComponent<StandaloneMenuViewController>())
+            {
+                return;
+            }
+
+            _root.AddComponent<StandaloneMenuViewController>();
         }
     }
 }
