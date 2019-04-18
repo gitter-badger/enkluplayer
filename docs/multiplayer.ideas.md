@@ -1,42 +1,19 @@
-
-Synchronize element updates.
+### Synchronization
 
 ```javascript
-var mp = require('mp');
-var self = this;
-
-var ctx;
-
-function enter() {
-	// find the element
-	var a = self.findOne('..a');
-	
-	// get the context for this elements
-	ctx = mp.context(a);
-
-	// request ownership (this is not required)
-	ctx.own(function(error) {
-		if (error) {
-			log.warning('I cannot own this object : ' + error);
-		}
-	});
-
-	// synchronize all changes to this prop (does not require ownership)
+function activate() {
+	// synchronize all changes to the position prop
 	ctx.sync('position');
 }
 
-function onFoo() {
-	// stop synchronizing changes to this prop
+function deactivate() {
+	// stops synchronizing
 	ctx.unsync('position');
 }
+````
 
-function onBar() {
-	// relinquish ownership (will be called automatically on engine exit or disconnect)
-	ctx.forfeit();	
-}
-```
 
-Create new elements.
+### Building Elements
 
 ```javascript
 var assets = require('asset-library');
@@ -55,12 +32,12 @@ function onFoo() {
 	var builder = mp
 		// the builder requires a parent
 		.builder(self)
+        
+        // element type, defaults to asset
+        .type(mp.elementTypes.ASSET);
 		
-		// sets the asset
+		// sets the asset from another element
 		.asset(tree)
-		
-		// sets the scripts on this element
-		.scripts([rotate])
 		
 		// this is the default value -- the lifecycle of the element is locked to the session
 		.expiration(mp.expiration.SESSION)
@@ -72,11 +49,11 @@ function onFoo() {
 		.name('This is my name.')
 
 		// set prop values
-		.vec('position', vec3(0, 1, 0))
-		.bool('visible', false);
-		.string('menu-name', 'I am in my element.')
-		.col4('menu-color', col4(1, 0, 0, 1))
-		.float('foo', 1.2);
+		.setVec('position', vec3(0, 1, 0))
+		.setBool('visible', false);
+		.setString('menu-name', 'I am in my element.')
+		.setCol4('menu-color', col4(1, 0, 0, 1))
+		.setFloat('foo', 1.2);
 	
 	// use the builder to atomically build the element
 	builder.build(function(error, el) {
@@ -89,7 +66,7 @@ function onFoo() {
 }
 ```
 
-Auto-toggle.
+### Auto Toggle
 
 ```javascript
 var mp = require('mp');
@@ -106,5 +83,36 @@ function enter() {
 	piece.schema.watchBool('isAnimating', function(prev, next) {
 		// play animation
 	});
+}
+```
+
+### Ownership
+
+Not implemented.
+
+```javascript
+var mp = require('mp');
+var self = this;
+
+var ctx;
+
+function enter() {
+	// find the element
+	var a = self.findOne('..a');
+	
+	// get the context for this element
+	ctx = mp.context(a);
+
+	// request ownership (disallows other entities from changing element or children)
+	ctx.own(function(error) {
+		if (error) {
+			log.warning('I cannot own this object : ' + error);
+		}
+	});
+}
+
+function onBar() {
+	// relinquish ownership (will be called automatically on engine exit or disconnect)
+	ctx.forfeit();	
 }
 ```

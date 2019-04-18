@@ -83,7 +83,9 @@ namespace CreateAR.EnkluPlayer
 
         [ElementLink(typeof(ContentWidget))]
         public const int CONTENT = 1000;
-        
+        [ElementLink(typeof(ContentWidget))]
+        public const int ASSET = 1000;
+
         [ElementLink(typeof(LightWidget))]
         public const int LIGHT = 1100;
 
