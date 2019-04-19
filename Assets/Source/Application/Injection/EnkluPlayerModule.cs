@@ -827,12 +827,19 @@ namespace CreateAR.EnkluPlayer
             // targets!
             foreach (var targetConfig in config.Targets)
             {
-                var target = Target(binder, targetConfig);
-                if (null != target)
+                try
                 {
-                    target.Filter = targetConfig.ParsedLevel;
+                    var target = Target(binder, targetConfig);
+                    if (null != target)
+                    {
+                        target.Filter = targetConfig.ParsedLevel;
 
-                    Log.AddLogTarget(target);
+                        Log.AddLogTarget(target);
+                    }
+                }
+                catch
+                {
+                    // 
                 }
             }
 
