@@ -7,8 +7,6 @@ using Enklu.Data;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
-using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 
 namespace CreateAR.EnkluPlayer.Test.Txn
 {

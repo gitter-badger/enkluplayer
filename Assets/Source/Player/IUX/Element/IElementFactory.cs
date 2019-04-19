@@ -1,3 +1,5 @@
+using Enklu.Data;
+
 namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
@@ -13,7 +15,7 @@ namespace CreateAR.EnkluPlayer.IUX
         Element Element(ElementDescription description);
 
         /// <summary>
-        /// Craetes an element from a vine.
+        /// Creates an element from a vine.
         /// </summary>
         /// <param name="vine">The raw vine.</param>
         /// <returns></returns>

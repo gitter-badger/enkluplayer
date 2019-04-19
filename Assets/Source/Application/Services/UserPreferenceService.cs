@@ -92,6 +92,13 @@ namespace CreateAR.EnkluPlayer
                 MessageTypes.LOAD_APP,
                 message =>
                 {
+                    // check for DoNotPersist
+                    var evt = message as LoadAppEvent;
+                    if (null != evt && evt.DoNotPersist)
+                    {
+                        return;
+                    }
+
                     var appId = _config.Play.AppId;
                     var userId = _config.Network.Credentials.UserId;
 

@@ -19,6 +19,7 @@ namespace CreateAR.EnkluPlayer
         /// Dependencies.
         /// </summary>
         private readonly IElementManager _elements;
+        private readonly IElementFactory _elementFactory;
         private readonly ScenePatcher _scenePatcher;
 
         /// <summary>
@@ -51,7 +52,15 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public ElementMap Map
         {
-            get { return _map; }
+            get
+            {
+                if (null == _map)
+                {
+                    _map = new ElementMap();
+                }
+
+                return _map;
+            }
             set
             {
                 _map = value;
@@ -63,9 +72,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SceneEventHandler(IElementManager elements, ScenePatcher scenePatcher)
+        public SceneEventHandler(
+            IElementManager elements,
+            IElementFactory elementFactory,
+            ScenePatcher scenePatcher)
         {
             _elements = elements;
+            _elementFactory = elementFactory;
             _scenePatcher = scenePatcher;
         }
 
@@ -78,6 +91,9 @@ namespace CreateAR.EnkluPlayer
 
             _scenePatcher.Initialize();
             _elementHeap.Clear();
+
+            // create a default value
+            _map = new ElementMap();
         }
 
         /// <summary>
@@ -106,25 +122,6 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Retrieves the element hash from the id.
-        /// </summary>
-        /// <param name="elementId">The element id.</param>
-        /// <returns></returns>
-        public ushort ElementHash(string elementId)
-        {
-            for (int i = 0, len = _elementLookup.Length; i < len; i++)
-            {
-                var id = _elementLookup[i];
-                if (id == elementId)
-                {
-                    return (ushort) i;
-                }
-            }
-
-            return 0;
-        }
-
-        /// <summary>
         /// Retrieves a prop name from hash.
         /// </summary>
         /// <param name="hash">The hash.</param>
@@ -138,7 +135,7 @@ namespace CreateAR.EnkluPlayer
 
             return string.Empty;
         }
-
+        
         /// <summary>
         /// Applies a diff to the scene.
         /// </summary>
@@ -150,20 +147,64 @@ namespace CreateAR.EnkluPlayer
             Map = evt.Map;
             _scenePatcher.Apply(Expand(evt.ToActions()));
         }
-
+        
         /// <summary>
-        /// Applies the hashing to the elementId and key.
+        /// Processes a <c>CreateElementEvent</c>.
         /// </summary>
-        private List<ElementActionData> Expand(List<ElementActionData> actions)
+        /// <param name="evt">The event.</param>
+        public Element OnCreated(CreateElementEvent evt)
         {
-            for (int i = 0; i < actions.Count; ++i)
+            Verbose("OnCreated({0})", JsonConvert.SerializeObject(evt));
+
+            // find parent
+            var parentId = ElementId(evt.ParentHash);
+            var parent = ById(parentId);
+            if (null == parent)
             {
-                var action = actions[i];
-                action.ElementId = ElementId(action.ElementHash);
-                action.Key = PropName(action.KeyHash);
+                Log.Warning(this, "Could not find parent to create element under: {0}.", evt.ParentHash);
+                return null;
             }
 
-            return actions;
+            Element element;
+            try
+            {
+                element = _elementFactory.Element(new ElementDescription
+                {
+                    Elements = new[] {evt.Element},
+                    Root = new ElementRef
+                    {
+                        Id = evt.Element.Id
+                    }
+                });
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not create element: {0}", exception);
+
+                return null;
+            }
+
+            parent.AddChild(element);
+            return element;
+        }
+
+        /// <summary>
+        /// Processes a <c>DeleteElementEvent</c>.
+        /// </summary>
+        /// <param name="evt">The event.</param>
+        public void OnDeleted(DeleteElementEvent evt)
+        {
+            Verbose("OnDeleted({0})", JsonConvert.SerializeObject(evt));
+
+            var elementId = ElementId(evt.ElementHash);
+            var element = ById(elementId);
+            if (null == element)
+            {
+                Log.Warning(this, "Could not find element to delete: {0}.", evt.ElementHash);
+                return;
+            }
+
+            element.Destroy();
         }
 
         /// <summary>
@@ -254,6 +295,21 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Applies the hashing to the elementId and key.
+        /// </summary>
+        private List<ElementActionData> Expand(List<ElementActionData> actions)
+        {
+            for (int i = 0; i < actions.Count; ++i)
+            {
+                var action = actions[i];
+                action.ElementId = ElementId(action.ElementHash);
+                action.Key = PropName(action.KeyHash);
+            }
+
+            return actions;
+        }
+
+        /// <summary>
         /// Retrieves an element by id and stores it in a local data structure
         /// for fast lookup.
         /// </summary>
@@ -300,9 +356,18 @@ namespace CreateAR.EnkluPlayer
 
             //  populate prop lookup
             var props = _map.Props;
-            len = props.Length;
+            var max = 0;
+            for (var i = 0; i < props.Length; i++)
+            {
+                var value = props[i].Hash;
+                if (value > max)
+                {
+                    max = value;
+                }
+            }
 
-            _propLookup = new string[len + 1];
+            len = props.Length;
+            _propLookup = new string[max + 1];
             for (var i = 0; i < len; i++)
             {
                 var record = props[i];
