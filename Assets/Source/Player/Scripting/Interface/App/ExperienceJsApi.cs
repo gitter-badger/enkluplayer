@@ -159,7 +159,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _config.Play.Edit = false;
             _config.Play.AppId = id;
 
-            _messages.Publish(MessageTypes.LOAD_APP);
+            _messages.Publish(MessageTypes.LOAD_APP, new LoadAppEvent { DoNotPersist = true });
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _config.Play.Edit = true;
             _config.Play.AppId = id;
 
-            _messages.Publish(MessageTypes.LOAD_APP);
+            _messages.Publish(MessageTypes.LOAD_APP, new LoadAppEvent { DoNotPersist = true });
         }
 
         /// <summary>

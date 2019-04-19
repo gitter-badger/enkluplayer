@@ -183,7 +183,7 @@ namespace CreateAR.EnkluPlayer
                 new ScenePatcher(scenes, patcherFactory));
             _synchronizer = new PropSynchronizer(msg =>
             {
-                Log.Info(this, "Sending {0}.", msg);
+                Verbose("Sending {0}.", msg);
 
                 Send(msg);
             });
