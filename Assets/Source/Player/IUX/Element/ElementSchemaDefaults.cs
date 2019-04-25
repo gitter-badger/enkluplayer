@@ -194,6 +194,24 @@ namespace Source.Player.IUX
                     {"smoothing", 15f}
                 }
             });
+
+            var cameraSchema = _typeSchema[ElementTypes.CAMERA] = new ElementSchema("Base.Camera");
+            cameraSchema.Load(new ElementSchemaData
+            {
+                Ints = new Dictionary<string, int>
+                {
+                    { "camera.fov", 45 }
+                },
+                Floats = new Dictionary<string, float>
+                {
+                    { "camera.near", 0.3f },
+                    { "camera.far", 1000f }
+                },
+                Colors = new Dictionary<string, Col4>
+                {
+                    { "camera.clear", new Col4(0, 0, 0, 0) }
+                }
+            });
         }
 
         /// <summary>

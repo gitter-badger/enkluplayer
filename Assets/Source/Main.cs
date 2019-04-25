@@ -184,6 +184,11 @@ namespace CreateAR.EnkluPlayer
 		/// <param name="status">True iff the application is paused.</param>
 		private void OnApplicationPause(bool status)
 		{
+		    if (null == _app)
+		    {
+		        return;
+		    }
+
 			if (status)
 			{
 				_app.Suspend();

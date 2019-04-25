@@ -25,7 +25,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Timer id for time to play.
         /// </summary>
-        private int _timeToPlayTimer;
+        private readonly int _timeToPlayTimer;
 
         /// <summary>
         /// Constructor.

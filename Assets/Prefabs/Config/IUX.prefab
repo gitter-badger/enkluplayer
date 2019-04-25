@@ -161,7 +161,7 @@ MonoBehaviour:
     - UIDataId: Debug.Optimization
       Element: {fileID: 114288518197929390, guid: b31b5ebbd1af5c24581d7c2efe940217,
         type: 2}
-  - Platforms: 080000000b000000
+  - Platforms: 080000000b00000000000000010000000200000007000000100000000d000000
     Links:
     - UIDataId: Common.Error
       Element: {fileID: 114720035430186584, guid: 9ab6779f5556643998d0a9ddf1231b99,

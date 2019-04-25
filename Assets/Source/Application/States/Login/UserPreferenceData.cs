@@ -27,7 +27,7 @@ namespace CreateAR.EnkluPlayer
         /// Id of the app.
         /// </summary>
         public string AppId;
-
+        
         /// <summary>
         /// Which mode to default to.
         /// </summary>

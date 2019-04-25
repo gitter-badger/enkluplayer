@@ -92,6 +92,10 @@ namespace CreateAR.EnkluPlayer
         [ElementLink(typeof(ScanWidget))]
         public const int SCAN = 1200;
 
+        public const int KINECT = 1300;
+
+        public const int CAMERA = 1400;
+
         [ElementLink(typeof(ScaleTransition))]
         public const int TRANSITION_SCALE = 10000;
 
