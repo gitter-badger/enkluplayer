@@ -55,3 +55,4 @@ MonoBehaviour:
   Light: {fileID: 114704250132613992, guid: 98aeeed2c9ede40ffa234c0cba299bd1, type: 2}
   WorldAnchor: {fileID: 114699276065640796, guid: 20de8587a54575f4bb7125e868b8acd5,
     type: 2}
+  Kinect: {fileID: 114739578962708818, guid: 840dac6a74bd77f40a7b74505ac2aff1, type: 2}
