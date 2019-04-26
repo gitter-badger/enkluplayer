@@ -28,6 +28,11 @@ namespace CreateAR.EnkluPlayer
         private readonly List<Element> _elementHeap = new List<Element>();
 
         /// <summary>
+        /// List of elements that were created while we were connected.
+        /// </summary>
+        private readonly List<Element> _trackedCreates = new List<Element>();
+
+        /// <summary>
         /// Root element of the scene.
         /// </summary>
         private Element _root;
@@ -103,6 +108,7 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "SceneEventHandler uninitialized.");
 
+            _trackedCreates.Clear();
             _elementHeap.Clear();
         }
 
@@ -145,7 +151,41 @@ namespace CreateAR.EnkluPlayer
             Log.Warning(this, "Diff event received: {0}", evt.Map);
 
             Map = evt.Map;
-            _scenePatcher.Apply(Expand(evt.ToActions()));
+
+            var actions = Expand(evt.ToActions());
+            _scenePatcher.Apply(actions);
+
+            // remove tracked creates that have no associated create diff
+            // TODO: we are missing elements that WE created
+            for (var i = _trackedCreates.Count - 1; i >= 0; i--)
+            {
+                var element = _trackedCreates[i];
+                var elementId = element.Id;
+
+                // search for create action for this element
+                var found = false;
+                for (int j = 0, jlen = actions.Count; j < jlen; j++)
+                {
+                    var action = actions[j];
+                    if (action.Type == ElementActionTypes.CREATE)
+                    {
+                        if (action.ElementId == elementId)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                // no create diff, which means the element was destroyed while we were disconnected
+                if (!found)
+                {
+                    _trackedCreates.RemoveAt(i);
+
+                    element.OnDestroyed -= CreatedElement_OnDestroy;
+                    element.Destroy();
+                }
+            }
         }
         
         /// <summary>
@@ -176,6 +216,10 @@ namespace CreateAR.EnkluPlayer
                         Id = evt.Element.Id
                     }
                 });
+
+                // track this element
+                _trackedCreates.Add(element);
+                element.OnDestroyed += CreatedElement_OnDestroy;
             }
             catch (Exception exception)
             {
@@ -187,7 +231,7 @@ namespace CreateAR.EnkluPlayer
             parent.AddChild(element);
             return element;
         }
-
+        
         /// <summary>
         /// Processes a <c>DeleteElementEvent</c>.
         /// </summary>
@@ -373,6 +417,15 @@ namespace CreateAR.EnkluPlayer
                 var record = props[i];
                 _propLookup[record.Hash] = record.Value;
             }
+        }
+
+        /// <summary>
+        /// Called when an element that was created is destroyed.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        private void CreatedElement_OnDestroy(Element element)
+        {
+            _trackedCreates.Remove(element);
         }
 
         /// <summary>
