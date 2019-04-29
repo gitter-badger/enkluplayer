@@ -161,7 +161,6 @@ namespace CreateAR.EnkluPlayer
             _scenePatcher.Apply(actions);
 
             // remove tracked creates that have no associated create diff
-            // TODO: we are missing elements that WE created
             for (var i = _trackedCreates.Count - 1; i >= 0; i--)
             {
                 var element = _trackedCreates[i];
@@ -195,7 +194,7 @@ namespace CreateAR.EnkluPlayer
         
         /// <summary>
         /// Processes a <c>CreateElementEvent</c>. These events are received when
-        /// someone else creates an element.
+        /// anyone creates an element, including this client.
         /// </summary>
         /// <param name="evt">The event.</param>
         public Element OnCreated(CreateElementEvent evt)

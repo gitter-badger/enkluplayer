@@ -303,7 +303,7 @@ namespace CreateAR.EnkluPlayer
                 var res = (CreateElementResponse) obj;
                 if (res.Success)
                 {
-                    // send to scene handler
+                    // forward to scene handler for tracking
                     var newElement = _sceneHandler.OnCreated(new CreateElementEvent
                     {
                         Element = element,
