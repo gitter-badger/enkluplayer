@@ -113,7 +113,8 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Retrieves the element id from the hash.
+        /// Retrieves the element id from the hash. This is much more efficient
+        /// than using the element map function.
         /// </summary>
         /// <param name="hash">The hash.</param>
         /// <returns></returns>
@@ -128,7 +129,8 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Retrieves a prop name from hash.
+        /// Retrieves a prop name from hash. This is much more efficient than
+        /// using the element map function.
         /// </summary>
         /// <param name="hash">The hash.</param>
         /// <returns></returns>
@@ -143,7 +145,10 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <summary>
-        /// Applies a diff to the scene.
+        /// Applies a diff to the scene. Diffs are received any time we connect
+        /// or reconnect. These are _absolute_ diffs, meaning that they contain
+        /// all changes between the current state of the experience and the
+        /// static data definition.
         /// </summary>
         /// <param name="evt">The diff event.</param>
         public void OnDiff(SceneDiffEvent evt)
@@ -189,7 +194,8 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <summary>
-        /// Processes a <c>CreateElementEvent</c>.
+        /// Processes a <c>CreateElementEvent</c>. These events are received when
+        /// someone else creates an element.
         /// </summary>
         /// <param name="evt">The event.</param>
         public Element OnCreated(CreateElementEvent evt)
@@ -233,7 +239,8 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <summary>
-        /// Processes a <c>DeleteElementEvent</c>.
+        /// Processes a <c>DeleteElementEvent</c>. These are received any time
+        /// another user deletes an element.
         /// </summary>
         /// <param name="evt">The event.</param>
         public void OnDeleted(DeleteElementEvent evt)
@@ -252,7 +259,8 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Processes an UpdateElementEvent.
+        /// Processes an UpdateElementEvent. These are received any time another
+        /// user updates an element.
         /// </summary>
         /// <typeparam name="T">The type of event.</typeparam>
         /// <param name="evt">The event.</param>

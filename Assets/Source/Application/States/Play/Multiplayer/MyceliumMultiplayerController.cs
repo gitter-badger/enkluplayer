@@ -180,7 +180,7 @@ namespace CreateAR.EnkluPlayer
             _sceneHandler = new SceneEventHandler(
                 _elements,
                 elementFactory,
-                new ScenePatcher(scenes, patcherFactory));
+                new ScenePatcher(elements, scenes, patcherFactory));
             _synchronizer = new PropSynchronizer(msg =>
             {
                 Verbose("Sending {0}.", msg);
