@@ -1,4 +1,4 @@
-﻿#if NETFX_CORE
+﻿#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -460,7 +460,10 @@ namespace CreateAR.EnkluPlayer
         public void Write(byte[] buffer, int offset, int len)
         {
             _writer.WriteBuffer(buffer.AsBuffer(), (uint) offset, (uint) len);
+
+#pragma warning disable CS4014
             _writer.StoreAsync();
+#pragma warning restore CS4014
         }
     }
 

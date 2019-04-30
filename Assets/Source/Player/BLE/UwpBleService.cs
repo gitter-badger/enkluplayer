@@ -64,7 +64,7 @@ namespace CreateAR.EnkluPlayer.BLE
 
         private bool _found = false;
         
-        private async void Watcher_OnReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
+        private void Watcher_OnReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
             var builder = new StringBuilder();
             builder.AppendFormat("Address : {0}\n", args.BluetoothAddress);

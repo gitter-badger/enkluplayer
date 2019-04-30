@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// "Synchronized" list of actions needed on the main thread.
         /// </summary>
-        private static readonly List<Action> _synchronizedActions = new List<Action>();
+        private static readonly List<Action> _SynchronizedActions = new List<Action>();
 
         /// <summary>
         /// True iff the long-running coroutine should be running.
@@ -73,7 +73,9 @@ namespace CreateAR.EnkluPlayer
             };
 
 #if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
+#pragma warning disable CS4014
             Windows.System.Threading.ThreadPool.RunAsync(_ => Process(state));
+#pragma warning restore CS4014
 #elif UNITY_WEBGL
             Process(state);
 #else
@@ -92,10 +94,10 @@ namespace CreateAR.EnkluPlayer
             while (_isAlive)
             {
                 Action[] copy;
-                lock (_synchronizedActions)
+                lock (_SynchronizedActions)
                 {
-                    copy = _synchronizedActions.ToArray();
-                    _synchronizedActions.Clear();
+                    copy = _SynchronizedActions.ToArray();
+                    _SynchronizedActions.Clear();
                 }
 
                 foreach (var action in copy)
@@ -121,18 +123,18 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception exception)
             {
-                lock (_synchronizedActions)
+                lock (_SynchronizedActions)
                 {
-                    _synchronizedActions.Add(() => importState.Callback(exception, null));
+                    _SynchronizedActions.Add(() => importState.Callback(exception, null));
                 }
 
                 return;
             }
 
-            lock (_synchronizedActions)
+            lock (_SynchronizedActions)
             {
                 // add an action to be run on the main thread
-                _synchronizedActions.Add(() =>
+                _SynchronizedActions.Add(() =>
                 {
                     importState.Callback(null, gameObject =>
                     {

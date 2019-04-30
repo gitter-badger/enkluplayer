@@ -1,4 +1,4 @@
-﻿#if NETFX_CORE
+﻿#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>

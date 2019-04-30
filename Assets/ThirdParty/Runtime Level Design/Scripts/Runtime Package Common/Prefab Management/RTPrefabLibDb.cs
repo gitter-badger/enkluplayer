@@ -31,7 +31,9 @@ namespace RLD
         [SerializeField]
         private PrefabLibDbSettings _settings = new PrefabLibDbSettings();
         [SerializeField]
+#pragma warning disable CS0649
         private RTPrefabLibDbUI _runtimeUI;
+#pragma warning restore CS0649
         [SerializeField]
         private PrefabPreviewLookAndFeel _prefabPreviewLookAndFeel = new PrefabPreviewLookAndFeel();
         [SerializeField]

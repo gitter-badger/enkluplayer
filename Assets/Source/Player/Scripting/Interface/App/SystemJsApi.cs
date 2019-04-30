@@ -172,7 +172,10 @@ namespace CreateAR.EnkluPlayer.Scripting
 
 #if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
             Log.Info(this, "Restarting.");
+
+#pragma warning disable CS4014
             Windows.ApplicationModel.Core.CoreApplication.RequestRestartAsync("");
+#pragma warning restore CS4014
 #else
             Log.Warning(this, "Restart not supported for this platform.");
 #endif

@@ -183,7 +183,9 @@ namespace CreateAR.EnkluPlayer
             GetOrgId()
                 .OnSuccess(_ =>
                 {
+#pragma warning disable 4014
                     UploadFile(currentUpload, _uploadToken);
+#pragma warning restore 4014
                 })
                 .OnFailure(exception =>
                 {
