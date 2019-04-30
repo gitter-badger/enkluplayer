@@ -98,7 +98,7 @@ namespace CreateAR.EnkluPlayer
                 else
                 {
                     binder.Bind<IHttpService>()
-#if NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
+#if true// NETFX_CORE || (!UNITY_EDITOR && UNITY_WSA)
                         .To(new UwpHttpService(
 #else
                         .To(new HttpService(
