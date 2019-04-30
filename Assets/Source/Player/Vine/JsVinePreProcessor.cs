@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using Jint;
 using Jint.Native;
 

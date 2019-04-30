@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-
 using AggregateException = CreateAR.Commons.Unity.Async.AggregateException;
 
 namespace CreateAR.EnkluPlayer

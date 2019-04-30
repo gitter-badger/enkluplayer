@@ -25,6 +25,7 @@ namespace CreateAR.EnkluPlayer.IUX
         public MonoBehaviourGizmoRenderer QrAnchor;
         public MonoBehaviourGizmoRenderer Light;
         public MonoBehaviourGizmoRenderer WorldAnchor;
+        public MonoBehaviourGizmoRenderer Kinect;
 
         /// <summary>
         /// True iff gizmos should be visible.
@@ -89,6 +90,11 @@ namespace CreateAR.EnkluPlayer.IUX
             if (typeof(WorldAnchorWidget) == type)
             {
                 return Instantiate(WorldAnchor);
+            }
+
+            if (typeof(KinectWidget) == type)
+            {
+                return Instantiate(Kinect);
             }
 
             return null;

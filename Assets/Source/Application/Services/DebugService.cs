@@ -602,7 +602,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Called when an experience loads.
         /// </summary>
-        private void App_OnLoad(object something)
+        private void App_OnLoad(object _)
         {
             _runtimeStats.Experience.ExperienceId = _config.Play.AppId;
         }

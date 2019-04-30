@@ -570,6 +570,7 @@ namespace CreateAR.EnkluPlayer
             _socket = new StreamSocket();
             _socket.Control.KeepAlive = true;
             _socket.Control.NoDelay = true;
+            _socket.Control.QualityOfService = SocketQualityOfService.LowLatency;
 
             try
             {

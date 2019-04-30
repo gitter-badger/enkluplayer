@@ -24,6 +24,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         Vec3 scale { get; set; }
 
         /// <summary>
+        /// Forward.
+        /// </summary>
+        Vec3 forward { get; }
+        
+        /// <summary>
         /// Returns the position of this transform relative to another entity. This value should not
         /// be cached as elements aren't guaranteed to sit under the same world anchor.
         ///

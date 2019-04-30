@@ -28,13 +28,8 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// Application-wide message types.
     /// </summary>
-    public static class ElementTypes
+    public class ElementTypes
     {
-        ///////////////////////////////////////////////////////////////////////
-        // Error.
-        ///////////////////////////////////////////////////////////////////////
-        public const int FATAL_ERROR = -1;
-
         ///////////////////////////////////////////////////////////////////////
         // Types.
         ///////////////////////////////////////////////////////////////////////
@@ -88,12 +83,18 @@ namespace CreateAR.EnkluPlayer
 
         [ElementLink(typeof(ContentWidget))]
         public const int CONTENT = 1000;
-        
+        [ElementLink(typeof(ContentWidget))]
+        public const int ASSET = 1000;
+
         [ElementLink(typeof(LightWidget))]
         public const int LIGHT = 1100;
 
         [ElementLink(typeof(ScanWidget))]
         public const int SCAN = 1200;
+
+        public const int KINECT = 1300;
+
+        public const int CAMERA = 1400;
 
         [ElementLink(typeof(ScaleTransition))]
         public const int TRANSITION_SCALE = 10000;

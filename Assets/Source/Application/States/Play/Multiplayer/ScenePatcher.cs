@@ -15,6 +15,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly IAppSceneManager _scenes;
         private readonly IElementActionStrategyFactory _patcherFactory;
+        private readonly IElementManager _elements;
 
         private Element _root;
         private IElementActionStrategy _patcher;
@@ -22,8 +23,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Creates a new <see cref="ScenePatcher"/> instance.
         /// </summary>
-        public ScenePatcher(IAppSceneManager scenes, IElementActionStrategyFactory patcherFactory)
+        public ScenePatcher(
+            IElementManager elements,
+            IAppSceneManager scenes,
+            IElementActionStrategyFactory patcherFactory)
         {
+            _elements = elements;
             _scenes = scenes;
             _patcherFactory = patcherFactory;
         }
@@ -62,6 +67,12 @@ namespace CreateAR.EnkluPlayer
                 {
                     case ElementActionTypes.CREATE:
                     {
+                        // ignore creates for elements we have already created
+                        if (null != _elements.ById(action.ElementId))
+                        {
+                            break;
+                        }
+
                         if (!_patcher.ApplyCreateAction(action, out error))
                         {
                             Log.Error(this,

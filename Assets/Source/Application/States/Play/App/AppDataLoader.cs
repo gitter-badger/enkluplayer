@@ -12,8 +12,6 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.GetPublishedAssets;
 using Enklu.Data;
 using UnityEngine;
-using ElementDescription = CreateAR.EnkluPlayer.IUX.ElementDescription;
-using ElementRef = CreateAR.EnkluPlayer.IUX.ElementRef;
 using Response = CreateAR.Trellis.Messages.GetPublishedScene.Response;
 using Void = CreateAR.Commons.Unity.Async.Void;
 

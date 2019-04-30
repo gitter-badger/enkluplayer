@@ -182,6 +182,11 @@ namespace CreateAR.EnkluPlayer.Assets
                 internalLoad
                     .OnSuccess(asset =>
                     {
+                        if (null == _loadToken)
+                        {
+                            return;
+                        }
+
                         _asset = asset;
 
                         Error = string.Empty;
@@ -201,6 +206,11 @@ namespace CreateAR.EnkluPlayer.Assets
                     })
                     .OnFailure(exception =>
                     {
+                        if (null == _loadToken)
+                        {
+                            return;
+                        }
+
                         Log.Info(this, "Could not load asset : {0} : {1}.",
                             Data,
                             exception);

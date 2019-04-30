@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -11,6 +10,7 @@ using CreateAR.EnkluPlayer.DataStructures;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateMultiplayerToken;
+using Enklu.Data;
 using Enklu.Mycelium.Messages;
 using Enklu.Mycelium.Messages.Experience;
 using Enklu.Mycerializer;
@@ -50,6 +50,16 @@ namespace CreateAR.EnkluPlayer
         private readonly IMessageWriter _writer;
 
         /// <summary>
+        /// Synchronizes props.
+        /// </summary>
+        private readonly PropSynchronizer _synchronizer;
+
+        /// <summary>
+        /// Keeps track of requests that are out.
+        /// </summary>
+        private readonly Dictionary<int, Action<object>> _requestMap = new Dictionary<int, Action<object>>();
+
+        /// <summary>
         /// Byte buffers.
         /// </summary>
         private readonly OptimizedObjectPool<ByteArrayHandle> _buffers = new OptimizedObjectPool<ByteArrayHandle>(
@@ -86,7 +96,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// True iff we are queueing rather than dispatching to subscriptions.
         /// </summary>
-        private bool _isQueueingMessages = false;
+        private bool _isQueueingMessages;
 
         /// <summary>
         /// The main thread copies events into this buffer from _eventWaitBuffer.
@@ -97,11 +107,6 @@ namespace CreateAR.EnkluPlayer
         /// Keeps track of how many events are in the execution buffer.
         /// </summary>
         private int _eventExecutionBufferLen;
-
-        /// <summary>
-        /// The underlying TCP connection.
-        /// </summary>
-        private ITcpConnection _tcp;
 
         /// <summary>
         /// Internal connection token.
@@ -121,17 +126,22 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Flag whether or not the connection has been closed.
         /// </summary>
-        private bool _needsReconnect = false;
+        private bool _needsReconnect;
 
         /// <summary>
         /// Flag to denote we're either reconnecting or waiting to reconnect.
         /// </summary>
-        private bool _isReconnecting = false;
+        private bool _isReconnecting;
+
+        /// <summary>
+        /// True iff we are logged in successfully.
+        /// </summary>
+        private bool _loggedIn;
 
         /// <inheritdoc />
         public bool IsConnected
         {
-            get { return null != _tcp && _tcp.IsConnected; }
+            get { return null != Tcp && Tcp.IsConnected; }
         }
 
         /// <inheritdoc />
@@ -140,10 +150,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Retrieves the underlying tcp connection.
         /// </summary>
-        public ITcpConnection Tcp
-        {
-            get { return _tcp; }
-        }
+        public ITcpConnection Tcp { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -151,6 +158,7 @@ namespace CreateAR.EnkluPlayer
         public MyceliumMultiplayerController(
             IBootstrapper bootstrapper,
             IElementManager elements,
+            IElementFactory elementFactory,
             IAppSceneManager scenes,
             IElementActionStrategyFactory patcherFactory,
             ITcpConnectionFactory connections,
@@ -171,7 +179,14 @@ namespace CreateAR.EnkluPlayer
 
             _sceneHandler = new SceneEventHandler(
                 _elements,
-                new ScenePatcher(scenes, patcherFactory));
+                elementFactory,
+                new ScenePatcher(elements, scenes, patcherFactory));
+            _synchronizer = new PropSynchronizer(msg =>
+            {
+                Verbose("Sending {0}.", msg);
+
+                Send(msg);
+            });
         }
 
         /// <inheritdoc />
@@ -214,87 +229,18 @@ namespace CreateAR.EnkluPlayer
                 Subscribe<UpdateElementFloatEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementStringEvent>(_sceneHandler.OnUpdated);
                 Subscribe<UpdateElementBoolEvent>(_sceneHandler.OnUpdated);
+                Subscribe<CreateElementEvent>(evt => _sceneHandler.OnCreated(evt));
+                Subscribe<DeleteElementEvent>(_sceneHandler.OnDeleted);
                 Subscribe<SceneDiffEvent>(_sceneHandler.OnDiff);
                 Subscribe<SceneMapUpdateEvent>(_sceneHandler.OnMapUpdated);
+                Subscribe<CreateElementResponse>(OnResponse);
+                Subscribe<DeleteElementResponse>(OnResponse);
 
                 // process buffered events
                 StopQueueingMessages();
             }
         }
-
-        /// <summary>
-        /// Gets a multiplayer token and connects to mycelium.
-        /// </summary>
-        private IAsyncToken<Void> Connect()
-        {
-            if (null != _connect)
-            {
-                return _connect.Token();
-            }
-
-            _connect = new AsyncToken<Void>();
-
-            Log.Info(this, "Requesting multiplayer access token.");
-            GetMultiplayerToken();
-
-            return _connect.Token();
-        }
-
-        /// <summary>
-        /// Reacquire multiplayer token and reconnect to mycelium
-        /// </summary>
-        /// <returns></returns>
-        private IAsyncToken<Void> Reconnect()
-        {
-            lock (_synchronizationBuffer)
-            {
-                _synchronizationBuffer.Clear();
-            }
-
-            // Cleanup Tcp Connection
-            if (null != _tcp)
-            {
-                // Remove listener and explicit
-                _tcp.OnConnectionClosed -= OnConnectionClosed;
-                try
-                {
-                    _tcp.Close();
-                }
-                catch (Exception e)
-                {
-                    // This is not indicative of an actual problem, but ensures we we flush buffers,
-                    // and cleanup threads
-                    Verbose("Caught exception during force close on TcpConnection: {0}", e);
-                }
-
-                _tcp = null;
-            }
-
-            if (null != _connect)
-            {
-                _connect.Abort();
-                _connect = null;
-            }
-
-            return Connect();
-        }
-
-        /// <summary>
-        /// Handle disconnection from server.
-        /// </summary>
-        private void OnConnectionClosed(bool resetByPeer)
-        {
-            Log.Debug(this, "OnConnectionClosed[ResetByPeer: {0}]", resetByPeer);
-
-            // Flip flag and allow Poll() to handle
-            _needsReconnect = true;
-
-            if (null != OnConnectionChanged)
-            {
-                OnConnectionChanged(false);
-            }
-        }
-
+        
         /// <inheritdoc />
         public void Disconnect()
         {
@@ -305,12 +251,12 @@ namespace CreateAR.EnkluPlayer
 
             StopPoll();
 
-            if (null != _tcp)
+            if (null != Tcp)
             {
-                _tcp.OnConnectionClosed -= OnConnectionClosed;
+                Tcp.OnConnectionClosed -= OnConnectionClosed;
                 try
                 {
-                    _tcp.Close();
+                    Tcp.Close();
 
                     if (null != OnConnectionChanged)
                     {
@@ -321,7 +267,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     Log.Debug("Socket Close thew harmless exception on disconnect: {0}", e);
                 }
-                _tcp = null;
+                Tcp = null;
             }
 
             _connect.Fail(new Exception("Disconnected."));
@@ -334,34 +280,113 @@ namespace CreateAR.EnkluPlayer
             _sceneHandler.Uninitialize();
         }
 
-        /// <summary>
-        /// When the application resumes, we always assume a disconnected state and reconnect.
-        /// </summary>
-        private void OnApplicationResume(object obj)
+        /// <inheritdoc />
+        public IAsyncToken<Element> Create(
+            string parentId,
+            ElementData element,
+            string owner = null,
+            ElementExpirationType expiration = ElementExpirationType.Session)
         {
-            Log.Warning(this, "OnApplicationResume!");
+            var token = new AsyncToken<Element>();
 
-            _needsReconnect = true;
+            var parentHash = _sceneHandler.Map.ElementHash(parentId);
+            var req = new CreateElementRequest
+            {
+                ParentHash = parentHash,
+                Element = element,
+                Owner = owner,
+                Expiration = expiration
+            };
+
+            _requestMap[req.RequestId] = obj =>
+            {
+                var res = (CreateElementResponse) obj;
+                if (res.Success)
+                {
+                    // forward to scene handler for tracking
+                    var newElement = _sceneHandler.OnCreated(new CreateElementEvent
+                    {
+                        Element = element,
+                        ParentHash = parentHash
+                    });
+
+                    // resolve token
+                    token.Succeed(newElement);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not create element."));
+                }
+            };
+
+            Send(req);
+            
+            return token;
         }
 
         /// <inheritdoc />
-        public void Sync(ElementSchemaProp prop)
+        public IAsyncToken<Void> Destroy(string id)
         {
-            Log.Warning(this, "Sync not implemented.");
+            var token = new AsyncToken<Void>();
+
+            var req = new DeleteElementRequest
+            {
+                ElementHash = _sceneHandler.Map.ElementHash(id)
+            };
+
+            _requestMap[req.RequestId] = obj =>
+            {
+                var res = (DeleteElementResponse) obj;
+                if (res.Success)
+                {
+                    token.Succeed(Void.Instance);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not delete element."));
+                }
+            };
+
+            Send(req);
+
+            return token;
         }
 
         /// <inheritdoc />
-        public void UnSync(ElementSchemaProp prop)
+        public void Sync(string elementId, ElementSchemaProp prop)
         {
-            Log.Warning(this, "UnSync not implemented.");
+            var elementHash = _sceneHandler.Map.ElementHash(elementId);
+            var propHash = _sceneHandler.Map.PropHash(prop.Name);
+
+            if (elementHash <= 0)
+            {
+                Log.Warning(this,
+                    "Cannot sync prop: element hash could not be found for element {0}.",
+                    elementId);
+                return;
+            }
+
+            if (propHash <= 0)
+            {
+                Log.Warning(this,
+                    "Cannot sync prop: prop hash could not be found for prop {0}.",
+                    prop.Name);
+                return;
+            }
+
+            _synchronizer.Track(elementHash, propHash, prop);
         }
 
         /// <inheritdoc />
-        public void Own(string elementId, Action<bool> callback)
+        public void UnSync(string elementId, ElementSchemaProp prop)
         {
-            Log.Warning(this, "Own not implemented.");
+            _synchronizer.Untrack(prop);
+        }
 
-            callback(false);
+        /// <inheritdoc />
+        public IAsyncToken<Void> Own(string elementId)
+        {
+            return new AsyncToken<Void>(new NotImplementedException());
         }
 
         /// <inheritdoc />
@@ -388,18 +413,18 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper.BootstrapCoroutine(Wait(
                 milliseconds / 1000f,
                 () => element.Schema.Set(prop, !value)));
-            
-            if (null == _tcp)
+
+            if (null == Tcp)
             {
                 return;
             }
 
             // try to send a request
-            if (_tcp.IsConnected)
+            if (Tcp.IsConnected)
             {
                 // we need the hash to send a request
-                var hash = _sceneHandler.ElementHash(elementId);
-                
+                var hash = _sceneHandler.Map.ElementHash(elementId);
+
                 // no hash found
                 if (0 == hash)
                 {
@@ -455,6 +480,109 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Gets a multiplayer token and connects to mycelium.
+        /// </summary>
+        private IAsyncToken<Void> Connect()
+        {
+            if (null != _connect)
+            {
+                return _connect.Token();
+            }
+
+            _connect = new AsyncToken<Void>();
+
+            Log.Info(this, "Requesting multiplayer access token.");
+            GetMultiplayerToken();
+
+            return _connect.Token();
+        }
+
+        /// <summary>
+        /// Reacquire multiplayer token and reconnect to mycelium
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<Void> Reconnect()
+        {
+            lock (_synchronizationBuffer)
+            {
+                _synchronizationBuffer.Clear();
+            }
+
+            // Cleanup Tcp Connection
+            if (null != Tcp)
+            {
+                // Remove listener and explicit
+                Tcp.OnConnectionClosed -= OnConnectionClosed;
+                try
+                {
+                    Tcp.Close();
+                }
+                catch (Exception e)
+                {
+                    // This is not indicative of an actual problem, but ensures we we flush buffers,
+                    // and cleanup threads
+                    Verbose("Caught exception during force close on TcpConnection: {0}", e);
+                }
+
+                Tcp = null;
+            }
+
+            if (null != _connect)
+            {
+                _connect.Abort();
+                _connect = null;
+            }
+
+            return Connect();
+        }
+
+        /// <summary>
+        /// Handle disconnection from server.
+        /// </summary>
+        private void OnConnectionClosed(bool resetByPeer)
+        {
+            Log.Debug(this, "OnConnectionClosed[ResetByPeer: {0}]", resetByPeer);
+
+            // Flip flag and allow Poll() to handle
+            _needsReconnect = true;
+
+            if (null != OnConnectionChanged)
+            {
+                OnConnectionChanged(false);
+            }
+        }
+
+        /// <summary>
+        /// When the application resumes, we always assume a disconnected state and reconnect.
+        /// </summary>
+        private void OnApplicationResume(object obj)
+        {
+            Log.Warning(this, "OnApplicationResume!");
+
+            _needsReconnect = true;
+        }
+        
+        /// <summary>
+        /// Called when a delete response is received.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        private void OnResponse(RoomResponse response)
+        {
+            Action<object> callback;
+            if (!_requestMap.TryGetValue(response.RequestId, out callback))
+            {
+                Log.Warning(this, "Received a {0} for an unknown request id: {1}.",
+                    response.GetType().Name,
+                    response.RequestId);
+                return;
+            }
+
+            _requestMap.Remove(response.RequestId);
+
+            callback(response);
+        }
+        
         /// <summary>
         /// Subscribes to a message.
         /// </summary>
@@ -532,8 +660,8 @@ namespace CreateAR.EnkluPlayer
                 _config.Network.Environment.MyceliumIp,
                 _config.Network.Environment.MyceliumPort);
 
-            _tcp = _connections.Connection(this);
-            if (_tcp.Connect(
+            Tcp = _connections.Connection(this);
+            if (Tcp.Connect(
                 _config.Network.Environment.MyceliumIp,
                 _config.Network.Environment.MyceliumPort))
             {
@@ -544,7 +672,7 @@ namespace CreateAR.EnkluPlayer
                     OnConnectionChanged(true);
                 }
 
-                _tcp.OnConnectionClosed += OnConnectionClosed;
+                Tcp.OnConnectionClosed += OnConnectionClosed;
 
                 // next, send login request
                 _bootstrapper.BootstrapCoroutine(Login());
@@ -656,6 +784,8 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IEnumerator Login()
         {
+            _loggedIn = false;
+
             // TODO: this is here due to a mycelium bug
             yield return new WaitForSeconds(0.5f);
 
@@ -666,6 +796,21 @@ namespace CreateAR.EnkluPlayer
             {
                 Jwt = _multiplayerJwt
             });
+
+            // timeout
+            yield return new WaitForSeconds(3f);
+
+            if (!_loggedIn)
+            {
+                Log.Info(this, "Login timed out. Proceeding anyway.");
+
+                if (!_isReconnecting)
+                {
+                    _needsReconnect = true;
+                }
+
+                _connect.Succeed(Void.Instance);
+            }
         }
 
         /// <summary>
@@ -698,6 +843,7 @@ namespace CreateAR.EnkluPlayer
             // w00t
             Log.Info(this, "Logged into Mycelium successfully!");
 
+            _loggedIn = true;
             _connect.Succeed(Void.Instance);
         }
 
@@ -782,7 +928,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="message">The message to send.</param>
         private void Send(object message)
         {
-            if (null == _tcp || !_tcp.IsConnected)
+            if (null == Tcp || !Tcp.IsConnected)
             {
                 return;
             }
@@ -813,7 +959,7 @@ namespace CreateAR.EnkluPlayer
 
                 Verbose("Wrote {0} bytes.", stream.WriterIndex);
 
-                _tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
+                Tcp.Send(buffer.Buffer, 0, stream.WriterIndex);
             }
             finally
             {

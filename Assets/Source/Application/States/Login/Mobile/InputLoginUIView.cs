@@ -29,16 +29,6 @@ namespace CreateAR.EnkluPlayer
         /// Called with username and password.
         /// </summary>
         public event Action<string, string> OnSubmit;
-
-        /// <summary>
-        /// Called to go to signup.
-        /// </summary>
-        public event Action OnSignUp;
-
-        /// <summary>
-        /// Called to continue as a guest.
-        /// </summary>
-        public event Action OnContinueAsGuest; 
         
         /// <summary>
         /// Called when submit button has been pressed.
@@ -62,29 +52,7 @@ namespace CreateAR.EnkluPlayer
                 OnSubmit(UserName.text, Password.text);
             }
         }
-    
-        /// <summary>
-        /// Called when the signup button has been pressed.
-        /// </summary>
-        public void OnSignupClicked()
-        {
-            if (null != OnSignUp)
-            {
-                OnSignUp();
-            }
-        }
-
-        /// <summary>
-        /// Called when continue has been clicked.
-        /// </summary>
-        public void ContinueClicked()
-        {
-            if (null != OnContinueAsGuest)
-            {
-                OnContinueAsGuest();
-            }
-        }
-
+        
         /// <inheritdoc />
         public override void Removed()
         {

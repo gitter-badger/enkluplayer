@@ -70,7 +70,6 @@ namespace CreateAR.EnkluPlayer
             ApiController api,
             HttpRequestCacher cache,
             IMessageRouter messages,
-            IFileManager files,
             IUIManager ui)
         {
             _config = config;

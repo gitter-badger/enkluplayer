@@ -1,6 +1,8 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using Enklu.Mycelium.Messages.Experience;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -45,6 +47,26 @@ namespace CreateAR.EnkluPlayer
         void Disconnect();
 
         /// <summary>
+        /// Creates an element.
+        /// </summary>
+        /// <param name="parentId"></param>
+        /// <param name="element"></param>
+        /// <param name="expiration"></param>
+        /// <param name="owner"></param>
+        IAsyncToken<Element> Create(
+            string parentId,
+            ElementData element,
+            string owner = null,
+            ElementExpirationType expiration = ElementExpirationType.Session);
+
+        /// <summary>
+        /// Deletes an element.
+        /// </summary>
+        /// <param name="id">The id of the element.</param>
+        /// <returns></returns>
+        IAsyncToken<Void> Destroy(string id);
+
+        /// <summary>
         /// Toggles a prop on an element and sets a timer for flipping back.
         /// </summary>
         /// <param name="elementId">The id of the element.</param>
@@ -53,12 +75,30 @@ namespace CreateAR.EnkluPlayer
         /// <param name="milliseconds">The number of milliseconds to wait before revert.</param>
         void AutoToggle(string elementId, string prop, bool value, int milliseconds);
 
-        void Sync(ElementSchemaProp prop);
+        /// <summary>
+        /// Synchronizes all changes to this prop.
+        /// </summary>
+        /// <param name="elementId">The id of the element.</param>
+        /// <param name="prop">The prop to synchronize.</param>
+        void Sync(string elementId, ElementSchemaProp prop);
 
-        void UnSync(ElementSchemaProp prop);
+        /// <summary>
+        /// Stops synchronizing prop changes.
+        /// </summary>
+        /// <param name="elementId">The id of the element.</param>
+        /// <param name="prop">The prop to stop synchronizing.</param>
+        void UnSync(string elementId, ElementSchemaProp prop);
 
-        void Own(string elementId, Action<bool> callback);
+        /// <summary>
+        /// Attempts to own an element, preventing other players from changing it.
+        /// </summary>
+        /// <param name="elementId">The element id.</param>
+        IAsyncToken<Void> Own(string elementId);
 
+        /// <summary>
+        /// Forfeits ownership.
+        /// </summary>
+        /// <param name="elementId">The element id.</param>
         void Forfeit(string elementId);
     }
 }

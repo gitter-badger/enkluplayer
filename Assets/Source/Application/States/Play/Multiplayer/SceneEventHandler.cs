@@ -19,12 +19,18 @@ namespace CreateAR.EnkluPlayer
         /// Dependencies.
         /// </summary>
         private readonly IElementManager _elements;
+        private readonly IElementFactory _elementFactory;
         private readonly ScenePatcher _scenePatcher;
 
         /// <summary>
         /// A simple list of recently used elements.
         /// </summary>
         private readonly List<Element> _elementHeap = new List<Element>();
+
+        /// <summary>
+        /// List of elements that were created while we were connected.
+        /// </summary>
+        private readonly List<Element> _trackedCreates = new List<Element>();
 
         /// <summary>
         /// Root element of the scene.
@@ -51,7 +57,15 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public ElementMap Map
         {
-            get { return _map; }
+            get
+            {
+                if (null == _map)
+                {
+                    _map = new ElementMap();
+                }
+
+                return _map;
+            }
             set
             {
                 _map = value;
@@ -63,9 +77,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SceneEventHandler(IElementManager elements, ScenePatcher scenePatcher)
+        public SceneEventHandler(
+            IElementManager elements,
+            IElementFactory elementFactory,
+            ScenePatcher scenePatcher)
         {
             _elements = elements;
+            _elementFactory = elementFactory;
             _scenePatcher = scenePatcher;
         }
 
@@ -78,6 +96,9 @@ namespace CreateAR.EnkluPlayer
 
             _scenePatcher.Initialize();
             _elementHeap.Clear();
+
+            // create a default value
+            _map = new ElementMap();
         }
 
         /// <summary>
@@ -87,11 +108,13 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "SceneEventHandler uninitialized.");
 
+            _trackedCreates.Clear();
             _elementHeap.Clear();
         }
 
         /// <summary>
-        /// Retrieves the element id from the hash.
+        /// Retrieves the element id from the hash. This is much more efficient
+        /// than using the element map function.
         /// </summary>
         /// <param name="hash">The hash.</param>
         /// <returns></returns>
@@ -106,26 +129,8 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Retrieves the element hash from the id.
-        /// </summary>
-        /// <param name="elementId">The element id.</param>
-        /// <returns></returns>
-        public ushort ElementHash(string elementId)
-        {
-            for (int i = 0, len = _elementLookup.Length; i < len; i++)
-            {
-                var id = _elementLookup[i];
-                if (id == elementId)
-                {
-                    return (ushort) i;
-                }
-            }
-
-            return 0;
-        }
-
-        /// <summary>
-        /// Retrieves a prop name from hash.
+        /// Retrieves a prop name from hash. This is much more efficient than
+        /// using the element map function.
         /// </summary>
         /// <param name="hash">The hash.</param>
         /// <returns></returns>
@@ -138,9 +143,12 @@ namespace CreateAR.EnkluPlayer
 
             return string.Empty;
         }
-
+        
         /// <summary>
-        /// Applies a diff to the scene.
+        /// Applies a diff to the scene. Diffs are received any time we connect
+        /// or reconnect. These are _absolute_ diffs, meaning that they contain
+        /// all changes between the current state of the experience and the
+        /// static data definition.
         /// </summary>
         /// <param name="evt">The diff event.</param>
         public void OnDiff(SceneDiffEvent evt)
@@ -148,26 +156,110 @@ namespace CreateAR.EnkluPlayer
             Log.Warning(this, "Diff event received: {0}", evt.Map);
 
             Map = evt.Map;
-            _scenePatcher.Apply(Expand(evt.ToActions()));
-        }
 
-        /// <summary>
-        /// Applies the hashing to the elementId and key.
-        /// </summary>
-        private List<ElementActionData> Expand(List<ElementActionData> actions)
-        {
-            for (int i = 0; i < actions.Count; ++i)
+            var actions = Expand(evt.ToActions());
+            _scenePatcher.Apply(actions);
+
+            // remove tracked creates that have no associated create diff
+            for (var i = _trackedCreates.Count - 1; i >= 0; i--)
             {
-                var action = actions[i];
-                action.ElementId = ElementId(action.ElementHash);
-                action.Key = PropName(action.KeyHash);
+                var element = _trackedCreates[i];
+                var elementId = element.Id;
+
+                // search for create action for this element
+                var found = false;
+                for (int j = 0, jlen = actions.Count; j < jlen; j++)
+                {
+                    var action = actions[j];
+                    if (action.Type == ElementActionTypes.CREATE)
+                    {
+                        if (action.ElementId == elementId)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                // no create diff, which means the element was destroyed while we were disconnected
+                if (!found)
+                {
+                    _trackedCreates.RemoveAt(i);
+
+                    element.OnDestroyed -= CreatedElement_OnDestroy;
+                    element.Destroy();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Processes a <c>CreateElementEvent</c>. These events are received when
+        /// anyone creates an element, including this client.
+        /// </summary>
+        /// <param name="evt">The event.</param>
+        public Element OnCreated(CreateElementEvent evt)
+        {
+            Verbose("OnCreated({0})", JsonConvert.SerializeObject(evt));
+
+            // find parent
+            var parentId = ElementId(evt.ParentHash);
+            var parent = ById(parentId);
+            if (null == parent)
+            {
+                Log.Warning(this, "Could not find parent to create element under: {0}.", evt.ParentHash);
+                return null;
             }
 
-            return actions;
+            Element element;
+            try
+            {
+                element = _elementFactory.Element(new ElementDescription
+                {
+                    Elements = new[] {evt.Element},
+                    Root = new ElementRef
+                    {
+                        Id = evt.Element.Id
+                    }
+                });
+
+                // track this element
+                _trackedCreates.Add(element);
+                element.OnDestroyed += CreatedElement_OnDestroy;
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not create element: {0}", exception);
+
+                return null;
+            }
+
+            parent.AddChild(element);
+            return element;
+        }
+        
+        /// <summary>
+        /// Processes a <c>DeleteElementEvent</c>. These are received any time
+        /// another user deletes an element.
+        /// </summary>
+        /// <param name="evt">The event.</param>
+        public void OnDeleted(DeleteElementEvent evt)
+        {
+            Verbose("OnDeleted({0})", JsonConvert.SerializeObject(evt));
+
+            var elementId = ElementId(evt.ElementHash);
+            var element = ById(elementId);
+            if (null == element)
+            {
+                Log.Warning(this, "Could not find element to delete: {0}.", evt.ElementHash);
+                return;
+            }
+
+            element.Destroy();
         }
 
         /// <summary>
-        /// Processes an UpdateElementEvent.
+        /// Processes an UpdateElementEvent. These are received any time another
+        /// user updates an element.
         /// </summary>
         /// <typeparam name="T">The type of event.</typeparam>
         /// <param name="evt">The event.</param>
@@ -254,6 +346,21 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Applies the hashing to the elementId and key.
+        /// </summary>
+        private List<ElementActionData> Expand(List<ElementActionData> actions)
+        {
+            for (int i = 0; i < actions.Count; ++i)
+            {
+                var action = actions[i];
+                action.ElementId = ElementId(action.ElementHash);
+                action.Key = PropName(action.KeyHash);
+            }
+
+            return actions;
+        }
+
+        /// <summary>
         /// Retrieves an element by id and stores it in a local data structure
         /// for fast lookup.
         /// </summary>
@@ -300,14 +407,32 @@ namespace CreateAR.EnkluPlayer
 
             //  populate prop lookup
             var props = _map.Props;
-            len = props.Length;
+            var max = 0;
+            for (var i = 0; i < props.Length; i++)
+            {
+                var value = props[i].Hash;
+                if (value > max)
+                {
+                    max = value;
+                }
+            }
 
-            _propLookup = new string[len + 1];
+            len = props.Length;
+            _propLookup = new string[max + 1];
             for (var i = 0; i < len; i++)
             {
                 var record = props[i];
                 _propLookup[record.Hash] = record.Value;
             }
+        }
+
+        /// <summary>
+        /// Called when an element that was created is destroyed.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        private void CreatedElement_OnDestroy(Element element)
+        {
+            _trackedCreates.Remove(element);
         }
 
         /// <summary>

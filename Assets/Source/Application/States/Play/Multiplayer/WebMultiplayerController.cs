@@ -4,6 +4,8 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
+using Enklu.Mycelium.Messages.Experience;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -18,6 +20,7 @@ namespace CreateAR.EnkluPlayer
         /// Dependencies.
         /// </summary>
         private readonly IElementManager _elements;
+        private readonly IElementFactory _elementFactory;
         private readonly IBootstrapper _bootstrapper;
 
         /// <inheritdoc />
@@ -31,9 +34,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public WebMultiplayerController(
             IElementManager elements,
+            IElementFactory elementFactory,
             IBootstrapper bootstrapper)
         {
             _elements = elements;
+            _elementFactory = elementFactory;
             _bootstrapper = bootstrapper;
         }
         
@@ -65,6 +70,56 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
+        public IAsyncToken<Element> Create(
+            string parentId,
+            ElementData element,
+            string owner = null,
+            ElementExpirationType expiration = ElementExpirationType.Session)
+        {
+            var parent = _elements.ById(parentId);
+            if (null == parentId)
+            {
+                return new AsyncToken<Element>(new Exception("Could not find parent."));
+            }
+
+            Element newElement;
+            try
+            {
+                newElement = _elementFactory.Element(new ElementDescription
+                {
+                    Elements = new[] {element},
+                    Root = new ElementRef
+                    {
+                        Id = element.Id
+                    }
+                });
+
+                parent.AddChild(newElement);
+            }
+            catch (Exception exception)
+            {
+                return new AsyncToken<Element>(exception);
+            }
+
+            return new AsyncToken<Element>(newElement);
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> Destroy(string id)
+        {
+            // find and destroy
+            var element = _elements.ById(id);
+            if (null == element)
+            {
+                return new AsyncToken<Void>(new Exception("Could not find element by id."));
+            }
+
+            element.Destroy();
+
+            return new AsyncToken<Void>(Void.Instance);
+        }
+
+        /// <inheritdoc />
         public void AutoToggle(string elementId, string prop, bool value, int milliseconds)
         {
             // find element
@@ -85,21 +140,21 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public void Sync(ElementSchemaProp prop)
+        public void Sync(string elementId, ElementSchemaProp prop)
         {
             // 
         }
 
         /// <inheritdoc />
-        public void UnSync(ElementSchemaProp prop)
+        public void UnSync(string elementId, ElementSchemaProp prop)
         {
             // 
         }
 
         /// <inheritdoc />
-        public void Own(string elementId, Action<bool> callback)
+        public IAsyncToken<Void> Own(string elementId)
         {
-            callback(true);
+            return new AsyncToken<Void>(Void.Instance);
         }
 
         /// <inheritdoc />
