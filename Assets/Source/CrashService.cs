@@ -9,6 +9,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SendEmail;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -431,7 +432,14 @@ namespace CreateAR.EnkluPlayer
                     try
                     {
                         // TODO: do this in a faster way
-                        var stats = JsonConvert.SerializeObject(_stats);
+                        var stats = JsonConvert.SerializeObject(_stats, new JsonSerializerSettings
+                        {
+                            Converters =
+                            {
+                                new QuaternionConverter(),
+                                new VectorConverter()
+                            }
+                        });
 
                         // we can do a synchronous write because this is already being
                         // executed off of the main thread
