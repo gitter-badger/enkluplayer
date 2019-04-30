@@ -28,6 +28,11 @@ namespace CreateAR.EnkluPlayer
         private readonly List<Element> _elementHeap = new List<Element>();
 
         /// <summary>
+        /// List of elements that were created while we were connected.
+        /// </summary>
+        private readonly List<Element> _trackedCreates = new List<Element>();
+
+        /// <summary>
         /// Root element of the scene.
         /// </summary>
         private Element _root;
@@ -103,11 +108,13 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "SceneEventHandler uninitialized.");
 
+            _trackedCreates.Clear();
             _elementHeap.Clear();
         }
 
         /// <summary>
-        /// Retrieves the element id from the hash.
+        /// Retrieves the element id from the hash. This is much more efficient
+        /// than using the element map function.
         /// </summary>
         /// <param name="hash">The hash.</param>
         /// <returns></returns>
@@ -122,7 +129,8 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Retrieves a prop name from hash.
+        /// Retrieves a prop name from hash. This is much more efficient than
+        /// using the element map function.
         /// </summary>
         /// <param name="hash">The hash.</param>
         /// <returns></returns>
@@ -137,7 +145,10 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <summary>
-        /// Applies a diff to the scene.
+        /// Applies a diff to the scene. Diffs are received any time we connect
+        /// or reconnect. These are _absolute_ diffs, meaning that they contain
+        /// all changes between the current state of the experience and the
+        /// static data definition.
         /// </summary>
         /// <param name="evt">The diff event.</param>
         public void OnDiff(SceneDiffEvent evt)
@@ -145,11 +156,45 @@ namespace CreateAR.EnkluPlayer
             Log.Warning(this, "Diff event received: {0}", evt.Map);
 
             Map = evt.Map;
-            _scenePatcher.Apply(Expand(evt.ToActions()));
+
+            var actions = Expand(evt.ToActions());
+            _scenePatcher.Apply(actions);
+
+            // remove tracked creates that have no associated create diff
+            for (var i = _trackedCreates.Count - 1; i >= 0; i--)
+            {
+                var element = _trackedCreates[i];
+                var elementId = element.Id;
+
+                // search for create action for this element
+                var found = false;
+                for (int j = 0, jlen = actions.Count; j < jlen; j++)
+                {
+                    var action = actions[j];
+                    if (action.Type == ElementActionTypes.CREATE)
+                    {
+                        if (action.ElementId == elementId)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                // no create diff, which means the element was destroyed while we were disconnected
+                if (!found)
+                {
+                    _trackedCreates.RemoveAt(i);
+
+                    element.OnDestroyed -= CreatedElement_OnDestroy;
+                    element.Destroy();
+                }
+            }
         }
         
         /// <summary>
-        /// Processes a <c>CreateElementEvent</c>.
+        /// Processes a <c>CreateElementEvent</c>. These events are received when
+        /// anyone creates an element, including this client.
         /// </summary>
         /// <param name="evt">The event.</param>
         public Element OnCreated(CreateElementEvent evt)
@@ -176,6 +221,10 @@ namespace CreateAR.EnkluPlayer
                         Id = evt.Element.Id
                     }
                 });
+
+                // track this element
+                _trackedCreates.Add(element);
+                element.OnDestroyed += CreatedElement_OnDestroy;
             }
             catch (Exception exception)
             {
@@ -187,9 +236,10 @@ namespace CreateAR.EnkluPlayer
             parent.AddChild(element);
             return element;
         }
-
+        
         /// <summary>
-        /// Processes a <c>DeleteElementEvent</c>.
+        /// Processes a <c>DeleteElementEvent</c>. These are received any time
+        /// another user deletes an element.
         /// </summary>
         /// <param name="evt">The event.</param>
         public void OnDeleted(DeleteElementEvent evt)
@@ -208,7 +258,8 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Processes an UpdateElementEvent.
+        /// Processes an UpdateElementEvent. These are received any time another
+        /// user updates an element.
         /// </summary>
         /// <typeparam name="T">The type of event.</typeparam>
         /// <param name="evt">The event.</param>
@@ -373,6 +424,15 @@ namespace CreateAR.EnkluPlayer
                 var record = props[i];
                 _propLookup[record.Hash] = record.Value;
             }
+        }
+
+        /// <summary>
+        /// Called when an element that was created is destroyed.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        private void CreatedElement_OnDestroy(Element element)
+        {
+            _trackedCreates.Remove(element);
         }
 
         /// <summary>
