@@ -49,7 +49,7 @@ namespace CreateAR.Commons.Unity.Storage
             LogVerbose("GetAll()");
             
             _http
-                .Get<GetAllKvsResponse>(_http.Urls.Url(ENDPOINT_KVS))
+                .Get<GetAllKvsResponse>(ENDPOINT_KVS)
                 .OnSuccess(response =>
                 {
                     if (null == response.Payload)
@@ -85,7 +85,7 @@ namespace CreateAR.Commons.Unity.Storage
 
             _http
                 .Post<CreateKvResponse>(
-                    _http.Urls.Url(ENDPOINT_KVS),
+                    ENDPOINT_KVS,
                     new CreateKvRequest
                     {
                         value = serialized,
@@ -122,10 +122,10 @@ namespace CreateAR.Commons.Unity.Storage
             LogVerbose("Load({0})", key);
 
             _http
-                .Get<GetKvResponse>(_http.Urls.Url(string.Format(
+                .Get<GetKvResponse>(string.Format(
                     "{0}/{1}",
                     ENDPOINT_KVS,
-                    key)))
+                    key))
                 .OnSuccess(response =>
                 {
                     if (null == response.Payload)
@@ -162,10 +162,10 @@ namespace CreateAR.Commons.Unity.Storage
             
             _http
                 .Put<UpdateKvResponse>(
-                    _http.Urls.Url(string.Format(
+                    string.Format(
                         "{0}/{1}",
                         ENDPOINT_KVS,
-                        key)),
+                        key),
                     new UpdateKvRequest
                     {
                         value = value,
@@ -203,10 +203,10 @@ namespace CreateAR.Commons.Unity.Storage
             LogVerbose("Delete({0})");
 
             _http
-                .Delete<CreateKvResponse>(_http.Urls.Url(string.Format(
+                .Delete<CreateKvResponse>(string.Format(
                         "{0}/{1}",
                         ENDPOINT_KVS,
-                        key)))
+                        key))
                 .OnSuccess(response =>
                 {
                     if (null == response.Payload)

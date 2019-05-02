@@ -155,7 +155,7 @@ namespace CreateAR.EnkluPlayer
 
             _http
                 .PostFile<Response>(
-                    _http.Urls.Url("trellis://file"),
+                    "trellis://file",
                     new List<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>>
                     {
                         CreateAR.Commons.Unity.DataStructures.Tuple.Create("tags", _tags)
@@ -213,7 +213,7 @@ namespace CreateAR.EnkluPlayer
 
             _http
                 .PutFile<Trellis.Messages.UpdateFile.Response>(
-                    _http.Urls.Url("trellis://file/" + FileId),
+                    "trellis://file/" + FileId,
                     new List<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>>(),
                     ref bytes)
                 .OnSuccess(response =>

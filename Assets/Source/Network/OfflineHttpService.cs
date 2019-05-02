@@ -11,10 +11,7 @@ namespace CreateAR.EnkluPlayer
     public class OfflineHttpService : IHttpService
     {
         /// <inheritdoc />
-        public UrlFormatterCollection Urls { get; private set; }
-
-        /// <inheritdoc />
-        public Dictionary<string, string> Headers { get; private set; }
+        public HttpServiceManager Services { get; private set; }
 
         /// <inheritdoc />
         public long TimeoutMs { get; set; }
@@ -27,8 +24,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public OfflineHttpService(UrlFormatterCollection urls)
         {
-            Urls = urls;
-            Headers = new Dictionary<string, string>();
+            Services = new HttpServiceManager(urls);
         }
 
         /// <inheritdoc />
@@ -42,7 +38,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null != OnRequest)
             {
-                OnRequest("GET", url, Headers, null);
+                OnRequest("GET", url, Services.GetHeaders(null), null);
             }
 
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
@@ -53,7 +49,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null != OnRequest)
             {
-                OnRequest("POST", url, Headers, payload);
+                OnRequest("POST", url, Services.GetHeaders(null), payload);
             }
 
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
@@ -64,7 +60,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null != OnRequest)
             {
-                OnRequest("PUT", url, Headers, payload);
+                OnRequest("PUT", url, Services.GetHeaders(null), payload);
             }
 
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
@@ -75,7 +71,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null != OnRequest)
             {
-                OnRequest("DELETE", url, Headers, null);
+                OnRequest("DELETE", url, Services.GetHeaders(null), null);
             }
 
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
@@ -86,7 +82,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null != OnRequest)
             {
-                OnRequest("POST", url, Headers, null);
+                OnRequest("POST", url, Services.GetHeaders(null), null);
             }
 
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
@@ -97,7 +93,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null != OnRequest)
             {
-                OnRequest("PUT", url, Headers, null);
+                OnRequest("PUT", url, Services.GetHeaders(null), null);
             }
 
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
@@ -108,7 +104,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (null != OnRequest)
             {
-                OnRequest("GET", url, Headers, null);
+                OnRequest("GET", url, Services.GetHeaders(null), null);
             }
 
             return new AsyncToken<HttpResponse<byte[]>>(new Exception("Network error."));

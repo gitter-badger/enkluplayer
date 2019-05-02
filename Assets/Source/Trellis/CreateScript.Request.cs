@@ -16,14 +16,17 @@ namespace CreateAR.Trellis.Messages.CreateScript
 
     public partial class Request
     {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
         [JsonProperty("description")]
         public string Description { get; set; }
 
-        [JsonProperty("script")]
-        public string Script { get; set; }
+        [JsonProperty("source")]
+        public string Source { get; set; }
+
+        [JsonProperty("appId")]
+        public string AppId { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
         [JsonProperty("tags")]
         public string Tags { get; set; }

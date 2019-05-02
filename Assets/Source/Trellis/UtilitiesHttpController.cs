@@ -17,17 +17,19 @@ namespace CreateAR.Trellis.Messages
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.SendEmail.Response>> SendEmail(CreateAR.Trellis.Messages.SendEmail.Request request)
-        {
+        {   
+            // Headers: [ Authorization ]
             return _http.Post<CreateAR.Trellis.Messages.SendEmail.Response>(
-                _http.Urls.Url("trellis://" + "/utilities/sendmail"),
+                "trellis://" + "/utilities/sendmail",
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GettingStarted.Response>> GettingStarted(CreateAR.Trellis.Messages.GettingStarted.Request request)
-        {
+        {   
+            // Headers: [ Authorization ]
             return _http.Post<CreateAR.Trellis.Messages.GettingStarted.Response>(
-                _http.Urls.Url("trellis://" + "/getstarted"),
+                "trellis://" + "/getstarted",
                 request);
         }
-}
+    }
 }

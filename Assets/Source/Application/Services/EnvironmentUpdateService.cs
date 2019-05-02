@@ -89,6 +89,12 @@ namespace CreateAR.EnkluPlayer
                 Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
             }
 
+            var stargazerFormatter = new LoggedUrlFormatter();
+            if (!stargazerFormatter.FromUrl(env.StargazerUrl))
+            {
+                Log.Error(this, "Invalid stargazer URL : " + env.StargazerUrl);
+            }
+
             var meshCaptureFormatter = new LoggedUrlFormatter();
             if (!meshCaptureFormatter.FromUrl(env.TrellisUrl))
             {
@@ -123,15 +129,16 @@ namespace CreateAR.EnkluPlayer
                 Log.Error(this, "Invalid anchors URL : " + env.AnchorsUrl);
             }
 
-            var urls = _http.Urls;
-            urls.Register("trellis", trellisFormatter);
-            urls.Register("meshcapture", meshCaptureFormatter);
-            urls.Register("assets", assetsFormatter);
-            urls.Register("thumbs", thumbsFormatter);
-            urls.Register("scripts", scriptsFormatter);
-            urls.Register("anchors", anchorsFormatter);
+            var services = _http.Services;
+            services.Register("trellis", trellisFormatter);
+            services.Register("stargazer", stargazerFormatter);
+            services.Register("meshcapture", meshCaptureFormatter);
+            services.Register("assets", assetsFormatter);
+            services.Register("thumbs", thumbsFormatter);
+            services.Register("scripts", scriptsFormatter);
+            services.Register("anchors", anchorsFormatter);
 
-            urls.Default = "trellis";
+            services.Urls.Default = "trellis";
 
             // reapply
             _config.Network.Credentials.Apply(_http);

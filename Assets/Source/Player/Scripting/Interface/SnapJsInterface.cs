@@ -112,7 +112,12 @@ namespace CreateAR.EnkluPlayer
 
                         _api
                             .Snaps
-                            .TriggerSnap(orgId, instanceId, tag, new Request())
+                            .TriggerSnap(orgId, instanceId, new Request()
+                            {
+                                Tag = tag,
+                                SessionId = "",
+                                UserId = ""
+                            })
                             .OnSuccess(response =>
                             {
                                 if (response.Payload.Success)

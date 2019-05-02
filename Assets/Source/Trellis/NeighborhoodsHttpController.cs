@@ -18,78 +18,90 @@ namespace CreateAR.Trellis.Messages
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetMyNeighborhoods.Response>> GetMyNeighborhoods()
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.GetMyNeighborhoods.Response>(
-                _http.Urls.Url("trellis://" + "/neighborhood"));
+                "trellis://" + "/neighborhood");
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetNeighborhood.Response>> GetNeighborhood(string neighborhoodId)
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.GetNeighborhood.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}", neighborhoodId)));
+                "trellis://" + string.Format("/neighborhood/{0}", neighborhoodId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.JoinNeighborhood.Response>> JoinNeighborhood(string neighborhoodId, CreateAR.Trellis.Messages.JoinNeighborhood.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Post<CreateAR.Trellis.Messages.JoinNeighborhood.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/neighbor", neighborhoodId)),
+                "trellis://" + string.Format("/neighborhood/{0}/neighbor", neighborhoodId),
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetNeighbors.Response>> GetNeighbors(string neighborhoodId)
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.GetNeighbors.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/neighbor", neighborhoodId)));
+                "trellis://" + string.Format("/neighborhood/{0}/neighbor", neighborhoodId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetNeighbor.Response>> GetNeighbor(string neighborhoodId, string neighborId)
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.GetNeighbor.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/neighbor/{1}", neighborhoodId, neighborId)));
+                "trellis://" + string.Format("/neighborhood/{0}/neighbor/{1}", neighborhoodId, neighborId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetNeighborhoodKvs.Response>> GetNeighborhoodKvs(string neighborhoodId)
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.GetNeighborhoodKvs.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/kv", neighborhoodId)));
+                "trellis://" + string.Format("/neighborhood/{0}/kv", neighborhoodId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetNeighborhoodKv.Response>> GetNeighborhoodKv(string neighborhoodId, string neighborKvId)
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.GetNeighborhoodKv.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/kv/{1}", neighborhoodId, neighborKvId)));
+                "trellis://" + string.Format("/neighborhood/{0}/kv/{1}", neighborhoodId, neighborKvId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateNeighborhoodKv.Response>> CreateNeighborhoodKv(string neighborhoodId, CreateAR.Trellis.Messages.CreateNeighborhoodKv.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Post<CreateAR.Trellis.Messages.CreateNeighborhoodKv.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/kv", neighborhoodId)),
+                "trellis://" + string.Format("/neighborhood/{0}/kv", neighborhoodId),
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.UpdateNeighborhoodKv.Response>> UpdateNeighborhoodKv(string neighborhoodId, string neighborKvId, CreateAR.Trellis.Messages.UpdateNeighborhoodKv.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Put<CreateAR.Trellis.Messages.UpdateNeighborhoodKv.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/kv/{1}", neighborhoodId, neighborKvId)),
+                "trellis://" + string.Format("/neighborhood/{0}/kv/{1}", neighborhoodId, neighborKvId),
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.DeleteNeighborhoodKv.Response>> DeleteNeighborhoodKv(string neighborhoodId, string neighborKvId)
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Delete<CreateAR.Trellis.Messages.DeleteNeighborhoodKv.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}/kv/{1}", neighborhoodId, neighborKvId)));
+                "trellis://" + string.Format("/neighborhood/{0}/kv/{1}", neighborhoodId, neighborKvId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateNeighborhood.Response>> CreateNeighborhood(CreateAR.Trellis.Messages.CreateNeighborhood.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Post<CreateAR.Trellis.Messages.CreateNeighborhood.Response>(
-                _http.Urls.Url("trellis://" + "/neighborhood"),
+                "trellis://" + "/neighborhood",
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.DeleteNeighborhood.Response>> DeleteNeighborhood(string neighborhoodId)
         {
+            // Headers: [ Authorization, Content-Type ]
             return _http.Delete<CreateAR.Trellis.Messages.DeleteNeighborhood.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/neighborhood/{0}", neighborhoodId)));
+                "trellis://" + string.Format("/neighborhood/{0}", neighborhoodId));
         }
-    }
+        }
 }

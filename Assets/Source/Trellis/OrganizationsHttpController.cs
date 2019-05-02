@@ -17,35 +17,40 @@ namespace CreateAR.Trellis.Messages
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateOrganization.Response>> CreateOrganization(CreateAR.Trellis.Messages.CreateOrganization.Request request)
-        {
+        {   
+            // Headers: [ Authorization ]
             return _http.Post<CreateAR.Trellis.Messages.CreateOrganization.Response>(
-                _http.Urls.Url("trellis://" + "/org"),
+                "trellis://" + "/org",
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetMyOrganizations.Response>> GetMyOrganizations()
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetMyOrganizations.Response>(
-                _http.Urls.Url("trellis://" + "/org"));
+                "trellis://" + "/org");
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetOrganization.Response>> GetOrganization(string organizationId)
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetOrganization.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}", organizationId)));
+                "trellis://" + string.Format("/org/{0}", organizationId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.UpdateOrganization.Response>> UpdateOrganization(string organizationId, CreateAR.Trellis.Messages.UpdateOrganization.Request request)
-        {
+        {   
+            // Headers: [ Authorization ]
             return _http.Put<CreateAR.Trellis.Messages.UpdateOrganization.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}", organizationId)),
+                "trellis://" + string.Format("/org/{0}", organizationId),
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.DeleteOrganization.Response>> DeleteOrganization(string secondaryOrganizationId)
         {
+            // Headers: [ Authorization ]
             return _http.Delete<CreateAR.Trellis.Messages.DeleteOrganization.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}", secondaryOrganizationId)));
+                "trellis://" + string.Format("/org/{0}", secondaryOrganizationId));
         }
-    }
+        }
 }

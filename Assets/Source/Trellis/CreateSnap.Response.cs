@@ -28,28 +28,34 @@ namespace CreateAR.Trellis.Messages.CreateSnap
 
     public partial class Body
     {
-        [JsonProperty("org")]
-        public string Org { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("createdAt")]
-        public string CreatedAt { get; set; }
+        [JsonProperty("owner")]
+        public string Owner { get; set; }
 
         [JsonProperty("instance")]
         public string Instance { get; set; }
 
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("org")]
+        public string Org { get; set; }
+
         [JsonProperty("status")]
         public string Status { get; set; }
 
-        [JsonProperty("owner")]
-        public string Owner { get; set; }
+        [JsonProperty("type")]
+        public string Type { get; set; }
 
-        [JsonProperty("updatedAt")]
-        public string UpdatedAt { get; set; }
+        [JsonProperty("sessionId")]
+        public string SessionId { get; set; }
+
+        [JsonProperty("tag")]
+        public string Tag { get; set; }
 
         [JsonProperty("url")]
         public string Url { get; set; }
+
+        [JsonProperty("userId")]
+        public string UserId { get; set; }
     }
 }

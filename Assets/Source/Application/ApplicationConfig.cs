@@ -675,6 +675,11 @@ namespace CreateAR.EnkluPlayer
         public string TrellisUrl = "localhost";
 
         /// <summary>
+        /// The Stargazer User service endpoint
+        /// </summary>
+        public string StargazerUrl = "localhost";
+
+        /// <summary>
         /// Url for asset import server.
         /// </summary>
         public string AssetsUrl = "localhost";
@@ -715,8 +720,9 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[EnvironmentData TrellisUrl={0}, MyceliumUrl={1}:{2}, AssetsUrl={3}, BundlesUrl={4}, ThumbsUrl={5}, ScriptsUrl={6}, AnchorsUrl={7}]",
+            return string.Format("[EnvironmentData TrellisUrl={0}, StargazerUrl={1}, MyceliumUrl={2}:{3}, AssetsUrl={4}, BundlesUrl={5}, ThumbsUrl={6}, ScriptsUrl={7}, AnchorsUrl={8}]",
                 TrellisUrl,
+                StargazerUrl,
                 MyceliumIp,
                 MyceliumPort,
                 AssetsUrl,
@@ -785,8 +791,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="http">Makes http calls.</param>
         public void Apply(IHttpService http)
         {
-            http.Urls.Formatter("trellis").Replacements["userId"] = UserId;
-            http.Headers["Authorization"] = string.Format("Bearer {0}", Token);
+            http.Services.Urls.Formatter("trellis").Replacements["userId"] = UserId;
+            http.Services.AddHeader("trellis", "Authorization", string.Format("Bearer {0}", Token));
         }
     }
     

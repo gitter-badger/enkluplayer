@@ -18,20 +18,23 @@ namespace CreateAR.Trellis.Messages
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetApiVersion.Response>> GetApiVersion()
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetApiVersion.Response>(
-                _http.Urls.Url("trellis://" + "/versions/api"));
+                "trellis://" + "/versions/api");
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetHololensVersion.Response>> GetHololensVersion()
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetHololensVersion.Response>(
-                _http.Urls.Url("trellis://" + "/versions/hololens"));
+                "trellis://" + "/versions/hololens");
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetWebVersion.Response>> GetWebVersion()
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetWebVersion.Response>(
-                _http.Urls.Url("trellis://" + "/versions/web"));
+                "trellis://" + "/versions/web");
         }
-    }
+        }
 }

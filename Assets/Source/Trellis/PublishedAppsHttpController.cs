@@ -18,51 +18,59 @@ namespace CreateAR.Trellis.Messages
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetPublishedApp.Response>> GetPublishedApp(string publicAppId)
         {
+            // Headers: [ Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.GetPublishedApp.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app/{0}", publicAppId)));
+                "trellis://" + string.Format("/app/{0}", publicAppId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetPublishedScene.Response>> GetPublishedScene(string publicAppId, string publicSceneId)
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetPublishedScene.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app/{0}/scene/{1}", publicAppId, publicSceneId)));
+                "trellis://" + string.Format("/app/{0}/scene/{1}", publicAppId, publicSceneId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetPublishedAssets.Response>> GetPublishedAssets(string publicAppId)
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetPublishedAssets.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app/{0}/asset", publicAppId)));
+                "trellis://" + string.Format("/app/{0}/asset", publicAppId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetPublishedAsset.Response>> GetPublishedAsset(string publicAppId, string publicAssetId)
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetPublishedAsset.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app/{0}/asset/{1}", publicAppId, publicAssetId)));
+                "trellis://" + string.Format("/app/{0}/asset/{1}", publicAppId, publicAssetId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetPublishedAppScripts.Response>> GetPublishedAppScripts(string publicAppId)
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetPublishedAppScripts.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app/{0}/script", publicAppId)));
+                "trellis://" + string.Format("/app/{0}/script", publicAppId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetPublishedScript.Response>> GetPublishedScript(string publicAppId, string publicScriptId)
         {
+            // Headers: [  ]
             return _http.Get<CreateAR.Trellis.Messages.GetPublishedScript.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app/{0}/script/{1}", publicAppId, publicScriptId)));
+                "trellis://" + string.Format("/app/{0}/script/{1}", publicAppId, publicScriptId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.SearchPublishedApps.Response>> SearchPublishedApps(string publicAppQuery)
         {
+            // Headers: [ Content-Type ]
             return _http.Get<CreateAR.Trellis.Messages.SearchPublishedApps.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app?query={0}", publicAppQuery)));
+                "trellis://" + string.Format("/app?query={0}", publicAppQuery));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateMultiplayerToken.Response>> CreateMultiplayerToken(string appId, CreateAR.Trellis.Messages.CreateMultiplayerToken.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Post<CreateAR.Trellis.Messages.CreateMultiplayerToken.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/app/{0}/token", appId)),
+                "trellis://" + string.Format("/app/{0}/token", appId),
                 request);
         }
-}
+    }
 }

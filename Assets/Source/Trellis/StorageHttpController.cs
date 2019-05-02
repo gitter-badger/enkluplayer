@@ -18,46 +18,53 @@ namespace CreateAR.Trellis.Messages
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetAllKvs.Response>> GetAllKvs()
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetAllKvs.Response>(
-                _http.Urls.Url("trellis://" + "/kv"));
+                "trellis://" + "/kv");
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetAllKvHeaders.Response>> GetAllKvHeaders()
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetAllKvHeaders.Response>(
-                _http.Urls.Url("trellis://" + "/kv?headers=true"));
+                "trellis://" + "/kv?headers=true");
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateKv.Response>> CreateKv(CreateAR.Trellis.Messages.CreateKv.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Post<CreateAR.Trellis.Messages.CreateKv.Response>(
-                _http.Urls.Url("trellis://" + "/kv"),
+                "trellis://" + "/kv",
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetKv.Response>> GetKv(string kvid)
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetKv.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/kv/{0}", kvid)));
+                "trellis://" + string.Format("/kv/{0}", kvid));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.DeleteKv.Response>> DeleteKv(string kvid)
         {
+            // Headers: [ Authorization ]
             return _http.Delete<CreateAR.Trellis.Messages.DeleteKv.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/kv/{0}", kvid)));
+                "trellis://" + string.Format("/kv/{0}", kvid));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.UpdateKv.Response>> UpdateKv(string kvid, CreateAR.Trellis.Messages.UpdateKv.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Put<CreateAR.Trellis.Messages.UpdateKv.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/kv/{0}", kvid)),
+                "trellis://" + string.Format("/kv/{0}", kvid),
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetAllKvsBytag.Response>> GetAllKvsBytag(string kvTag)
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetAllKvsBytag.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/kv?tags={0}", kvTag)));
+                "trellis://" + string.Format("/kv?tags={0}", kvTag));
         }
-    }
+        }
 }

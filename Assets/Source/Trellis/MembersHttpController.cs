@@ -17,35 +17,40 @@ namespace CreateAR.Trellis.Messages
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateMember.Response>> CreateMember(string organizationId, CreateAR.Trellis.Messages.CreateMember.Request request)
-        {
+        {   
+            // Headers: [ Authorization ]
             return _http.Post<CreateAR.Trellis.Messages.CreateMember.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/member", organizationId)),
+                "trellis://" + string.Format("/org/{0}/member", organizationId),
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetAllOrganizationMembers.Response>> GetAllOrganizationMembers(string organizationId)
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetAllOrganizationMembers.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/member", organizationId)));
+                "trellis://" + string.Format("/org/{0}/member", organizationId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetOrganizationMember.Response>> GetOrganizationMember(string organizationId, string orgMemberId)
         {
+            // Headers: [ Authorization ]
             return _http.Get<CreateAR.Trellis.Messages.GetOrganizationMember.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/member/{1}", organizationId, orgMemberId)));
+                "trellis://" + string.Format("/org/{0}/member/{1}", organizationId, orgMemberId));
         }
     
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.UpdateOrganizationMember.Response>> UpdateOrganizationMember(string organizationId, string secondaryOrgMemberId, CreateAR.Trellis.Messages.UpdateOrganizationMember.Request request)
-        {
+        {   
+            // Headers: [ Authorization ]
             return _http.Put<CreateAR.Trellis.Messages.UpdateOrganizationMember.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/member/{1}", organizationId, secondaryOrgMemberId)),
+                "trellis://" + string.Format("/org/{0}/member/{1}", organizationId, secondaryOrgMemberId),
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.DeleteOrganizationMember.Response>> DeleteOrganizationMember(string organizationId, string secondaryOrgMemberId)
         {
+            // Headers: [ Authorization ]
             return _http.Delete<CreateAR.Trellis.Messages.DeleteOrganizationMember.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/member/{1}", organizationId, secondaryOrgMemberId)));
+                "trellis://" + string.Format("/org/{0}/member/{1}", organizationId, secondaryOrgMemberId));
         }
-    }
+        }
 }

@@ -109,11 +109,11 @@ namespace CreateAR.EnkluPlayer
 
             foreach (var registration in _registrations)
             {
-                var url = _http.Urls.Url(string.Format(
+                var url = string.Format(
                     "trellis://org/{0}/device/{1}",
                     registration.OrgId,
                     registration.DeviceId
-                ));
+                );
                 
                 _http
                     .Put<Trellis.Messages.UpdateOrganizationDevice.Response>(

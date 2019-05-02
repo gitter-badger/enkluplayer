@@ -75,7 +75,7 @@ namespace CreateAR.EnkluPlayer.Editor
             var formatter = new UrlFormatter();
             formatter.FromUrl(environment.TrellisUrl);
 
-            EditorApplication.Http.Urls.Register("trellis", formatter);
+            EditorApplication.Http.Services.Register("trellis", formatter);
 
             Log.Info(this, "Attempting to connect to Trellis.");
 

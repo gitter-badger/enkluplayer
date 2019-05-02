@@ -426,7 +426,7 @@ namespace CreateAR.EnkluPlayer.IUX
             // metrics
             var downloadId = _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Start();
             
-            var formattedUrl = _http.Urls.Url(string.Format("anchors://{0}", uri));
+            var formattedUrl = string.Format("anchors://{0}", uri);
             var request = UnityWebRequest.Get(formattedUrl);
 
             _downloadAbort = () =>
@@ -516,7 +516,7 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 // create
                 token = _http.PostFile<Response>(
-                    _http.Urls.Url(url),
+                    url,
                     new Commons.Unity.DataStructures.Tuple<string, string>[0],
                     ref bytes);
             }
@@ -526,7 +526,7 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 // update
                 token = _http.PutFile<Response>(
-                    _http.Urls.Url(url),
+                    url,
                     new Commons.Unity.DataStructures.Tuple<string, string>[0],
                     ref bytes);
             }

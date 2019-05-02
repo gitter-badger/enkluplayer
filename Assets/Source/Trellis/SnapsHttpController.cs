@@ -16,44 +16,20 @@ namespace CreateAR.Trellis.Messages
             _http = http;
         }
 
-        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetAllSnaps.Response>> GetAllSnaps(string organizationId)
-        {
-            return _http.Get<CreateAR.Trellis.Messages.GetAllSnaps.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap", organizationId)));
-        }
-    
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateSnap.Response>> CreateSnap(string organizationId, string instanceId, CreateAR.Trellis.Messages.CreateSnap.Request request)
-        {
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Post<CreateAR.Trellis.Messages.CreateSnap.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}", organizationId, instanceId)),
+                "trellis://" + string.Format("/org/{0}/snap/{1}", organizationId, instanceId),
                 request);
         }
 
-        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetSnap.Response>> GetSnap(string organizationId, string instanceId, string snapId)
-        {
-            return _http.Get<CreateAR.Trellis.Messages.GetSnap.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}/{2}", organizationId, instanceId, snapId)));
-        }
-    
-        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.SendSnap.Response>> SendSnap(string organizationId, string instanceId, string snapId, CreateAR.Trellis.Messages.SendSnap.Request request)
-        {
-            return _http.Put<CreateAR.Trellis.Messages.SendSnap.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}/{2}", organizationId, instanceId, snapId)),
-                request);
-        }
-
-        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateSnapThumb.Response>> CreateSnapThumb(string organizationId, string instanceId, string snapId, CreateAR.Trellis.Messages.CreateSnapThumb.Request request)
-        {
-            return _http.Post<CreateAR.Trellis.Messages.CreateSnapThumb.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}/{2}", organizationId, instanceId, snapId)),
-                request);
-        }
-
-        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.TriggerSnap.Response>> TriggerSnap(string organizationId, string instanceId, string snapTag, CreateAR.Trellis.Messages.TriggerSnap.Request request)
-        {
+        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.TriggerSnap.Response>> TriggerSnap(string organizationId, string instanceId, CreateAR.Trellis.Messages.TriggerSnap.Request request)
+        {   
+            // Headers: [ Authorization, Content-Type ]
             return _http.Put<CreateAR.Trellis.Messages.TriggerSnap.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}?tag={2}", organizationId, instanceId, snapTag)),
+                "trellis://" + string.Format("/org/{0}/snap/{1}", organizationId, instanceId),
                 request);
         }
-}
+    }
 }

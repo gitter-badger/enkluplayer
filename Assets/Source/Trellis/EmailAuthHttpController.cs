@@ -16,25 +16,20 @@ namespace CreateAR.Trellis.Messages
             _http = http;
         }
 
-        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.EmailSignUpWithLicense.Response>> EmailSignUpWithLicense(CreateAR.Trellis.Messages.EmailSignUpWithLicense.Request request)
-        {
-            return _http.Post<CreateAR.Trellis.Messages.EmailSignUpWithLicense.Response>(
-                _http.Urls.Url("trellis://" + "/email/signup"),
-                request);
-        }
-
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.EmailSignUp.Response>> EmailSignUp(CreateAR.Trellis.Messages.EmailSignUp.Request request)
-        {
+        {   
+            // Headers: [  ]
             return _http.Post<CreateAR.Trellis.Messages.EmailSignUp.Response>(
-                _http.Urls.Url("trellis://" + "/email/signup"),
+                "trellis://" + "/email/signup",
                 request);
         }
 
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.EmailSignIn.Response>> EmailSignIn(CreateAR.Trellis.Messages.EmailSignIn.Request request)
-        {
+        {   
+            // Headers: [  ]
             return _http.Post<CreateAR.Trellis.Messages.EmailSignIn.Response>(
-                _http.Urls.Url("trellis://" + "/email/signin"),
+                "trellis://" + "/email/signin",
                 request);
         }
-}
+    }
 }

@@ -19,40 +19,7 @@ namespace CreateAR.Trellis.Messages.DeleteScript
         [JsonProperty("error")]
         public string Error { get; set; }
 
-        [JsonProperty("body")]
-        public Body Body { get; set; }
-
         [JsonProperty("success")]
         public bool Success { get; set; }
-    }
-
-    public partial class Body
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("createdAt")]
-        public string CreatedAt { get; set; }
-
-        [JsonProperty("crc")]
-        public string Crc { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("tags")]
-        public string Tags { get; set; }
-
-        [JsonProperty("uri")]
-        public string Uri { get; set; }
-
-        [JsonProperty("status")]
-        public string Status { get; set; }
-
-        [JsonProperty("updatedAt")]
-        public string UpdatedAt { get; set; }
-
-        [JsonProperty("version")]
-        public long Version { get; set; }
     }
 }

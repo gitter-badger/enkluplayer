@@ -198,7 +198,7 @@ namespace CreateAR.EnkluPlayer
                 return token;
             }
 
-            var url = _http.Urls.Url(PrepUri(script.Uri));
+            var url = PrepUri(script.Uri);
 
             Log.Info(this, "Downloading script at {0}.", url);
             

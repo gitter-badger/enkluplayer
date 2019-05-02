@@ -151,7 +151,7 @@ namespace CreateAR.EnkluPlayer.Editor
             var formatter = new UrlFormatter();
             formatter.FromUrl(env.TrellisUrl);
 
-            Http.Urls.Register("trellis", formatter);
+            Http.Services.Register("trellis", formatter);
 
             var credentials = Config.Credentials;
             if (null != credentials)
@@ -165,7 +165,7 @@ namespace CreateAR.EnkluPlayer.Editor
         /// </summary>
         private static void SetAuthenticationHeader(string token)
         {
-            Http.Headers["Authorization"] = string.Format("Bearer {0}", token);
+            Http.Services.AddHeader("trellis", "Authorization", string.Format("Bearer {0}", token));
         }
     }
 }

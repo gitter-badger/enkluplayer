@@ -30,10 +30,10 @@ namespace CreateAR.EnkluPlayer
         {
             var token = new AsyncToken<Void>();
 
-            var url = _http.Urls.Url(string.Format(
+            var url = string.Format(
                 "trellis://editor/app/{0}/scene/{1}",
                 appId,
-                sceneId));
+                sceneId);
 
             _http
                 .Put<ElementTxnResponse>(

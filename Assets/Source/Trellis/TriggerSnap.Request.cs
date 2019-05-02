@@ -16,5 +16,13 @@ namespace CreateAR.Trellis.Messages.TriggerSnap
 
     public partial class Request
     {
+        [JsonProperty("tag")]
+        public string Tag { get; set; }
+
+        [JsonProperty("sessionId")]
+        public string SessionId { get; set; }
+
+        [JsonProperty("userId")]
+        public string UserId { get; set; }
     }
 }
