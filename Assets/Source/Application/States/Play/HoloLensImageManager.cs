@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.EnkluPlayer.Player.Session;
 using CreateAR.Trellis.Messages.CreateSnap;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IImageCapture _imageCapture;
         private readonly IHttpService _http;
         private readonly IBootstrapper _bootstrapper;
+        private readonly IPlayerSessionController _sessions;
         private readonly UserPreferenceService _preferences;
 
         /// <summary>
@@ -79,12 +81,14 @@ namespace CreateAR.EnkluPlayer
             IImageCapture imageCapture, 
             IHttpService http,
             IBootstrapper bootstrapper,
+            IPlayerSessionController sessions,
             UserPreferenceService preferences,
             ApplicationConfig applicationConfig)
         {
             _imageCapture = imageCapture;
             _http = http;
             _bootstrapper = bootstrapper;
+            _sessions = sessions;
             _preferences = preferences;
             _snapConfig = applicationConfig.Snap;
 
@@ -208,13 +212,17 @@ namespace CreateAR.EnkluPlayer
             
             try
             {
+                var session = _sessions.CurrentSession;
+                var userId = null != session ? session.UserId : "";
+                var sessionId = null != session ? session.SessionId : "";
+
                 var filename = filepath.Substring(filepath.LastIndexOf("\\") + 1);
-                var url = _http.Urls.Url(string.Format("/org/{0}/snap/gamma", _orgId));
+                var url = _http.Services.Urls.Url("trellis://" + string.Format("/org/{0}/snap/gamma", _orgId));
                     
                 Log.Info(this, "Uploading {0} to {1}", filepath, url);
 
                 var httpClient = new HttpClient();
-                foreach (var kvp in _http.Headers)
+                foreach (var kvp in _http.Services.GetHeaders("trellis"))
                 {
                     httpClient.DefaultRequestHeaders.Add(kvp.Key, kvp.Value);
                 }
@@ -224,6 +232,20 @@ namespace CreateAR.EnkluPlayer
                 var contentType = new MediaTypeHeaderValue("multipart/form-data");
                 contentType.Parameters.Add(new NameValueHeaderValue("boundary", "Boundary7MA4YWxkTrZu0gW"));
                 form.Headers.ContentType = contentType;
+
+                var userContent = new StringContent(userId);
+                userContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "\"userId\"",
+                };
+                form.Add(userContent, "userId");
+
+                var sessionContent = new StringContent(sessionId);
+                sessionContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "\"sessionId\"",
+                };
+                form.Add(sessionContent, "sessionId");
 
                 var typeContent = new StringContent("still");
                 typeContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")

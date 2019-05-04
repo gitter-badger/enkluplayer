@@ -2,6 +2,7 @@
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.EnkluPlayer.Player.Session;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.TriggerSnap;
 using Source.Player.Scripting.Interop;
@@ -15,6 +16,11 @@ namespace CreateAR.EnkluPlayer
     [JsInterface("snaps")]
     public class SnapJsInterface
     {
+        /// <summary>
+        /// Session controller
+        /// </summary>
+        private readonly IPlayerSessionController _sessions;
+
         /// <summary>
         /// Trellis interface.
         /// </summary>
@@ -38,11 +44,13 @@ namespace CreateAR.EnkluPlayer
         public SnapJsInterface(
             IVideoManager videoManager,
             IImageManager imageManager,
+            IPlayerSessionController sessions,
             ApiController api,
             UserPreferenceService prefs)
         {
             uploader = new SnapUploader(videoManager, imageManager);
             _api = api;
+            _sessions = sessions;
             _preferences = prefs;
         }
 
@@ -108,15 +116,18 @@ namespace CreateAR.EnkluPlayer
                     // After org is known
                     getOrgToken.OnSuccess(orgId =>
                     {
-                        Log.Info(this, "Making snap request.");
+                        var session = _sessions.CurrentSession;
+                        var userId = null != session ? session.UserId : "";
+                        var sessionId = null != session ? session.SessionId : "";
+                        Log.Info(this, "Making snap request [UserId: {0}, SessionId: {1}]", userId, sessionId);
 
                         _api
                             .Snaps
                             .TriggerSnap(orgId, instanceId, new Request()
                             {
                                 Tag = tag,
-                                SessionId = "",
-                                UserId = ""
+                                SessionId = sessionId,
+                                UserId = userId
                             })
                             .OnSuccess(response =>
                             {

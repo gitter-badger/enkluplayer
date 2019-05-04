@@ -9,6 +9,7 @@ using CreateAR.EnkluPlayer.AR;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.BLE;
 using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Player.Session;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Scripting.Logging;
@@ -108,6 +109,9 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
                 binder.Bind<AwsPingController>().To<AwsPingController>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
+                binder.Bind<CreateAR.Stargazer.Messages.ApiController>()
+                      .To<CreateAR.Stargazer.Messages.ApiController>()
+                      .ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IHashProvider>().To<ShaUwpHashProvider>();
@@ -576,6 +580,11 @@ namespace CreateAR.EnkluPlayer
 #endif
             }
 
+            // Sessions
+            {
+                binder.Bind<IPlayerSessionController>().To<PlayerSessionController>().ToSingleton();
+            }
+
             // UI
             {
                 binder.Bind<IUIManager>().To<UIManager>().ToSingleton();
@@ -788,6 +797,7 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<IAppSceneManager>(),
                     binder.GetInstance<IBootstrapper>(),
+                    binder.GetInstance<IPlayerSessionController>(),
                     binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());

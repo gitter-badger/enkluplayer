@@ -3,6 +3,7 @@ using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.EnkluPlayer.Player.Session;
 using CreateAR.Trellis.Messages;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -32,6 +33,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             IMessageRouter msgRouter,
             IAppSceneManager sceneManager,
             IBootstrapper bootstrapper,
+            IPlayerSessionController sessionController,
             AwsPingController awsPingController,
             ApiController apiController,
             ApplicationConfig config)
@@ -44,6 +46,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             Instance.device = new DeviceJsApi(deviceMetaProvider, imageCapture, videoCapture);
             Instance.experiences = new ExperienceJsApi(msgRouter, bootstrapper, apiController, config);
             Instance.network = new NetworkJsApi(awsPingController);
+            Instance.session = new SessionJsApi(sessionController);
             Instance.debugRendering = new DebugRenderingJsApi();
             Instance._sceneManager = sceneManager;
 
@@ -69,6 +72,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Provides API for networking.
         /// </summary>
         public NetworkJsApi network { get; private set; }
+
+        /// <summary>
+        /// Provides API for session creation.
+        /// </summary>
+        public SessionJsApi session { get; private set; }
 
         /// <summary>
         /// Provides API for debug rendering.

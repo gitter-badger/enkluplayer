@@ -1,23 +1,34 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.Stargazer.Messages;
 using CreateAR.Stargazer.Messages.HololensMobileSignin;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CreateAR.EnkluPlayer.Player.Session
 {
     /// <summary>
     /// Controls all experience related interaction and stores current session data.
     /// </summary>
-    public class PlayerSessionController
+    public class PlayerSessionController : IPlayerSessionController
     {
-        /*
         /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
-        private readonly IBootstrapper _bootstrapper;
+        //private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Http Service used to make stargazer calls.
+        /// </summary>
+        private IHttpService _http;
 
         /// <summary>
         /// Service that reads QR codes from camera.
@@ -38,43 +49,304 @@ namespace CreateAR.EnkluPlayer.Player.Session
         /// View controller.
         /// </summary>
         private QrViewController _view;
+        
+        /// <summary>
+        /// Player session token.
+        /// </summary>
+        private AsyncToken<PlayerSession> _sessionToken;
+
+        /// <summary>
+        /// Stargazer login token.
+        /// </summary>
+        private AsyncToken<StargazerCredentials> _loginToken;
 
         /// <summary>
         /// Token returned from network.
         /// </summary>
         private IAsyncToken<HttpResponse<Response>> _holoAuthToken;
+        
+        /// <summary>
+        /// JSON serializer
+        /// </summary>
+        private JsonSerializer _json = new JsonSerializer();
 
         /// <summary>
-        /// Time at which request was sent.
+        /// The current player session.
         /// </summary>
-        private DateTime _startRequest;
-
-        /// <summary>
-        /// Internal token.
-        /// </summary>
-        private AsyncToken<CredentialsData> _loginToken;
-
-        /// <summary>
-        /// True iff login is executing.
-        /// </summary>
-        private bool _isAlive;
+        private PlayerSession _currentSession;
 
         /// <summary>
         /// UI id for QR.
         /// </summary>
         private int _qrId;
 
+        /// <summary>
+        /// The current player session.
+        /// </summary>
+        public PlayerSession CurrentSession
+        {
+            get
+            {
+                return _currentSession;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="PlayerSessionController"/> instance.
+        /// </summary>
         public PlayerSessionController(
-            IBootstrapper bootstrapper,
+            //IBootstrapper bootstrapper,
+            IHttpService http,
             IQrReaderService qr,
             IUIManager ui,
             ApiController api)
         {
-            _bootstrapper = bootstrapper;
+            //_bootstrapper = bootstrapper;
+            _http = http;
             _qr = qr;
             _ui = ui;
             _api = api;
         }
-        */
+
+        /// <inheritdoc />
+        public IAsyncToken<PlayerSession> CreateSession()
+        {
+            if (null != _sessionToken)
+            {
+                return _sessionToken.Token();
+            }
+
+            if (null != _currentSession)
+            {
+                return new AsyncToken<PlayerSession>(_currentSession);
+            }
+
+            _sessionToken = new AsyncToken<PlayerSession>();
+
+            Login()
+                .OnSuccess(creds =>
+                {
+                    // Apply Stargazer Credentials
+                    creds.Apply(_http);
+
+                    _api
+                        .Sessions
+                        .CreateSession(new Stargazer.Messages.CreateSession.Request())
+                        .OnSuccess(response =>
+                        {
+                            if (response.Payload.Success)
+                            {
+                                // Create Player Session
+                                _currentSession = new PlayerSession(creds.UserId, response.Payload.Body.SessionId);
+
+                                _sessionToken.Succeed(_currentSession);
+                            }
+                            else
+                            {
+                                var error = response.Payload.Error;
+                                Log.Warning(this, "Failed to create session: {0}", error);
+
+                                _sessionToken.Fail(new Exception(error));
+                            }
+                        })
+                        .OnFailure(_sessionToken.Fail);
+                })
+                .OnFailure(_sessionToken.Fail);
+
+            return _sessionToken.Token();
+        }
+
+        /// <inheritdoc/>
+        public void EndSession()
+        {
+            if (null != _sessionToken)
+            {
+                _sessionToken.Abort();
+                _sessionToken = null;
+            }
+
+            if (null != _loginToken)
+            {
+                _loginToken.Abort();
+                _loginToken = null;
+            }
+
+            if (null != _holoAuthToken)
+            {
+                _holoAuthToken.Abort();
+                _holoAuthToken = null;
+            }
+
+            _currentSession = null;
+            ClearHttpCredentials();
+        }
+        
+        /// <summary>
+        /// Logs into stargazer by reading a QR code.
+        /// </summary>
+        private IAsyncToken<StargazerCredentials> Login()
+        {
+            if (null != _loginToken)
+            {
+                return _loginToken.Token();
+            }
+
+            _qrId = -1;
+
+            _loginToken = new AsyncToken<StargazerCredentials>();
+            _loginToken.OnFinally(_ =>
+            {
+                _ui.Close(_qrId);
+
+                // shutdown qr
+                _qr.Stop();
+                _qr.OnRead -= Qr_OnRead;
+            });
+
+            OpenQrReader();
+
+            _qr.OnRead += Qr_OnRead;
+            _qr.Start();
+
+            return _loginToken.Token();
+        }
+
+        /// <summary>
+        /// Opens Qr reader view.
+        /// </summary>
+        private void OpenQrReader()
+        {
+            _ui
+                .Open<QrViewController>(new UIReference
+                {
+                    UIDataId = "Qr.Login"
+                }, out _qrId)
+                .OnSuccess(el =>
+                {
+                    _view = el;
+                    _view.OnConfigure += () =>
+                    {
+                        _ui.Close(_qrId);
+                    };
+                })
+                .OnFailure(ex => Log.Error(this, "Could not open Qr.Scanning : {0}.", ex));
+        }
+
+        /// <summary>
+        /// Called when the QR service reads a value.
+        /// </summary>
+        /// <param name="value">The value!</param>
+        private void Qr_OnRead(string value)
+        {
+            if (null != _holoAuthToken)
+            {
+                return;
+            }
+
+            var loginData = ParseQrLogin(value);
+            if (!IsValidLogin(loginData))
+            {
+                _view.ShowMessage("Invalid QR code. Look at HoloLogin code in mobile Enklu app.");
+
+                Log.Warning(this, "Invalid QR code value : {0}.", value);
+
+                return;
+            }
+
+            // make the call
+            _holoAuthToken = _api
+                .AuthMobileHoloLens
+                .HololensMobileSignin(new Request
+                {
+                    UserId = loginData.UserId,
+                    Code = loginData.Code
+                });
+
+            _holoAuthToken
+                // always null for retries
+                .OnFinally(_ => _holoAuthToken = null)
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        var token = response.Payload.Body.AuthToken;
+                        if (string.IsNullOrEmpty(token))
+                        {
+                            _view.ShowMessage("Could not login. Stargazer login failed. Please contact support@enklu.com if this persists.");
+                            return;
+                        }
+
+                        // Stargazer Credentials
+                        var stargazerCreds = new StargazerCredentials
+                        {
+                            UserId = loginData.UserId,
+                            Token = token
+                        };
+
+                        Log.Info(this, "HoloLogin complete.");
+
+                        _loginToken.Succeed(stargazerCreds);
+                    }
+                    else
+                    {
+                        _view.ShowMessage("Could not login. Invalid QR code. Please contact support@enklu.com if this persists.");
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not sign in with holo-code : {0}", exception);
+
+                    _view.ShowMessage("Network error. Are you sure you're connected to the Internet? Please contact support@enklu.com if this persists.");
+                });
+        }
+
+        /// <summary>
+        /// Check for a valid login data tuple
+        /// </summary>
+        private bool IsValidLogin(StargazerHoloAuthPayload loginData)
+        {
+            return null != loginData 
+               && !string.IsNullOrEmpty(loginData.UserId) 
+               && !string.IsNullOrEmpty(loginData.Code);
+        }
+
+        /// <summary>
+        /// Parses a user id and login code from Qr payload
+        /// </summary>
+        private StargazerHoloAuthPayload ParseQrLogin(string encoded)
+        {
+            var bytes = Convert.FromBase64String(encoded);
+
+            object instance;
+            _json.Deserialize(typeof(JObject), ref bytes, out instance);
+
+            var payload = (JObject) instance;
+            var version = payload.Value<int>("v");
+            var loginPayload = payload.Value<JObject>("p");
+
+            switch (version)
+            {
+                case 1: return ParseLoginV1(loginPayload);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Parses version 1 of the QR payload.
+        /// </summary>
+        private StargazerHoloAuthPayload ParseLoginV1(JObject payload)
+        {
+            return new StargazerHoloAuthPayload(payload.Value<string>("u"), payload.Value<string>("c"));
+        }
+
+        /// <summary>
+        /// Clear stargazer credentials from http service.
+        /// </summary>
+        private void ClearHttpCredentials()
+        {
+            _http.Services.Urls.Formatter("stargazer").Replacements.Remove("userId");
+            _http.Services.RemoveHeader("stargazer", "Authorization");
+        }
     }
 }
