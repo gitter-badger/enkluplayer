@@ -85,7 +85,7 @@ namespace CreateAR.EnkluPlayer
                 var cam = Camera.GetComponent<Camera>();
                 cam.backgroundColor = config.Camera.BackgroundColor;
                 cam.transform.position = config.Camera.StartingPosition;
-                cam.transform.LookAt(Vector3.zero);
+                cam.transform.forward = Vector3.forward;
 
                 var debugRenderer = FindObjectOfType<DebugRendererMonoBehaviour>();
                 debugRenderer.Enabled = config.Camera.DebugRenderingEnabled;
