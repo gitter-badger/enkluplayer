@@ -376,7 +376,21 @@ namespace RLD
         {
             Vector3 focusPoint = GetFocusPoint();
 
-            _targetTransform.position += _targetTransform.forward * zoomAmount;
+            const float max = 100f;
+            var current = _targetTransform.position;
+            var target = _targetTransform.position + _targetTransform.forward * zoomAmount;
+            var currentMag = current.magnitude;
+            var targetMag = target.magnitude;
+            if (currentMag > max)
+            {
+                // if we are already outside of the max zoom and expanding, don't do it
+                if (targetMag > currentMag)
+                {
+                    return;
+                }
+            }
+
+            _targetTransform.position = target;
             if (TargetCamera.orthographic)
             {
                 Vector3 toFocusPt = focusPoint - _targetTransform.position;
