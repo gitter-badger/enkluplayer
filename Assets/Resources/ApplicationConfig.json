@@ -1,7 +1,19 @@
 {
-    "Version": "0.1.0",
+    "Version": "0.18.3.0",
     "Log": {
-        "Level": "Info"
+        "Targets": [
+            {
+                "Target": "unity",
+                "Level": "Debug",
+                "IncludeLevel": false,
+                "IncludeTimestamp": false
+            },
+            {
+                "Target": "file",
+                "Level": "Debug",
+                "IncludeObject": true
+            }
+        ]
     },
 	"Metrics": {
 		"Enabled": false,
@@ -14,6 +26,8 @@
             {
                 "Name": "cloud",
                 "TrellisUrl": "https://cloud.enklu.com:10001/v1",
+                "MyceliumIp": "34.216.59.227",
+                "MyceliumPort": 10103,
                 "AssetsUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.bundles/",
                 "BundlesUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.bundles/",
                 "ThumbsUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.thumbs/",

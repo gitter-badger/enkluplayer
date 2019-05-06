@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using Jint;
 using Jint.Native;
 
@@ -18,9 +19,12 @@ namespace CreateAR.EnkluPlayer.Vine
         /// For creating unique ids.
         /// </summary>
         private static long IDS;
-        
+
         /// <summary>
-        /// JS engine.
+        /// JS engine
+        ///
+        /// TODO: This doesn't taken into account script debugging configuration because it
+        /// TODO: uses a regular JS Engine instead of UnityScriptingHost. TBD
         /// </summary>
         private readonly Engine _engine = new Engine(options =>
         {
@@ -29,6 +33,9 @@ namespace CreateAR.EnkluPlayer.Vine
             {
                 throw exception;
             });
+
+            options.DebugMode(false);
+            options.AllowDebuggerStatement(false);
         });
 
         /// <inheritdoc />

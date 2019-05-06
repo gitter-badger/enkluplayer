@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
-using Jint.Native;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -12,34 +11,14 @@ namespace CreateAR.EnkluPlayer.Scripting
     public class JsEventDispatcher : IJsEventDispatcher
     {
         /// <summary>
-        /// For bookkeeping.
-        /// </summary>
-        public class EventListenerRecord
-        {
-            /// <summary>
-            /// Engine that is listening.
-            /// </summary>
-            public Engine Engine;
-
-            /// <summary>
-            /// The handler.
-            /// </summary>
-            public Func<JsValue, JsValue[], JsValue> Handler;
-        }
-
-        /// <summary>
         /// Used to track events.
         /// </summary>
-        private readonly Dictionary<string, List<EventListenerRecord>> _events = new Dictionary<string, List<EventListenerRecord>>();
-        
+        private readonly Dictionary<string, List<IJsCallback>> _events = new Dictionary<string, List<IJsCallback>>();
+
         /// <inheritdoc />
-        public void on(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
+        public void on(string eventType, IJsCallback fn)
         {
-            EventList(eventType).Add(new EventListenerRecord
-            {
-                Engine = engine,
-                Handler = fn
-            });
+            EventList(eventType).Add(fn);
         }
 
         /// <inheritdoc />
@@ -49,13 +28,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void off(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
+        public void off(string eventType, IJsCallback fn)
         {
             var list = EventList(eventType);
             for (int i = 0, len = list.Count; i < len; i++)
             {
-                var record = list[i];
-                if (record.Handler == fn)
+                if (list[i] == fn)
                 {
                     list.RemoveAt(i);
 
@@ -65,7 +43,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void dispatch(string eventType, object evt = null)
+        public void dispatch(string eventType)
+        {
+            dispatch(eventType, null);
+        }
+
+        /// <inheritdoc />
+        public void dispatch(string eventType, object evt)
         {
             var list = EventList(eventType);
             var count = list.Count;
@@ -77,15 +61,18 @@ namespace CreateAR.EnkluPlayer.Scripting
             var copy = list.ToArray();
             for (var i = 0; i < count; i++)
             {
-                var record = copy[i];
+                var callback = copy[i];
 
                 try
                 {
-                    record.Handler(
-                        JsValue.FromObject(record.Engine, this),
-                        null == evt
-                            ? new JsValue[0]
-                            : new[] {JsValue.FromObject(record.Engine, evt)});
+                    if (null == evt)
+                    {
+                        callback.Apply(this);
+                    }
+                    else
+                    {
+                        callback.Apply(this, evt);
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -99,12 +86,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="eventType">The type.</param>
         /// <returns></returns>
-        private List<EventListenerRecord> EventList(string eventType)
+        private List<IJsCallback> EventList(string eventType)
         {
-            List<EventListenerRecord> list;
+            List<IJsCallback> list;
             if (!_events.TryGetValue(eventType, out list))
             {
-                list = _events[eventType] = new List<EventListenerRecord>();
+                list = _events[eventType] = new List<IJsCallback>();
             }
 
             return list;

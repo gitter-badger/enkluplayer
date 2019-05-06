@@ -2,6 +2,7 @@ using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Assets;
+using Enklu.Data;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -231,6 +232,7 @@ namespace CreateAR.EnkluPlayer
             {
                 _asset.OnLoadError -= Asset_OnLoadError;
                 _asset.OnConfigurationUpdated -= Asset_OnConfigurationUpdated;
+                _asset = null;
             }
 
             if (null != _loadToken)

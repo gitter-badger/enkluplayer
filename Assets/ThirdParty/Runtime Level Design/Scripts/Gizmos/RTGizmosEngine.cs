@@ -53,9 +53,9 @@ namespace RLD
         public int NumRenderCameras { get { return _renderCameras.Count; } }
         public SceneGizmoLookAndFeel SharedSceneGizmoLookAndFeel { get { return _sharedSceneGizmoLookAndFeel; } }
 
-        #if UNITY_EDITOR
+        //#if UNITY_EDITOR
         public EditorToolbar MainToolbar { get { return _mainToolbar; } }
-        #endif
+        //#endif
 
         public void AddRenderCamera(Camera camera)
         {

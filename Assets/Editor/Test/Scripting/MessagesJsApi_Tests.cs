@@ -2,6 +2,7 @@
 using Jint.Native;
 using NUnit.Framework;
 using System;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 
@@ -15,13 +16,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = new Engine(options => {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+            _engine = JintUtil.NewEngine(false);
 
             _engine.SetValue("require", new Func<string, JsValue>(
-                value => JsValue.FromObject(_engine, new MessagingJsInterface(new JsMessageRouter()))
+                value => JsValue.FromObject(_engine, new MessagingJsInterface(new MessageRouter(), new JsMessageRouter()))
             ));
         }
 

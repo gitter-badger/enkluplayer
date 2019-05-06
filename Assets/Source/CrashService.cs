@@ -39,9 +39,15 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Useful paths.
         /// </summary>
+        private readonly string _persistentDataPath;
         private readonly string _bootLockPath;
         private readonly string _shutdownLockPath;
         private readonly string _statsPath;
+
+        /// <summary>
+        /// Statically created device information.
+        /// </summary>
+        private readonly string _deviceInfo;
 
         /// <summary>
         /// The timer for writing to disk.
@@ -61,9 +67,17 @@ namespace CreateAR.EnkluPlayer
             _api = api;
             _stats = stats;
 
+            _persistentDataPath = UnityEngine.Application.persistentDataPath;
             _bootLockPath = GetPath("Boot.lock");
             _shutdownLockPath = GetPath("Shutdown.lock");
             _statsPath = GetPath("Stats.log");
+
+            var builder = new StringBuilder();
+            builder.AppendFormat("Id: {0}\n", SystemInfo.deviceUniqueIdentifier);
+            builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
+            builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
+            builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
+            _deviceInfo = builder.ToString();
 
             // add special crash logging for UWP
 #if NETFX_CORE
@@ -258,7 +272,7 @@ namespace CreateAR.EnkluPlayer
                     EmailAddress = _config.Debug.DumpEmail,
                     Body = dump,
                     FirstName = "",
-                    Subject = DateTime.Now.ToString(CultureInfo.InvariantCulture)
+                    Subject = "Crash: " + DateTime.Now.ToString(CultureInfo.InvariantCulture)
                 })
                 .OnSuccess(res =>
                 {
@@ -295,10 +309,7 @@ namespace CreateAR.EnkluPlayer
 
             // system
             builder.Append("### Device\n\n");
-            builder.AppendFormat("Id: {0}\n", SystemInfo.deviceUniqueIdentifier);
-            builder.AppendFormat("Name: {0}\n", SystemInfo.deviceName);
-            builder.AppendFormat("Model: {0}\n", SystemInfo.deviceModel);
-            builder.AppendFormat("Platform: {0}\n", UnityEngine.Application.platform.ToString());
+            builder.Append(_deviceInfo);
             builder.Append("\n\n");
             
             // application config
@@ -440,10 +451,10 @@ namespace CreateAR.EnkluPlayer
         /// Appends last log file.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        private static void BuildLogDump(StringBuilder builder)
+        private void BuildLogDump(StringBuilder builder)
         {
             var logPath = Path.Combine(
-                UnityEngine.Application.persistentDataPath,
+                _persistentDataPath,
                 "Application.previous.log");
             if (File.Exists(logPath))
             {
@@ -514,10 +525,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="fileName">The name of the file.</param>
         /// <returns></returns>
-        private static string GetPath(string fileName)
+        private string GetPath(string fileName)
         {
             return Path.Combine(
-                UnityEngine.Application.persistentDataPath,
+                _persistentDataPath,
                 Path.Combine(
                     "Diagnostics",
                     fileName));
@@ -526,7 +537,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Generates a unique path for a dump.
         /// </summary>
-        private static string GetUniqueDumpPath()
+        private string GetUniqueDumpPath()
         {
             return Path.Combine(
                 GetDumpFolder(),
@@ -537,10 +548,10 @@ namespace CreateAR.EnkluPlayer
         /// Retrieves the dump folder.
         /// </summary>
         /// <returns></returns>
-        private static string GetDumpFolder()
+        private string GetDumpFolder()
         {
             return Path.Combine(
-                UnityEngine.Application.persistentDataPath,
+                _persistentDataPath,
                 Path.Combine(
                     "Diagnostics",
                     "Dumps"));

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -10,10 +11,12 @@ using CreateAR.EnkluPlayer.BLE;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Scripting.Logging;
 using CreateAR.EnkluPlayer.States.HoloLogin;
 using CreateAR.EnkluPlayer.Util;
 using CreateAR.EnkluPlayer.Vine;
 using CreateAR.Trellis.Messages;
+using Enklu.Mycerializer;
 using Jint.Parser;
 using Newtonsoft.Json;
 using strange.extensions.injector.impl;
@@ -66,21 +69,17 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
 
-                // parser is async on platforms with threads
-#if UNITY_WEBGL
-                binder.Bind<IParserWorker>().To<SyncParserWorker>().ToSingleton();
-#else
-                binder.Bind<IParserWorker>().To<ThreadedParserWorker>().ToSingleton();
-#endif
-
                 // start worker
+#if UNITY_WEBGL || UNITY_EDITOR
+                binder.Bind<IParserWorker>().To<SyncParserWorker>().ToSingleton();
+
                 var worker = binder.GetInstance<IParserWorker>();
-#if NETFX_CORE
-                Windows.System.Threading.ThreadPool.RunAsync(_ => worker.Start());
-#elif UNITY_WEBGL
                 worker.Start();
 #else
-                System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
+                binder.Bind<IParserWorker>().To<ThreadedParserWorker>().ToSingleton();
+
+                var worker = binder.GetInstance<IParserWorker>();
+                ThreadHelper.SyncStart(worker.Start);
 #endif
 
                 // metrics
@@ -118,7 +117,7 @@ namespace CreateAR.EnkluPlayer
 
                 binder.Bind<ElementSchemaDefaults>().To<ElementSchemaDefaults>().ToSingleton();
                 binder.Bind<EditorSettings>().To<EditorSettings>().ToSingleton();
-                
+
                 // assets
                 {
                     binder.Bind<IScanImporter>().To<ScanImporter>().ToSingleton();
@@ -127,7 +126,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
                     binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 }
-                
+
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
                 binder.Bind<IImageLoader>().To<StandardImageLoader>().ToSingleton();
 
@@ -139,7 +138,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     binder.Bind<IGizmoManager>().To<PassthroughGizmoManager>().ToSingleton();
                 }
-                
+
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
                 binder.Bind<VineLoader>().To<VineLoader>().ToSingleton();
@@ -148,7 +147,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();
                 binder.Bind<IStorageService>().To<StorageService>().ToSingleton();
                 binder.Bind<IElementActionStrategyFactory>().To<ElementActionStrategyFactory>();
-                
+
                 binder.Bind<IElementTxnTransport>().To<HttpElementTxnTransport>();
                 binder.Bind<IAppTxnAuthenticator>().To<HttpAppTxnAuthenticator>();
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
@@ -177,7 +176,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<MessageFilter>().To<MessageFilter>().ToSingleton();
                 binder.Bind<ConnectionMessageHandler>().To<ConnectionMessageHandler>().ToSingleton();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
-                
+
                 if (config.Network.Offline)
                 {
                     binder.Bind<IConnection>().To<OfflineConnection>().ToSingleton();
@@ -185,22 +184,46 @@ namespace CreateAR.EnkluPlayer
                 }
                 else
                 {
+                    if (config.ParsedPlatform == RuntimePlatform.WebGLPlayer)
+                    {
+                        binder.Bind<IMultiplayerController>().To<WebMultiplayerController>().ToSingleton();
+                    }
+                    else
+                    {
+                        binder.Bind<IMultiplayerController>().To<MyceliumMultiplayerController>().ToSingleton();
+                    }
+
 #if UNITY_IOS || UNITY_ANDROID
-                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
-                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-#elif UNITY_WEBGL
-                    binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-#if UNITY_EDITOR
+                        binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
                         binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-#else
+                        binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
+#elif UNITY_WEBGL
+                        binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
+    #if UNITY_EDITOR
+                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+    #else
                         binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
-#endif
+    #endif
 #elif UNITY_EDITOR
-                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                        binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                        binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
+#elif UNITY_STANDALONE
+                        binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                        binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                        binder.Bind<ITcpConnectionFactory>().To<TcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<ReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<ReflectionMessageWriter>();
 #elif NETFX_CORE
-                    binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
-                    binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                        binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
+                        binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                        binder.Bind<ITcpConnectionFactory>().To<UwpTcpConnectionFactory>().ToSingleton();
+                        binder.Bind<IMessageReader>().To<UwpReflectionMessageReader>();
+                        binder.Bind<IMessageWriter>().To<UwpReflectionMessageWriter>();
 #endif
                 }
 
@@ -238,19 +261,35 @@ namespace CreateAR.EnkluPlayer
 
                 // login
                 {
-                    if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86 && UnityEngine.Application.isEditor)
+                    if (UnityEngine.Application.isEditor)
                     {
-                        binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
-                    }
-                    else if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86
-                       || config.ParsedPlatform == RuntimePlatform.WSAPlayerARM
-                       || config.ParsedPlatform == RuntimePlatform.WSAPlayerX64)
-                    {
-                        binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
+                        binder.Bind<ILoginStrategy>().To<KeyboardLoginStrategy>();
                     }
                     else
                     {
-                        binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
+                        switch (config.ParsedPlatform)
+                        {
+                            case RuntimePlatform.WSAPlayerX86:
+                            case RuntimePlatform.WSAPlayerX64:
+                            case RuntimePlatform.WSAPlayerARM:
+                            {
+                                binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
+                                break;
+                            }
+                            case RuntimePlatform.WindowsEditor:
+                            case RuntimePlatform.WindowsPlayer:
+                            case RuntimePlatform.LinuxEditor:
+                            case RuntimePlatform.LinuxPlayer:
+                            {
+                                binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
+                                break;
+                            }
+                            default:
+                            {
+                                binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -262,6 +301,7 @@ namespace CreateAR.EnkluPlayer
                         binder.Bind<MobileLoginStateFlow>().To<MobileLoginStateFlow>();
                         binder.Bind<MobileGuestStateFlow>().To<MobileGuestStateFlow>();
                         binder.Bind<WebStateFlow>().To<WebStateFlow>();
+                        binder.Bind<StandaloneStateFlow>().To<StandaloneStateFlow>();
                     }
 
                     // all states
@@ -279,14 +319,14 @@ namespace CreateAR.EnkluPlayer
                         binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
                         binder.Bind<HmdArSetupApplicationState>().To<HmdArSetupApplicationState>();
                         binder.Bind<MobileLoginStrategy>().To<MobileLoginStrategy>();
-                        binder.Bind<EditorLoginStrategy>().To<EditorLoginStrategy>();
+                        binder.Bind<KeyboardLoginStrategy>().To<KeyboardLoginStrategy>();
                         binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                         binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
                         binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                         binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                         binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
                         binder.Bind<IuxDesignerApplicationState>().To<IuxDesignerApplicationState>();
-                        
+
                         // tools
                         {
                             binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
@@ -357,8 +397,31 @@ namespace CreateAR.EnkluPlayer
                                     {
                                         binder.GetInstance<HmdStateFlow>()
                                     }));
-                                    
+
                                     break;
+                            }
+                            case RuntimePlatform.WindowsEditor:
+                            case RuntimePlatform.WindowsPlayer:
+                            case RuntimePlatform.LinuxEditor:
+                            case RuntimePlatform.LinuxPlayer:
+                            {
+                                binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
+                                    new IState[]
+                                    {
+                                        binder.GetInstance<VersionErrorApplicationState>(),
+                                        binder.GetInstance<InitializeApplicationState>(),
+                                        binder.GetInstance<LoginApplicationState>(),
+                                        binder.GetInstance<SignOutApplicationState>(),
+                                        binder.GetInstance<LoadAppApplicationState>(),
+                                        binder.GetInstance<LoadDefaultAppApplicationState>(),
+                                        binder.GetInstance<PlayApplicationState>()
+                                    },
+                                    new IStateFlow[]
+                                    {
+                                        binder.GetInstance<StandaloneStateFlow>()
+                                    }));
+
+                                break;
                             }
                             default:
                             {
@@ -373,86 +436,41 @@ namespace CreateAR.EnkluPlayer
                                     {
                                         binder.GetInstance<WebStateFlow>()
                                     }));
-                                    
+
                                     break;
                             }
                         }
                     }
                 }
-                
+
+                var services = new List<ApplicationService>();
+                services.Add(binder.GetInstance<EnvironmentUpdateService>());
+
+                // Some services we can leave out of webgl builds
+                if (!DeviceHelper.IsWebGl())
+                {
+                    services.Add(binder.GetInstance<VersioningService>());
+                    services.Add(binder.GetInstance<DeviceResourceUpdateService>());
+                    services.Add(binder.GetInstance<CommandService>());
+                    services.Add(binder.GetInstance<MetricsUpdateService>());
+                    services.Add(binder.GetInstance<DebugService>());
+                }
+
+                services.Add(binder.GetInstance<AssetUpdateService>());
+                services.Add(binder.GetInstance<ScriptUpdateService>());
+                services.Add(binder.GetInstance<ShaderUpdateService>());
+                services.Add(binder.GetInstance<SceneUpdateService>());
+                services.Add(binder.GetInstance<ElementActionHelperService>());
+                services.Add(binder.GetInstance<UserPreferenceService>());
+                services.Add(binder.GetInstance<ApplicationStateService>());
+
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<IElementTxnManager>(),
                     binder.GetInstance<MessageFilter>(),
-                    new ApplicationService[]
-                    {
-                        // Order is important.
-                        binder.GetInstance<EnvironmentUpdateService>(),
-                        binder.GetInstance<VersioningService>(),
-                        binder.GetInstance<AssetUpdateService>(),
-                        binder.GetInstance<ScriptUpdateService>(),
-                        binder.GetInstance<ShaderUpdateService>(),
-                        binder.GetInstance<SceneUpdateService>(),
-                        binder.GetInstance<ElementActionHelperService>(),
-                        binder.GetInstance<UserPreferenceService>(),
-                        binder.GetInstance<DeviceResourceUpdateService>(),
-                        binder.GetInstance<ApplicationStateService>(),
-                        binder.GetInstance<CommandService>(),
-                        binder.GetInstance<MetricsUpdateService>(),
-                        binder.GetInstance<DebugService>(),
-                    }));
+                    services.ToArray()));
                 binder.Bind<Application>().To<Application>().ToSingleton();
-            }
-        }
-
-        /// <summary>
-        /// Sets up log targets.
-        /// </summary>
-        private void SetupLogging(InjectionBinder binder, LogAppConfig config)
-        {
-            // forward logs to unity
-            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-            {
-                Level = false,
-                Timestamp = false,
-                TypeName = true
-            })
-            {
-                Filter = config.ParsedLevel
-            });
-
-            // non-webgl should log to file
-#if !UNITY_WEBGL
-            Log.AddLogTarget(new FileLogTarget(
-                new DefaultLogFormatter
-                {
-                    Level = true,
-                    Timestamp = true,
-                    TypeName = true
-                },
-                System.IO.Path.Combine(
-                    UnityEngine.Application.persistentDataPath,
-                    "Application.log"))
-            {
-                Filter = LogLevel.Debug
-            });
-#endif // UNITY_WEBGL
-
-            // non-editor builds should log to loggly
-            if (!UnityEngine.Application.isEditor)
-            {
-                binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
-
-                Log.AddLogTarget(new LogglyLogTarget(
-                    // TODO: move to config
-                    "1f0810f5-db28-4ea3-aeea-ec83d8cb3c0f",
-                    "EnkluPlayer",
-                    binder.GetInstance<ILogglyMetadataProvider>(),
-                    binder.GetInstance<IBootstrapper>())
-                {
-                    Filter = LogLevel.Error
-                });
             }
         }
 
@@ -529,7 +547,7 @@ namespace CreateAR.EnkluPlayer
             // Gesture
             {
 #if NETFX_CORE
-                binder.Bind<IGestureManager>().To<HoloLensGestureManager>().ToSingleton();          
+                binder.Bind<IGestureManager>().To<HoloLensGestureManager>().ToSingleton();
 #else
                 binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
 #endif
@@ -546,7 +564,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IVideoCapture>().To<PassthroughVideoCapture>().ToSingleton();
 #endif
             }
-            
+
             // Storage
             {
 #if NETFX_CORE
@@ -583,6 +601,8 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                     binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
                 }
+
+                binder.Bind<IMaterialManager>().To<MaterialManager>().ToSingleton();
             }
 
             // design
@@ -621,6 +641,14 @@ namespace CreateAR.EnkluPlayer
                             designer = PlayAppConfig.DesignerType.Desktop;
                             break;
                         }
+                        case RuntimePlatform.WindowsPlayer:
+                        case RuntimePlatform.WindowsEditor:
+                        case RuntimePlatform.LinuxEditor:
+                        case RuntimePlatform.LinuxPlayer:
+                        {
+                            designer = PlayAppConfig.DesignerType.Standalone;
+                            break;
+                        }
                         case RuntimePlatform.WSAPlayerX86:
                         {
                             designer = PlayAppConfig.DesignerType.Ar;
@@ -652,6 +680,11 @@ namespace CreateAR.EnkluPlayer
                         binder.Bind<IDesignController>().To<MobileDesignController>().ToSingleton();
                         break;
                     }
+                    case PlayAppConfig.DesignerType.Standalone:
+                    {
+                        binder.Bind<IDesignController>().To<StandaloneDesignController>().ToSingleton();
+                        break;
+                    }
                     case PlayAppConfig.DesignerType.None:
                     {
                         binder.Bind<IDesignController>().To<PassthroughDesignController>().ToSingleton();
@@ -681,9 +714,36 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IScriptCache>().To<DelayedScriptCache>().ToSingleton();
 #endif
                 }
-                
+
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new EnkluScriptRequireResolver(binder));
+
+                // scripting runtime -- invalid defaults to Jint
+                var scriptRuntime = config.Play.ParsedScriptRuntime;
+                if (scriptRuntime == PlayAppConfig.ScriptRuntimeType.Invalid)
+                {
+                    scriptRuntime = PlayAppConfig.ScriptRuntimeType.Jint;
+                }
+#if !UNITY_EDITOR && UNITY_WSA
+                if (scriptRuntime == PlayAppConfig.ScriptRuntimeType.Chakra)
+                {
+                    binder.Bind<IScriptRuntimeFactory>().To<ChakraScriptRuntimeFactory>().ToSingleton();
+                }
+                else if (scriptRuntime == PlayAppConfig.ScriptRuntimeType.Jint)
+                {
+                    binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
+                }
+#else
+                if (scriptRuntime != PlayAppConfig.ScriptRuntimeType.Jint)
+                {
+                    Log.Warning(this,
+                        "Script runtime '{0}' selected but incompatible with this target.",
+                        scriptRuntime);
+                }
+
+                binder.Bind<IScriptRuntimeFactory>().To<JintScriptRuntimeFactory>().ToSingleton();
+#endif
+                binder.Bind<IScriptExecutorFactory>().To<ScriptExecutorFactory>().ToSingleton();
                 binder.Bind<IElementJsCache>().To<ElementJsCache>().ToSingleton();
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
@@ -705,6 +765,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                     binder.Bind<ChecksumJsInterface>().To<ChecksumJsInterface>().ToSingleton();
                     binder.Bind<VoiceJsInterface>().To<VoiceJsInterface>().ToSingleton();
+                    binder.Bind<MultiplayerJsInterface>().To<MultiplayerJsInterface>().ToSingleton();
                 }
             }
 
@@ -719,13 +780,14 @@ namespace CreateAR.EnkluPlayer
 
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
-                
+
                 SystemJsApi.Initialize(
                     binder.GetInstance<IDeviceMetaProvider>(),
                     binder.GetInstance<IImageCapture>(),
                     binder.GetInstance<IVideoCapture>(),
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<IAppSceneManager>(),
+                    binder.GetInstance<IBootstrapper>(),
                     binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
@@ -755,6 +817,105 @@ namespace CreateAR.EnkluPlayer
             }
 
             return value;
+        }
+
+        /// <summary>
+        /// Sets up log targets.
+        /// </summary>
+        private static void SetupLogging(InjectionBinder binder, LogAppConfig config)
+        {
+            // targets!
+            foreach (var targetConfig in config.Targets)
+            {
+                try
+                {
+                    var target = Target(binder, targetConfig);
+                    if (null != target)
+                    {
+                        target.Filter = targetConfig.ParsedLevel;
+
+                        Log.AddLogTarget(target);
+                    }
+                }
+                catch
+                {
+                    // 
+                }
+            }
+
+            // Set the Orchid log adapter to passthrough to our logger.
+            Enklu.Orchid.Logging.Log.SetAdapter(new OrchidLogAdapter());
+        }
+
+        /// <summary>
+        /// Creates a log target from a target config,
+        /// </summary>
+        /// <param name="binder">IoC binder.</param>
+        /// <param name="config">The target config.</param>
+        /// <returns></returns>
+        private static ILogTarget Target(InjectionBinder binder, LogAppConfig.TargetConfig config)
+        {
+            if (!config.Enabled)
+            {
+                return null;
+            }
+
+            switch (config.Target)
+            {
+                case "unity":
+                {
+                    return new UnityLogTarget(Formatter(config));
+                }
+                case "file":
+                {
+                    return new FileLogTarget(
+                        Formatter(config),
+                        System.IO.Path.Combine(
+                            UnityEngine.Application.persistentDataPath,
+                            "Application.log"));
+                }
+                case "loggly":
+                {
+                    // do not allow loggly whilst in editor
+                    if (UnityEngine.Application.isEditor)
+                    {
+                        return null;
+                    }
+
+                    if (2 != config.Meta.Length)
+                    {
+                        throw new Exception("Loggly target must include customer token and tag in Meta");
+                    }
+
+                    binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>();
+
+                    return new LogglyLogTarget(
+                        config.Meta[0],
+                        config.Meta[1],
+                        binder.GetInstance<ILogglyMetadataProvider>(),
+                        binder.GetInstance<IBootstrapper>());
+                }
+                default:
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a formatter for a config.
+        /// </summary>
+        /// <param name="config">The config for a log target.</param>
+        /// <returns></returns>
+        private static ILogFormatter Formatter(LogAppConfig.TargetConfig config)
+        {
+            return new DefaultLogFormatter
+            {
+                Level = config.IncludeLevel,
+                ObjectToString = config.IncludeObject,
+                Timestamp = config.IncludeTimestamp,
+                TypeName = config.IncludeType
+            };
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
-using Newtonsoft.Json;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -14,10 +14,10 @@ namespace CreateAR.EnkluPlayer
         /// Creates elements.
         /// </summary>
         private readonly IElementFactory _elements;
-        
+
         /// <inheritdoc />
         public Element Element { get; private set; }
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -50,7 +50,7 @@ namespace CreateAR.EnkluPlayer
                     action.ParentId);
                 return false;
             }
-            
+
             var element = _elements.Element(new ElementDescription
             {
                 Root = new ElementRef
@@ -62,7 +62,7 @@ namespace CreateAR.EnkluPlayer
                     action.Element
                 }
             });
-            
+
             parent.AddChild(element);
 
             error = string.Empty;
@@ -94,13 +94,124 @@ namespace CreateAR.EnkluPlayer
 
         /// <inheritdoc />
         public bool ApplyUpdateAction(
+            ElementActionData action,
+            out string error)
+        {
+            LogVerbose("Apply Update Action");
+
+            // cannot delete root, so just find with ..
+            var element = Element.FindOne<Element>(".." + action.ElementId);
+            if (null == element)
+            {
+                error = string.Format(
+                    "Could not find element {0} to update it!",
+                    action.ElementId);
+                return false;
+            }
+
+            switch (action.SchemaType)
+            {
+                case ElementActionSchemaTypes.STRING:
+                {
+                    LogVerbose(
+                        "Setting [Element id={0}].strings[{1}] = {2}",
+                        action.ElementId,
+                        action.Key,
+                        action.Value);
+
+                    var prop = element.Schema.Get<string>(action.Key);
+                    prop.Value = action.Value.ToString();
+
+                    break;
+                }
+                case ElementActionSchemaTypes.INT:
+                {
+                    LogVerbose(
+                        "Setting [Element id={0}].ints[{1}] = {2}",
+                        action.ElementId,
+                        action.Key,
+                        action.Value);
+
+                    var prop = element.Schema.Get<int>(action.Key);
+                    prop.Value = (int) action.Value;
+
+                    break;
+                }
+                case ElementActionSchemaTypes.FLOAT:
+                {
+                    LogVerbose(
+                        "Setting [Element id={0}].float[{1}] = {2}",
+                        action.ElementId,
+                        action.Key,
+                        action.Value);
+
+                    var prop = element.Schema.Get<float>(action.Key);
+                    prop.Value = (float) action.Value;
+
+                    break;
+                }
+                case ElementActionSchemaTypes.BOOL:
+                {
+                    LogVerbose(
+                        "Setting [Element id={0}].bools[{1}] = {2}",
+                        action.ElementId,
+                        action.Key,
+                        action.Value);
+
+                    var prop = element.Schema.Get<bool>(action.Key);
+                    prop.Value = (bool) action.Value;
+
+                    break;
+                }
+                case ElementActionSchemaTypes.VEC3:
+                {
+                    LogVerbose(
+                        "Setting [Element id={0}].vectors[{1}] = {2}",
+                        action.ElementId,
+                        action.Key,
+                        action.Value);
+
+                    var prop = element.Schema.Get<Vec3>(action.Key);
+                    prop.Value = (Vec3) action.Value;
+
+                    break;
+                }
+                case ElementActionSchemaTypes.COL4:
+                {
+                    LogVerbose(
+                        "Setting [Element id={0}].colors[{1}] = {2}",
+                        action.ElementId,
+                        action.Key,
+                        action.Value);
+
+                    var prop = element.Schema.Get<Col4>(action.Key);
+                    prop.Value = (Col4) action.Value;
+
+                    break;
+                }
+                default:
+                {
+                    error = string.Format(
+                        "Invalid schema type '{0}'.",
+                        action.SchemaType);
+
+                    return false;
+                }
+            }
+
+            error = string.Empty;
+            return true;
+        }
+
+        /// <inheritdoc />
+        public bool ApplyUpdateAction(
             ElementActionUpdateRecord record,
             out string error)
         {
             LogVerbose("Apply Update Action");
 
             var element = record.Element;
-            
+
             switch (record.SchemaType)
             {
                 case ElementActionSchemaTypes.STRING:
@@ -112,7 +223,7 @@ namespace CreateAR.EnkluPlayer
                         record.NextValue);
 
                     var prop = element.Schema.Get<string>(record.Key);
-                    
+
                     record.PrevValue = prop.Value;
 
                     // un-escape if necessary
@@ -266,7 +377,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Verbose logging method.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

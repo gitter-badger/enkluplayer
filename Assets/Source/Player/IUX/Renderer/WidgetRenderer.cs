@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Enklu.Data;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -148,7 +149,7 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
-        /// Frame base dupdate.
+        /// Frame based update.
         /// </summary>
         protected virtual void LateUpdate()
         {

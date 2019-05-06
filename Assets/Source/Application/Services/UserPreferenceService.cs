@@ -92,6 +92,13 @@ namespace CreateAR.EnkluPlayer
                 MessageTypes.LOAD_APP,
                 message =>
                 {
+                    // check for DoNotPersist
+                    var evt = message as LoadAppEvent;
+                    if (null != evt && evt.DoNotPersist)
+                    {
+                        return;
+                    }
+
                     var appId = _config.Play.AppId;
                     var userId = _config.Network.Credentials.UserId;
 
@@ -202,6 +209,11 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IAsyncToken<string[]> GetOrgs()
         {
+            if (DeviceHelper.IsWebGl())
+            {
+                return new AsyncToken<string[]>(new string[0]);
+            }
+
             var token = new AsyncToken<string[]>();
 
             // get list of organizations

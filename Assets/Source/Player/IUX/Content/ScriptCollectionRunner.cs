@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Orchid;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -35,24 +36,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Manages scripts.
-        /// </summary>
-        private readonly IScriptManager _scripts;
-
-        /// <summary>
-        /// Resolves requires in scripts.
-        /// </summary>
-        private readonly IScriptRequireResolver _resolver;
-
-        /// <summary>
         /// Js cache.
         /// </summary>
         private readonly IElementJsCache _jsCache;
 
         /// <summary>
-        /// Creates ElementJS implementations.
+        /// Creates new <see cref="IJsExecutionContext"/> instances.
         /// </summary>
-        private readonly IElementJsFactory _elementJsFactory;
+        private readonly IScriptExecutorFactory _scriptHostFactory;
 
         /// <summary>
         /// GameObject to attach scripts to.
@@ -70,6 +61,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         private SetupState _setupState;
 
         /// <summary>
+        /// The JS Execution Context to run all element scripts.
+        /// </summary>
+        private IJsExecutionContext _jsContext;
+
+        /// <summary>
         /// Tracks js caches in use.
         /// </summary>
         private readonly List<IElementJsCache> _caches = new List<IElementJsCache>();
@@ -85,25 +81,34 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
 
         /// <summary>
-        /// Tracks hosts.
+        /// The current JS execution context to use for running element scripts.
         /// </summary>
-        private readonly List<UnityScriptingHost> _hosts = new List<UnityScriptingHost>();
+        private IJsExecutionContext JsExecutionContext
+        {
+            get
+            {
+                if (null == _jsContext)
+                {
+                    _jsContext = _scriptHostFactory.NewExecutionContext(this);
+                    _jsContext.SetValue("system", SystemJsApi.Instance);
+                    _jsContext.SetValue("app", Main.NewAppJsApi(_jsCache));
+                }
+
+                return _jsContext;
+            }
+        }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public ScriptCollectionRunner(
-            IScriptManager scripts,
-            IScriptRequireResolver resolver,
+            IScriptExecutorFactory scriptHostFactory,
             IElementJsCache jsCache,
-            IElementJsFactory elementJsFactory,
             GameObject root,
             Element element)
         {
-            _scripts = scripts;
-            _resolver = resolver;
+            _scriptHostFactory = scriptHostFactory;
             _jsCache = jsCache;
-            _elementJsFactory = elementJsFactory;
             _root = root;
             _element = element;
         }
@@ -120,7 +125,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             _setupState = SetupState.Initializing;
-            
+
             // start all vines first
             var len = scripts.Count;
             var vineSetupTokens = new List<IAsyncToken<Void>>(len);
@@ -226,11 +231,13 @@ namespace CreateAR.EnkluPlayer.Scripting
             _caches.Clear();
 
             // destroy engines
-            for (int i = 0, len = _hosts.Count; i < len; i++)
+            var disposable = _jsContext as IDisposable;
+            if (null != disposable)
             {
-                _hosts[i].Destroy();
+                disposable.Dispose();
             }
-            _hosts.Clear();
+
+            _jsContext = null;
         }
 
         /// <summary>
@@ -256,18 +263,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Log.Info(this, "RunBehavior({0}) : {1}", script.Data, script.Source);
 
-            var host = new UnityScriptingHost(
-                this,
-                _resolver,
-                _scripts);
-            host.SetValue("system", SystemJsApi.Instance);
-            host.SetValue("app", Main.NewAppJsApi(_jsCache));
-            host.SetValue("this", _jsCache.Element(_element));
             _caches.Add(_jsCache);
-            _hosts.Add(host);
 
             var component = GetBehaviorComponent();
-            component.Initialize(_jsCache, _elementJsFactory, host, script, _element);
+            component.Initialize(_jsCache, JsExecutionContext, script, _element);
             component.Configure();
             component.Enter();
         }

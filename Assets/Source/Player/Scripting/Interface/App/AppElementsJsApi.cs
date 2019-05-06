@@ -93,6 +93,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return null;
             }
 
+            parent.Element.AddChild(element);
+
             return _cache.Element(element);
         }
 

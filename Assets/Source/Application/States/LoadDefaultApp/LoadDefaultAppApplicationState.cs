@@ -50,12 +50,7 @@ namespace CreateAR.EnkluPlayer
         /// Id for loading screen.
         /// </summary>
         private int _loadingScreenId = -1;
-
-        /// <summary>
-        /// Id of error popup.
-        /// </summary>
-        private int _errorPopupId = -1;
-
+        
         /// <summary>
         /// Token for getting apps.
         /// </summary>
@@ -94,7 +89,7 @@ namespace CreateAR.EnkluPlayer
             _ui.Open<ICommonLoadingView>(new UIReference
             {
                 UIDataId = UIDataIds.LOADING
-            }, out _errorPopupId);
+            });
 
             // load preferences
             _preferences
@@ -171,8 +166,7 @@ namespace CreateAR.EnkluPlayer
                             new UIReference
                             {
                                 UIDataId = UIDataIds.ERROR
-                            },
-                            out _errorPopupId)
+                            })
                         .OnSuccess(popup =>
                         {
                             popup.Message = "Could not retrieve apps. Are you sure you're online?";

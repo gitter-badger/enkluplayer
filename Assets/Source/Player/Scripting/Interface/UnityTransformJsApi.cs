@@ -1,4 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
+using Enklu.Data;
+using Enklu.Orchid;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -77,6 +79,12 @@ namespace CreateAR.EnkluPlayer.Scripting
                 Log.Warning(this, "Attempting to set UnityTransform value");
                 //UnityTransform.localScale = new Vector3(_scale.x, _scale.y, _scale.z);
             }
+        }
+
+        /// <inheritdoc />
+        public Vec3 forward
+        {
+            get { return UnityTransform.forward.ToVec(); }
         }
 
         /// <inheritdoc />

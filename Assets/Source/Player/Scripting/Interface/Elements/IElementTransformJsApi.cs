@@ -1,4 +1,5 @@
 ﻿using System;
+using Enklu.Data;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -22,6 +23,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         Vec3 scale { get; set; }
 
+        /// <summary>
+        /// Forward.
+        /// </summary>
+        Vec3 forward { get; }
+        
         /// <summary>
         /// Returns the position of this transform relative to another entity. This value should not
         /// be cached as elements aren't guaranteed to sit under the same world anchor.

@@ -557,6 +557,11 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   CrawlFadeOutDepthScale: 5
+  TextOverlay: {fileID: 2100000, guid: 1dbd5b8dd9f40de4ebe38e166396530e, type: 2}
+  TextOccluded: {fileID: 2100000, guid: 8bd61c6277a33dc458ccb62048889288, type: 2}
+  TextHidden: {fileID: 2100000, guid: 24139216202be1a42965ba8721e74f48, type: 2}
+  ButtonOverlay: {fileID: 2100000, guid: 39e0abec46a0af64c863daed7d3011ef, type: 2}
+  ButtonOccluded: {fileID: 2100000, guid: 1f6185f197e25004eafa6369bcb23195, type: 2}
   Text: {fileID: 114448120540335030, guid: 501ef06376b78954e9f6d81bcec3af57, type: 2}
   Reticle: {fileID: 114002837979368224, guid: 11a8156d5a2eb894286737b838756e38, type: 2}
   Activator: {fileID: 114629216621896330, guid: aa4acfa93557f6b41875423ab4c10aa4,

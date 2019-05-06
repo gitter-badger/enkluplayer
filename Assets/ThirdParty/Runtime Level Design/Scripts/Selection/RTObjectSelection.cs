@@ -151,9 +151,9 @@ namespace RLD
         public bool IsObject2ObjectSnapSessionActive { get { return ActiveManipSession == ObjectSelectionManipSession.Object2ObjectSnap; } }
         public List<GameObject> SelectedObjects { get { return new List<GameObject>(_selectedObjects); } }
 
-        #if UNITY_EDITOR
+        //#if UNITY_EDITOR
         public EditorToolbar SettingsToolbar { get { return _settingsToolbar; } }
-        #endif
+        //#endif
 
         public void Initialize_SystemCall()
         {

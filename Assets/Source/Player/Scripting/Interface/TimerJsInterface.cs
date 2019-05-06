@@ -2,8 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
-using Jint;
-using Jint.Native;
+using Enklu.Orchid;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -26,14 +25,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             public readonly int Id;
 
             /// <summary>
-            /// Calling engine-- this is used for this context.
-            /// </summary>
-            public readonly Engine Engine;
-
-            /// <summary>
             /// Callback to call.
             /// </summary>
-            public readonly Func<JsValue, JsValue[], JsValue> Callback;
+            public readonly IJsCallback Callback;
 
             /// <summary>
             /// Ms to wait.
@@ -48,10 +42,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             /// <summary>
             /// Constructor.
             /// </summary>
-            public TimeoutRecord(int id, Engine engine, Func<JsValue, JsValue[], JsValue> callback, int ms)
+            public TimeoutRecord(int id, IJsCallback callback, int ms)
             {
                 Id = id;
-                Engine = engine;
                 Callback = callback;
                 Ms = ms;
             }
@@ -76,11 +69,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Records awaiting removal.
         /// </summary>
         private readonly List<int> _removeWaitList = new List<int>();
-
-        /// <summary>
-        /// Null parameters we pass to each callback.
-        /// </summary>
-        private readonly JsValue[] _nullParams = new JsValue[0];
 
         /// <summary>
         /// True iff currently working through update loop.
@@ -122,13 +110,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// This function is guaranteed to be available at any time-- even
         /// within callbacks of itself.
         /// </summary>
-        /// <param name="engine">The calling engine.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="ms">Number of milliseconds to delay.</param>
         /// <returns>An id unique to this timeout.</returns>
-        public int setTimeout(Engine engine, Func<JsValue, JsValue[], JsValue> callback, int ms)
+        public int setTimeout(IJsCallback callback, int ms)
         {
-            var record = new TimeoutRecord(IDS++, engine, callback, ms);
+            var record = new TimeoutRecord(IDS++, callback, ms);
 
             if (_isUpdating)
             {
@@ -191,9 +178,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     {
                         _records.RemoveAt(i);
 
-                        record.Callback(
-                            JsValue.FromObject(record.Engine, this),
-                            _nullParams);
+                        record.Callback.Apply(this);
                     }
                     // if the timeout is still waiting
                     else

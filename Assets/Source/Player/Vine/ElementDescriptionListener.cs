@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using ElementMap = CreateAR.Commons.Unity.DataStructures.Tuple<string, int>;
 
 namespace CreateAR.EnkluPlayer.Vine
@@ -61,7 +61,7 @@ namespace CreateAR.EnkluPlayer.Vine
         /// The root data.
         /// </summary>
         private ElementData _root;
-        
+
         /// <summary>
         /// Current attribute we're working on.
         /// </summary>
@@ -109,7 +109,7 @@ namespace CreateAR.EnkluPlayer.Vine
             {
                 throw new Exception("No root element found.");
             }
-            
+
             Description = new ElementDescription
             {
                 Elements = new[]
@@ -247,7 +247,7 @@ namespace CreateAR.EnkluPlayer.Vine
         /// <inheritdoc cref="IVineParserListener"/>
         public void ExitAttribute(VineParser.AttributeContext context)
         {
-            // 
+            //
         }
 
         /// <inheritdoc cref="IVineParserListener"/>
@@ -273,7 +273,7 @@ namespace CreateAR.EnkluPlayer.Vine
         {
             _currentAttribute.Value = context.children[context.ChildCount - 1]
                 .ToString();
-            
+
             // identify type and add to current schema
             var name = _currentAttribute.Name;
             var value = _currentAttribute.Value.Trim(' ');

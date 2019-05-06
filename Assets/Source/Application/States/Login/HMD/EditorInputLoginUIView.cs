@@ -29,11 +29,6 @@ namespace CreateAR.EnkluPlayer
         public event Action<string, string> OnSubmit;
 
         /// <summary>
-        /// Called to continue as a guest.
-        /// </summary>
-        public event Action OnContinueAsGuest;
-
-        /// <summary>
         /// Called when submit button has been pressed.
         /// </summary>
         public void Submit_OnClicked()

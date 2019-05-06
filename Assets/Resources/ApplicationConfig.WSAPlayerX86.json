@@ -1,6 +1,21 @@
 {
-	"Version": "0.17.0.0",
 	"Log": {
-		"Level": "Warning"
-	}
+        "Targets": [
+            {
+                "Target": "unity",
+                "Enabled": false
+            },
+            {
+                "Target": "file",
+                "Level": "Warning",
+                "IncludeObject": true
+            },
+            {
+            	"Target": "loggly",
+            	"Level": "Error",
+            	"IncludeObject": true,
+            	"Meta": ["1f0810f5-db28-4ea3-aeea-ec83d8cb3c0f", "EnkluPlayer"]
+            }
+        ]
+    },
 }

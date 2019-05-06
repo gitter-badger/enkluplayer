@@ -328,7 +328,7 @@ namespace RLD
         {
             return HasNoKeys() && HasNoModifiers() && HasNoMouseButtons();
         }
-
+        
         #if UNITY_EDITOR
         public void RenderEditorGUI(UnityEngine.Object undoRecordObject)
         {
@@ -431,7 +431,12 @@ namespace RLD
             }
             EditorGUILayout.EndVertical();
         }
-        #endif
+#else
+        public bool CompileFix()
+        {
+            return _staticData.CanHaveMouseButtons;
+        }
+#endif
 
         /// <summary>
         /// Checks if at least one modifier key is pressed.

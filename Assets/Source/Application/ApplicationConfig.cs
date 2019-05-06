@@ -89,7 +89,16 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-                return UnityUtil.CurrentPlatform();
+                try
+                {
+                    return (RuntimePlatform) Enum.Parse(
+                        typeof(RuntimePlatform),
+                        UnityUtil.CurrentPlatform());
+                }
+                catch
+                {
+                    return UnityEngine.Application.platform;
+                }
             }
         }
         
@@ -144,28 +153,74 @@ namespace CreateAR.EnkluPlayer
     public class LogAppConfig
     {
         /// <summary>
-        /// Log level.
+        /// Target configuration.
         /// </summary>
-        public string Level;
-
-        /// <summary>
-        /// Parsed level.
-        /// </summary>
-        [JsonIgnore]
-        public LogLevel ParsedLevel
+        public class TargetConfig
         {
-            get
+            /// <summary>
+            /// The target.
+            /// </summary>
+            public string Target;
+
+            /// <summary>
+            /// The level.
+            /// </summary>
+            public string Level;
+
+            /// <summary>
+            /// True iff target is enabled.
+            /// </summary>
+            public bool Enabled = true;
+
+            /// <summary>
+            /// Meta information.
+            /// </summary>
+            public string[] Meta = new string[0];
+
+            /// <summary>
+            /// Includes the level in logs.
+            /// </summary>
+            public bool IncludeLevel = true;
+
+            /// <summary>
+            /// Includes the timestamp in logs.
+            /// </summary>
+            public bool IncludeTimestamp = true;
+
+            /// <summary>
+            /// Includes the type in logs.
+            /// </summary>
+            public bool IncludeType = true;
+
+            /// <summary>
+            /// Includes the object in logs.
+            /// </summary>
+            public bool IncludeObject = false;
+
+            /// <summary>
+            /// Parsed level.
+            /// </summary>
+            [JsonIgnore]
+            public LogLevel ParsedLevel
             {
-                try
+                get
                 {
-                    return (LogLevel) Enum.Parse(typeof(LogLevel), Level);
-                }
-                catch
-                {
-                    return 0;
+                    try
+                    {
+                        return (LogLevel) Enum.Parse(typeof(LogLevel), Level);
+                    }
+                    catch
+                    {
+                        return 0;
+                    }
                 }
             }
         }
+
+        /// <summary>
+        /// Log targets.
+        /// </summary>
+        public TargetConfig[] Targets;
 
         /// <summary>
         /// Applies the settings from a config to this config.
@@ -173,9 +228,37 @@ namespace CreateAR.EnkluPlayer
         /// <param name="overrideConfig">The config to override with.</param>
         public void Override(LogAppConfig overrideConfig)
         {
-            if (!string.IsNullOrEmpty(overrideConfig.Level))
+            if (null == overrideConfig || null == overrideConfig.Targets)
             {
-                Level = overrideConfig.Level;
+                return;
+            }
+
+            if (null == Targets)
+            {
+                Targets = new TargetConfig[0];
+            }
+
+            for (int i = 0, ilen = overrideConfig.Targets.Length; i < ilen; i++)
+            {
+                var overrideTarget = overrideConfig.Targets[i];
+
+                var found = false;
+                for (int j = 0, jlen = Targets.Length; j < jlen; j++)
+                {
+                    var target = Targets[j];
+                    if (target.Target == overrideTarget.Target)
+                    {
+                        Targets[j] = overrideTarget;
+                        found = true;
+                    }
+                }
+
+                if (found)
+                {
+                    continue;
+                }
+
+                Targets = Targets.Add(overrideTarget);
             }
         }
     }
@@ -194,7 +277,32 @@ namespace CreateAR.EnkluPlayer
             Ar,
             Desktop,
             Mobile,
+            Standalone,
             None
+        }
+
+        /// <summary>
+        /// Enumerates all potential script runtime types.
+        /// </summary>
+        public enum ScriptRuntimeType
+        {
+            /// <summary>
+            /// Invalid Script Runtime entry.
+            /// </summary>
+            Invalid,
+
+            /// <summary>
+            /// The Jint JS runtime is available on all platforms. The Jint runtime is
+            /// especially useful for basic scripting backed by .NET logic (heavy interop).
+            /// </summary>
+            Jint,
+
+            /// <summary>
+            /// The Chakra JS runtime is available on UWP only, and leverages ChakraCore, a native
+            /// JS runtime. The Chakra runtime is especially useful with long running scripts that
+            /// are used to drive most of the scene graph logic.
+            /// </summary>
+            Chakra
         }
 
         /// <summary>
@@ -206,6 +314,11 @@ namespace CreateAR.EnkluPlayer
         /// Type of designer to use. Leave empty for application to decide.
         /// </summary>
         public string Designer;
+
+        /// <summary>
+        /// The script runtime to use. Leave empty for application to decide.
+        /// </summary>
+        public string ScriptRuntime;
 
         /// <summary>
         /// Edit or play.
@@ -257,6 +370,27 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Parses script runtime name.
+        /// </summary>
+        [JsonIgnore]
+        public ScriptRuntimeType ParsedScriptRuntime
+        {
+            get
+            {
+                try
+                {
+                    return (ScriptRuntimeType)Enum.Parse(
+                        typeof(ScriptRuntimeType),
+                        ScriptRuntime);
+                }
+                catch
+                {
+                    return ScriptRuntimeType.Invalid;
+                }
+            }
+        }
+
+        /// <summary>
         /// Overrides configuration values with passed in values.
         /// </summary>
         /// <param name="overrideConfig">Override config.</param>
@@ -270,6 +404,11 @@ namespace CreateAR.EnkluPlayer
             if (!string.IsNullOrEmpty(overrideConfig.Designer))
             {
                 Designer = overrideConfig.Designer;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.ScriptRuntime))
+            {
+                ScriptRuntime = overrideConfig.ScriptRuntime;
             }
 
             if (overrideConfig.PeriodicUpdates)
@@ -342,7 +481,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// How long to wait before loading from disk. 0 - Off.
         /// </summary>
-        public float DiskFallbackSecs = 0;
+        public float DiskFallbackSecs = 5f;
 
         /// <summary>
         /// Current environment we should connect to.
@@ -358,6 +497,30 @@ namespace CreateAR.EnkluPlayer
         /// List of environments.
         /// </summary>
         public CredentialsData[] AllCredentials = new CredentialsData[0];
+
+        /// <summary>
+        /// Log level.
+        /// </summary>
+        public string LogLevel;
+
+        /// <summary>
+        /// Parsed level.
+        /// </summary>
+        [JsonIgnore]
+        public LogLevel ParsedLogLevel
+        {
+            get
+            {
+                try
+                {
+                    return (LogLevel) Enum.Parse(typeof(LogLevel), LogLevel);
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
 
         /// <summary>
         /// Retrieves the current environment.
@@ -483,6 +646,11 @@ namespace CreateAR.EnkluPlayer
                 DiskFallbackSecs = overrideConfig.DiskFallbackSecs;
             }
 
+            if (!string.IsNullOrEmpty(overrideConfig.LogLevel))
+            {
+                LogLevel = overrideConfig.LogLevel;
+            }
+
             Offline = overrideConfig.Offline;
 
             // combine arrays
@@ -532,13 +700,25 @@ namespace CreateAR.EnkluPlayer
         public string AnchorsUrl = "localhost";
 
         /// <summary>
+        /// Url for Mycelium.
+        /// </summary>
+        public string MyceliumIp = "34.216.59.227";
+
+        /// <summary>
+        /// Url for Mycelium.
+        /// </summary>
+        public int MyceliumPort = 10103;
+
+        /// <summary>
         /// Useful ToString.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}, ScriptsUrl={4}, AnchorsUrl={5}]",
+            return string.Format("[EnvironmentData TrellisUrl={0}, MyceliumUrl={1}:{2}, AssetsUrl={3}, BundlesUrl={4}, ThumbsUrl={5}, ScriptsUrl={6}, AnchorsUrl={7}]",
                 TrellisUrl,
+                MyceliumIp,
+                MyceliumPort,
                 AssetsUrl,
                 BundlesUrl,
                 ThumbsUrl,
@@ -804,6 +984,11 @@ namespace CreateAR.EnkluPlayer
         /// Email address to send debug dumps.
         /// </summary>
         public string DumpEmail = "";
+        
+        /// <summary>
+        /// If true, the scripting engine will enable debugging.
+        /// </summary>
+        public bool EnableScriptDebugging = false;
 
         /// <summary>
         /// Overrides settings.
@@ -819,6 +1004,11 @@ namespace CreateAR.EnkluPlayer
             if (config.DisableAdminLock)
             {
                 DisableAdminLock = true;
+            }
+
+            if (config.EnableScriptDebugging)
+            {
+                EnableScriptDebugging = true;
             }
 
             if (!string.IsNullOrEmpty(config.DumpEmail))

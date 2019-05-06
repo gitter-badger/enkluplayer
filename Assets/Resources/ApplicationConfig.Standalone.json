@@ -1,0 +1,23 @@
+{
+	"Version": "0.19.7",
+	"Log": {
+        "Targets": [
+            {
+                "Target": "unity",
+                "Enabled": false
+            },
+            {
+                "Target": "file",
+                "Level": "Debug",
+                "Enabled": true,
+                "IncludeLevel": true,
+                "IncludeTimestamp": true,
+                "IncludeType": true,
+                "IncludeObject": true
+            }
+        ]
+    },
+    "Metrics": {
+        "Enabled": false
+    }
+}

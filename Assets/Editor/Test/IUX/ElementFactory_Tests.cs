@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
+using Enklu.Data;
 using NUnit.Framework;
 
 namespace CreateAR.EnkluPlayer.Test.UI

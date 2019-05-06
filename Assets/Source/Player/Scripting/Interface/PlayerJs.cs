@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using Enklu.Orchid;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Represents the user, for JsApi libraries to tie into. Currently not exported for scripts to use.
     /// </summary>
+    [JsDeclaredOnly]
     public class PlayerJs : InjectableMonoBehaviour, IEntityJs
     {
         /// <summary>

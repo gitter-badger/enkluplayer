@@ -14,10 +14,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = new Engine(options => {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+            _engine = JintUtil.NewEngine(false);
 
             _element = new ElementJs(null, null, new Element());
             _engine.SetValue("element", _element);
@@ -33,7 +30,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             Assert.AreEqual(12, output.AsNumber());
         }
-        
+
         [Test]
         public void GetSetString()
         {
@@ -44,7 +41,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             Assert.AreEqual("bar", output.AsString());
         }
-        
+
         [Test]
         public void GetSetBool()
         {

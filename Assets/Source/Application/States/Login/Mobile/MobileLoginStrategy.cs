@@ -24,11 +24,6 @@ namespace CreateAR.EnkluPlayer
         /// Login view.
         /// </summary>
         private InputLoginUIView _loginView;
-
-        /// <summary>
-        /// Signup view.
-        /// </summary>
-        private MobileSignupUIView _signupView;
         
         /// <summary>
         /// Tracks login internally.
@@ -39,11 +34,6 @@ namespace CreateAR.EnkluPlayer
         /// Id of login view.
         /// </summary>
         private int _loginViewId = -1;
-
-        /// <summary>
-        /// Id of registration view.
-        /// </summary>
-        private int _registrationViewId = -1;
         
         /// <summary>
         /// Constructor.
@@ -75,30 +65,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void OpenRegistration()
         {
-            if (!_ui.Reveal(_registrationViewId))
-            {
-                _ui
-                    .Open<MobileSignupUIView>(new UIReference
-                    {
-                        UIDataId = "Signup"
-                    }, out _registrationViewId)
-                    .OnSuccess(el =>
-                    {
-                        _signupView = el;
-                        _signupView.OnSubmit += SignUp_OnSubmit;
-                        _signupView.OnLicenseInfo += SignUp_OnLicenseInfo;
-                        _signupView.OnLogin += OpenLogin;
-                        _signupView.OnContinueAsGuest += ContinueAsGuest;
-                    })
-                    .OnFailure(exception => Log.Error(this, "Could not open mobile signup view."));
-            }
-        }
-
-        /// <summary>
-        /// Opens login view.
-        /// </summary>
-        private void OpenLogin()
-        {
             if (!_ui.Reveal(_loginViewId))
             {
                 _ui
@@ -110,22 +76,9 @@ namespace CreateAR.EnkluPlayer
                     {
                         _loginView = el;
                         _loginView.OnSubmit += Login_OnSubmit;
-                        _loginView.OnSignUp += OpenRegistration;
-                        _loginView.OnContinueAsGuest += ContinueAsGuest;
                     })
-                    .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));   
+                    .OnFailure(exception => Log.Error(this, "Could not open mobile login view."));
             }
-        }
-        
-        /// <summary>
-        /// Called when user is continuing as a guest.
-        /// </summary>
-        private void ContinueAsGuest()
-        {
-            _loginToken.Succeed(new CredentialsData
-            {
-                UserId = "Guest"
-            });
         }
 
         /// <summary>
@@ -176,67 +129,6 @@ namespace CreateAR.EnkluPlayer
 
                     _loginView.Error.text = "Could not sign in. Please try again.";
                 });
-        }
-        
-        /// <summary>
-        /// Called when the signup view has called submit.
-        /// </summary>
-        /// <param name="data">The data to make the request with.</param>
-        private void SignUp_OnSubmit(MobileSignupUIView.SignupRequestData data)
-        {
-            // show loading
-            int loadingId;
-            _ui.Open<IUIElement>(new UIReference
-            {
-                UIDataId = UIDataIds.LOADING
-            }, out loadingId);
-
-            Log.Info(this, "Submit : {0}.", data.LicenseKey);
-            
-            // make request
-            _api
-                .EmailAuths
-                .EmailSignUpWithLicense(new Trellis.Messages.EmailSignUpWithLicense.Request
-                {
-                    DisplayName = data.DisplayName,
-                    Email = data.Email,
-                    LicenseKey = data.LicenseKey,
-                    Password = data.Password
-                })
-                .OnFinally(_ => _ui.Close(loadingId))
-                .OnSuccess(response =>
-                {
-                    _loginToken.Succeed(new CredentialsData
-                    {
-                        Email = data.Email,
-                        UserId = response.Payload.Body.User.Id,
-                        Token = response.Payload.Body.Token
-                    });
-                })
-                .OnFailure(exception =>
-                {
-                    _signupView.Error.text = exception.Message;
-                });
-        }
-
-        /// <summary>
-        /// Called whebn license info button is pressed.
-        /// </summary>
-        private void SignUp_OnLicenseInfo()
-        {
-            int licenseViewId;
-            _ui
-                .Open<MobileLicenseUIView>(new UIReference
-                {
-                    UIDataId = "Signup.License"
-                },
-                out licenseViewId)
-                .OnSuccess(el =>
-                {
-                    el.OnCancel += OpenRegistration;
-                    //el.OnRequest += License_OnSubmit;
-                })
-                .OnFailure(exception => Log.Error(this, "Could not open Signup.License : {0}", exception));
         }
     }
 }

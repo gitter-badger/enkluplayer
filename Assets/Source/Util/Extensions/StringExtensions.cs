@@ -1,4 +1,5 @@
 ﻿using System;
+using Random = UnityEngine.Random;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -7,6 +8,11 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// Characters.
+        /// </summary>
+        private static readonly char[] _Characters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
         /// <summary>
         /// String.Format.
         /// </summary>
@@ -44,6 +50,23 @@ namespace CreateAR.EnkluPlayer
                 hashedValue *= 3074457345618258799ul;
             }
             return hashedValue;
+        }
+
+        /// <summary>
+        /// Generates a random identifier of a specific length. Only includes
+        /// capital letters.
+        /// </summary>
+        /// <param name="len">The length of the string.</param>
+        /// <returns></returns>
+        public static string RandomIdentifier(int len)
+        {
+            var str = new char[len];
+            for (var i = 0; i < len; i++)
+            {
+                str[i] = _Characters[(int) Math.Floor(26 * Random.value)];
+            }
+
+            return new string(str);
         }
     }
 }

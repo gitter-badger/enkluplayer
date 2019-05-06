@@ -43,7 +43,7 @@ namespace CreateAR.EnkluPlayer.Editor
         /// <summary>
         /// Opens the window.
         /// </summary>
-        [MenuItem("Tools/Application Config Editor %a")]
+        [MenuItem("Tools/Application Config Editor")]
         private static void Open()
         {
             GetWindow<ApplicationConfigEditorWindow>();
@@ -121,18 +121,19 @@ namespace CreateAR.EnkluPlayer.Editor
                     WriteOverride();
                 }
 
-                var level = _config.Log.ParsedLevel;
+                var config = UnityTarget(_config);
+                var level = config.ParsedLevel;
                 var newLevel = (LogLevel) EditorGUILayout.EnumPopup(new GUIContent("Log Level"), level);
                 if (level != newLevel)
                 {
-                    _override.Log.Level = newLevel.ToString();
+                    config.Level = newLevel.ToString();
 
                     WriteOverride();
                 }
             }
             GUILayout.EndVertical();
         }
-
+        
         /// <summary>
         /// Called every frame.
         /// </summary>
@@ -201,7 +202,35 @@ namespace CreateAR.EnkluPlayer.Editor
         {
             _reload = true;
         }
-        
+
+        /// <summary>
+        /// Retrieves the log target config for the unity target.
+        /// </summary>
+        /// <param name="config">The application config.</param>
+        /// <returns></returns>
+        private static LogAppConfig.TargetConfig UnityTarget(ApplicationConfig config)
+        {
+            LogAppConfig.TargetConfig target;
+            for (int i = 0, len = config.Log.Targets.Length; i < len; i++)
+            {
+                target = config.Log.Targets[i];
+                if (target.Target == "unity")
+                {
+                    return target;
+                }
+            }
+
+            target = new LogAppConfig.TargetConfig
+            {
+                Target = "unity",
+                Level = "Debug"
+            };
+
+            config.Log.Targets = config.Log.Targets.Add(target);
+
+            return target;
+        }
+
         /// <summary>
         /// Retrieves the path to the override config.
         /// </summary>

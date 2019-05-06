@@ -1,8 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
-using Jint.Native;
+using Enklu.Orchid;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -71,41 +70,32 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Connects to Trellis.
         /// </summary>
-        public void connect(Engine engine, Func<JsValue, JsValue[], JsValue> cb)
+        public void connect(IJsCallback cb)
         {
             if (null == _connectToken)
             {
                 var env = _config.Network.Environment;
 
                 _connectToken = new AsyncToken<Void>();
-                
+
                 // connect + init txns
                 _connection
                     .Connect(env)
                     .OnSuccess(_ => _txns
                         .Initialize(new AppTxnConfiguration
-                            {
-                                AppId = _config.Play.AppId,
-                                AuthenticateTxns = true,
-                                Scenes = _scenes
-                            })
-                            .OnSuccess(_connectToken.Succeed)
-                            .OnFailure(ex =>
-                            {
-                                Log.Warning(this, "Could not initialize txn manager : {0}", ex);
-
-                                _connectToken.Fail(ex);
-                            }))
+                        {
+                            AppId = _config.Play.AppId,
+                            AuthenticateTxns = true,
+                            Scenes = _scenes
+                        })
+                        .OnSuccess(_connectToken.Succeed)
+                        .OnFailure(_connectToken.Fail))
                     .OnFailure(_connectToken.Fail);
             }
 
             _connectToken
-                .OnSuccess(_ => cb(
-                    JsValue.FromObject(engine, this),
-                    new JsValue[0]))
-                .OnFailure(ex => cb(
-                    JsValue.FromObject(engine, this),
-                    new[] { new JsValue(ex.Message) }));
+                .OnSuccess(_ => cb.Invoke())
+                .OnFailure(ex => cb.Invoke(ex.Message));
         }
     }
 }

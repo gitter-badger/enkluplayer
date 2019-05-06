@@ -1,14 +1,18 @@
 ### Overview
 
-Configuration settings are applied through the *ApplicationConfig.json* file found in *Resources/ApplicationConfig.json*. A default config is provided in the repository.
+Configuration settings are applied through the *ApplicationConfig.json* file found in *Resources/ApplicationConfig.json*. A default config is provided in the repository. These json files are composed and deserialized into a C# `ApplicationConfig` object that is then used by all the subsystems. Adding a new configuration value is easy: simply add the field to the C# object and make sure the `Override` function properly composes it.
 
 #### Platform Specific Configs
 
 Each platform has its own `ApplicationConfig` that overrides any settings in `ApplicationConfig.json`. These configs are given by `ApplicationConfig.[RuntimePlatform].json`. So, for example, both `WebGLPlayer` and `WSAPlayerX86` have separate configurations.
 
+#### Editor Override
+
+A config is also provided that is applied only in the Unity Editor: *ApplicationConfig.Editor.json*. This applied after the platform configs.
+
 #### Override
 
-You may also specify an override, called *ApplicationConfig.Override.json*, which has been added to the `.gitignore`. This file is layered on top of the platform specific config and allows you to edit config locally without worrying about it accidentally being added to version control.
+You may also specify an override, called *ApplicationConfig.Override.json*, which has been added to the `.gitignore`. This file is layered on top of all other configs and allows you to edit config locally without worrying about it accidentally being added to version control.
 
 #### Options
 
@@ -24,9 +28,24 @@ Remaining options are grouped into sub-objects.
 
 ##### Log
 
-| Name  | Default Value | Description                                          |
-| ----- | ------------- | ---------------------------------------------------- |
-| Level | Debug         | Can be set to Debug, Info, Warning, Error, or Fatal. |
+| Name    | Default Value | Description                                                  |
+| ------- | ------------- | ------------------------------------------------------------ |
+| Targets | []            | Sets configuration for each log target, given by **TargetConfig**. |
+
+**TargetConfig**
+
+| **Name**         | **Default Value** | **Description**                                              |
+| ---------------- | ----------------- | ------------------------------------------------------------ |
+| Target           | ""                | The type of log target. Supported types include "unity", "file", or "loggly". |
+| Level            | "Debug"           | The filter level of the target.                              |
+| Enabled          | true              | Enables or disables the target.                              |
+| Meta             | []                | Array of strings that are pumped into custom log targets.    |
+| IncludeLevel     | true              | If true, the log level will be output in the target.         |
+| IncludeTimestamp | true              | If true, the timestamp will be output in the target.         |
+| IncludeType      | true              | If true, the type will be output in the target.              |
+| IncludeObject    | true              | If true, the object's ToString() will be output in the target. |
+
+
 
 ##### Play
 

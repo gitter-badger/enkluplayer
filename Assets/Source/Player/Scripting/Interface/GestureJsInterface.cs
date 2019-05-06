@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using Jint.Native;
+using Enklu.Data;
 using UnityEngine;
 
-using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+using JsFunc = Enklu.Orchid.IJsCallback;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {

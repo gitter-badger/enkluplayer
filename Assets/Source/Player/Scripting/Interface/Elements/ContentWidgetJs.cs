@@ -1,4 +1,5 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
+using Enklu.Orchid;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -31,7 +32,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             get { return _contentWidget; }
         }
-        
+
         /// <summary>
         /// Backing variable.
         /// </summary>
@@ -43,7 +44,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ContentWidgetJs(
             IScriptManager scripts,
             IElementJsCache cache,
-            Element element) 
+            Element element)
             : base(scripts, cache, element)
         {
             _contentWidget = (ContentWidget) _element;
@@ -56,7 +57,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             base.Cleanup();
 
             _contentWidget.OnLoaded.Remove(CacheComponents);
-            
+
             TeardownComponents();
         }
 
@@ -66,10 +67,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         private void CacheComponents(ContentWidget contentWidget)
         {
             TeardownComponents();
-            
+
             // Animator
             var unityAnimator = contentWidget.GetComponent<Animator>();
-            if (unityAnimator != null) 
+            if (unityAnimator != null)
             {
                 var anim = new UnityAnimator(unityAnimator);
                 animator = new AnimatorJsApi(_element.Schema, anim);
@@ -79,12 +80,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 animator = null;
             }
-            
+
             // Material
             var unityRenderer = contentWidget.GetComponent<Renderer>();
             if (unityRenderer != null && unityRenderer.sharedMaterial != null)
             {
-                var renderer = new UnityRenderer(unityRenderer); 
+                var renderer = new UnityRenderer(unityRenderer);
                 material = new MaterialJsApi(_element.Schema, renderer);
                 material.Setup();
             }
@@ -116,12 +117,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 animator.Teardown();
             }
-            
+
             if (material != null)
             {
                 material.Teardown();
             }
-            
+
             if (audio != null)
             {
                 audio.Teardown();

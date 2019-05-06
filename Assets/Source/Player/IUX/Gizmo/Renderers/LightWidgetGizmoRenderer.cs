@@ -12,7 +12,6 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Props.
         /// </summary>
         private ElementSchemaProp<string> _typeProp;
-        private ElementSchemaProp<float> _pointRangeProp;
         private ElementSchemaProp<float> _spotRangeProp;
         private ElementSchemaProp<float> _angleProp;
 
@@ -30,7 +29,6 @@ namespace CreateAR.EnkluPlayer.IUX
             schema.Set("visible", true);
 
             _typeProp = schema.Get<string>("lightType");
-            _pointRangeProp = schema.Get<float>("point.range");
             _spotRangeProp = schema.Get<float>("spot.range");
             _angleProp = schema.Get<float>("spot.angle");
         }

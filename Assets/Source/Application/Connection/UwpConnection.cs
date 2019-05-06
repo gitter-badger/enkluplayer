@@ -164,6 +164,11 @@ namespace CreateAR.EnkluPlayer
 
                 UnityEngine.WSA.Application.InvokeOnAppThread(() =>
                 {
+                    if (null != OnConnected)
+                    {
+                        OnConnected();
+                    }
+
                     token.Succeed(Void.Instance);
                 }, false);
             }
