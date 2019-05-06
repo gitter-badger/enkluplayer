@@ -64,6 +64,9 @@ namespace CreateAR.EnkluPlayer
         public void OnValueChanged()
         {
             var isChecked = TransformSpace.isOn;
+
+            Log.Info(this, "OnValueChanged({0})", isChecked);
+
             RTObjectSelectionGizmos.Get.SetTransformSpace(isChecked ? GizmoSpace.Global : GizmoSpace.Local);
         }
         
