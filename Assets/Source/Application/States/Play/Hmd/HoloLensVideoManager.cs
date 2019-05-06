@@ -141,8 +141,16 @@ namespace CreateAR.EnkluPlayer
         private void ProcessUploads()
         {
             // If we're uploading, or canceled early out. The upload will reprocess upon completion.
-            if (_uploadToken != null || !_enabled)
+            if (_uploadToken != null)
             {
+                Log.Warning(this, "Attempting to upload while processing another file.");
+                return;
+            }
+
+            // Check to see if uploads are disabled
+            if (!_enabled)
+            {
+                Log.Warning(this, "Attempting to process uploads while file uploading is disabled.");
                 return;
             }
 
