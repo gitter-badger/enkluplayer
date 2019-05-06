@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Antlr4.Runtime;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Qr;
+using CreateAR.EnkluPlayer.Util;
 using CreateAR.Stargazer.Messages;
 using CreateAR.Stargazer.Messages.HololensMobileSignin;
 using Newtonsoft.Json;
@@ -194,14 +196,6 @@ namespace CreateAR.EnkluPlayer.Player.Session
             _qrId = -1;
 
             _loginToken = new AsyncToken<StargazerCredentials>();
-            _loginToken.OnFinally(_ =>
-            {
-                _ui.Close(_qrId);
-
-                // shutdown qr
-                _qr.Stop();
-                _qr.OnRead -= Qr_OnRead;
-            });
 
             OpenQrReader();
 
@@ -233,6 +227,18 @@ namespace CreateAR.EnkluPlayer.Player.Session
         }
 
         /// <summary>
+        /// Closes QR interface, stops reading from video.
+        /// </summary>
+        private void CloseQrReader()
+        {
+            _ui.Close(_qrId);
+
+            // shutdown qr
+            _qr.Stop();
+            _qr.OnRead -= Qr_OnRead;
+        }
+
+        /// <summary>
         /// Called when the QR service reads a value.
         /// </summary>
         /// <param name="value">The value!</param>
@@ -253,6 +259,9 @@ namespace CreateAR.EnkluPlayer.Player.Session
                 return;
             }
 
+            // Valid Login Data, Close QR
+            CloseQrReader();
+
             // make the call
             _holoAuthToken = _api
                 .AuthMobileHoloLens
@@ -263,8 +272,6 @@ namespace CreateAR.EnkluPlayer.Player.Session
                 });
 
             _holoAuthToken
-                // always null for retries
-                .OnFinally(_ => _holoAuthToken = null)
                 .OnSuccess(response =>
                 {
                     if (response.Payload.Success)
@@ -315,8 +322,7 @@ namespace CreateAR.EnkluPlayer.Player.Session
         /// </summary>
         private StargazerHoloAuthPayload ParseQrLogin(string encoded)
         {
-            var bytes = Convert.FromBase64String(encoded);
-
+            var bytes = Encoding.UTF8.GetBytes(encoded);
             object instance;
             _json.Deserialize(typeof(JObject), ref bytes, out instance);
 
