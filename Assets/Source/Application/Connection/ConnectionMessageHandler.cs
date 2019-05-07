@@ -265,6 +265,7 @@ namespace CreateAR.EnkluPlayer
             switch (messageType)
             {
                 case "assetcreation":
+                case "assetshared":
                 {
                     AssetData asset;
                     try
@@ -281,7 +282,7 @@ namespace CreateAR.EnkluPlayer
                     }
                     catch (Exception exception)
                     {
-                        Log.Warning(this, "Could not parse asset creation event : {0}.", exception);
+                        Log.Warning(this, "Could not parse {0} event : {1}.", messageType, exception);
                         return false;
                     }
 
