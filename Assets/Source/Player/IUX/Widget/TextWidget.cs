@@ -80,7 +80,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _fontSizeProp = Schema.Get<int>("fontSize");
             _fontSizeProp.OnChanged += FontSize_OnChanged;
 
-            _widthProp = Schema.GetOwn<float>("width", 1500);
+            _widthProp = Schema.Get<float>("width");
             _widthProp.OnChanged += Width_OnChanged;
 
             _heightProp = Schema.Get<float>("height");

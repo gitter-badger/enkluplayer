@@ -93,7 +93,7 @@ Inherits all `Button` properties.
 | ------------- | ------ | ------- | ------------------------------------------------------------ | ------- |
 | label         | string |         | Text string to render.                                       | Yes     |
 | fontSize      | int    | 0       | Size of the font.                                            | Yes     |
-| width         | float  | 0       | Width before overflow takes over.                            | Yes     |
+| width         | float  | 1500    | Width before overflow takes over.                            | Yes     |
 | alignment     | string |         | Determines how text is aligned within width (MidRight, MidCenter, MidLeft, TopRight, TopCenter, TopLeft, BotRight, BotCenter, BotLeft). | Yes     |
 | overflow      | string |         | Determines how text is laid out after width is met (Overflow or Wrap). | Yes     |
 

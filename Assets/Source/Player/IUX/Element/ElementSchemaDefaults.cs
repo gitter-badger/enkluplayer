@@ -92,7 +92,8 @@ namespace Source.Player.IUX
                 },
                 Floats = new Dictionary<string, float>
                 {
-                    { "lineSpacing", 1f }
+                    { "lineSpacing", 1f },
+                    { "width", 1500f }
                 }
             });
             _typeSchema[ElementTypes.CAPTION] = textSchema;
