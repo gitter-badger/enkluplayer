@@ -1,6 +1,6 @@
 # Overview
 
-[![CodeFactor](https://www.codefactor.io/repository/github/enklu/enkluplayer/badge)](https://www.codefactor.io/repository/github/enklu/enkluplayer)
+[![CodeFactor](https://www.codefactor.io/repository/github/enklu/enkluplayer/badge)](https://www.codefactor.io/repository/github/enklu/enkluplayer) [![Join the chat at https://gitter.im/enklu/enkluplayer](https://badges.gitter.im/enklu/enkluplayer.svg)](https://gitter.im/enklu/enkluplayer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **Enklu Player** is an Augmented Reality (AR) runtime for UWP, WebGL, Android, and iOS.
 
