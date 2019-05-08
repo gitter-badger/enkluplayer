@@ -1,5 +1,4 @@
 ﻿using System;
-using Windows.System.Update;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Player.Session;
 using Enklu.Orchid;
