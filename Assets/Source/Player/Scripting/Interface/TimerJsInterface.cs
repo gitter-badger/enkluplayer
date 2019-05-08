@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using Enklu.Orchid;
+using Enklu.Orchid.Logging;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -178,7 +179,14 @@ namespace CreateAR.EnkluPlayer.Scripting
                     {
                         _records.RemoveAt(i);
 
-                        record.Callback.Apply(this);
+                        try
+                        {
+                            record.Callback.Apply(this);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warning(this, "Could not execute timer callback: {0}.", ex);
+                        }
                     }
                     // if the timeout is still waiting
                     else
