@@ -1,10 +1,10 @@
 <?Vine>
 <Container>
 	<Screen distance=3.8>
-		<Caption position=(0, 0.4, 0) label='Please scan your HoloLogin code.' width=1200.0 alignment='MidCenter' fontSize=100 />
+		<Text position=(0, 0.4, 0) label='Please scan your HoloLogin code.' width=1200.0 alignment='MidCenter' fontSize=100 />
 		<Image id='img-qr' src='res://Art/UI/qr-frame' width=0.7 />
-		<Caption id='caption-progress' visible=false label='Placeholder' fontSize=100 width=1000.0 alignment='MidCenter' />
-		<Caption position=(0, -0.45, 0) label='Need an account? Create one at https://editor.enklu.com.' width=1500.0 alignment='MidCenter' fontSize=100 />
+		<Text id='caption-progress' visible=false label='Placeholder' fontSize=100 width=1000.0 alignment='MidCenter' />
+		<Text position=(0, -0.45, 0) label='Need an account? Create one at https://cloud.enklu.com.' width=1500.0 alignment='MidCenter' fontSize=100 />
 	</Screen>
 	<Float focus.visible=false>
 		<Button position=(0, -0.5, 0) icon='tools' />

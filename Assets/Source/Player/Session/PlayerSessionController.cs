@@ -50,7 +50,7 @@ namespace CreateAR.EnkluPlayer.Player.Session
         /// <summary>
         /// View controller.
         /// </summary>
-        private QrViewController _view;
+        private SessionQrViewController _view;
         
         /// <summary>
         /// Player session token.
@@ -81,6 +81,16 @@ namespace CreateAR.EnkluPlayer.Player.Session
         /// UI id for QR.
         /// </summary>
         private int _qrId;
+
+        /// <summary>
+        /// Dispatches whenever a new session is created.
+        /// </summary>
+        public event Action<PlayerSession> OnSessionCreated;
+
+        /// <summary>
+        /// Dispatches whenever a session ends.
+        /// </summary>
+        public event Action OnSessionEnded;
 
         /// <summary>
         /// The current player session.
@@ -142,6 +152,9 @@ namespace CreateAR.EnkluPlayer.Player.Session
                                 _currentSession = new PlayerSession(creds.UserId, response.Payload.Body.SessionId);
 
                                 _sessionToken.Succeed(_currentSession);
+
+                                // Dispatch after executing callback
+                                DispatchCreated();
                             }
                             else
                             {
@@ -161,6 +174,8 @@ namespace CreateAR.EnkluPlayer.Player.Session
         /// <inheritdoc/>
         public void EndSession()
         {
+            var isDispatch = null != _currentSession;
+
             if (null != _sessionToken)
             {
                 _sessionToken.Abort();
@@ -181,6 +196,11 @@ namespace CreateAR.EnkluPlayer.Player.Session
 
             _currentSession = null;
             ClearHttpCredentials();
+
+            if (isDispatch)
+            {
+                DispatchEnded();
+            }
         }
         
         /// <summary>
@@ -211,19 +231,15 @@ namespace CreateAR.EnkluPlayer.Player.Session
         private void OpenQrReader()
         {
             _ui
-                .Open<QrViewController>(new UIReference
+                .Open<SessionQrViewController>(new UIReference
                 {
-                    UIDataId = "Qr.Login"
+                    UIDataId = "Qr.Session"
                 }, out _qrId)
                 .OnSuccess(el =>
                 {
                     _view = el;
-                    _view.OnConfigure += () =>
-                    {
-                        _ui.Close(_qrId);
-                    };
                 })
-                .OnFailure(ex => Log.Error(this, "Could not open Qr.Scanning : {0}.", ex));
+                .OnFailure(ex => Log.Error(this, "Could not open Qr.Session : {0}.", ex));
         }
 
         /// <summary>
@@ -252,7 +268,7 @@ namespace CreateAR.EnkluPlayer.Player.Session
             var loginData = ParseQrLogin(value);
             if (!IsValidLogin(loginData))
             {
-                _view.ShowMessage("Invalid QR code. Look at HoloLogin code in mobile Enklu app.");
+                _view.ShowMessage("Invalid QR code. Look at QR code in Enklu mobile app.");
 
                 Log.Warning(this, "Invalid QR code value : {0}.", value);
 
@@ -280,6 +296,7 @@ namespace CreateAR.EnkluPlayer.Player.Session
                         if (string.IsNullOrEmpty(token))
                         {
                             _view.ShowMessage("Could not login. Stargazer login failed. Please contact support@enklu.com if this persists.");
+                            _loginToken.Fail(new Exception("Null token"));
                             return;
                         }
 
@@ -290,20 +307,22 @@ namespace CreateAR.EnkluPlayer.Player.Session
                             Token = token
                         };
 
-                        Log.Info(this, "HoloLogin complete.");
+                        Log.Info(this, "Stargazer QR Login complete: {0}, {1}", loginData.UserId, token);
 
                         _loginToken.Succeed(stargazerCreds);
                     }
                     else
                     {
                         _view.ShowMessage("Could not login. Invalid QR code. Please contact support@enklu.com if this persists.");
+                        _loginToken.Fail(new Exception("Failed to login with QR data."));
                     }
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not sign in with holo-code : {0}", exception);
+                    Log.Error(this, "Could not sign into stargazer with QR code: {0}", exception);
 
                     _view.ShowMessage("Network error. Are you sure you're connected to the Internet? Please contact support@enklu.com if this persists.");
+                    _loginToken.Fail(exception);
                 });
         }
 
@@ -353,6 +372,28 @@ namespace CreateAR.EnkluPlayer.Player.Session
         {
             _http.Services.Urls.Formatter("stargazer").Replacements.Remove("userId");
             _http.Services.RemoveHeader("stargazer", "Authorization");
+        }
+
+        /// <summary>
+        /// Dispatch session created.
+        /// </summary>
+        private void DispatchCreated()
+        {
+            if (null != OnSessionCreated)
+            {
+                OnSessionCreated(_currentSession);
+            }
+        }
+
+        /// <summary>
+        /// Dispatch session ended.
+        /// </summary>
+        private void DispatchEnded()
+        {
+            if (null != OnSessionEnded)
+            {
+                OnSessionEnded();
+            }
         }
     }
 }

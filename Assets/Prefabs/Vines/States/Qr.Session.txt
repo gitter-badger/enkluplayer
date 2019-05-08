@@ -1,0 +1,8 @@
+﻿<?Vine>
+
+<Screen distance=3.8>
+	<Text position=(0, 0.4, 0) label='Use QR code from Enklu Mobile app.' width=1200.0 alignment='MidCenter' fontSize=100 />
+	<Image id='img-qr' src='res://Art/UI/qr-frame' width=0.5 />
+	<Text id='caption-progress' visible=false label='Placeholder' fontSize=100 width=1000.0 alignment='MidCenter' />
+	<Text position=(0, -0.45, 0) label='Need the app? Search for "Enklu" in the App Store.' width=1500.0 alignment='MidCenter' fontSize=100 />
+</Screen>
